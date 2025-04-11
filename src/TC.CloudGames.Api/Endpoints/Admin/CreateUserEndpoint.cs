@@ -13,10 +13,6 @@ namespace TC.CloudGames.Api.Endpoints.Admin
 
         public override Task<RegisterResponse> ExecuteAsync(RegisterRequest req, CancellationToken ct)
         {
-            /*
-             * Create any business logic here
-             */
-
             var response = new RegisterResponse(Guid.NewGuid().ToString(), req.Name, req.Email, req.Role);
             return Task.FromResult(response);
         }
