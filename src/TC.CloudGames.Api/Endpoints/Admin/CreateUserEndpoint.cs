@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace TC.CloudGames.Api.Endpoints.Admin
 {
-    public sealed class CreateUserEndpoint : Endpoint<RegisterRequest, List<RegisterResponse>>
+    public sealed class CreateUserEndpoint : Endpoint<RegisterRequest, RegisterResponse>
     {
         public override void Configure()
         {
@@ -11,14 +11,13 @@ namespace TC.CloudGames.Api.Endpoints.Admin
             Post("identity/register");
         }
 
-        public override Task<List<RegisterResponse>> ExecuteAsync(RegisterRequest req, CancellationToken ct)
+        public override Task<RegisterResponse> ExecuteAsync(RegisterRequest req, CancellationToken ct)
         {
             /*
              * Create any business logic here
              */
 
-            //var user = new UserDto(Guid.NewGuid().ToString(), req.Name, req.Email, req.Role);
-            var response = new List<RegisterResponse> { new(Guid.NewGuid().ToString(), req.Name, req.Email, req.Role), new(Guid.NewGuid().ToString(), req.Name, req.Email, req.Role) };
+            var response = new RegisterResponse(Guid.NewGuid().ToString(), req.Name, req.Email, req.Role);
             return Task.FromResult(response);
         }
     }
