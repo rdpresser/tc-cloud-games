@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Api", "src\TC.CloudGames.Api\TC.CloudGames.Api.csproj", "{AC5A5F83-B40A-49F6-B687-689E2F6DDBB9}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{4BE74EE1-B5C8-4AF3-8024-5F60C13EC1BD}"
@@ -25,20 +23,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Api", "2 - Api", "{344E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Domain", "src\TC.CloudGames.Domain\TC.CloudGames.Domain.csproj", "{D80358C4-F563-4CD0-8684-19A607920300}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Api", "src\TC.CloudGames.Api\TC.CloudGames.Api.csproj", "{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AC5A5F83-B40A-49F6-B687-689E2F6DDBB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC5A5F83-B40A-49F6-B687-689E2F6DDBB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC5A5F83-B40A-49F6-B687-689E2F6DDBB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC5A5F83-B40A-49F6-B687-689E2F6DDBB9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D80358C4-F563-4CD0-8684-19A607920300}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D80358C4-F563-4CD0-8684-19A607920300}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D80358C4-F563-4CD0-8684-19A607920300}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D80358C4-F563-4CD0-8684-19A607920300}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,6 +52,7 @@ Global
 		{122B4804-D1D8-420B-93EC-72978373369D} = {7661A567-5B61-430F-8E9D-AE52A41A5082}
 		{344EAFDE-2664-461A-9AD7-82468BC003FA} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{D80358C4-F563-4CD0-8684-19A607920300} = {D20616BF-F950-4E5A-B8FE-14A3BE53D049}
+		{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B} = {344EAFDE-2664-461A-9AD7-82468BC003FA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A61EC7C9-970A-4856-9FA0-A09EE45536BB}

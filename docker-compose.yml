@@ -1,6 +1,0 @@
-services:
-  tc.cloudgames.api:
-    image: ${DOCKER_REGISTRY-}tccloudgamesapi
-    build:
-      context: .
-      dockerfile: src/TC.CloudGames.Api/Dockerfile
