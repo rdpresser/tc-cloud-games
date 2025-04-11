@@ -1,0 +1,6 @@
+@TC.CloudGames.Api_HostAddress = http://localhost:5051
+
+GET {{TC.CloudGames.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
