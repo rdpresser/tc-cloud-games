@@ -17,7 +17,6 @@ namespace TC.CloudGames.Api.Endpoints.Admin
              * Create any business logic here
              */
 
-            //var user = new UserDto(Guid.NewGuid().ToString(), req.Name, req.Email, req.Role);
             var response = new List<RegisterResponse> { new(Guid.NewGuid().ToString(), req.Name, req.Email, req.Role), new(Guid.NewGuid().ToString(), req.Name, req.Email, req.Role) };
             return Task.FromResult(response);
         }
@@ -48,6 +47,4 @@ namespace TC.CloudGames.Api.Endpoints.Admin
     public record RegisterRequest(string Name, string Email, string Role);
 
     public record RegisterResponse(string Id, string Name, string Email, string Role);
-
-    public record UserDto(string Id, string Name, string Email, string Role);
 }
