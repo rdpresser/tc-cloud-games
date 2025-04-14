@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Domain", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Api", "src\TC.CloudGames.Api\TC.CloudGames.Api.csproj", "{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Application", "src\TC.CloudGames.Application\TC.CloudGames.Application.csproj", "{C71FC542-0145-4AC5-89DC-C191C78D6FD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C71FC542-0145-4AC5-89DC-C191C78D6FD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C71FC542-0145-4AC5-89DC-C191C78D6FD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C71FC542-0145-4AC5-89DC-C191C78D6FD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C71FC542-0145-4AC5-89DC-C191C78D6FD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{344EAFDE-2664-461A-9AD7-82468BC003FA} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{D80358C4-F563-4CD0-8684-19A607920300} = {D20616BF-F950-4E5A-B8FE-14A3BE53D049}
 		{96BF3638-CFA3-45DB-B9AE-AD4D5F68C70B} = {344EAFDE-2664-461A-9AD7-82468BC003FA}
+		{C71FC542-0145-4AC5-89DC-C191C78D6FD5} = {A7DC7F9D-7E43-4B1B-9816-210DF0EA6BDA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A61EC7C9-970A-4856-9FA0-A09EE45536BB}

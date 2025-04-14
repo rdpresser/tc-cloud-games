@@ -1,75 +1,57 @@
-﻿using Ardalis.Result;
-using FastEndpoints;
+﻿using FastEndpoints;
 using FluentValidation;
-using FluentValidation.Results;
 
 namespace TC.CloudGames.Api.Endpoints.Admin
 {
-    public sealed class CreateUserEndpoint : Endpoint<RegisterRequest, Result<RegisterResponse>>
+    public sealed class CreateUserEndpoint : Endpoint<RegisterRequest, RegisterResponse>
     {
         public override void Configure()
         {
             Post("identity/register");
             AllowAnonymous();
-            DontAutoSendResponse();
-            PostProcessor<ResponseSender>();   //register post processor
             Description(
                 x => x.Produces<RegisterResponse>(200) //override swagger response type for 200 ok
                       .Produces<ErrorResponse>(400));
         }
 
-        public override async Task<Result<RegisterResponse>> ExecuteAsync(RegisterRequest req, CancellationToken ct)
+        public override async Task HandleAsync(RegisterRequest req, CancellationToken ct)
         {
-            /*
-             * Create any business logic here
-             */
+            AddError(r => r.Email, "this email is already in use!");
+            AddError(r => r.Name, "you are not eligible for insurance!");
+            AddError(r => r.Name, "you are not eligible for insurance222!");
 
-            await Task.CompletedTask; //simulate async work
+            //ThrowIfAnyErrors(); // If there are errors, execution shouldn't go beyond this point
 
-            return Result<RegisterResponse>.Success(new(Guid.NewGuid(), req.Name, req.Email, req.Role));
+            //ThrowError(r => r.Email, "creating a user did not go so well!"); // Error response sent here
 
-
-            //return Result<RegisterResponse>.Invalid(
-            //    new List<ValidationError>
-            //    {
-            //        new()
-            //        {
-            //            Identifier = nameof(RegisterRequest.Email),
-            //            ErrorMessage = "I am unhappy!"
-            //        }
-            //    });
-        }
-    }
-
-    public sealed class ResponseSender : IPostProcessor<RegisterRequest, Result<RegisterResponse>>
-    {
-        public async Task PostProcessAsync(IPostProcessorContext<RegisterRequest, Result<RegisterResponse>> ctx, CancellationToken ct)
-        {
-            if (!ctx.HttpContext.ResponseStarted())
+            if (ValidationFailed)
             {
-                var result = ctx.Response!;
-
-                switch (result.Status)
-                {
-                    case ResultStatus.Ok:
-                        await ctx.HttpContext.Response.SendAsync(result.GetValue());
-
-                        break;
-
-                    case ResultStatus.Invalid:
-                        var failures = result.ValidationErrors.Select(e => new ValidationFailure(e.Identifier, e.ErrorMessage)).ToList();
-                        await ctx.HttpContext.Response.SendErrorsAsync(failures);
-
-                        break;
-                }
+                await SendErrorsAsync(cancellation: ct);
+                return;
             }
+
+            await SendAsync(new(Guid.NewGuid(), req.Name, req.Email, req.Role), cancellation: ct);
         }
+
+        //public override async Task<RegisterResponse> ExecuteAsync(RegisterRequest req, CancellationToken ct)
+        //{
+        //    AddError(r => r.Email, "this email is already in use!");
+        //    AddError(r => r.Name, "you are not eligible for insurance!");
+        //    AddError(r => r.Name, "you are not eligible for insurance222!");
+
+        //    if (ValidationFailed)
+        //    {
+        //        await SendErrorsAsync(cancellation: ct);
+        //        return default!; // Explicitly return null with null-forgiving operator to satisfy non-nullable return type
+        //    }
+
+        //    return new RegisterResponse(Guid.NewGuid(), req.Name, req.Email, req.Role);
+        //}
     }
 
-
-    public sealed class CreateUserValidator : Validator<RegisterRequest>
+    public sealed class CreateUser3Validator : Validator<RegisterRequest>
     {
-        public CreateUserValidator()
+        public CreateUser3Validator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
