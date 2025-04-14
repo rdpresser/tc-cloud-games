@@ -15,6 +15,12 @@ var app = builder.Build();
 //app.UseAuthentication();
 //app.UseAuthorization();
 
+//app.UseFastEndpoints(config =>
+//    {
+//        config.Errors.UseProblemDetails();
+//    })
+//    .UseSwaggerGen();
+
 app.UseFastEndpoints()
     .UseSwaggerGen();
 
