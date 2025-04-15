@@ -7,9 +7,13 @@ namespace TC.CloudGames.Application.Users.CreateUser
     {
         public CreateUserRequestValidador()
         {
-            RuleFor(x => x.Name)
+            RuleFor(x => x.FirstName)
                 .NotEmpty()
-                .WithMessage("Name is required.");
+                .WithMessage("First name is required.");
+
+            RuleFor(x => x.LastName)
+                .NotEmpty()
+                .WithMessage("Last name is required.");
 
             RuleFor(x => x.Email)
                 .NotEmpty()

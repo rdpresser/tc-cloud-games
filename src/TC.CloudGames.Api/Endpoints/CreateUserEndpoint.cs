@@ -4,8 +4,15 @@ using TC.CloudGames.Application.Users.CreateUser;
 
 namespace TC.CloudGames.Api.Endpoints
 {
-    public sealed class CreateUserEndpoint : Endpoint<CreateUserRequest, CreateUserResponse>
+    public sealed class CreateUserEndpoint : Endpoint<CreateUserRequest, CreateUserResponse, CreateUserMapper>
     {
+        //private readonly ICreateUserApp _createUserApp;
+        //ICreateUserApp createUserApp
+        public CreateUserEndpoint()
+        {
+            //_createUserApp = createUserApp;
+        }
+
         public override void Configure()
         {
             Post("user/register");
@@ -17,7 +24,12 @@ namespace TC.CloudGames.Api.Endpoints
 
         public override Task HandleAsync(CreateUserRequest req, CancellationToken ct)
         {
+            var entity = Map.ToEntity(req);
 
+
+
+            var response = Map.FromEntity(entity);
+            return SendAsync(response, cancellation: ct);
         }
     }
 }
