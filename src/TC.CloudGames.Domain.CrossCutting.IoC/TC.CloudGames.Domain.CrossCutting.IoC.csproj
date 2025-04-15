@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TC.CloudGames.Application\TC.CloudGames.Application.csproj" />
+    <ProjectReference Include="..\TC.CloudGames.Domain\TC.CloudGames.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

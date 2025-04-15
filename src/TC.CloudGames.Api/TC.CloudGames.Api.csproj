@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="FastEndpoints" Version="6.0.0" />
-    <PackageReference Include="FastEndpoints.Attributes" Version="6.0.0" />
     <PackageReference Include="FastEndpoints.Security" Version="6.0.0" />
     <PackageReference Include="FastEndpoints.Swagger" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
@@ -25,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TC.CloudGames.Application\TC.CloudGames.Application.csproj" />
+    <ProjectReference Include="..\TC.CloudGames.Domain.CrossCutting.IoC\TC.CloudGames.Domain.CrossCutting.IoC.csproj" />
   </ItemGroup>
 
 </Project>

@@ -11,15 +11,15 @@ internal sealed class CreateUserCommandHandler : Abstractions.Messaging.ICommand
     {
         _scopeFactory = scopeFactory;
     }
-    
+
     public async Task<Result<CreateUserResponse>> ExecuteAsync(CreateUserCommand command, CancellationToken ct)
     {
         await Task.CompletedTask; // Simulate async work
-        
+
         var mapper = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<CreateUserMapper>();
         var entity = mapper.ToEntity(command);
-        
-        
+
+
         var response = mapper.FromEntity(entity);
         return Result<CreateUserResponse>.Success(response);
     }

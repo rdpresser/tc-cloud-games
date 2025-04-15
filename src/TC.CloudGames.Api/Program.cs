@@ -1,5 +1,7 @@
 using FastEndpoints;
 using FastEndpoints.Swagger;
+using TC.CloudGames.Application.Users.CreateUser;
+using TC.CloudGames.Domain.CrossCutting.IoC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,18 +10,16 @@ builder.Services
     .SwaggerDocument();
 
 builder.Services
+    .AddDependencyInjection(builder.Configuration)
     .AddHttpClient();
+
+builder.Services
+    .AddScoped<Validator<CreateUserCommand>, CreateUserRequestValidator>();
 
 var app = builder.Build();
 
 //app.UseAuthentication();
 //app.UseAuthorization();
-
-//app.UseFastEndpoints(config =>
-//    {
-//        config.Errors.UseProblemDetails();
-//    })
-//    .UseSwaggerGen();
 
 app.UseFastEndpoints()
     .UseSwaggerGen();
