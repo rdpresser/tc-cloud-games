@@ -3,12 +3,11 @@ using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.CreateUser
 {
-    public class CreateUserMapper : Mapper<CreateUserRequest, CreateUserResponse, User>
+    public class CreateUserMapper : Mapper<CreateUserCommand, CreateUserResponse, User>
     {
-        public override User ToEntity(CreateUserRequest r)
+        public override User ToEntity(CreateUserCommand r)
         {
             return User.Create(
-                id: Guid.NewGuid(),
                 firstName: new FirstName(r.FirstName),
                 lastName: new LastName(r.LastName),
                 email: new Email(r.Email),

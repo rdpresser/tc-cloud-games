@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace TC.CloudGames.Application.Users.CreateUser
 {
-    public sealed class CreateUserRequestValidador : Validator<CreateUserRequest>
+    public sealed class CreateUserRequestValidator : Validator<CreateUserCommand>
     {
-        public CreateUserRequestValidador()
+        public CreateUserRequestValidator()
         {
             RuleFor(x => x.FirstName)
                 .NotEmpty()

@@ -18,9 +18,9 @@ namespace TC.CloudGames.Domain.User
             Role = role;
         }
 
-        public static User Create(Guid id, FirstName firstName, LastName lastName, Email email, Role role)
+        public static User Create(FirstName firstName, LastName lastName, Email email, Role role)
         {
-            var user = new User(id, firstName, lastName, email, role);
+            var user = new User(Guid.NewGuid(), firstName, lastName, email, role);
 
             /*
              * RaiseDomainEvent - Send onboarding email to the new user
