@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace TC.CloudGames.Application.Data
+namespace TC.CloudGames.Application.Abstractions.Data
 {
     public interface ISqlConnectionFactory
     {

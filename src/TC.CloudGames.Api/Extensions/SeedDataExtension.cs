@@ -1,6 +1,6 @@
 ﻿using Bogus;
 using Dapper;
-using TC.CloudGames.Application.Data;
+using TC.CloudGames.Application.Abstractions.Data;
 
 namespace TC.CloudGames.Api.Extensions
 {

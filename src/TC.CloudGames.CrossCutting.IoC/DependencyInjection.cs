@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TC.CloudGames.Application.Data;
+using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Users.CreateUser;
 using TC.CloudGames.CrossCutting.Commons.Clock;
 using TC.CloudGames.Domain.Abstractions;

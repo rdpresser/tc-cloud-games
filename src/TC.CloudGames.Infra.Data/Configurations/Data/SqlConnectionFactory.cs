@@ -1,6 +1,6 @@
 ﻿using Npgsql;
 using System.Data;
-using TC.CloudGames.Application.Data;
+using TC.CloudGames.Application.Abstractions.Data;
 
 namespace TC.CloudGames.Infra.Data.Configurations.Data
 {
