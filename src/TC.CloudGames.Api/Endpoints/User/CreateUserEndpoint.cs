@@ -3,7 +3,7 @@ using TC.CloudGames.Application.Users.CreateUser;
 
 namespace TC.CloudGames.Api.Endpoints.User
 {
-    public sealed class CreateUserEndpoint : Endpoint<CreateUserRequest, CreateUserResponse>
+    public sealed class CreateUserEndpoint : Endpoint<CreateUserCommand, CreateUserResponse, CreateUserMapper>
     {
         public override void Configure()
         {
@@ -14,16 +14,9 @@ namespace TC.CloudGames.Api.Endpoints.User
                       .Produces<ProblemDetails>(400));
         }
 
-        public override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
+        public override async Task HandleAsync(CreateUserCommand req, CancellationToken ct)
         {
-            var command = new CreateUserCommand(
-                req.FirstName,
-                req.LastName,
-                req.Email,
-                req.Password,
-                req.Role);
-
-            var response = await command.ExecuteAsync(ct: ct);
+            var response = await req.ExecuteAsync(ct: ct);
 
             if (response.IsSuccess)
             {

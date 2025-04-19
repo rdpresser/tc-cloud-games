@@ -1,9 +1,9 @@
 ﻿using FastEndpoints;
 using FluentValidation;
 
-namespace TC.CloudGames.Api.Endpoints.User
+namespace TC.CloudGames.Application.Users.CreateUser
 {
-    public sealed class CreateUserRequestValidator : Validator<CreateUserRequest>
+    public sealed class CreateUserRequestValidator : Validator<CreateUserCommand>
     {
         public CreateUserRequestValidator()
         {

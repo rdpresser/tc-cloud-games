@@ -19,9 +19,9 @@ internal sealed class CreateUserCommandHandler : Abstractions.Messaging.ICommand
 
         var entity = _mapper.ToEntity(command);
 
-        return Result<CreateUserResponse>.Error("An error occured during the execution-2");
+        //return Result<CreateUserResponse>.Error("An error occured during the execution-2");
 
-        //var response = _mapper.FromEntity(entity);
-        //return Result<CreateUserResponse>.Success(response);
+        var response = _mapper.FromEntity(entity);
+        return Result<CreateUserResponse>.Success(response);
     }
 }
