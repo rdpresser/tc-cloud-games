@@ -11,6 +11,7 @@ namespace TC.CloudGames.Application.Users.CreateUser
                 firstName: new FirstName(r.FirstName),
                 lastName: new LastName(r.LastName),
                 email: new Email(r.Email),
+                password: new Password(r.Password),
                 role: new Role(r.Role)
             );
         }

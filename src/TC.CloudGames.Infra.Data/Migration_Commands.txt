@@ -1,0 +1,51 @@
+﻿==> command to add a new migration
+Shell: dotnet ef migrations add <migration-name> -c ApplicationDbContext
+PMC: Add-Migration <migration-name> -Context ApplicationDbContext -Project ReactBank.Infra.Data -StartupProject ReactBankApp.Server
+
+==> command to remove the last migration created
+Shell: dotnet ef migrations remove -c ApplicationDbContext
+PMC: Remove-Migration -Context ApplicationDbContext -Project ReactBank.Infra.Data -StartupProject ReactBankApp.Server
+
+==> command to update the database with all pending migrations
+Shell: dotnet ef database update -c ApplicationDbContext -s ReactBankApp.Server
+PMC: Update-Database -Context ApplicationDbContext -Project ReactBank.Infra.Data -StartupProject ReactBankApp.Server
+
+==> command to remove all migrations from database but not the files from project
+Shell: dotnet ef database update 0 -c ApplicationDbContext
+PMC: Update-Database -Migration 0 -Context ApplicationDbContext -Project ReactBank.Infra.Data -StartupProject ReactBankApp.Server
+
+==> command to undo to a specific migration
+Shell: dotnet ef database update <migration-name> -c ApplicationDbContext -s ReactBankApp.Server
+PMC: Update-Database <migration-name> -Context ApplicationDbContext -Project ReactBank.Infra.Data -StartupProject ReactBankApp.Server
+
+==> command to generate the SQL Script DB for ALL database
+Shell: dotnet ef migrations script -c ApplicationDbContext | out-file ./scriptFile.sql
+PMC: Script-Migration <migration-name>
+PMC: Script-Migration -Project ReactBank.Infra.Data -StartupProject ReactBankApp.Server
+
+==>Command to revert migration with script
+Script-Migration -Project ReactBank.Infra.Data -StartupProject ReactBankApp.Server -From SeedDataBase -To 0
+
+==> command to upgrade a specific database without having to change windows environment
+PMC: $env:ASPNETCORE_ENVIRONMENT="Development"
+
+==> Command to install EF Core Migration CLI Tool
+dotnet tool install --global dotnet-ef
+
+==> Command to update EF Core Migration CLI Tool with the latest version
+dotnet tool uninstall --global dotnet-ef
+dotnet tool install --global dotnet-ef
+
+==> Command to list all dotnet Tools installed
+dotnet tool list
+
+
+****SQL Server - Docker
+==> Command to run a SQL Server on Docker
+docker run -e "ACCEPT_EULA=1" -e "MSSQL_SA_PASSWORD=MyPass@word" -e "MSSQL_PID=Developer" -e "MSSQL_USER=SA" -p 1433:1433 -d --name=sql mcr.microsoft.com/mssql/server
+
+==> Connection String => To be used on the appSettings config file
+ConnectionString
+"ConnectionStrings": {
+  "DefaultConnection": "Data Source=localhost; Initial Catalog=Developer; User Id=sa; Password=MyPass@word"
+},

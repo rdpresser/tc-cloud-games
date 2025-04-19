@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TC.CloudGames.Application\TC.CloudGames.Application.csproj" />
     <ProjectReference Include="..\TC.CloudGames.CrossCutting.IoC\TC.CloudGames.CrossCutting.IoC.csproj" />
+    <ProjectReference Include="..\TC.CloudGames.Infra.Data\TC.CloudGames.Infra.Data.csproj" />
   </ItemGroup>
 
 </Project>
