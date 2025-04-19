@@ -1,4 +1,9 @@
 ﻿namespace TC.CloudGames.Application.Users.CreateUser
 {
-    public record CreateUserResponse(Guid Id, string FirstName, string LastName, string Email, string Role);
+    public sealed record CreateUserResponse(
+        Guid Id,
+        string FirstName,
+        string LastName,
+        string Email,
+        string Role);
 }

@@ -1,26 +1,27 @@
 ﻿using Ardalis.Result;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 
 internal sealed class CreateUserCommandHandler : Abstractions.Messaging.ICommandHandler<CreateUserCommand, CreateUserResponse>
 {
-    private readonly IServiceScopeFactory _scopeFactory;
+    //private readonly IUserRepository _userRepository;
+    private readonly CreateUserMapper _mapper;
 
-    public CreateUserCommandHandler(IServiceScopeFactory scopeFactory)
+    public CreateUserCommandHandler(CreateUserMapper mapper)
     {
-        _scopeFactory = scopeFactory;
+        //_userRepository = userRepository;
+        _mapper = mapper;
     }
 
     public async Task<Result<CreateUserResponse>> ExecuteAsync(CreateUserCommand command, CancellationToken ct)
     {
         await Task.CompletedTask; // Simulate async work
 
-        var mapper = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<CreateUserMapper>();
-        var entity = mapper.ToEntity(command);
+        var entity = _mapper.ToEntity(command);
 
+        return Result<CreateUserResponse>.Error("An error occured during the execution-2");
 
-        var response = mapper.FromEntity(entity);
-        return Result<CreateUserResponse>.Success(response);
+        //var response = _mapper.FromEntity(entity);
+        //return Result<CreateUserResponse>.Success(response);
     }
 }

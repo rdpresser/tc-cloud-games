@@ -3,30 +3,36 @@ using TC.CloudGames.Application.Users.CreateUser;
 
 namespace TC.CloudGames.Api.Endpoints.User
 {
-    public sealed class CreateUserEndpoint : Endpoint<CreateUserCommand, CreateUserResponse, CreateUserMapper>
+    public sealed class CreateUserEndpoint : Endpoint<CreateUserRequest, CreateUserResponse>
     {
-        //private readonly ICreateUserApp _createUserApp;
-
-        //public CreateUserEndpoint(ICreateUserApp createUserApp)
-        //{
-        //    _createUserApp = createUserApp;
-        //}
-
         public override void Configure()
         {
             Post("user/register");
             AllowAnonymous();
             Description(
                 x => x.Produces<CreateUserResponse>(200) //override swagger response type for 200 ok
-                      .Produces<ErrorResponse>(400));
+                      .Produces<ProblemDetails>(400));
         }
 
-        public override Task HandleAsync(CreateUserCommand req, CancellationToken ct)
+        public override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
         {
-            var entity = Map.ToEntity(req);
+            var command = new CreateUserCommand(
+                req.FirstName,
+                req.LastName,
+                req.Email,
+                req.Password,
+                req.Role);
 
-            var response = Map.FromEntity(entity);
-            return SendAsync(response, cancellation: ct);
+            var response = await command.ExecuteAsync(ct: ct);
+
+            if (response.IsSuccess)
+            {
+                await SendAsync(response.Value, cancellation: ct);
+                return;
+            }
+
+            AddError(response.Errors.First());
+            await SendErrorsAsync(cancellation: ct);
         }
     }
 }

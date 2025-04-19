@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TC.CloudGames.Application.Users.CreateUser;
 
 namespace TC.CloudGames.Domain.CrossCutting.IoC
 {
@@ -14,21 +15,27 @@ namespace TC.CloudGames.Domain.CrossCutting.IoC
             return services;
         }
 
-        private static void RegisterInfra(IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection RegisterInfra(IServiceCollection services, IConfiguration configuration)
         {
             //services.AddDbContext<ApplicationDbContext>();
             //services.AddScoped<IUnitOfWork, UnitOfWork>();
             //services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
+            return services;
         }
 
-        private static void RegisterDomain(IServiceCollection services)
+        private static IServiceCollection RegisterDomain(IServiceCollection services)
         {
             //
+            return services;
         }
 
-        private static void RegisterApplication(IServiceCollection services)
+        private static IServiceCollection RegisterApplication(IServiceCollection services)
         {
             //services.AddScoped<Validator<CreateUserCommand>, CreateUserRequestValidator>();
+            services.AddSingleton(sp => new CreateUserMapper());
+
+            return services;
         }
     }
 }

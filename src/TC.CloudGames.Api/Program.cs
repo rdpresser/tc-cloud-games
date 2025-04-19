@@ -1,20 +1,26 @@
 using FastEndpoints;
 using FastEndpoints.Swagger;
-using TC.CloudGames.Application.Users.CreateUser;
+using TC.CloudGames.Application.Abstractions.Middleware;
 using TC.CloudGames.Domain.CrossCutting.IoC;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddFastEndpoints()
+    .AddFastEndpoints(dicoveryOptions =>
+    {
+        dicoveryOptions.Assemblies = [typeof(TC.CloudGames.Application.Abstractions.Messaging.ICommand<>).Assembly];
+    })
     .SwaggerDocument();
 
 builder.Services
     .AddDependencyInjection(builder.Configuration)
     .AddHttpClient();
 
-builder.Services
-    .AddScoped<Validator<CreateUserCommand>, CreateUserRequestValidator>();
+builder.Services.AddCommandMiddleware(
+    c =>
+    {
+        c.Register(typeof(CommandLogger<,>));
+    });
 
 var app = builder.Build();
 
