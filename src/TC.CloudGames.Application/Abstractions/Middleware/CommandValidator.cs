@@ -1,23 +1,29 @@
 ﻿using Ardalis.Result;
 using FastEndpoints;
-using Microsoft.Extensions.Logging;
+using FluentValidation;
 
 namespace TC.CloudGames.Application.Abstractions.Middleware
 {
-    public sealed class CommandValidator<TCommand, TResult>(ILogger<TCommand> logger, IEnumerable<FluentValidation.IValidator<TCommand>> validators) : ICommandMiddleware<TCommand, TResult>
+    public sealed class CommandValidator<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
         where TCommand : ICommand<TResult>
     {
+        private readonly IEnumerable<AbstractValidator<TCommand>> _validators;
+
+        public CommandValidator(IEnumerable<AbstractValidator<TCommand>> validators)
+        {
+            _validators = validators;
+        }
+
         public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
         {
-            if (!validators.Any())
+            if (!_validators.Any())
             {
                 return await next();
             }
-            //var context = FastEndpoints.ValidationContext<TCommand>.Instance;
-            //var context = new FluentValidation.ValidationContext<TCommand>(command);
+
             var context = new FluentValidation.ValidationContext<TCommand>(command);
 
-            var validationErrors = validators
+            var validationErrors = _validators
                 .Select(validator => validator.Validate(context))
                 .Where(validationResult => validationResult.Errors.Any())
                 .SelectMany(validationResult => validationResult.Errors)
