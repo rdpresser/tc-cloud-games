@@ -364,3 +364,5 @@ FodyWeavers.xsd
 
 # Jetbrains Rider
 .idea/
+
+.containers/

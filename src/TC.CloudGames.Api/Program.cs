@@ -1,5 +1,6 @@
 using FastEndpoints;
 using FastEndpoints.Swagger;
+using TC.CloudGames.Api.Extensions;
 using TC.CloudGames.Application.Abstractions.Middleware;
 using TC.CloudGames.CrossCutting.IoC;
 
@@ -53,8 +54,11 @@ app.UseFastEndpoints(c =>
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.ApplyMigrations();
 }
 
 app.UseHttpsRedirection();
+
+app.UseCustomExceptionHandler();
 
 app.Run();

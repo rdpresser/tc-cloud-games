@@ -1,0 +1,21 @@
+services:
+  tc.cloudgames.api:
+    image: ${DOCKER_REGISTRY-}tccloudgamesapi
+    container_name: TC.CloudGames.Api
+    build:
+      context: .
+      dockerfile: src/TC.CloudGames.Api/Dockerfile
+    depends_on:
+      - tc-cloud-games-db
+
+  tc-cloud-games-db:
+    image: postgres:latest
+    container_name: TC.CloudGames.Db
+    environment:
+      - POSTGRES_DB=tc_cloud_games
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/database:/var/lib/postgresql/data
+    ports:
+      - "5433:5433"

@@ -10,7 +10,7 @@ namespace TC.CloudGames.Application.Users.CreateUser
             return User.Create(
                 firstName: new FirstName(r.FirstName),
                 lastName: new LastName(r.LastName),
-                email: new Email(r.Email),
+                email: new Domain.User.Email(r.Email),
                 password: new Password(r.Password),
                 role: new Role(r.Role)
             );
