@@ -20,7 +20,9 @@ builder.Services
 builder.Services.AddCommandMiddleware(
     c =>
     {
-        c.Register(typeof(CommandLogger<,>));
+        c.Register(
+            typeof(CommandLogger<,>),
+            typeof(CommandValidator<,>));
     });
 
 var app = builder.Build();
