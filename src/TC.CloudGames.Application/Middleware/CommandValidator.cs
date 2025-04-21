@@ -2,7 +2,7 @@
 using FastEndpoints;
 using FluentValidation;
 
-namespace TC.CloudGames.Application.Abstractions.Middleware
+namespace TC.CloudGames.Application.Middleware
 {
     public sealed class CommandValidator<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
         where TCommand : ICommand<TResult>

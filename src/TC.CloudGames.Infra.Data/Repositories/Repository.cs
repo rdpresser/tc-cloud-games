@@ -4,7 +4,7 @@ using TC.CloudGames.Domain.Abstractions;
 namespace TC.CloudGames.Infra.Data.Repositories
 {
     public abstract class Repository<TEntity>
-        where TEntity : Entity
+            where TEntity : Entity
     {
         protected readonly ApplicationDbContext DbContext;
 
@@ -13,7 +13,7 @@ namespace TC.CloudGames.Infra.Data.Repositories
             DbContext = dbContext;
         }
 
-        public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await DbContext
                 .Set<TEntity>()

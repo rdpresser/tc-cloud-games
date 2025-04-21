@@ -1,4 +1,4 @@
-﻿namespace TC.CloudGames.Application.Email
+﻿namespace TC.CloudGames.Application.Abstractions.Email
 {
     public interface IEmailService
     {

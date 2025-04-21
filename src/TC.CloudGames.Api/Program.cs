@@ -1,7 +1,7 @@
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using TC.CloudGames.Api.Extensions;
-using TC.CloudGames.Application.Abstractions.Middleware;
+using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.CrossCutting.IoC;
 
 var builder = WebApplication.CreateBuilder(args);

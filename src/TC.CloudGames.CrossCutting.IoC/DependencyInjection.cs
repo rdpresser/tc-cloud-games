@@ -6,9 +6,11 @@ using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Users.CreateUser;
 using TC.CloudGames.CrossCutting.Commons.Clock;
 using TC.CloudGames.Domain.Abstractions;
+using TC.CloudGames.Domain.Exceptions;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.Data;
 using TC.CloudGames.Infra.Data.Configurations.Data;
+using TC.CloudGames.Infra.Data.Exceptions;
 using TC.CloudGames.Infra.Data.Repositories;
 
 namespace TC.CloudGames.CrossCutting.IoC
@@ -35,6 +37,7 @@ namespace TC.CloudGames.CrossCutting.IoC
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
+                options.EnableSensitiveDataLogging(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development");
             });
 
             services.AddScoped<IUserRepository, UserRepository>();
@@ -46,6 +49,7 @@ namespace TC.CloudGames.CrossCutting.IoC
         private static void RegisterDomain(IServiceCollection services)
         {
             //
+            services.AddSingleton<IDuplicateKeyException, PostgresDuplicateKeyException>();
         }
 
         private static void RegisterApplication(IServiceCollection services)

@@ -1,10 +1,12 @@
 ﻿using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Npgsql;
 using System.Data;
 using TC.CloudGames.Application.Exceptions;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.User;
+using TC.CloudGames.Infra.Data.Helpers;
 
 namespace TC.CloudGames.Infra.Data
 {
@@ -42,6 +44,10 @@ namespace TC.CloudGames.Infra.Data
                 await PublishDomainEventsAsync();
 
                 return result;
+            }
+            catch (Exception ex) when (ex.InnerException is PostgresException postEx)
+            {
+                throw PostgresExceptionHelper.ConvertException(postEx);
             }
             catch (DbUpdateConcurrencyException ex)
             {

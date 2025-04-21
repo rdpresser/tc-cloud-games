@@ -1,9 +1,6 @@
-﻿namespace TC.CloudGames.Domain.User
-{
-    public interface IUserRepository
-    {
-        Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+﻿using TC.CloudGames.Domain.Abstractions;
 
-        void Add(User user);
-    }
+namespace TC.CloudGames.Domain.User
+{
+    public interface IUserRepository : IRepository<User>;
 }

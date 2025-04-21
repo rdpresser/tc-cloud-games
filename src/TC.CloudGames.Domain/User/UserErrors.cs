@@ -11,5 +11,9 @@ namespace TC.CloudGames.Domain.User
         public static Error InvalidCredentials = new(
             "User.InvalidCredentials",
             "The provided credentials were invalid");
+
+        public static Error CreateUser = new(
+            "User.CreateUser",
+            "An error occurred while creating the user.");
     }
 }
