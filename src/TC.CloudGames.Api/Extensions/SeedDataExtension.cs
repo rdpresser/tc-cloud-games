@@ -8,16 +8,16 @@ namespace TC.CloudGames.Api.Extensions
     {
         private static readonly string[] items = ["Admin", "User"];
 
-        public static void SeedData(this IApplicationBuilder app)
+        public static async Task SeedData(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
 
             var sqlConnectionFactory = scope.ServiceProvider.GetRequiredService<ISqlConnectionFactory>();
-            using var connection = sqlConnectionFactory.CreateConnection();
+            using var connection = await sqlConnectionFactory.CreateConnectionAsync();
 
             var faker = new Faker();
 
-            List<object> users = new();
+            List<object> users = [];
             for (int i = 0; i < 100; i++)
             {
                 users.Add(new
@@ -37,7 +37,7 @@ namespace TC.CloudGames.Api.Extensions
                 VALUES(@Id, @FirstName, @LastName, @Email, @Password, @Role);
                 """;
 
-            connection.Execute(sql, users);
+            await connection.ExecuteAsync(sql, users);
         }
     }
 }
