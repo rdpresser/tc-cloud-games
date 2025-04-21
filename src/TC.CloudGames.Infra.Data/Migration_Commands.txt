@@ -38,14 +38,3 @@ dotnet tool install --global dotnet-ef
 
 ==> Command to list all dotnet Tools installed
 dotnet tool list
-
-
-****SQL Server - Docker
-==> Command to run a SQL Server on Docker
-docker run -e "ACCEPT_EULA=1" -e "MSSQL_SA_PASSWORD=MyPass@word" -e "MSSQL_PID=Developer" -e "MSSQL_USER=SA" -p 1433:1433 -d --name=sql mcr.microsoft.com/mssql/server
-
-==> Connection String => To be used on the appSettings config file
-ConnectionString
-"ConnectionStrings": {
-  "DefaultConnection": "Data Source=localhost; Initial Catalog=Developer; User Id=sa; Password=MyPass@word"
-},
