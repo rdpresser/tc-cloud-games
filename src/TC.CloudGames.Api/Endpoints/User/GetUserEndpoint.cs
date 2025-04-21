@@ -13,6 +13,7 @@ namespace TC.CloudGames.Api.Endpoints.User
             AllowAnonymous();
             Description(
                 x => x.Produces<UserResponse>(200)
+                      .ProducesProblemDetails()
                       .Produces((int)HttpStatusCode.NotFound));
         }
 
