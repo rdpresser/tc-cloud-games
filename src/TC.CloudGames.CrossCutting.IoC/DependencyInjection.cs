@@ -54,7 +54,6 @@ namespace TC.CloudGames.CrossCutting.IoC
 
         private static void RegisterApplication(IServiceCollection services)
         {
-            //services.AddScoped<Validator<CreateUserCommand>, CreateUserRequestValidator>();
             services.AddSingleton(sp => new CreateUserMapper());
         }
     }

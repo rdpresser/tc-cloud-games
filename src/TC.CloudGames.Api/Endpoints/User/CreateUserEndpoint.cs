@@ -10,8 +10,8 @@ namespace TC.CloudGames.Api.Endpoints.User
             Post("user/register");
             AllowAnonymous();
             Description(
-                x => x.Produces<CreateUserResponse>(200) //override swagger response type for 200 ok
-                      .Produces<ProblemDetails>(400));
+                x => x.Produces<CreateUserResponse>(200)
+                      .ProducesProblemDetails());
         }
 
         public override async Task HandleAsync(CreateUserCommand req, CancellationToken ct)
