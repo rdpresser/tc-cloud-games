@@ -24,7 +24,7 @@ namespace TC.CloudGames.Api.Endpoints.User
                 return;
             }
 
-            AddError(response.Errors.First());
+            response.Errors.ToList().ForEach(e => AddError(e));
             await SendErrorsAsync(cancellation: ct);
         }
     }
