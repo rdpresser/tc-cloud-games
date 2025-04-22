@@ -1,32 +1,32 @@
 ﻿using Ardalis.Result;
 using FastEndpoints;
-using Microsoft.Extensions.Logging;
+using TC.CloudGames.CrossCutting.Commons.Logger;
 
 namespace TC.CloudGames.Application.Middleware
 {
     public sealed class CommandLogger<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
         where TCommand : ICommand<TResult> // Added 'class' constraint to ensure TCommand is a reference type
     {
-        private readonly ILogger<CommandLogger<TCommand, TResult>> logger;
+        private readonly BaseLogger<CommandLogger<TCommand, TResult>> _logger;
 
-        public CommandLogger(ILogger<CommandLogger<TCommand, TResult>> logger)
+        public CommandLogger(BaseLogger<CommandLogger<TCommand, TResult>> logger)
         {
-            this.logger = logger;
+            _logger = logger;
         }
 
         public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
         {
-            logger.LogInformation("Executing command: '{name}'", command.GetType().Name);
+            _logger.LogInformation($"Executing command: '{command.GetType().Name}'");
 
             var result = await next();
 
             if (result is IResult resultWithErrors && resultWithErrors.Errors.Any())
             {
-                logger.LogError("Command '{name}' failed with errors: '{errors}'", command.GetType().Name, string.Join(", ", resultWithErrors.Errors));
+                _logger.LogError($"Command '{command.GetType().Name}' failed with errors: '{string.Join(", ", resultWithErrors.Errors)}'");
             }
             else
             {
-                logger.LogInformation("Command {name} executed successfully", command.GetType().Name);
+                _logger.LogInformation($"Command '{command.GetType().Name}' executed successfully");
             }
             return result;
         }

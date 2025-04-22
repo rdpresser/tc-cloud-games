@@ -2,6 +2,8 @@ using FastEndpoints;
 using FastEndpoints.Swagger;
 using TC.CloudGames.Api.Extensions;
 using TC.CloudGames.Application.Middleware;
+using TC.CloudGames.CrossCutting.Commons.Extensions;
+using TC.CloudGames.CrossCutting.Commons.Middleware;
 using TC.CloudGames.CrossCutting.IoC;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,7 @@ builder.Services
 
 builder.Services
     .AddDependencyInjection(builder.Configuration)
+    .AddCorrelationIdGenerator()
     .AddHttpClient();
 
 builder.Services.AddCommandMiddleware(
@@ -64,5 +67,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCustomExceptionHandler();
+
+app.UseCorrelationMiddleware();
 
 app.Run();

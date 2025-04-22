@@ -10,17 +10,7 @@ namespace TC.CloudGames.Infra.Data.Configurations.Data
 
         public SqlConnectionFactory(string connectionString)
         {
-            var DB_HOST = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            var DB_PORT = Environment.GetEnvironmentVariable("DB_PORT") ?? "54320";
-
-            if (string.IsNullOrWhiteSpace(connectionString))
-            {
-                throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty.");
-            }
-
-            _connectionString = connectionString
-                    .Replace("${DB_HOST}", DB_HOST)
-                    .Replace("${DB_PORT}", DB_PORT);
+            _connectionString = connectionString;
         }
 
         public IDbConnection CreateConnection()

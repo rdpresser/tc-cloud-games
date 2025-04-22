@@ -30,24 +30,25 @@ namespace TC.CloudGames.CrossCutting.IoC
         {
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
+            var DB_HOST = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+            var DB_PORT = Environment.GetEnvironmentVariable("DB_PORT") ?? "54320";
+
             var connectionString =
                 configuration.GetConnectionString("Database") ??
                 throw new ArgumentNullException(nameof(configuration), "Connection string 'Database' not found.");
 
-            var DB_HOST = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            var DB_PORT = Environment.GetEnvironmentVariable("DB_PORT") ?? "54320";
+            connectionString = connectionString
+                .Replace("${DB_HOST}", DB_HOST)
+                .Replace("${DB_PORT}", DB_PORT);
+
+            services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseNpgsql(connectionString
-                    .Replace("${DB_HOST}", DB_HOST)
-                    .Replace("${DB_PORT}", DB_PORT)).UseSnakeCaseNamingConvention();
+                options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
                 options.EnableSensitiveDataLogging(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development");
             });
 
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IUnitOfWork, ApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
-            services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
             SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
         }
 
@@ -55,6 +56,8 @@ namespace TC.CloudGames.CrossCutting.IoC
         {
             //
             services.AddSingleton<IDuplicateKeyException, PostgresDuplicateKeyException>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUnitOfWork, ApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
         }
 
         private static void RegisterApplication(IServiceCollection services)

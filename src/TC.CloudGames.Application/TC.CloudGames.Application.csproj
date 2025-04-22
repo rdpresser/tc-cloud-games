@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TC.CloudGames.CrossCutting.Commons\TC.CloudGames.CrossCutting.Commons.csproj" />
     <ProjectReference Include="..\TC.CloudGames.Domain\TC.CloudGames.Domain.csproj" />
   </ItemGroup>
 

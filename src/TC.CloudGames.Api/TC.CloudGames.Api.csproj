@@ -34,4 +34,8 @@
     <ProjectReference Include="..\TC.CloudGames.Infra.Data\TC.CloudGames.Infra.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Endpoints\Games\" />
+  </ItemGroup>
+
 </Project>
