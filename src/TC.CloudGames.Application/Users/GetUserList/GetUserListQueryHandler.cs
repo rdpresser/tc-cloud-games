@@ -14,11 +14,21 @@ namespace TC.CloudGames.Application.Users.GetUserList
             _sqlConnectionFactory = sqlConnectionFactory;
         }
 
+        private static readonly IReadOnlyDictionary<string, string> FieldMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Id", "id" },
+            { "FirstName", "first_name" },
+            { "LastName", "last_name" },
+            { "Email", "email" },
+            { "Role", "role" }
+        };
+
         public async Task<Result<IReadOnlyList<UserListResponse>>> ExecuteAsync(GetUserListQuery query, CancellationToken ct)
         {
             using var connection = await _sqlConnectionFactory.CreateConnectionAsync(ct);
 
-            var orderByClause = $"{query.SortBy} {query.SortDirection}"; //PostgreSQL only supports this syntax for ordering (can't be dynamic like SQL Server)
+            var orderByField = FieldMappings.TryGetValue(query.SortBy, out var mappedField) ? mappedField : "id";
+            var orderByClause = $"{orderByField} {query.SortDirection.ToUpper()}";
             if (string.IsNullOrWhiteSpace(query.SortBy) || string.IsNullOrWhiteSpace(query.SortDirection))
             {
                 orderByClause = "id ASC"; // Default ordering

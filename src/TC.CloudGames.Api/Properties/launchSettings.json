@@ -3,7 +3,9 @@
     "http": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DB_HOST": "localhost",
+        "DB_PORT": "54320"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5128"
@@ -11,7 +13,9 @@
     "https": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DB_HOST": "localhost",
+        "DB_PORT": "54320"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7074;http://localhost:5128"

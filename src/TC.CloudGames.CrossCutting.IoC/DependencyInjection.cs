@@ -34,9 +34,14 @@ namespace TC.CloudGames.CrossCutting.IoC
                 configuration.GetConnectionString("Database") ??
                 throw new ArgumentNullException(nameof(configuration), "Connection string 'Database' not found.");
 
+            var DB_HOST = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+            var DB_PORT = Environment.GetEnvironmentVariable("DB_PORT") ?? "54320";
+
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
+                options.UseNpgsql(connectionString
+                    .Replace("${DB_HOST}", DB_HOST)
+                    .Replace("${DB_PORT}", DB_PORT)).UseSnakeCaseNamingConvention();
                 options.EnableSensitiveDataLogging(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development");
             });
 
