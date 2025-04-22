@@ -24,7 +24,6 @@ namespace TC.CloudGames.Application.Users.GetUser
                     first_name AS FirstName, 
                     last_name AS LastName, 
                     email AS Email, 
-                    password AS Password, 
                     role AS Role
                 FROM public.users
                 WHERE id = @Id;

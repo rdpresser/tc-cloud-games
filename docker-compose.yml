@@ -1,6 +1,9 @@
 services:
   tc.cloudgames.api:
     image: ${DOCKER_REGISTRY-}tccloudgamesapi
+    ports: 
+      - "55555:8080"
+      - "55556:8081"
     container_name: TC.CloudGames.Api
     build:
       context: .
