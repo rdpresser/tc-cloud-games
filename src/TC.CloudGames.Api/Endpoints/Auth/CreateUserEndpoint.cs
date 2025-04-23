@@ -1,13 +1,14 @@
 ﻿using FastEndpoints;
 using TC.CloudGames.Application.Users.CreateUser;
 
-namespace TC.CloudGames.Api.Endpoints.User
+namespace TC.CloudGames.Api.Endpoints.Auth
 {
     public sealed class CreateUserEndpoint : Endpoint<CreateUserCommand, CreateUserResponse, CreateUserMapper>
     {
         public override void Configure()
         {
-            Post("user/register");
+            Post("register");
+            RoutePrefixOverride("auth");
             AllowAnonymous();
             Description(
                 x => x.Produces<CreateUserResponse>(200)

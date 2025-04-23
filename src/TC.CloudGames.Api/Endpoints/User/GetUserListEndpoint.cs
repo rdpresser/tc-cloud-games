@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using System.Net;
 using TC.CloudGames.Application.Users.GetUserList;
 
 namespace TC.CloudGames.Api.Endpoints.User
@@ -8,10 +9,12 @@ namespace TC.CloudGames.Api.Endpoints.User
         public override void Configure()
         {
             Get("user/list");
-            AllowAnonymous();
+            Roles("Admin");
             Description(
                 x => x.Produces<UserListResponse>(200)
-                      .ProducesProblemDetails());
+                      .ProducesProblemDetails()
+                      .Produces((int)HttpStatusCode.Forbidden)
+                      .Produces((int)HttpStatusCode.Unauthorized));
         }
 
         public override async Task HandleAsync(GetUserListQuery req, CancellationToken ct)

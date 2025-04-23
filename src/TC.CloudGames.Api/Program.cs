@@ -37,6 +37,7 @@ app.UseAuthentication()
     .UseAuthorization()
     .UseFastEndpoints(c =>
     {
+        c.Endpoints.RoutePrefix = "api";
         c.Errors.UseProblemDetails(
             x =>
             {

@@ -9,7 +9,8 @@ namespace TC.CloudGames.Api.Endpoints.Login
     {
         public override void Configure()
         {
-            Post("auth/login");
+            Post("login");
+            RoutePrefixOverride("auth");
             AllowAnonymous();
             Description(
                 x => x.Produces<LoginUserResponse>(200)
@@ -31,7 +32,7 @@ namespace TC.CloudGames.Api.Endpoints.Login
 
             if (response.IsNotFound())
             {
-                await SendNotFoundAsync(cancellation: ct).ConfigureAwait(false);
+                await SendErrorsAsync((int)HttpStatusCode.NotFound, cancellation: ct).ConfigureAwait(false);
                 return;
             }
 

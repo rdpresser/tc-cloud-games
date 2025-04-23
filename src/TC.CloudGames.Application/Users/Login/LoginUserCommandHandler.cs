@@ -1,4 +1,8 @@
 ﻿using Ardalis.Result;
+using FastEndpoints.Security;
+using Microsoft.Extensions.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.Login
@@ -6,10 +10,12 @@ namespace TC.CloudGames.Application.Users.Login
     internal sealed class LoginUserCommandHandler : Abstractions.Messaging.ICommandHandler<LoginUserCommand, LoginUserResponse>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IConfiguration _configuration;
 
-        public LoginUserCommandHandler(IUserRepository userRepository)
+        public LoginUserCommandHandler(IUserRepository userRepository, IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _configuration = configuration;
         }
 
         public async Task<Result<LoginUserResponse>> ExecuteAsync(LoginUserCommand command, CancellationToken ct)
@@ -24,7 +30,22 @@ namespace TC.CloudGames.Application.Users.Login
                 return Result<LoginUserResponse>.NotFound("Email or password provided are invalid.");
             }
 
-            var jwt = "teste";
+            var jwtSecretKey = _configuration["JwtSecretKey"];
+            if (string.IsNullOrEmpty(jwtSecretKey))
+            {
+                return Result<LoginUserResponse>.CriticalError("JWT secret key is not configured.");
+            }
+
+            var jwt = JwtBearer.CreateToken(options =>
+            {
+                options.SigningKey = jwtSecretKey;
+                options.User.Claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userDb.Id.ToString()));
+                options.User.Claims.Add(new Claim(JwtRegisteredClaimNames.Name, $"{userDb.FirstName.Value} {userDb.LastName.Value}"));
+                options.User.Claims.Add(new Claim(JwtRegisteredClaimNames.Email, userDb.Email.Value));
+                options.User.Roles.Add(userDb.Role.Value);
+                options.ExpireAt = DateTime.UtcNow.AddHours(1);
+            });
+
             var response = new LoginUserResponse(
                 jwt,
                 userDb.Email.Value

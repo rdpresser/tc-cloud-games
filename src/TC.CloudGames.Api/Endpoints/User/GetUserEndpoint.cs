@@ -9,12 +9,15 @@ namespace TC.CloudGames.Api.Endpoints.User
     {
         public override void Configure()
         {
+
             Get("user/{Id}");
-            AllowAnonymous();
+            Roles("Admin");
             Description(
                 x => x.Produces<UserResponse>(200)
                       .ProducesProblemDetails()
-                      .Produces((int)HttpStatusCode.NotFound));
+                      .Produces((int)HttpStatusCode.NotFound)
+                      .Produces((int)HttpStatusCode.Forbidden)
+                      .Produces((int)HttpStatusCode.Unauthorized));
         }
 
         public override async Task HandleAsync(GetUserQuery req, CancellationToken ct)
@@ -31,7 +34,7 @@ namespace TC.CloudGames.Api.Endpoints.User
 
             if (response.IsNotFound())
             {
-                await SendNotFoundAsync(cancellation: ct).ConfigureAwait(false);
+                await SendErrorsAsync((int)HttpStatusCode.NotFound, cancellation: ct).ConfigureAwait(false);
                 return;
             }
 

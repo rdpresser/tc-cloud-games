@@ -2,12 +2,10 @@
 
 public abstract class ValueObject
 {
-    //protected abstract IEnumerable<object> GetEqualityComponents();
+    protected abstract IEnumerable<object> GetEqualityComponents();
 
     public abstract override bool Equals(object? obj);
 
-    public abstract override int GetHashCode();
-    
     // public override bool Equals(object obj)
     // {
     //     if (obj == null || obj.GetType() != GetType())
@@ -29,15 +27,15 @@ public abstract class ValueObject
     //     return !thisComponents.MoveNext() && !otherComponents.MoveNext();
     // }
 
-    // public override int GetHashCode()
-    // {
-    //     var hashCode = new HashCode();
-    //     foreach (var component in GetEqualityComponents())
-    //     {
-    //         hashCode.Add(component);
-    //     }
-    //     return hashCode.ToHashCode();
-    // }
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        foreach (var component in GetEqualityComponents())
+        {
+            hashCode.Add(component);
+        }
+        return hashCode.ToHashCode();
+    }
 
     public static bool operator ==(ValueObject left, ValueObject right)
     {
