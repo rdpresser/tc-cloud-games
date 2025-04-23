@@ -6,13 +6,13 @@ namespace TC.CloudGames.Api.Extensions
 {
     public static class ApplicationBuilderExtensions
     {
-        public static void ApplyMigrations(this IApplicationBuilder app)
+        public static async Task ApplyMigrations(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
 
             using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            dbContext.Database.Migrate();
+            await dbContext.Database.MigrateAsync().ConfigureAwait(false);
         }
 
         public static IApplicationBuilder UseCustomExceptionHandler(this IApplicationBuilder app)

@@ -16,7 +16,17 @@ builder.Services
     {
         dicoveryOptions.Assemblies = [typeof(TC.CloudGames.Application.Abstractions.Messaging.ICommand<>).Assembly];
     })
-    .SwaggerDocument();
+    .SwaggerDocument(o =>
+    {
+        o.DocumentSettings = s =>
+        {
+            s.Title = "TC.CloudGames API";
+            s.Version = "v1";
+            s.Description = "API for TC.CloudGames";
+            s.MarkNonNullablePropsAsRequired();
+        };
+        o.RemoveEmptyRequestSchema = true;
+    });
 
 builder.Services
     .AddDependencyInjection(builder.Configuration)
@@ -38,6 +48,7 @@ app.UseAuthentication()
     .UseFastEndpoints(c =>
     {
         c.Endpoints.RoutePrefix = "api";
+        c.Endpoints.ShortNames = true;
         c.Errors.UseProblemDetails(
             x =>
             {
@@ -62,10 +73,9 @@ app.UseAuthentication()
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.ApplyMigrations();
+    await app.ApplyMigrations().ConfigureAwait(false);
 
-    //await app.SeedData()
-    //    .ConfigureAwait(false);
+    //await app.SeedData().ConfigureAwait(false);
 }
 
 app.UseHttpsRedirection();

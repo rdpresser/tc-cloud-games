@@ -17,4 +17,9 @@
     <ProjectReference Include="..\TC.CloudGames.Domain\TC.CloudGames.Domain.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+
 </Project>
