@@ -2,5 +2,8 @@
 
 namespace TC.CloudGames.Domain.User
 {
-    public interface IUserRepository : IRepository<User>;
+    public interface IUserRepository : IRepository<User>
+    {
+        Task<User?> GetByEmailWithPasswordAsync(string email, string password, CancellationToken cancellationToken = default);
+    }
 }

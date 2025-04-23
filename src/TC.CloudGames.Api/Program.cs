@@ -1,4 +1,5 @@
 using FastEndpoints;
+using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using TC.CloudGames.Api.Extensions;
 using TC.CloudGames.Application.Middleware;
@@ -9,6 +10,8 @@ using TC.CloudGames.CrossCutting.IoC;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
+    .AddAuthenticationJwtBearer(s => s.SigningKey = builder.Configuration["JwtSecretKey"])
+    .AddAuthorization()
     .AddFastEndpoints(dicoveryOptions =>
     {
         dicoveryOptions.Assemblies = [typeof(TC.CloudGames.Application.Abstractions.Messaging.ICommand<>).Assembly];
@@ -30,10 +33,9 @@ builder.Services.AddCommandMiddleware(
 
 var app = builder.Build();
 
-//app.UseAuthentication();
-//app.UseAuthorization();
-
-app.UseFastEndpoints(c =>
+app.UseAuthentication()
+    .UseAuthorization()
+    .UseFastEndpoints(c =>
     {
         c.Errors.UseProblemDetails(
             x =>
@@ -66,8 +68,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCustomExceptionHandler();
-
-app.UseCorrelationMiddleware();
+app.UseCustomExceptionHandler()
+   .UseCorrelationMiddleware();
 
 app.Run();

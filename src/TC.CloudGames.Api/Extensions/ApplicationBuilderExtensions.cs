@@ -15,9 +15,11 @@ namespace TC.CloudGames.Api.Extensions
             dbContext.Database.Migrate();
         }
 
-        public static void UseCustomExceptionHandler(this IApplicationBuilder app)
+        public static IApplicationBuilder UseCustomExceptionHandler(this IApplicationBuilder app)
         {
             app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+            return app;
         }
     }
 }

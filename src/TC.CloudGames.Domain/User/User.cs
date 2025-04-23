@@ -10,6 +10,11 @@ namespace TC.CloudGames.Domain.User
         public Password Password { get; private set; } //TODO: Verificar onde o password será gravado
         public Role Role { get; private set; }
 
+        private User()
+        {
+            //EF Core
+        }
+
         private User(Guid id, FirstName firstName, LastName lastName, Email email, Password password, Role role)
             : base(id)
         {

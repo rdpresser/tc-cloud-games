@@ -1,23 +1,23 @@
 ﻿using Ardalis.Result;
 using FastEndpoints;
 using System.Net;
-using TC.CloudGames.Application.Users.GetUser;
+using TC.CloudGames.Application.Users.Login;
 
-namespace TC.CloudGames.Api.Endpoints.User
+namespace TC.CloudGames.Api.Endpoints.Login
 {
-    public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
+    sealed class LoginEndpoint : Endpoint<LoginUserCommand, LoginUserResponse>
     {
         public override void Configure()
         {
-            Get("user/{Id}");
+            Post("auth/login");
             AllowAnonymous();
             Description(
-                x => x.Produces<UserResponse>(200)
+                x => x.Produces<LoginUserResponse>(200)
                       .ProducesProblemDetails()
                       .Produces((int)HttpStatusCode.NotFound));
         }
 
-        public override async Task HandleAsync(GetUserQuery req, CancellationToken ct)
+        public override async Task HandleAsync(LoginUserCommand req, CancellationToken ct)
         {
             var response = await req.ExecuteAsync(ct: ct).ConfigureAwait(false);
 

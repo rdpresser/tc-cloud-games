@@ -2,7 +2,7 @@
 
 namespace TC.CloudGames.Application.Users.CreateUser
 {
-    public record CreateUserCommand(
+    public sealed record CreateUserCommand(
         string FirstName,
         string LastName,
         string Email,

@@ -27,7 +27,7 @@ internal sealed class CreateUserCommandHandler : Abstractions.Messaging.ICommand
         {
             _userRepository.Add(entity);
 
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is IDuplicateKeyException duplicateEx)
         {

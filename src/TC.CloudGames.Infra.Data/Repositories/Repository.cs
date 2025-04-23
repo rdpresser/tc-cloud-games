@@ -17,7 +17,7 @@ namespace TC.CloudGames.Infra.Data.Repositories
         {
             return await DbContext
                 .Set<TEntity>()
-                .FirstOrDefaultAsync(entity => entity.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(entity => entity.Id == id, cancellationToken).ConfigureAwait(false);
         }
 
         public void Add(TEntity entity)

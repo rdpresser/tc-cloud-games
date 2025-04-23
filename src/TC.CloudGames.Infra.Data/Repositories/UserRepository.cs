@@ -1,4 +1,5 @@
-﻿using TC.CloudGames.Domain.User;
+﻿using Microsoft.EntityFrameworkCore;
+using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Infra.Data.Repositories
 {
@@ -8,6 +9,15 @@ namespace TC.CloudGames.Infra.Data.Repositories
             : base(dbContext)
         {
 
+        }
+
+        public async Task<User?> GetByEmailWithPasswordAsync(string email, string password, CancellationToken cancellationToken = default)
+        {
+            return await DbContext
+                .Users
+                .FirstOrDefaultAsync(entity =>
+                    entity.Email == new Email(email) &&
+                    entity.Password == new Password(password), cancellationToken).ConfigureAwait(false);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace TC.CloudGames.Infra.Data.Configurations.Data
         public async Task<IDbConnection> CreateConnectionAsync(CancellationToken cancellationToken = default)
         {
             var connection = new NpgsqlConnection(_connectionString);
-            await connection.OpenAsync(cancellationToken);
+            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
             return connection;
         }

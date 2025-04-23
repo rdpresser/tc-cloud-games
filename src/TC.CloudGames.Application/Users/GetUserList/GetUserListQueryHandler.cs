@@ -25,7 +25,7 @@ namespace TC.CloudGames.Application.Users.GetUserList
 
         public async Task<Result<IReadOnlyList<UserListResponse>>> ExecuteAsync(GetUserListQuery query, CancellationToken ct)
         {
-            using var connection = await _sqlConnectionFactory.CreateConnectionAsync(ct);
+            using var connection = await _sqlConnectionFactory.CreateConnectionAsync(ct).ConfigureAwait(false);
 
             var orderByField = FieldMappings.TryGetValue(query.SortBy, out var mappedField) ? mappedField : "id";
             var orderByClause = $"{orderByField} {query.SortDirection.ToUpper()}";
@@ -62,7 +62,7 @@ namespace TC.CloudGames.Application.Users.GetUserList
             };
 
             var users = await connection
-                .QueryAsync<UserListResponse>(sql, parameters);
+                .QueryAsync<UserListResponse>(sql, parameters).ConfigureAwait(false);
 
             if (users is null || !users.Any())
             {

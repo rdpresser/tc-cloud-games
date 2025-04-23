@@ -16,7 +16,7 @@ namespace TC.CloudGames.Application.Users.GetUser
 
         public async Task<Result<UserResponse>> ExecuteAsync(GetUserQuery command, CancellationToken ct)
         {
-            using var connection = await _sqlConnectionFactory.CreateConnectionAsync(ct);
+            using var connection = await _sqlConnectionFactory.CreateConnectionAsync(ct).ConfigureAwait(false);
 
             const string sql = """
                 SELECT 
@@ -29,7 +29,7 @@ namespace TC.CloudGames.Application.Users.GetUser
                 WHERE id = @Id;
                 """;
 
-            var user = await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, new { command.Id });
+            var user = await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, new { command.Id }).ConfigureAwait(false);
             if (user is null)
             {
                 return Result<UserResponse>.NotFound($"User with id '{command.Id}' not found.");

@@ -39,9 +39,9 @@ namespace TC.CloudGames.Infra.Data
         {
             try
             {
-                var result = await base.SaveChangesAsync(cancellationToken);
+                var result = await base.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-                await PublishDomainEventsAsync();
+                await PublishDomainEventsAsync().ConfigureAwait(false);
 
                 return result;
             }
@@ -72,7 +72,7 @@ namespace TC.CloudGames.Infra.Data
             foreach (var domainEvent in domainEvents)
             {
                 await domainEvent
-                    .PublishAsync(Mode.WaitForAll);
+                    .PublishAsync(Mode.WaitForAll).ConfigureAwait(false);
             }
         }
     }

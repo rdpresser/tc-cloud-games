@@ -5,6 +5,11 @@
         public Guid Id { get; init; }
         private readonly List<IDomainEvent> _domainEvents = [];
 
+        protected Entity()
+        {
+            //EF Core
+        }
+
         protected Entity(Guid id)
         {
             Id = id == Guid.Empty ? Guid.NewGuid() : id;

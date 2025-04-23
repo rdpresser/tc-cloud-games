@@ -13,7 +13,7 @@ namespace TC.CloudGames.Api.Extensions
             using var scope = app.ApplicationServices.CreateScope();
 
             var sqlConnectionFactory = scope.ServiceProvider.GetRequiredService<ISqlConnectionFactory>();
-            using var connection = await sqlConnectionFactory.CreateConnectionAsync();
+            using var connection = await sqlConnectionFactory.CreateConnectionAsync().ConfigureAwait(false);
 
             var faker = new Faker();
 
@@ -37,7 +37,7 @@ namespace TC.CloudGames.Api.Extensions
                 VALUES(@Id, @FirstName, @LastName, @Email, @Password, @Role);
                 """;
 
-            await connection.ExecuteAsync(sql, users);
+            await connection.ExecuteAsync(sql, users).ConfigureAwait(false);
         }
     }
 }
