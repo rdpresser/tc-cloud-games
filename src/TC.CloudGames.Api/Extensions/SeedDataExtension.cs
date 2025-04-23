@@ -1,6 +1,6 @@
 ﻿using Bogus;
-using Dapper;
-using TC.CloudGames.Application.Abstractions.Data;
+using TC.CloudGames.Domain.User;
+using TC.CloudGames.Infra.Data;
 
 namespace TC.CloudGames.Api.Extensions
 {
@@ -11,33 +11,24 @@ namespace TC.CloudGames.Api.Extensions
         public static async Task SeedData(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
-
-            var sqlConnectionFactory = scope.ServiceProvider.GetRequiredService<ISqlConnectionFactory>();
-            using var connection = await sqlConnectionFactory.CreateConnectionAsync().ConfigureAwait(false);
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             var faker = new Faker();
 
-            List<object> users = [];
+            List<User> users = [];
             for (int i = 0; i < 100; i++)
             {
-                users.Add(new
-                {
-                    Id = Guid.NewGuid(),
-                    FirstName = faker.Name.FirstName(),
-                    LastName = faker.Name.LastName(),
-                    Email = faker.Internet.Email(),
-                    Password = PasswordGenerator.GeneratePassword(8),
-                    Role = faker.PickRandom(items)
-                });
+                users.Add(User.Create(
+                    new FirstName(faker.Name.FirstName()),
+                    new LastName(faker.Name.LastName()),
+                    new Email(faker.Internet.Email()),
+                    new Password(PasswordGenerator.GeneratePassword(8)),
+                    new Role(faker.PickRandom(items))));
             }
 
-            const string sql = """
-                INSERT INTO public.users
-                (id, first_name, last_name, email, password, role)
-                VALUES(@Id, @FirstName, @LastName, @Email, @Password, @Role);
-                """;
+            dbContext.Users.AddRange(users);
 
-            await connection.ExecuteAsync(sql, users).ConfigureAwait(false);
+            await dbContext.SaveChangesAsync();
         }
     }
 }

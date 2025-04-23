@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TC.CloudGames.Domain.User;
 
@@ -27,13 +26,8 @@ namespace TC.CloudGames.Infra.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(200)
                 .HasConversion(
-                    email => email.Value,
-                    value => new Email(value),
-                    new ValueComparer<Email>(
-                        (e1, e2) => e1.Value.Equals(e2.Value, StringComparison.InvariantCultureIgnoreCase),
-                        e => e.Value.GetHashCode(),
-                        e => new Email(e.Value)
-                    )
+                    email => email.Value.ToUpper(),
+                    value => new Email(value)
                 );
 
             builder.Property(u => u.Password)

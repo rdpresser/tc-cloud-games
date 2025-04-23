@@ -63,7 +63,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.ApplyMigrations();
 
-    //await app.SeedData();
+    //await app.SeedData()
+    //    .ConfigureAwait(false);
 }
 
 app.UseHttpsRedirection();
