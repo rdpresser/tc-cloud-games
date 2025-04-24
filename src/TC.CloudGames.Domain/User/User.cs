@@ -4,10 +4,10 @@ namespace TC.CloudGames.Domain.User
 {
     public sealed class User : Entity
     {
-        public FirstName FirstName { get; private set; }
-        public LastName LastName { get; private set; }
+        public string FirstName { get; private set; }
+        public string LastName { get; private set; }
         public Email Email { get; private set; }
-        public Password Password { get; private set; } //TODO: Verificar onde o password será gravado
+        public Password Password { get; private set; } // Retain if it includes hashing/validation logic
         public Role Role { get; private set; }
 
         private User()
@@ -15,7 +15,7 @@ namespace TC.CloudGames.Domain.User
             //EF Core
         }
 
-        private User(Guid id, FirstName firstName, LastName lastName, Email email, Password password, Role role)
+        private User(Guid id, string firstName, string lastName, Email email, Password password, Role role)
             : base(id)
         {
             FirstName = firstName;
@@ -25,7 +25,7 @@ namespace TC.CloudGames.Domain.User
             Role = role;
         }
 
-        public static User Create(FirstName firstName, LastName lastName, Email email, Password password, Role role)
+        public static User Create(string firstName, string lastName, Email email, Password password, Role role)
         {
             var user = new User(Guid.NewGuid(), firstName, lastName, email, password, role);
 

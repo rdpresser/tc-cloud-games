@@ -40,7 +40,7 @@ namespace TC.CloudGames.Application.Users.Login
             {
                 options.SigningKey = jwtSecretKey;
                 options.User.Claims.Add(new Claim(JwtRegisteredClaimNames.Sub, userDb.Id.ToString()));
-                options.User.Claims.Add(new Claim(JwtRegisteredClaimNames.Name, $"{userDb.FirstName.Value} {userDb.LastName.Value}"));
+                options.User.Claims.Add(new Claim(JwtRegisteredClaimNames.Name, $"{userDb.FirstName} {userDb.LastName}"));
                 options.User.Claims.Add(new Claim(JwtRegisteredClaimNames.Email, userDb.Email.Value));
                 options.User.Roles.Add(userDb.Role.Value);
                 options.ExpireAt = DateTime.UtcNow.AddHours(1);

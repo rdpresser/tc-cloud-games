@@ -8,11 +8,11 @@ namespace TC.CloudGames.Application.Users.CreateUser
         public override User ToEntity(CreateUserCommand r)
         {
             return User.Create(
-                firstName: new FirstName(r.FirstName),
-                lastName: new LastName(r.LastName),
-                email: new Email(r.Email),
-                password: new Password(r.Password),
-                role: new Role(r.Role)
+                firstName: r.FirstName,
+                lastName: r.LastName,
+                email: Email.Create(r.Email),
+                password: Password.Create(r.Password),
+                role: Role.Create(r.Role)
             );
         }
 
@@ -21,8 +21,8 @@ namespace TC.CloudGames.Application.Users.CreateUser
             return new CreateUserResponse
             (
                 e.Id,
-                e.FirstName.Value,
-                e.LastName.Value,
+                e.FirstName,
+                e.LastName,
                 e.Email.Value,
                 e.Role.Value
             );

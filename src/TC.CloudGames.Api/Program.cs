@@ -1,6 +1,7 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
+using Newtonsoft.Json.Converters;
 using TC.CloudGames.Api.Extensions;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.CrossCutting.Commons.Extensions;
@@ -25,7 +26,12 @@ builder.Services
             s.Description = "API for TC.CloudGames";
             s.MarkNonNullablePropsAsRequired();
         };
+
         o.RemoveEmptyRequestSchema = true;
+        o.NewtonsoftSettings = s =>
+        {
+            s.Converters.Add(new StringEnumConverter());
+        };
     });
 
 builder.Services

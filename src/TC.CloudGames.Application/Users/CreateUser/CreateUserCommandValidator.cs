@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using FluentValidation;
+using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.CreateUser
 {
@@ -24,7 +25,7 @@ namespace TC.CloudGames.Application.Users.CreateUser
             RuleFor(x => x.Role)
                 .NotEmpty()
                 .WithMessage("Role is required.")
-                .Must(role => role == "Admin" || role == "User")
+                .Must(role => Role.IsValidRole(role))
                 .WithMessage("Role must be either 'Admin' or 'User'.");
 
             RuleFor(x => x.Password)

@@ -16,8 +16,8 @@ namespace TC.CloudGames.Infra.Data.Repositories
             return await DbContext
                 .Users
                 .FirstOrDefaultAsync(entity =>
-                    entity.Email == new Email(email) &&
-                    entity.Password == new Password(password), cancellationToken).ConfigureAwait(false);
+                    entity.Email == Email.Create(email) &&
+                    entity.Password == Password.Create(password), cancellationToken).ConfigureAwait(false);
         }
     }
 }
