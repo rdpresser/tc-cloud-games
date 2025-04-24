@@ -4,8 +4,8 @@ namespace TC.CloudGames.Domain.Game
 {
     public sealed class Game : Entity
     {
-        public string Name { get; private set; } = string.Empty;
-        public DateTime ReleaseDate { get; private set; }
+        public string Name { get; private set; }
+        public DateOnly ReleaseDate { get; private set; }
         public AgeRating AgeRating { get; private set; }
         public string? Description { get; private set; }
         public DeveloperInfo DeveloperInfo { get; private set; }
@@ -26,7 +26,7 @@ namespace TC.CloudGames.Domain.Game
         private Game(
             Guid id,
             string name,
-            DateTime releaseDate,
+            DateOnly releaseDate,
             AgeRating ageRating,
             string? description,
             DeveloperInfo developerInfo,
@@ -58,7 +58,7 @@ namespace TC.CloudGames.Domain.Game
 
         public static Game Create(
            string name,
-           DateTime releaseDate,
+           DateOnly releaseDate,
            AgeRating ageRating,
            string? description,
            DeveloperInfo developerInfo,
@@ -91,9 +91,7 @@ namespace TC.CloudGames.Domain.Game
         }
     }
 
-    public record AgeRating(string Value);
-
-    public record DeveloperInfo(string Developer, string Publisher);
+    public record DeveloperInfo(string Developer, string? Publisher);
 
     public record DiskSize(decimal SizeInGb);
 
@@ -101,17 +99,5 @@ namespace TC.CloudGames.Domain.Game
 
     public record Playtime(int? Hours, int? PlayerCount);
 
-    public record GameDetails(
-        string? Genre,
-        string Platform,
-        string? Tags,
-        string? GameMode,
-        string? DistributionFormat,
-        string? AvailableLanguages,
-        bool SupportsDlcs
-    );
-
-    public record SystemRequirements(string? Minimum, string? Recommended);
-
-    public record Rating(decimal? Average);
+    public record SystemRequirements(string Minimum, string? Recommended);
 }

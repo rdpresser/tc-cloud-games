@@ -14,7 +14,7 @@ namespace TC.CloudGames.Domain.User
         {
             if (IsValidRole(value))
             {
-                return Result.Success(new Role(value));
+                return Result<Role>.Success(new Role(value));
             }
 
             return Result<Role>.Error("Invalid role.");
