@@ -21,7 +21,7 @@ namespace TC.CloudGames.Api.Endpoints.User
 
             var faker = new Faker();
             List<UserListResponse> userList = [];
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 5; i++)
             {
                 userList.Add(new UserListResponse
                 {
@@ -35,13 +35,13 @@ namespace TC.CloudGames.Api.Endpoints.User
 
             Summary(s =>
             {
-                s.Summary = "Endpoint responsible for retrieving a user list with pagination filters";
+                s.Summary = "Retrieves a paginated list of users based on the provided filters.";
                 s.ExampleRequest = new GetUserListQuery(PageNumber: 1, PageSize: 10, SortBy: "id", SortDirection: "asc", Filter: "<any value>");
                 s.ResponseExamples[200] = userList;
-                s.Responses[200] = "Occurs when a user list are successfully retrieved using filters";
-                s.Responses[400] = "Occurs when a badrequest happens";
-                s.Responses[403] = "Occurs when a logged user doesn't have the appropriate role for this endpoint";
-                s.Responses[401] = "Occurs when the endpoint is called without an user token";
+                s.Responses[200] = "Returned when the user list is successfully retrieved using the specified filters.";
+                s.Responses[400] = "Returned when the request contains invalid parameters.";
+                s.Responses[403] = "Returned when the logged-in user lacks the required role to access this endpoint.";
+                s.Responses[401] = "Returned when the request is made without a valid user token.";
             });
         }
 

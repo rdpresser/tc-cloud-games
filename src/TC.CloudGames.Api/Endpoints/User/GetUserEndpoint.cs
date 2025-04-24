@@ -21,14 +21,15 @@ namespace TC.CloudGames.Api.Endpoints.User
 
             Summary(s =>
             {
-                s.Summary = "Endpoint responsible for retrieving user data by Id";
+                s.Summary = "Retrieve user details by their unique identifier.";
+                s.Description = "This endpoint retrieves detailed information about a user by their unique Id. Access is restricted to users with the appropriate role.";
                 s.ExampleRequest = new GetUserQuery(Guid.NewGuid());
-                s.ResponseExamples[200] = new UserResponse { Email = "jhon.smith@gmail.com", Id = Guid.NewGuid(), FirstName = "Jhon", LastName = "Smith", Role = "Admin" };
-                s.Responses[200] = "Occurs when a user successfully retrieves user information by id";
-                s.Responses[400] = "Occurs when a badrequest happens";
-                s.Responses[404] = "Occurs when an user Id is not found";
-                s.Responses[403] = "Occurs when a logged user doesn't have the appropriate role for this endpoint";
-                s.Responses[401] = "Occurs when the endpoint is called without an user token";
+                s.ResponseExamples[200] = new UserResponse { Email = "John.smith@gmail.com", Id = Guid.NewGuid(), FirstName = "John", LastName = "Smith", Role = "Admin" };
+                s.Responses[200] = "Returned when user information is successfully retrieved.";
+                s.Responses[400] = "Returned when the request is invalid.";
+                s.Responses[404] = "Returned when no user is found with the provided Id.";
+                s.Responses[403] = "Returned when the caller lacks the required role to access this endpoint.";
+                s.Responses[401] = "Returned when the request is made without a valid user token.";
             });
         }
 
