@@ -4,7 +4,7 @@ using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Api.Endpoints.Auth
 {
-    public sealed class CreateUserEndpoint : Endpoint<CreateUserCommand, CreateUserResponse, CreateUserMapper>
+    public sealed class CreateUserEndpoint : Endpoint<CreateUserCommand, CreateUserResponse>
     {
         public override void Configure()
         {

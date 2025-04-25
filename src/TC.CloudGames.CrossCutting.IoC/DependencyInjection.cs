@@ -1,12 +1,11 @@
 ﻿using Dapper;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TC.CloudGames.Application.Abstractions.Data;
-using TC.CloudGames.Application.Users.CreateUser;
 using TC.CloudGames.CrossCutting.Commons.Clock;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Exceptions;
+using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.Data;
 using TC.CloudGames.Infra.Data.Configurations.Data;
@@ -29,25 +28,10 @@ namespace TC.CloudGames.CrossCutting.IoC
         private static void RegisterInfra(IServiceCollection services, IConfiguration configuration)
         {
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+            services.AddSingleton<IDatabaseConnectionProvider, DatabaseConnectionProvider>();
+            services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
 
-            var DB_HOST = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            var DB_PORT = Environment.GetEnvironmentVariable("DB_PORT") ?? "54320";
-
-            var connectionString =
-                configuration.GetConnectionString("Database") ??
-                throw new ArgumentNullException(nameof(configuration), "Connection string 'Database' not found.");
-
-            connectionString = connectionString
-                .Replace("${DB_HOST}", DB_HOST)
-                .Replace("${DB_PORT}", DB_PORT);
-
-            services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
-
-            services.AddDbContext<ApplicationDbContext>(options =>
-            {
-                options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
-                options.EnableSensitiveDataLogging(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development");
-            });
+            services.AddDbContext<ApplicationDbContext>();
 
             SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
         }
@@ -57,12 +41,13 @@ namespace TC.CloudGames.CrossCutting.IoC
             //
             services.AddSingleton<IDuplicateKeyException, PostgresDuplicateKeyException>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IGameRepository, GameRepository>();
             services.AddScoped<IUnitOfWork, ApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
         }
 
         private static void RegisterApplication(IServiceCollection services)
         {
-            services.AddSingleton(sp => new CreateUserMapper());
+
         }
     }
 }

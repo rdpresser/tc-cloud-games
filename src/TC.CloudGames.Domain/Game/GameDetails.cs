@@ -1,38 +1,63 @@
 ﻿using Ardalis.Result;
+using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace TC.CloudGames.Domain.Game
 {
-    public sealed record GameDetails
+    public record GameDetails
     {
         public string? Genre { get; }
-        public string Platform { get; }
+
+        [NotMapped]
+        public List<string> PlatformList
+        {
+            get
+            {
+                if (Platform == null)
+                {
+                    return [];
+                }
+                return JsonSerializer.Deserialize<List<string>>(Platform) ?? [];
+            }
+            set
+            {
+                if (value == null)
+                {
+                    Platform = string.Empty;
+                }
+                else
+                {
+                    Platform = JsonSerializer.Serialize(value);
+                }
+            }
+        }
+
+        public string Platform { get; set; }
         public string? Tags { get; }
-        public string? GameMode { get; }
-        public string? DistributionFormat { get; }
+        public string GameMode { get; } //TODO: mudar para array 
+        public string DistributionFormat { get; } //TODO: mudar para array 
         public string? AvailableLanguages { get; }
         public bool SupportsDlcs { get; }
 
-        private static readonly HashSet<string> ValidPlatforms = new()
-           {
-               "Windows", "iOS", "Linux", "Android", "PlayStation", "Xbox", "Nintendo"
-           };
+        public static readonly IImmutableSet<string> ValidPlatforms = ImmutableHashSet.Create(
+            "Windows", "iOS", "Linux", "Android", "PlayStation", "Xbox", "Nintendo"
+        );
 
-        private static readonly HashSet<string> ValidGameModes = new()
-           {
-               "Singleplayer", "Multiplayer", "Co-op", "Online"
-           };
+        public static readonly IImmutableSet<string> ValidGameModes = ImmutableHashSet.Create(
+            "Singleplayer", "Multiplayer", "Co-op", "Online"
+        );
 
-        private static readonly HashSet<string> ValidDistributionFormats = new()
-           {
-               "Digital", "Physical"
-           };
+        public static readonly IImmutableSet<string> ValidDistributionFormats = ImmutableHashSet.Create(
+            "Digital", "Physical"
+        );
 
         private GameDetails(
             string? genre,
             string platform,
             string? tags,
-            string? gameMode,
-            string? distributionFormat,
+            string gameMode,
+            string distributionFormat,
             string? availableLanguages,
             bool supportsDlcs
         )
@@ -48,32 +73,39 @@ namespace TC.CloudGames.Domain.Game
 
         public static Result<GameDetails> Create(
             string? genre,
-            string platform,
+            string[] platform,
             string? tags,
-            string? gameMode,
-            string? distributionFormat,
+            string gameMode,
+            string distributionFormat,
             string? availableLanguages,
             bool supportsDlcs
         )
         {
-            if (!ValidPlatforms.Contains(platform))
+            var errorList = new List<string>();
+
+            if (platform != null && !ValidPlatforms.Any(x => platform.Contains(x)))
             {
-                return Result<GameDetails>.Error($"Invalid platform. Valid platforms are: {string.Join(", ", ValidPlatforms)}.");
+                errorList.Add($"Invalid platform specified. Valid platforms are: {string.Join(", ", ValidPlatforms)}.");
             }
 
-            if (!string.IsNullOrEmpty(gameMode) && !ValidGameModes.Contains(gameMode))
+            if (string.IsNullOrWhiteSpace(gameMode) || !ValidGameModes.Contains(gameMode))
             {
-                return Result<GameDetails>.Error($"Invalid game mode. Valid game modes are: {string.Join(", ", ValidGameModes)}.");
+                errorList.Add($"Invalid game mode specified. Valid game modes are: {string.Join(", ", ValidGameModes)}.");
             }
 
-            if (!string.IsNullOrEmpty(distributionFormat) && !ValidDistributionFormats.Contains(distributionFormat))
+            if (string.IsNullOrWhiteSpace(distributionFormat) || !ValidDistributionFormats.Contains(distributionFormat))
             {
-                return Result<GameDetails>.Error($"Invalid distribution format. Valid formats are: {string.Join(", ", ValidDistributionFormats)}.");
+                errorList.Add($"Invalid distribution format specified. Valid formats are: {string.Join(", ", ValidDistributionFormats)}.");
+            }
+
+            if (errorList.Count != 0)
+            {
+                return Result<GameDetails>.Error(new ErrorList(errorList));
             }
 
             return Result<GameDetails>.Success(new GameDetails(
                 genre,
-                platform,
+                JsonSerializer.Serialize(platform),
                 tags,
                 gameMode,
                 distributionFormat,

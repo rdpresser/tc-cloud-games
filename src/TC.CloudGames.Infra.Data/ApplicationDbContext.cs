@@ -1,22 +1,27 @@
 ﻿using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Data;
 using TC.CloudGames.Application.Exceptions;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.User;
+using TC.CloudGames.Infra.Data.Configurations.Data;
 using TC.CloudGames.Infra.Data.Helpers;
 
 namespace TC.CloudGames.Infra.Data
 {
     public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     {
+        private readonly IDatabaseConnectionProvider _connectionProvider;
+
         public DbSet<User> Users { get; set; }
 
-        public ApplicationDbContext(DbContextOptions options)
+        public ApplicationDbContext(DbContextOptions options, IDatabaseConnectionProvider connectionProvider)
             : base(options)
         {
+            _connectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -24,7 +29,14 @@ namespace TC.CloudGames.Infra.Data
             if (!optionsBuilder.IsConfigured)
             {
                 base.OnConfiguring(optionsBuilder);
-                optionsBuilder.EnableSensitiveDataLogging(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development");
+
+                optionsBuilder.UseNpgsql(_connectionProvider.ConnectionString).UseSnakeCaseNamingConvention();
+                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+                {
+                    optionsBuilder.EnableSensitiveDataLogging(true);
+                    optionsBuilder.EnableDetailedErrors();
+                    optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
+                }
             }
         }
 

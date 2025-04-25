@@ -1,4 +1,6 @@
-﻿using TC.CloudGames.Domain.Abstractions;
+﻿using Ardalis.Result;
+using System.Collections.Immutable;
+using TC.CloudGames.Domain.Abstractions;
 
 namespace TC.CloudGames.Domain.Game
 {
@@ -11,12 +13,16 @@ namespace TC.CloudGames.Domain.Game
         public DeveloperInfo DeveloperInfo { get; private set; }
         public DiskSize DiskSize { get; private set; }
         public Price Price { get; private set; }
-        public Playtime Playtime { get; private set; }
+        public Playtime? Playtime { get; private set; }
         public GameDetails GameDetails { get; private set; }
         public SystemRequirements SystemRequirements { get; private set; }
-        public Rating Rating { get; private set; }
+        public Rating? Rating { get; private set; }
         public string? OfficialLink { get; private set; }
         public string? GameStatus { get; private set; }
+
+        public static readonly IImmutableSet<string> ValidGameStatus = ImmutableHashSet.Create(
+            "In Development", "Released", "Discontinued", "Available"
+        );
 
         private Game()
         {
@@ -56,7 +62,7 @@ namespace TC.CloudGames.Domain.Game
             GameStatus = gameStatus;
         }
 
-        public static Game Create(
+        public static Result<Game> Create(
            string name,
            DateOnly releaseDate,
            AgeRating ageRating,
@@ -72,6 +78,32 @@ namespace TC.CloudGames.Domain.Game
            string? gameStatus
         )
         {
+            var errorList = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                errorList.Add("Game name is required.");
+            }
+
+            if (ageRating == null)
+            {
+                errorList.Add("Age rating is required.");
+            }
+            else if (!AgeRating.ValidRatings.Contains(ageRating.Value))
+            {
+                errorList.Add($"Invalid age rating specified. Valid age rating are: {string.Join(", ", AgeRating.ValidRatings)}.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(gameStatus) && !ValidGameStatus.Contains(gameStatus))
+            {
+                errorList.Add($"Invalid game status specified. Valid status are: {string.Join(", ", ValidGameStatus)}.");
+            }
+
+            if (errorList.Count != 0)
+            {
+                return Result<Game>.Error(new ErrorList(errorList));
+            }
+
             return new Game(
                 Guid.NewGuid(),
                 name,
@@ -91,13 +123,13 @@ namespace TC.CloudGames.Domain.Game
         }
     }
 
-    public record DeveloperInfo(string Developer, string? Publisher);
+    public sealed record DeveloperInfo(string Developer, string? Publisher);
 
-    public record DiskSize(decimal SizeInGb);
+    public sealed record DiskSize(decimal SizeInGb); //TODO: fazer objeto de valor completo com validações
 
-    public record Price(decimal Amount);
+    public sealed record Price(decimal Amount); //TODO: fazer objeto de valor completo com validações
 
-    public record Playtime(int? Hours, int? PlayerCount);
+    public sealed record Playtime(int? Hours, int? PlayerCount); //TODO: fazer objeto de valor completo com validações
 
-    public record SystemRequirements(string Minimum, string? Recommended);
+    public sealed record SystemRequirements(string Minimum, string? Recommended);
 }

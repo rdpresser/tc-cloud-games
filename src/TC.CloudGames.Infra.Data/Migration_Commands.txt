@@ -2,7 +2,7 @@
 Shell: dotnet ef migrations add <migration-name> -c ApplicationDbContext
 PMC: Add-Migration <migration-name> -Context ApplicationDbContext -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
 
-==> command to remove the last migration created
+==> command to remove the last migration created (not in database)
 Shell: dotnet ef migrations remove -c ApplicationDbContext
 PMC: Remove-Migration -Context ApplicationDbContext -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
 

@@ -1,27 +1,26 @@
 ﻿using Ardalis.Result;
+using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Exceptions;
 using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 
-internal sealed class CreateUserCommandHandler : Abstractions.Messaging.ICommandHandler<CreateUserCommand, CreateUserResponse>
+internal sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, CreateUserResponse>
 {
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly CreateUserMapper _mapper;
 
-    public CreateUserCommandHandler(CreateUserMapper mapper, IUserRepository userRepository,
+    public CreateUserCommandHandler(IUserRepository userRepository,
         IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
     }
 
     public async Task<Result<CreateUserResponse>> ExecuteAsync(CreateUserCommand command, CancellationToken ct)
     {
-        var entity = _mapper.ToEntity(command);
+        var entity = CreateUserMapper.ToEntity(command);
 
         try
         {
@@ -35,7 +34,7 @@ internal sealed class CreateUserCommandHandler : Abstractions.Messaging.ICommand
                 $"Registro duplicado na tabela '{duplicateEx.TableName}'. Restrição violada: '{duplicateEx.ConstraintName}'");
         }
 
-        var response = _mapper.FromEntity(entity);
+        var response = CreateUserMapper.FromEntity(entity);
         return Result<CreateUserResponse>.Success(response);
     }
 }

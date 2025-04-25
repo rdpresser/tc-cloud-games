@@ -1,11 +1,10 @@
-﻿using FastEndpoints;
-using TC.CloudGames.Domain.User;
+﻿using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.CreateUser
 {
-    public sealed class CreateUserMapper : Mapper<CreateUserCommand, CreateUserResponse, User>
+    public static class CreateUserMapper
     {
-        public override User ToEntity(CreateUserCommand r)
+        public static User ToEntity(CreateUserCommand r)
         {
             return User.Create(
                 firstName: r.FirstName,
@@ -16,7 +15,7 @@ namespace TC.CloudGames.Application.Users.CreateUser
             );
         }
 
-        public override CreateUserResponse FromEntity(User e)
+        public static CreateUserResponse FromEntity(User e)
         {
             return new CreateUserResponse
             (

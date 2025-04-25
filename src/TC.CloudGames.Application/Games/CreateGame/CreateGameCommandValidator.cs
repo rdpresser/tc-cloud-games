@@ -1,0 +1,120 @@
+﻿using FastEndpoints;
+using FluentValidation;
+using TC.CloudGames.Domain.Game;
+
+namespace TC.CloudGames.Application.Games.CreateGame
+{
+    public sealed class CreateGameCommandValidator : Validator<CreateGameCommand>
+    {
+        public CreateGameCommandValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty()
+                .WithMessage("Game name is required.")
+                .MaximumLength(100)
+                .WithMessage("Game name must not exceed 100 characters.");
+
+            RuleFor(x => x.ReleaseDate)
+                .NotEmpty()
+                .WithMessage("Release date is required.")
+                .Must(date => date <= DateOnly.FromDateTime(DateTime.UtcNow))
+                .WithMessage("Release date must be in the past or present.");
+
+            RuleFor(x => x.AgeRating)
+                .NotEmpty()
+                .WithMessage("Age rating is required.")
+                .MaximumLength(10)
+                .WithMessage("Age rating must not exceed 10 characters.")
+                .Must(rating => AgeRating.ValidRatings.Contains(rating))
+                .WithMessage($"Invalid age rating specified. Valid age rating are: {string.Join(", ", AgeRating.ValidRatings)}.");
+
+            RuleFor(x => x.DeveloperInfo)
+                .NotNull()
+                .WithMessage("Developer information is required.");
+
+            RuleFor(x => x.DeveloperInfo.Developer)
+                .NotEmpty()
+                .WithMessage("Developer name is required.")
+                .MaximumLength(100)
+                .WithMessage("Developer name must not exceed 100 characters.");
+
+            RuleFor(x => x.DiskSize)
+                .NotEmpty()
+                .WithMessage("Disk size is required.")
+                .GreaterThan(0)
+                .WithMessage("Disk size must be greater than 0.");
+
+            RuleFor(x => x.Price)
+                .NotEmpty()
+                .WithMessage("Price is required.")
+                .GreaterThan(0)
+                .WithMessage("Price must be greater than 0.");
+
+            RuleFor(x => x.Playtime.Hours)
+                .GreaterThanOrEqualTo(0)
+                .WithMessage("Playtime hours must be greater than or equal to 0.");
+
+            RuleFor(x => x.Playtime.PlayerCount)
+                .GreaterThanOrEqualTo(1)
+                .WithMessage("Player count must be greater than or equal to 1.");
+
+
+            RuleFor(x => x.GameDetails)
+                .NotNull()
+                .WithMessage("Game details are required.");
+
+            RuleFor(x => x.GameDetails.Platform)
+                .NotEmpty()
+                .WithMessage("Platform is required.")
+                .Must(platform => Domain.Game.GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
+                .WithMessage($"Invalid platform specified. Valid platforms are: {string.Join(", ", Domain.Game.GameDetails.ValidPlatforms)}.");
+
+            RuleFor(x => x.GameDetails.GameMode)
+                .NotEmpty()
+                .WithMessage("Game mode is required.")
+                .Must(mode => Domain.Game.GameDetails.ValidGameModes.Contains(mode))
+                .WithMessage($"Invalid game mode specified. Valid game modes are: {string.Join(", ", Domain.Game.GameDetails.ValidGameModes)}.");
+
+            RuleFor(x => x.GameDetails.DistributionFormat)
+                .NotEmpty()
+                .WithMessage("Distribution format is required.")
+                .Must(format => Domain.Game.GameDetails.ValidDistributionFormats.Contains(format))
+                .WithMessage($"Invalid distribution format specified. Valid formats are: {string.Join(", ", Domain.Game.GameDetails.ValidDistributionFormats)}.");
+
+            RuleFor(x => x.GameDetails.SupportsDlcs)
+                .NotNull()
+                .WithMessage("Supports DLCs field is required.");
+
+            RuleFor(x => x.SystemRequirements)
+                .NotNull()
+                .WithMessage("System requirements are required.");
+
+            RuleFor(x => x.SystemRequirements.Minimum)
+                .NotEmpty()
+                .WithMessage("Minimum system requirements are required.")
+                .MaximumLength(1000)
+                .WithMessage("Minimum system requirements must not exceed 1000 characters.");
+
+            RuleFor(x => x.Rating)
+                .NotEmpty()
+                .WithMessage("Rating is required.")
+                .InclusiveBetween(0, 10)
+                .WithMessage("Rating must be between 0 and 10.");
+
+            //RuleFor(x => x.GameStatus)
+            //    .NotEmpty()
+            //    .WithMessage("Game status is required.")
+            //    .MaximumLength(50)
+            //    .WithMessage("Game status must not exceed 50 characters.")
+            //    .Must(status => Game.ValidGameStatus.Contains(status))
+            //    .WithMessage($"Invalid game status specified. Valid status are: {string.Join(", ", Game.ValidGameStatus)}.");
+
+            RuleFor(x => x.GameStatus)
+                .Must(status => status == null || Game.ValidGameStatus.Contains(status))
+                .WithMessage($"Invalid game status specified. Valid status are: {string.Join(", ", Game.ValidGameStatus)}.")
+                .MaximumLength(50)
+                .When(x => x.GameStatus != null)
+                .WithMessage("Game status must not exceed 50 characters.");
+        }
+    }
+}

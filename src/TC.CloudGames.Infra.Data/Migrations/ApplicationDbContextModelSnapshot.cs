@@ -36,7 +36,6 @@ namespace TC.CloudGames.Infra.Data.Migrations
                         .HasColumnName("age_rating");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)")
                         .HasColumnName("description");
@@ -57,7 +56,7 @@ namespace TC.CloudGames.Infra.Data.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("official_link");
 
-                    b.Property<decimal>("Rating")
+                    b.Property<decimal?>("Rating")
                         .HasColumnType("numeric")
                         .HasColumnName("rating");
 
@@ -177,25 +176,26 @@ namespace TC.CloudGames.Infra.Data.Migrations
                                 .HasColumnName("game_details_available_languages");
 
                             b1.Property<string>("DistributionFormat")
+                                .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
                                 .HasColumnName("game_details_distribution_format");
 
                             b1.Property<string>("GameMode")
+                                .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("character varying(100)")
                                 .HasColumnName("game_details_game_mode");
 
                             b1.Property<string>("Genre")
-                                .IsRequired()
                                 .HasMaxLength(50)
                                 .HasColumnType("character varying(50)")
                                 .HasColumnName("game_details_genre");
 
                             b1.Property<string>("Platform")
                                 .IsRequired()
-                                .HasMaxLength(50)
-                                .HasColumnType("character varying(50)")
+                                .HasMaxLength(2000)
+                                .HasColumnType("character varying(2000)")
                                 .HasColumnName("game_details_platform");
 
                             b1.Property<bool>("SupportsDlcs")
@@ -222,11 +222,11 @@ namespace TC.CloudGames.Infra.Data.Migrations
                                 .HasColumnType("uuid")
                                 .HasColumnName("id");
 
-                            b1.Property<int>("Hours")
+                            b1.Property<int?>("Hours")
                                 .HasColumnType("integer")
                                 .HasColumnName("playtime_hours");
 
-                            b1.Property<int>("PlayerCount")
+                            b1.Property<int?>("PlayerCount")
                                 .HasColumnType("integer")
                                 .HasColumnName("playtime_player_count");
 
@@ -293,8 +293,7 @@ namespace TC.CloudGames.Infra.Data.Migrations
                     b.Navigation("GameDetails")
                         .IsRequired();
 
-                    b.Navigation("Playtime")
-                        .IsRequired();
+                    b.Navigation("Playtime");
 
                     b.Navigation("Price")
                         .IsRequired();

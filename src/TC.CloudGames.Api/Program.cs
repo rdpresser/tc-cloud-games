@@ -7,6 +7,7 @@ using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.CrossCutting.Commons.Extensions;
 using TC.CloudGames.CrossCutting.Commons.Middleware;
 using TC.CloudGames.CrossCutting.IoC;
+using TC.CloudGames.Infra.Data.Configurations.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,8 @@ builder.Services.AddCommandMiddleware(
             typeof(CommandLogger<,>),
             typeof(CommandValidator<,>));
     });
+
+builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("Database"));
 
 var app = builder.Build();
 

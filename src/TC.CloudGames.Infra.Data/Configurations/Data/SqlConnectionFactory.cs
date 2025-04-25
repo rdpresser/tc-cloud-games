@@ -6,16 +6,16 @@ namespace TC.CloudGames.Infra.Data.Configurations.Data
 {
     public sealed class SqlConnectionFactory : ISqlConnectionFactory
     {
-        private readonly string _connectionString;
+        private readonly IDatabaseConnectionProvider _connectionProvider;
 
-        public SqlConnectionFactory(string connectionString)
+        public SqlConnectionFactory(IDatabaseConnectionProvider connectionProvider)
         {
-            _connectionString = connectionString;
+            _connectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
         }
 
         public IDbConnection CreateConnection()
         {
-            var connection = new NpgsqlConnection(_connectionString);
+            var connection = new NpgsqlConnection(_connectionProvider.ConnectionString);
             connection.Open();
 
             return connection;
@@ -23,7 +23,7 @@ namespace TC.CloudGames.Infra.Data.Configurations.Data
 
         public async Task<IDbConnection> CreateConnectionAsync(CancellationToken cancellationToken = default)
         {
-            var connection = new NpgsqlConnection(_connectionString);
+            var connection = new NpgsqlConnection(_connectionProvider.ConnectionString);
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
             return connection;

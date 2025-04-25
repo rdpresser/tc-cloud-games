@@ -9,7 +9,6 @@ namespace TC.CloudGames.Domain.Game
         public static readonly HashSet<string> ValidRatings =
            [
                "E", "E10+", "T", "M", "A", "RP"
-
            ];
 
         private AgeRating(string value) => Value = value;
