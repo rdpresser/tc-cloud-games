@@ -33,7 +33,7 @@ namespace TC.CloudGames.Domain.Game
             }
         }
 
-        public string Platform { get; set; }
+        public string Platform { get; private set; }
         public string? Tags { get; }
         public string GameMode { get; } //TODO: mudar para array 
         public string DistributionFormat { get; } //TODO: mudar para array 

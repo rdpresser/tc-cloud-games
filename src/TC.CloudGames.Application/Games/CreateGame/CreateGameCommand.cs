@@ -13,7 +13,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
         Playtime Playtime,
         GameDetails GameDetails,
         SystemRequirements SystemRequirements,
-        decimal Rating,
+        decimal? Rating,
         string? OfficialLink,
         string? GameStatus) : ICommand<CreateGameResponse>;
 

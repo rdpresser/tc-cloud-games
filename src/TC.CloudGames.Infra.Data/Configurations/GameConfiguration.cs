@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using TC.CloudGames.Domain.Game;
 
 namespace TC.CloudGames.Infra.Data.Configurations
@@ -55,11 +54,7 @@ namespace TC.CloudGames.Infra.Data.Configurations
             {
                 details.Property(d => d.Platform)
                     .IsRequired()
-                    .HasMaxLength(2000)
-                    .HasConversion(
-                        v => JsonConvert.SerializeObject(v), // Assuming Platform is a list of strings
-                        v => v // Assuming Platform is a list of strings
-                    );
+                    .HasMaxLength(2000);
 
                 details.Property(d => d.Genre)
                     .IsRequired(false) // Changed to IsRequired(false) as Genre is nullable in the domain class

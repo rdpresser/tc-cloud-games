@@ -58,7 +58,6 @@ namespace TC.CloudGames.Application.Games.CreateGame
                 .GreaterThanOrEqualTo(1)
                 .WithMessage("Player count must be greater than or equal to 1.");
 
-
             RuleFor(x => x.GameDetails)
                 .NotNull()
                 .WithMessage("Game details are required.");
@@ -66,20 +65,32 @@ namespace TC.CloudGames.Application.Games.CreateGame
             RuleFor(x => x.GameDetails.Platform)
                 .NotEmpty()
                 .WithMessage("Platform is required.")
-                .Must(platform => Domain.Game.GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
-                .WithMessage($"Invalid platform specified. Valid platforms are: {string.Join(", ", Domain.Game.GameDetails.ValidPlatforms)}.");
+                .DependentRules(() =>
+                {
+                    RuleFor(x => x.GameDetails.Platform)
+                        .Must(platform => Domain.Game.GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
+                        .WithMessage($"Invalid platform specified. Valid platforms are: {string.Join(", ", Domain.Game.GameDetails.ValidPlatforms)}.");
+                });
 
             RuleFor(x => x.GameDetails.GameMode)
                 .NotEmpty()
                 .WithMessage("Game mode is required.")
-                .Must(mode => Domain.Game.GameDetails.ValidGameModes.Contains(mode))
-                .WithMessage($"Invalid game mode specified. Valid game modes are: {string.Join(", ", Domain.Game.GameDetails.ValidGameModes)}.");
+                .DependentRules(() =>
+                {
+                    RuleFor(x => x.GameDetails.GameMode)
+                        .Must(mode => Domain.Game.GameDetails.ValidGameModes.Contains(mode))
+                        .WithMessage($"Invalid game mode specified. Valid game modes are: {string.Join(", ", Domain.Game.GameDetails.ValidGameModes)}.");
+                });
 
             RuleFor(x => x.GameDetails.DistributionFormat)
                 .NotEmpty()
                 .WithMessage("Distribution format is required.")
-                .Must(format => Domain.Game.GameDetails.ValidDistributionFormats.Contains(format))
-                .WithMessage($"Invalid distribution format specified. Valid formats are: {string.Join(", ", Domain.Game.GameDetails.ValidDistributionFormats)}.");
+                .DependentRules(() =>
+                {
+                    RuleFor(x => x.GameDetails.DistributionFormat)
+                        .Must(format => Domain.Game.GameDetails.ValidDistributionFormats.Contains(format))
+                        .WithMessage($"Invalid distribution format specified. Valid formats are: {string.Join(", ", Domain.Game.GameDetails.ValidDistributionFormats)}.");
+                });
 
             RuleFor(x => x.GameDetails.SupportsDlcs)
                 .NotNull()
@@ -87,27 +98,25 @@ namespace TC.CloudGames.Application.Games.CreateGame
 
             RuleFor(x => x.SystemRequirements)
                 .NotNull()
-                .WithMessage("System requirements are required.");
+                .WithMessage("System requirements are required.")
+                .DependentRules(() =>
+                {
+                    RuleFor(x => x.SystemRequirements.Minimum)
+                        .NotNull()
+                        .WithMessage("Minimum system requirements are required.")
+                        .MaximumLength(1000)
+                        .WithMessage("Minimum system requirements must not exceed 1000 characters.");
+                });
 
-            RuleFor(x => x.SystemRequirements.Minimum)
-                .NotEmpty()
-                .WithMessage("Minimum system requirements are required.")
-                .MaximumLength(1000)
-                .WithMessage("Minimum system requirements must not exceed 1000 characters.");
+            //RuleFor(x => x.Rating)
+            //    .NotEmpty()
+            //    .WithMessage("Rating is required.")
+            //    .InclusiveBetween(0, 10)
+            //    .WithMessage("Rating must be between 0 and 10.")
 
             RuleFor(x => x.Rating)
-                .NotEmpty()
-                .WithMessage("Rating is required.")
-                .InclusiveBetween(0, 10)
-                .WithMessage("Rating must be between 0 and 10.");
-
-            //RuleFor(x => x.GameStatus)
-            //    .NotEmpty()
-            //    .WithMessage("Game status is required.")
-            //    .MaximumLength(50)
-            //    .WithMessage("Game status must not exceed 50 characters.")
-            //    .Must(status => Game.ValidGameStatus.Contains(status))
-            //    .WithMessage($"Invalid game status specified. Valid status are: {string.Join(", ", Game.ValidGameStatus)}.");
+                .Must(rating => rating == null || (rating >= 0 && rating <= 10))
+                .WithMessage("Rating must be null or between 0 and 10.");
 
             RuleFor(x => x.GameStatus)
                 .Must(status => status == null || Game.ValidGameStatus.Contains(status))
