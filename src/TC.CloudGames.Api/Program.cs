@@ -14,7 +14,7 @@ var app = builder.Build();
 app.UseAuthentication()
   .UseAuthorization()
   .UseCustomFastEndpoints()
-  .UseCustomPipeline();
+  .UseCustomMiddlewares();
 
 if (app.Environment.IsDevelopment())
 {

@@ -52,7 +52,7 @@ namespace TC.CloudGames.Api.Extensions
             return app;
         }
 
-        public static IApplicationBuilder UseCustomPipeline(this IApplicationBuilder app)
+        public static IApplicationBuilder UseCustomMiddlewares(this IApplicationBuilder app)
         {
             app.UseHttpsRedirection()
                .UseCustomExceptionHandler()
