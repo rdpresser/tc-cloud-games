@@ -36,7 +36,7 @@ namespace TC.CloudGames.Api.Endpoints.User
             Summary(s =>
             {
                 s.Summary = "Retrieves a paginated list of users based on the provided filters.";
-                s.ExampleRequest = new GetUserListQuery(PageNumber: 1, PageSize: 10, SortBy: "id", SortDirection: "asc", Filter: "<any value>");
+                s.ExampleRequest = new GetUserListQuery(PageNumber: 1, PageSize: 10, SortBy: "id", SortDirection: "asc", Filter: "<any value/field>");
                 s.ResponseExamples[200] = userList;
                 s.Responses[200] = "Returned when the user list is successfully retrieved using the specified filters.";
                 s.Responses[400] = "Returned when the request contains invalid parameters.";

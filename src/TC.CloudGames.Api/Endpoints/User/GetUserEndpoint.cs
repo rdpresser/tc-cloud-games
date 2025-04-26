@@ -9,7 +9,6 @@ namespace TC.CloudGames.Api.Endpoints.User
     {
         public override void Configure()
         {
-
             Get("user/{Id}");
             Roles("Admin");
             Description(

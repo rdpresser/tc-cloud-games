@@ -6,6 +6,7 @@ using Npgsql;
 using System.Data;
 using TC.CloudGames.Application.Exceptions;
 using TC.CloudGames.Domain.Abstractions;
+using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.Data.Configurations.Data;
 using TC.CloudGames.Infra.Data.Helpers;
@@ -17,6 +18,7 @@ namespace TC.CloudGames.Infra.Data
         private readonly IDatabaseConnectionProvider _connectionProvider;
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Game> Games { get; set; }
 
         public ApplicationDbContext(DbContextOptions options, IDatabaseConnectionProvider connectionProvider)
             : base(options)
