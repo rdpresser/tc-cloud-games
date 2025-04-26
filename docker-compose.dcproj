@@ -12,5 +12,7 @@
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
+    <None Include="src\TC.CloudGames.Api\Extensions\ServiceCollectionExtensions2.cs" />
+    <None Include="src\TC.CloudGames.Api\Extensions\ServiceCollectionExtensions3.cs" />
   </ItemGroup>
 </Project>

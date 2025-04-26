@@ -108,12 +108,6 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         .WithMessage("Minimum system requirements must not exceed 1000 characters.");
                 });
 
-            //RuleFor(x => x.Rating)
-            //    .NotEmpty()
-            //    .WithMessage("Rating is required.")
-            //    .InclusiveBetween(0, 10)
-            //    .WithMessage("Rating must be between 0 and 10.")
-
             RuleFor(x => x.Rating)
                 .Must(rating => rating == null || (rating >= 0 && rating <= 10))
                 .WithMessage("Rating must be null or between 0 and 10.");
