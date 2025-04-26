@@ -8,13 +8,13 @@ namespace TC.CloudGames.Application.Games.CreateGame
         public static Result<Game> ToEntity(CreateGameCommand command)
         {
             var gameDetailsResult = Domain.Game.GameDetails.Create(
-                command.GameDetails.Genre,
-                command.GameDetails.Platform,
-                command.GameDetails.Tags,
-                command.GameDetails.GameMode,
-                command.GameDetails.DistributionFormat,
-                command.GameDetails.AvailableLanguages,
-                command.GameDetails.SupportsDlcs
+                genre: command.GameDetails.Genre,
+                platform: command.GameDetails.Platform,
+                tags: command.GameDetails.Tags,
+                gameMode: command.GameDetails.GameMode,
+                distributionFormat: command.GameDetails.DistributionFormat,
+                availableLanguages: command.GameDetails.AvailableLanguages,
+                supportsDlcs: command.GameDetails.SupportsDlcs
             );
 
             if (!gameDetailsResult.IsSuccess)
@@ -34,21 +34,21 @@ namespace TC.CloudGames.Application.Games.CreateGame
                 return Result<Game>.Error(new ErrorList(ratingResult.Errors));
             }
 
-            return Game.Create(
-                command.Name,
-                command.ReleaseDate,
-                ageRatingResult.Value,
-                command.Description,
-                new Domain.Game.DeveloperInfo(command.DeveloperInfo.Developer, command.DeveloperInfo.Publisher),
-                new DiskSize(command.DiskSize),
-                new Domain.Game.Price(command.Price),
-                new Domain.Game.Playtime(command.Playtime.Hours, command.Playtime.PlayerCount),
-                gameDetailsResult.Value,
-                new Domain.Game.SystemRequirements(command.SystemRequirements.Minimum, command.SystemRequirements.Recommended),
-                ratingResult.Value,
-                command.OfficialLink,
-                command.GameStatus
-            );
+            return Result<Game>.Success(Game.Create(
+                name: command.Name,
+                releaseDate: command.ReleaseDate,
+                ageRating: ageRatingResult.Value,
+                description: command.Description,
+                developerInfo: new Domain.Game.DeveloperInfo(command.DeveloperInfo.Developer, command.DeveloperInfo.Publisher),
+                diskSize: new DiskSize(command.DiskSize),
+                price: new Domain.Game.Price(command.Price),
+                playtime: command.Playtime != null ? new Domain.Game.Playtime(command.Playtime.Hours, command.Playtime.PlayerCount) : null,
+                gameDetails: gameDetailsResult.Value,
+                systemRequirements: new Domain.Game.SystemRequirements(command.SystemRequirements.Minimum, command.SystemRequirements.Recommended),
+                rating: ratingResult.Value,
+                officialLink: command.OfficialLink,
+                gameStatus: command.GameStatus
+            ));
         }
 
         public static CreateGameResponse FromEntity(Game game)
@@ -63,7 +63,15 @@ namespace TC.CloudGames.Application.Games.CreateGame
                 DiskSize: game.DiskSize.SizeInGb,
                 Price: game.Price.Amount,
                 Playtime: game.Playtime != null ? new Playtime(game.Playtime.Hours, game.Playtime.PlayerCount) : null,
-                GameDetails: new GameDetails(game.GameDetails.Genre, [.. game.GameDetails.PlatformList], game.GameDetails.Tags, game.GameDetails.GameMode, game.GameDetails.DistributionFormat, game.GameDetails.AvailableLanguages, game.GameDetails.SupportsDlcs),
+                GameDetails:
+                    new GameDetails(
+                        Genre: game.GameDetails.Genre,
+                        Platform: [.. game.GameDetails.PlatformList],
+                        Tags: game.GameDetails.Tags,
+                        GameMode: game.GameDetails.GameMode,
+                        DistributionFormat: game.GameDetails.DistributionFormat,
+                        AvailableLanguages: game.GameDetails.AvailableLanguages,
+                        SupportsDlcs: game.GameDetails.SupportsDlcs),
                 SystemRequirements: new SystemRequirements(game.SystemRequirements.Minimum, game.SystemRequirements.Recommended),
                 Rating: game.Rating?.Average ?? 0, // Handle null Rating by providing a default value
                 OfficialLink: game.OfficialLink,

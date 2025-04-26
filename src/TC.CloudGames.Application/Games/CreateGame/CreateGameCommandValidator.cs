@@ -30,71 +30,95 @@ namespace TC.CloudGames.Application.Games.CreateGame
 
             RuleFor(x => x.DeveloperInfo)
                 .NotNull()
-                .WithMessage("Developer information is required.");
-
-            RuleFor(x => x.DeveloperInfo.Developer)
-                .NotEmpty()
-                .WithMessage("Developer name is required.")
-                .MaximumLength(100)
-                .WithMessage("Developer name must not exceed 100 characters.");
+                .WithMessage("Developer information is required.")
+                .DependentRules(() =>
+                 {
+                     RuleFor(x => x.DeveloperInfo.Developer)
+                    .NotEmpty()
+                    .WithMessage("Developer name is required.")
+                    .MaximumLength(100)
+                    .WithMessage("Developer name must not exceed 100 characters.");
+                 });
 
             RuleFor(x => x.DiskSize)
                 .NotEmpty()
                 .WithMessage("Disk size is required.")
-                .GreaterThan(0)
-                .WithMessage("Disk size must be greater than 0.");
+                .DependentRules(() =>
+                {
+                    RuleFor(x => x.DiskSize)
+                    .GreaterThan(0)
+                    .WithMessage("Disk size must be greater than 0.");
+                });
 
             RuleFor(x => x.Price)
                 .NotEmpty()
                 .WithMessage("Price is required.")
-                .GreaterThan(0)
-                .WithMessage("Price must be greater than 0.");
+                .DependentRules(() =>
+                {
+                    RuleFor(x => x.Price)
+                        .GreaterThanOrEqualTo(0)
+                        .WithMessage("Price must be greater than or equal to 0.");
+                });
 
-            RuleFor(x => x.Playtime.Hours)
-                .GreaterThanOrEqualTo(0)
-                .WithMessage("Playtime hours must be greater than or equal to 0.");
+            RuleFor(x => x.Playtime)
+                .Must(playtime => playtime == null || playtime.Hours != null || playtime.PlayerCount != null)
+                .WithMessage("At least one of Playtime Hours or Player Count must be provided.")
+                .DependentRules(() =>
+                {
+                    When(x => x.Playtime?.Hours != null, () =>
+                    {
+                        RuleFor(x => x.Playtime.Hours)
+                            .GreaterThanOrEqualTo(0)
+                            .WithMessage("Playtime hours must be greater than or equal to 0.");
+                    });
 
-            RuleFor(x => x.Playtime.PlayerCount)
-                .GreaterThanOrEqualTo(1)
-                .WithMessage("Player count must be greater than or equal to 1.");
+                    When(x => x.Playtime?.PlayerCount != null, () =>
+                    {
+                        RuleFor(x => x.Playtime.PlayerCount)
+                            .GreaterThanOrEqualTo(1)
+                            .WithMessage("Player count must be greater than or equal to 1.");
+                    });
+                });
 
             RuleFor(x => x.GameDetails)
                 .NotNull()
-                .WithMessage("Game details are required.");
-
-            RuleFor(x => x.GameDetails.Platform)
-                .NotEmpty()
-                .WithMessage("Platform is required.")
+                .WithMessage("Game details are required.")
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.GameDetails.Platform)
-                        .Must(platform => Domain.Game.GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
-                        .WithMessage($"Invalid platform specified. Valid platforms are: {string.Join(", ", Domain.Game.GameDetails.ValidPlatforms)}.");
-                });
+                        .NotEmpty()
+                        .WithMessage("Platform is required.")
+                        .DependentRules(() =>
+                        {
+                            RuleFor(x => x.GameDetails.Platform)
+                                .Must(platform => Domain.Game.GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
+                                .WithMessage($"Invalid platform specified. Valid platforms are: {string.Join(", ", Domain.Game.GameDetails.ValidPlatforms)}.");
+                        });
 
-            RuleFor(x => x.GameDetails.GameMode)
-                .NotEmpty()
-                .WithMessage("Game mode is required.")
-                .DependentRules(() =>
-                {
                     RuleFor(x => x.GameDetails.GameMode)
-                        .Must(mode => Domain.Game.GameDetails.ValidGameModes.Contains(mode))
-                        .WithMessage($"Invalid game mode specified. Valid game modes are: {string.Join(", ", Domain.Game.GameDetails.ValidGameModes)}.");
-                });
+                        .NotEmpty()
+                        .WithMessage("Game mode is required.")
+                        .DependentRules(() =>
+                        {
+                            RuleFor(x => x.GameDetails.GameMode)
+                                .Must(mode => Domain.Game.GameDetails.ValidGameModes.Contains(mode))
+                                .WithMessage($"Invalid game mode specified. Valid game modes are: {string.Join(", ", Domain.Game.GameDetails.ValidGameModes)}.");
+                        });
 
-            RuleFor(x => x.GameDetails.DistributionFormat)
-                .NotEmpty()
-                .WithMessage("Distribution format is required.")
-                .DependentRules(() =>
-                {
                     RuleFor(x => x.GameDetails.DistributionFormat)
-                        .Must(format => Domain.Game.GameDetails.ValidDistributionFormats.Contains(format))
-                        .WithMessage($"Invalid distribution format specified. Valid formats are: {string.Join(", ", Domain.Game.GameDetails.ValidDistributionFormats)}.");
-                });
+                        .NotEmpty()
+                        .WithMessage("Distribution format is required.")
+                        .DependentRules(() =>
+                        {
+                            RuleFor(x => x.GameDetails.DistributionFormat)
+                                .Must(format => Domain.Game.GameDetails.ValidDistributionFormats.Contains(format))
+                                .WithMessage($"Invalid distribution format specified. Valid formats are: {string.Join(", ", Domain.Game.GameDetails.ValidDistributionFormats)}.");
+                        });
 
-            RuleFor(x => x.GameDetails.SupportsDlcs)
-                .NotNull()
-                .WithMessage("Supports DLCs field is required.");
+                    RuleFor(x => x.GameDetails.SupportsDlcs)
+                        .NotNull()
+                        .WithMessage("Supports DLCs field is required.");
+                });
 
             RuleFor(x => x.SystemRequirements)
                 .NotNull()
@@ -102,7 +126,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.SystemRequirements.Minimum)
-                        .NotNull()
+                        .NotEmpty()
                         .WithMessage("Minimum system requirements are required.")
                         .MaximumLength(1000)
                         .WithMessage("Minimum system requirements must not exceed 1000 characters.");

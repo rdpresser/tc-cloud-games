@@ -20,6 +20,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     await app.ApplyMigrations().ConfigureAwait(false);
+    await app.SeedUserData().ConfigureAwait(false);
+    await app.SeedGameData().ConfigureAwait(false);
 }
 
 await app.RunAsync();

@@ -13,9 +13,9 @@ namespace TC.CloudGames.Domain.Game
 
         public static Result<Rating> Create(decimal? average)
         {
-            if (average is < 0 or > 100)
+            if (average is < 0 or > 10)
             {
-                return Result<Rating>.Error("Average must be between 0 and 100.");
+                return Result<Rating>.Error("Average must be between 0 and 10.");
             }
 
             return Result<Rating>.Success(new Rating(average));

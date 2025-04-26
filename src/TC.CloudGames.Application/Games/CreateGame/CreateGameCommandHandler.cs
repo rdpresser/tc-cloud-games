@@ -27,6 +27,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
             try
             {
                 _gameRepository.Add(entity);
+
                 await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is IDuplicateKeyException duplicateEx)
