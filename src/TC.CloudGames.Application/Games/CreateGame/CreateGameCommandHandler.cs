@@ -16,6 +16,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
             _unitOfWork = unitOfWork;
             _gameRepository = gameRepository;
         }
+
         public async Task<Result<CreateGameResponse>> ExecuteAsync(CreateGameCommand command, CancellationToken ct)
         {
             var entity = CreateGameMapper.ToEntity(command);

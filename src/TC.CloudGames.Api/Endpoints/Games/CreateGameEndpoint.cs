@@ -13,6 +13,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
             Description(
                 x => x.Produces<CreateGameResponse>(200)
                       .ProducesProblemDetails());
+
             Summary(s =>
             {
                 s.Summary = "Endpoint for creating a new game.";
@@ -78,13 +79,13 @@ namespace TC.CloudGames.Api.Endpoints.Games
                 Price: 59.99m,
                 Playtime: new Playtime(10, 1),
                 GameDetails: new GameDetails(
-                    "Genre",
-                    [.. Domain.Game.GameDetails.ValidPlatforms],
-                    "Tags",
-                    Domain.Game.GameDetails.ValidGameModes.First(),
-                    Domain.Game.GameDetails.ValidDistributionFormats.First(),
-                    "Available Languages",
-                    true),
+                    Genre: "Genre",
+                    Platform: [.. Domain.Game.GameDetails.ValidPlatforms],
+                    Tags: "Tags",
+                    GameMode: Domain.Game.GameDetails.ValidGameModes.First(),
+                    DistributionFormat: Domain.Game.GameDetails.ValidDistributionFormats.First(),
+                    AvailableLanguages: "Available Languages",
+                    SupportsDlcs: true),
                 SystemRequirements: new SystemRequirements("Minimum Requirements", "Recommended Requirements"),
                 Rating: 4.5m,
                 OfficialLink: "https://example.com",

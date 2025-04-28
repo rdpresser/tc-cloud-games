@@ -11,6 +11,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
         {
             Get("game/{Id}");
             Roles("Admin");
+
             Description(
                 x => x.Produces<GameResponse>(200)
                       .ProducesProblemDetails()

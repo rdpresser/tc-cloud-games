@@ -7,6 +7,8 @@ namespace TC.CloudGames.Application.Games.CreateGame
     {
         public static Result<Game> ToEntity(CreateGameCommand command)
         {
+            var allErrors = new List<string>();
+
             var gameDetailsResult = Domain.Game.GameDetails.Create(
                 genre: command.GameDetails.Genre,
                 platform: command.GameDetails.Platform,
@@ -19,22 +21,22 @@ namespace TC.CloudGames.Application.Games.CreateGame
 
             if (!gameDetailsResult.IsSuccess)
             {
-                return Result<Game>.Error(new ErrorList(gameDetailsResult.Errors));
+                allErrors.AddRange(gameDetailsResult.Errors);
             }
 
             var ageRatingResult = AgeRating.Create(command.AgeRating);
             if (!ageRatingResult.IsSuccess)
             {
-                return Result<Game>.Error(new ErrorList(ageRatingResult.Errors));
+                allErrors.AddRange(ageRatingResult.Errors);
             }
 
             var ratingResult = Rating.Create(command.Rating);
             if (!ratingResult.IsSuccess)
             {
-                return Result<Game>.Error(new ErrorList(ratingResult.Errors));
+                allErrors.AddRange(ratingResult.Errors);
             }
 
-            return Result<Game>.Success(Game.Create(
+            var gameResult = Game.Create(
                 name: command.Name,
                 releaseDate: command.ReleaseDate,
                 ageRating: ageRatingResult.Value,
@@ -48,7 +50,19 @@ namespace TC.CloudGames.Application.Games.CreateGame
                 rating: ratingResult.Value,
                 officialLink: command.OfficialLink,
                 gameStatus: command.GameStatus
-            ));
+            );
+
+            if (!gameResult.IsSuccess)
+            {
+                allErrors.AddRange(gameResult.Errors);
+            }
+
+            if (allErrors.Count != 0)
+            {
+                return Result<Game>.Error(new ErrorList(allErrors));
+            }
+
+            return Result<Game>.Success(gameResult);
         }
 
         public static CreateGameResponse FromEntity(Game game)
