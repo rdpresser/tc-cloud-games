@@ -1,6 +1,9 @@
 using TC.CloudGames.Api.Extensions;
+using TC.CloudGames.Api.Extensions.TC.CloudGames.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseCustomSerilog(builder.Configuration);
 
 builder.Services
    .AddCustomAuthentication(builder.Configuration)
@@ -18,7 +21,6 @@ app.UseAuthentication()
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     await app.ApplyMigrations().ConfigureAwait(false);
     await app.SeedUserData().ConfigureAwait(false);
     await app.SeedGameData().ConfigureAwait(false);

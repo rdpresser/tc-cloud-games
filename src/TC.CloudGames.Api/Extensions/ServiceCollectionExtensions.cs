@@ -23,7 +23,7 @@ namespace TC.CloudGames.Api.Extensions
         {
             services.AddFastEndpoints(dicoveryOptions =>
             {
-                dicoveryOptions.Assemblies = [typeof(TC.CloudGames.Application.Abstractions.Messaging.ICommand<>).Assembly];
+                dicoveryOptions.Assemblies = [typeof(Application.Abstractions.Messaging.ICommand<>).Assembly];
             })
             .SwaggerDocument(o =>
             {

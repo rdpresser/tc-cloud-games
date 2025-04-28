@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using Serilog.Context;
 using TC.CloudGames.CrossCutting.Commons.Logger;
 
 namespace TC.CloudGames.CrossCutting.Commons.Middleware
@@ -17,20 +18,23 @@ namespace TC.CloudGames.CrossCutting.Commons.Middleware
             var correlationId = GetCorrelationId(context, correlationIdGenerator);
             AddCorrelationIdHeaderToResponse(context, correlationId);
 
-            await _next(context);
+            using (LogContext.PushProperty("CorrelationId", correlationId.ToString()))
+            {
+                await _next(context);
+            }
         }
 
         private static StringValues GetCorrelationId(HttpContext context, ICorrelationIdGenerator correlationIdGenerator)
         {
             if (context.Request.Headers.TryGetValue(_correlationIdHeader, out var correlationId))
             {
-                correlationIdGenerator.Set(correlationId);
+                correlationIdGenerator.Set(correlationId.ToString());
                 return correlationId;
             }
             else
             {
-                correlationId = Guid.NewGuid().ToString();
-                correlationIdGenerator.Set(correlationId);
+                correlationId = context.TraceIdentifier ?? Guid.NewGuid().ToString();
+                correlationIdGenerator.Set(correlationId.ToString());
                 return correlationId;
             }
         }

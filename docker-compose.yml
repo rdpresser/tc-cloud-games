@@ -22,3 +22,12 @@ services:
       - ./.containers/database:/var/lib/postgresql/data
     ports:
       - "54320:5432"
+
+  tc-cloudgames-seq:
+    image: datalust/seq:latest
+    container_name: TC.CloudGames.Seq
+    environment:
+     - ACCEPT_EULA=Y
+    ports:
+     - 5341:5341
+     - 8081:80

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using Serilog;
 using System.Data;
 using TC.CloudGames.Application.Exceptions;
 using TC.CloudGames.Domain.Abstractions;
@@ -33,6 +34,10 @@ namespace TC.CloudGames.Infra.Data
                 base.OnConfiguring(optionsBuilder);
 
                 optionsBuilder.UseNpgsql(_connectionProvider.ConnectionString).UseSnakeCaseNamingConvention();
+
+                // Use Serilog for EF Core logging
+                optionsBuilder.LogTo(Log.Logger.Information, LogLevel.Information);
+
                 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
                 {
                     optionsBuilder.EnableSensitiveDataLogging(true);

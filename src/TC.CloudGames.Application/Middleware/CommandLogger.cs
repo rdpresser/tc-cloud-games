@@ -1,69 +1,74 @@
 ﻿using Ardalis.Result;
 using FastEndpoints;
-using TC.CloudGames.CrossCutting.Commons.Logger;
+using Microsoft.Extensions.Logging;
+using Serilog.Context;
 
 namespace TC.CloudGames.Application.Middleware
 {
     public sealed class CommandLogger<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
             where TCommand : ICommand<TResult>
+            where TResult : class, IResult
     {
-        private readonly BaseLogger<CommandLogger<TCommand, TResult>> _logger;
+        private readonly ILogger<CommandLogger<TCommand, TResult>> _logger;
 
-        // Internal list of all concrete classes that inherit from ICommand<>
-        //private readonly IReadOnlyList<Type> _commandTypes;
-
-        public CommandLogger(BaseLogger<CommandLogger<TCommand, TResult>> logger)
+        public CommandLogger(ILogger<CommandLogger<TCommand, TResult>> logger)
         {
             _logger = logger;
+        }
 
-            //// Use reflection to find all concrete types implementing ICommand<>
-            //_commandTypes = Assembly.GetExecutingAssembly()
-            //                        .GetTypes()
-            //                        .Where(t => !t.IsAbstract && typeof(Abstractions.Messaging.IBaseCommand).IsAssignableFrom(t))
-            //                        .ToList()
-            //                        .AsReadOnly();
+        private void LogResponseIfApplicable<TResponse>(TResponse result, string requestName)
+        {
+            var resultType = result!.GetType();
+            var genericResultType = typeof(Result<>);
+
+            if (resultType.IsGenericType && resultType.GetGenericTypeDefinition() == genericResultType)
+            {
+                var valueProperty = resultType.GetProperty("Value");
+                if (valueProperty != null)
+                {
+                    var value = valueProperty.GetValue(result);
+                    using (LogContext.PushProperty($"{resultType.GenericTypeArguments[0].Name}", value, true))
+                    {
+                        _logger.LogInformation("Request {Request} executed successfully", requestName);
+                    }
+                }
+            }
+            else
+            {
+                _logger.LogInformation("Request {Request} executed successfully", requestName);
+            }
         }
 
         public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
         {
-            _logger.LogInformation($"Executing command: '{command.GetType().Name}'");
+            var name = command.GetType().Name;
 
-            var result = await next();
-
-            if (result is IResult resultWithErrors && resultWithErrors.Errors.Any())
+            try
             {
-                _logger.LogError($"Command '{command.GetType().Name}' failed with errors: '{string.Join(", ", resultWithErrors.Errors)}'");
+                _logger.LogInformation("Executing request: {Request}", name);
+
+                var result = await next();
+
+                if (result.Errors.Any())
+                {
+                    using (LogContext.PushProperty("Error", result.Errors, true))
+                    {
+                        _logger.LogError("Request {Request} processing failed with error", name);
+                    }
+                }
+                else
+                {
+                    LogResponseIfApplicable(result, name);
+                }
+
+                return result;
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogInformation($"Command '{command.GetType().Name}' executed successfully");
+                _logger.LogError(ex, "Request {Request} processing failed", name);
+
+                throw;
             }
-
-            //// Verify if the result is assignable to any type in _commandTypes list
-            //if (_commandTypes.Any(type => type.IsAssignableFrom(command.GetType())))
-            //{
-            //    if (result is Result<TResult> castedResult)
-            //    {
-            //        if (castedResult.Errors.Any())
-            //        {
-            //            _logger.LogError($"Command '{command.GetType().Name}' failed with errors: '{string.Join(", ", castedResult.Errors)}'");
-            //        }
-            //        else
-            //        {
-            //            _logger.LogInformation($"Command '{command.GetType().Name}' executed successfully with result: '{castedResult.Value}'");
-            //        }
-            //    }
-            //}
-            //else if (result is IResult resultWithErrors && resultWithErrors.Errors.Any())
-            //{
-            //    _logger.LogError($"Command '{command.GetType().Name}' failed with errors: '{string.Join(", ", resultWithErrors.Errors)}'");
-            //}
-            //else
-            //{
-            //    _logger.LogInformation($"Command '{command.GetType().Name}' executed successfully");
-            //}
-
-            return result;
         }
     }
 }

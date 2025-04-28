@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using FastEndpoints.Swagger;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using TC.CloudGames.Api.Middleware;
 using TC.CloudGames.CrossCutting.Commons.Middleware;
 using TC.CloudGames.Infra.Data;
@@ -56,7 +57,8 @@ namespace TC.CloudGames.Api.Extensions
         {
             app.UseHttpsRedirection()
                .UseCustomExceptionHandler()
-               .UseCorrelationMiddleware();
+               .UseCorrelationMiddleware()
+               .UseSerilogRequestLogging();
 
             return app;
         }
