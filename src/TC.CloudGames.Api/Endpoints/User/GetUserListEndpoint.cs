@@ -42,6 +42,7 @@ namespace TC.CloudGames.Api.Endpoints.User
                 s.Responses[400] = "Returned when the request contains invalid parameters.";
                 s.Responses[403] = "Returned when the logged-in user lacks the required role to access this endpoint.";
                 s.Responses[401] = "Returned when the request is made without a valid user token.";
+                s.Responses[404] = "Returned when no users are found matching the specified filters.";
             });
         }
 

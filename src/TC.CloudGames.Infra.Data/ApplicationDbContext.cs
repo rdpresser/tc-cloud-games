@@ -42,7 +42,6 @@ namespace TC.CloudGames.Infra.Data
                 {
                     optionsBuilder.EnableSensitiveDataLogging(true);
                     optionsBuilder.EnableDetailedErrors();
-                    optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
                 }
             }
         }

@@ -21,6 +21,8 @@ namespace TC.CloudGames.Api.Endpoints.Games
                 s.ResponseExamples[200] = CreateGameResponseExample();
                 s.Responses[200] = "Returned when a new game is successfully created.";
                 s.Responses[400] = "Returned when a bad request occurs.";
+                s.Responses[403] = "Returned when the caller lacks the required role to access this endpoint.";
+                s.Responses[401] = "Returned when the request is made without a valid user token.";
             });
         }
         public override async Task HandleAsync(CreateGameCommand req, CancellationToken ct)
@@ -46,13 +48,16 @@ namespace TC.CloudGames.Api.Endpoints.Games
                 DiskSize: 50.0m,
                 Price: 59.99m,
                 Playtime: new Playtime(10, 1),
-                GameDetails: new GameDetails("Genre",
-                    [.. Domain.Game.GameDetails.ValidPlatforms],
-                    "Tags",
-                    $"Choose one of valid game modes: {string.Join(", ", Domain.Game.GameDetails.ValidGameModes)}",
-                    $"Choose one of valid distribution format: {string.Join(", ", Domain.Game.GameDetails.ValidDistributionFormats)}",
-                    "Available Languages",
-                    true),
+                GameDetails: new GameDetails
+                (
+                    Genre: "Genre",
+                    Platform: [.. Domain.Game.GameDetails.ValidPlatforms],
+                    Tags: "Tags",
+                    GameMode: $"Choose one of valid game modes: {string.Join(", ", Domain.Game.GameDetails.ValidGameModes)}",
+                    DistributionFormat: $"Choose one of valid distribution format: {string.Join(", ", Domain.Game.GameDetails.ValidDistributionFormats)}",
+                    AvailableLanguages: "Available Languages",
+                    SupportsDlcs: true
+                ),
                 SystemRequirements: new SystemRequirements("Minimum Requirements", "Recommended Requirements"),
                 Rating: 4.5m,
                 OfficialLink: "https://example.com",

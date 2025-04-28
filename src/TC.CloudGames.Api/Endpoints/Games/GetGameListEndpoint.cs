@@ -1,6 +1,7 @@
 ﻿namespace TC.CloudGames.Api.Endpoints.Games
 {
-    public class GetGameListEndpoint
-    {
-    }
+    //public sealed class GetGameListEndpoint : Endpoint<GetGameQuery, GameResponse>
+    //{
+
+    //}
 }
