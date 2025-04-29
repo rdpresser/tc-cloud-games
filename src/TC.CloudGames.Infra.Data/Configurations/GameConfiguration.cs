@@ -20,7 +20,7 @@ namespace TC.CloudGames.Infra.Data.Configurations
                 .IsRequired();
 
             builder.Property(g => g.Description)
-                .IsRequired(false) // Changed to IsRequired(false) as Description is nullable in the domain class
+                .IsRequired(false)
                 .HasMaxLength(2000);
 
             builder.Property(g => g.AgeRating)
@@ -46,7 +46,7 @@ namespace TC.CloudGames.Infra.Data.Configurations
                     .HasMaxLength(100);
 
                 developerInfo.Property(d => d.Publisher)
-                    .IsRequired(false) // Changed to IsRequired(false) as Publisher is nullable in the domain class
+                    .IsRequired(false)
                     .HasMaxLength(200);
             });
 
@@ -57,7 +57,7 @@ namespace TC.CloudGames.Infra.Data.Configurations
                     .HasMaxLength(2000);
 
                 details.Property(d => d.Genre)
-                    .IsRequired(false) // Changed to IsRequired(false) as Genre is nullable in the domain class
+                    .IsRequired(false)
                     .HasMaxLength(50);
 
                 details.Property(d => d.GameMode)
@@ -69,14 +69,14 @@ namespace TC.CloudGames.Infra.Data.Configurations
                     .HasMaxLength(100);
 
                 details.Property(d => d.AvailableLanguages)
-                    .IsRequired(false) // Changed to IsRequired(false) as AvailableLanguages is nullable in the domain class
+                    .IsRequired(false)
                     .HasMaxLength(100);
 
                 details.Property(d => d.SupportsDlcs)
                     .IsRequired();
 
                 details.Property(d => d.Tags)
-                    .IsRequired(false) // Changed to IsRequired(false) as Tags is nullable in the domain class
+                    .IsRequired(false)
                     .HasMaxLength(200);
             });
 
@@ -94,7 +94,7 @@ namespace TC.CloudGames.Infra.Data.Configurations
                     .HasMaxLength(1000);
 
                 systemRequirements.Property(s => s.Recommended)
-                    .IsRequired(false) // Changed to IsRequired(false) as Recommended is nullable in the domain class
+                    .IsRequired(false)
                     .HasMaxLength(1000);
             });
 
@@ -107,18 +107,18 @@ namespace TC.CloudGames.Infra.Data.Configurations
             builder.OwnsOne(g => g.Playtime, playtime =>
             {
                 playtime.Property(p => p.Hours)
-                    .IsRequired(false); // Changed to IsRequired(false) as Hours is nullable in the domain class
+                    .IsRequired(false);
 
                 playtime.Property(p => p.PlayerCount)
-                    .IsRequired(false); // Changed to IsRequired(false) as PlayerCount is nullable in the domain class
+                    .IsRequired(false);
             });
 
             builder.Property(g => g.OfficialLink)
-                .IsRequired(false) // Changed to IsRequired(false) as OfficialLink is nullable in the domain class
+                .IsRequired(false)
                 .HasMaxLength(200);
 
             builder.Property(g => g.GameStatus)
-                .IsRequired(false) // Changed to IsRequired(false) as GameStatus is nullable in the domain class
+                .IsRequired(false)
                 .HasMaxLength(200);
         }
     }
