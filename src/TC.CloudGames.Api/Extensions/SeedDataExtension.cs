@@ -35,6 +35,8 @@ namespace TC.CloudGames.Api.Extensions
             await dbContext.SaveChangesAsync();
         }
 
+        private static readonly string[] AvailableLanguagesList = ["English", "Spanish", "French", "German", "Japanese"];
+
         public static async Task SeedGameData(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
@@ -58,7 +60,7 @@ namespace TC.CloudGames.Api.Extensions
                         description: faker.Lorem.Paragraph(),
                         developerInfo: new DeveloperInfo(faker.Company.CompanyName(), faker.Company.CompanyName()),
                         diskSize: new DiskSize(faker.Random.Int(1, 150)),
-                        price: new Price(Math.Round(faker.Random.Decimal(1, 500), 2)),
+                        price: new Price(decimal.Parse(faker.Commerce.Price(1.0m, 500.0m, 2))),
                         playtime: new Playtime(faker.Random.Int(1, 200), faker.Random.Int(1, 2000)),
                         gameDetails:
                             GameDetails.Create(
@@ -67,7 +69,7 @@ namespace TC.CloudGames.Api.Extensions
                                 tags: faker.Lorem.Word(),
                                 gameMode: faker.PickRandom(GameDetails.ValidGameModes.ToArray()),
                                 distributionFormat: faker.PickRandom(GameDetails.ValidDistributionFormats.ToArray()),
-                                availableLanguages: faker.Lorem.Word(),
+                                availableLanguages: string.Join(", ", faker.Random.ListItems(AvailableLanguagesList, faker.Random.Int(1, AvailableLanguagesList.Length))),
                                 supportsDlcs: faker.Random.Bool()),
                         systemRequirements: new SystemRequirements(faker.Lorem.Paragraph(), faker.Lorem.Paragraph()),
                         rating: Rating.Create(Math.Round(faker.Random.Decimal(1, 10), 2)),

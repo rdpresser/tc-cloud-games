@@ -4,7 +4,7 @@ namespace TC.CloudGames.Domain.Game
 {
     public sealed record AgeRating
     {
-        public string Value { get; init; }
+        public string Value { get; }
 
         public static readonly HashSet<string> ValidRatings =
            [

@@ -5,7 +5,7 @@ namespace TC.CloudGames.Domain.User
 {
     public sealed record Role
     {
-        public string Value { get; init; }
+        public string Value { get; }
 
         public static readonly IImmutableSet<string> ValidRoles =
             ImmutableHashSet.Create("Admin", "User");
