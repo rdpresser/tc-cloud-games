@@ -30,4 +30,4 @@ services:
      - ACCEPT_EULA=Y
     ports:
      - 5341:5341
-     - 8081:80
+     - 8082:80
