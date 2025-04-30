@@ -22,7 +22,6 @@ namespace TC.CloudGames.Domain.User
             "The email address already exists.",
             "User.EmailAlreadyExists");
 
-        //JWT secret key is not configured.
         public static readonly DomainError JwtSecretKeyNotConfigured = new(
             "JWTSecretKey",
             "JWT secret key is not configured.",
