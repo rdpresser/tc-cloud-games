@@ -2,10 +2,11 @@
 using Dapper;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
+using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.GetUser
 {
-    internal sealed class GetUserQueryHandler : IQueryHandler<GetUserQuery, UserResponse>
+    internal sealed class GetUserQueryHandler : QueryHandler<GetUserQuery, UserResponse>
     {
         private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
@@ -14,7 +15,7 @@ namespace TC.CloudGames.Application.Users.GetUser
             _sqlConnectionFactory = sqlConnectionFactory;
         }
 
-        public async Task<Result<UserResponse>> ExecuteAsync(GetUserQuery command, CancellationToken ct)
+        public override async Task<Result<UserResponse>> ExecuteAsync(GetUserQuery command, CancellationToken ct)
         {
             using var connection = await _sqlConnectionFactory.CreateConnectionAsync(ct).ConfigureAwait(false);
 
@@ -32,7 +33,8 @@ namespace TC.CloudGames.Application.Users.GetUser
             var user = await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, new { command.Id }).ConfigureAwait(false);
             if (user is null)
             {
-                return Result<UserResponse>.NotFound($"User with id '{command.Id}' not found.");
+                AddError(x => x.Id, $"User with id '{command.Id}' not found.", UserDomainErrors.NotFound.ErrorCode);
+                return ValidationErrorNotFound();
             }
 
             return Result<UserResponse>.Success(user);

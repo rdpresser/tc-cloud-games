@@ -6,7 +6,8 @@ namespace TC.CloudGames.Domain.User
     {
         public static readonly DomainError NotFound = new(
             "User.NotFound",
-            "The user with the specified identifier was not found");
+            "The user with the specified identifier was not found",
+            "User.NotFound");
 
         public static readonly DomainError InvalidCredentials = new(
             "User|Password",
