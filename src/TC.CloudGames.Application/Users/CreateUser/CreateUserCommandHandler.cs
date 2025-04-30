@@ -24,6 +24,12 @@ internal sealed class CreateUserCommandHandler : ICommandHandler<CreateUserComma
 
         try
         {
+            // Check if the email already exists
+            if (await _userRepository.EmailExistsAsync(command.Email, ct).ConfigureAwait(false))
+            {
+                return Result<CreateUserResponse>.Error("Email already exists.");
+            }
+            
             _userRepository.Add(entity);
 
             await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
