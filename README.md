@@ -1,3 +1,58 @@
+# TC Cloud Games
+
+## Development Setup with HTTPS
+
+To run the application with HTTPS in Docker, follow these steps:
+
+### Prerequisites
+
+- [.NET SDK](https://dotnet.microsoft.com/download) (version as specified in global.json)
+- [Docker](https://www.docker.com/products/docker-desktop)
+
+### Setup HTTPS Development Certificate
+
+#### Linux/macOS
+
+```bash
+# Make the script executable
+chmod +x ./scripts/setup-devcert.sh
+
+# Run the setup script
+./scripts/setup-devcert.sh
+```
+
+#### Windows
+
+```powershell
+# Run the setup script
+.\scripts\setup-devcert.bat
+```
+
+### Running the Application
+
+Once the certificate is set up, you can run the application with Docker Compose:
+
+```bash
+docker compose up
+```
+
+The application will be available at:
+- HTTP: http://localhost:[mapped-port]
+- HTTPS: https://localhost:[mapped-port]
+- Swagger UI: https://localhost:[mapped-port]/swagger/index.html
+
+The mapped ports can be seen using:
+
+```bash
+docker port TC.CloudGames.Api
+```
+
+### Notes
+
+- The certificate is automatically mapped into the Docker container using the volumes defined in docker-compose.override.yml
+- The certificate password is set in both the scripts and the docker-compose.override.yml file
+- If you change the password in the scripts, also update it in docker-compose.override.yml
+
 # TC.CloudGames
 
 TC.CloudGames is a cloud-based gaming platform built using modern software development principles, including **Clean Architecture**, **CQRS**, and **Domain-Driven Design (DDD)**. The project is structured into distinct layers (API, Application, Domain, and Infrastructure) and leverages **FastEndpoints** for high-performance API development. It also uses **Dapper** for efficient database access, ensuring optimal performance.

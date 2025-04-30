@@ -29,26 +29,26 @@ namespace TC.CloudGames.Api.Extensions
         public static IApplicationBuilder UseCustomFastEndpoints(this IApplicationBuilder app)
         {
             app.UseFastEndpoints(c =>
-            {
-                c.Endpoints.RoutePrefix = "api";
-                c.Endpoints.ShortNames = true;
-                c.Errors.UseProblemDetails(x =>
                 {
-                    x.AllowDuplicateErrors = true;
-                    x.IndicateErrorCode = false;
-                    x.IndicateErrorSeverity = false;
-                    x.TypeValue = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
-                    x.TitleValue = "One or more validation errors occurred.";
-                    x.TitleTransformer = pd => pd.Status switch
+                    c.Endpoints.RoutePrefix = "api";
+                    c.Endpoints.ShortNames = true;
+                    c.Errors.UseProblemDetails(x =>
                     {
-                        400 => "Validation Error",
-                        404 => "Not Found",
-                        _ => "One or more errors occurred!"
-                    };
-                });
-                c.Errors.ProducesMetadataType = typeof(ProblemDetails);
-            })
-            .UseSwaggerGen();
+                        x.AllowDuplicateErrors = true;
+                        x.IndicateErrorCode = false;
+                        x.IndicateErrorSeverity = false;
+                        x.TypeValue = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
+                        x.TitleValue = "One or more validation errors occurred.";
+                        x.TitleTransformer = pd => pd.Status switch
+                        {
+                            400 => "Validation Error",
+                            404 => "Not Found",
+                            _ => "One or more errors occurred!"
+                        };
+                    });
+                    c.Errors.ProducesMetadataType = typeof(ProblemDetails);
+                })
+                .UseSwaggerGen();
 
             return app;
         }
@@ -56,9 +56,9 @@ namespace TC.CloudGames.Api.Extensions
         public static IApplicationBuilder UseCustomMiddlewares(this IApplicationBuilder app)
         {
             app.UseHttpsRedirection()
-               .UseCustomExceptionHandler()
-               .UseCorrelationMiddleware()
-               .UseSerilogRequestLogging();
+                .UseCustomExceptionHandler()
+                .UseCorrelationMiddleware()
+                .UseSerilogRequestLogging();
 
             return app;
         }

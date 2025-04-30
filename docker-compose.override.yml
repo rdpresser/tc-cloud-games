@@ -6,11 +6,18 @@ services:
       - ASPNETCORE_HTTPS_PORTS=8081
       - DB_HOST=tc-cloud-games-db
       - DB_PORT=5432
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=SecurePassword123!
     ports:
       - "8080"
       - "8081"
     volumes:
+      # User Secrets configuration - works on both Windows and Linux
       - ${APPDATA:-$HOME/.microsoft}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA:-$HOME/.microsoft}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA:-$HOME/.aspnet}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA:-$HOME/.aspnet}/ASP.NET/Https:/root/.aspnet/https:ro
+      
+      # Certificate configuration - works on both Windows and Linux
+      # Windows paths: %USERPROFILE%\.aspnet\https or %APPDATA%\ASP.NET\Https
+      # Linux path: $HOME/.aspnet/https
+      # Only map to /https directly as the application is looking for /https/aspnetapp.pfx
+      - ${HOME}/.aspnet/https:/https:ro
