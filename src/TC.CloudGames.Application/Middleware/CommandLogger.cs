@@ -49,11 +49,25 @@ namespace TC.CloudGames.Application.Middleware
 
                 var result = await next();
 
-                if (result.Errors.Any())
+                if (!result.IsOk())
                 {
-                    using (LogContext.PushProperty("Error", result.Errors, true))
+                    if (result.ValidationErrors.Any())
                     {
-                        _logger.LogError("Request {Request} processing failed with error", name);
+                        using (LogContext.PushProperty("Error", result.ValidationErrors, true))
+                        {
+                            _logger.LogError("Request {Request} processing failed with error", name);
+                        }
+                    }
+                    else if (result.Errors.Any())
+                    {
+                        using (LogContext.PushProperty("Error", result.Errors, true))
+                        {
+                            _logger.LogError("Request {Request} processing failed with error", name);
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogError("Request {Request} processing failed with unknown error", name);
                     }
                 }
                 else

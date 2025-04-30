@@ -7,7 +7,7 @@ using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.Login
 {
-    internal sealed class LoginUserCommandHandler : Abstractions.Messaging.ICommandHandler<LoginUserCommand, LoginUserResponse>
+    internal sealed class LoginUserCommandHandler : Abstractions.Messaging.CommandHandler<LoginUserCommand, LoginUserResponse>
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
@@ -18,22 +18,27 @@ namespace TC.CloudGames.Application.Users.Login
             _configuration = configuration;
         }
 
-        public async Task<Result<LoginUserResponse>> ExecuteAsync(LoginUserCommand command, CancellationToken ct)
+        public override async Task<Result<LoginUserResponse>> ExecuteAsync(LoginUserCommand command, CancellationToken ct)
         {
-            var userDb = await _userRepository.GetByEmailWithPasswordAsync(
-                command.Email,
-                command.Password,
-                ct).ConfigureAwait(false);
+            var userDb = await _userRepository
+                .GetByEmailWithPasswordAsync
+                (
+                    command.Email,
+                    command.Password,
+                    ct
+                ).ConfigureAwait(false);
 
             if (userDb is null)
             {
-                return Result<LoginUserResponse>.NotFound("Email or password provided are invalid.");
+                AddError(UserDomainErrors.InvalidCredentials.Property, UserDomainErrors.InvalidCredentials.ErrorMessage, UserDomainErrors.InvalidCredentials.ErrorCode);
+                return ValidationErrorNotFound();
             }
 
             var jwtSecretKey = _configuration["JwtSecretKey"];
             if (string.IsNullOrEmpty(jwtSecretKey))
             {
-                return Result<LoginUserResponse>.CriticalError("JWT secret key is not configured.");
+                AddError(UserDomainErrors.JwtSecretKeyNotConfigured.Property, UserDomainErrors.JwtSecretKeyNotConfigured.ErrorMessage, UserDomainErrors.JwtSecretKeyNotConfigured.ErrorCode);
+                return ValidationErrorsInvalid();
             }
 
             var jwt = JwtBearer.CreateToken(options =>
@@ -46,12 +51,10 @@ namespace TC.CloudGames.Application.Users.Login
                 options.ExpireAt = DateTime.UtcNow.AddHours(1);
             });
 
-            var response = new LoginUserResponse(
+            return new LoginUserResponse(
                 jwt,
                 userDb.Email.Value
             );
-
-            return Result<LoginUserResponse>.Success(response);
         }
     }
 }

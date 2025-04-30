@@ -39,8 +39,6 @@ namespace TC.CloudGames.Api.Endpoints.Login
                 return;
             }
 
-            response.Errors.ToList().ForEach(e => AddError(e));
-
             if (response.IsNotFound())
             {
                 await SendErrorsAsync((int)HttpStatusCode.NotFound, cancellation: ct).ConfigureAwait(false);

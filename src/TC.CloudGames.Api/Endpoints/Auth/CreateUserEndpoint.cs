@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using TC.CloudGames.Application.Exceptions;
 using TC.CloudGames.Application.Users.CreateUser;
 using TC.CloudGames.Domain.User;
 
@@ -36,7 +37,8 @@ namespace TC.CloudGames.Api.Endpoints.Auth
                 return;
             }
 
-            response.Errors.ToList().ForEach(e => AddError(e));
+            response.ValidationErrors.AddValidationErrors(this);
+
             await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
         }
     }
