@@ -3,11 +3,12 @@ using FastEndpoints.Security;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.Login
 {
-    internal sealed class LoginUserCommandHandler : Abstractions.Messaging.CommandHandler<LoginUserCommand, LoginUserResponse>
+    internal sealed class LoginUserCommandHandler : CommandHandler<LoginUserCommand, LoginUserResponse>
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;

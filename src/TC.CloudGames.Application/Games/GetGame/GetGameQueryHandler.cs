@@ -5,7 +5,7 @@ using TC.CloudGames.Application.Abstractions.Messaging;
 
 namespace TC.CloudGames.Application.Games.GetGame
 {
-    internal sealed class GetGameQueryHandler : IQueryHandler<GetGameQuery, GameResponse>
+    internal sealed class GetGameQueryHandler : QueryHandler<GetGameQuery, GameResponse>
     {
         private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
@@ -14,7 +14,7 @@ namespace TC.CloudGames.Application.Games.GetGame
             _sqlConnectionFactory = sqlConnectionFactory;
         }
 
-        public async Task<Result<GameResponse>> ExecuteAsync(GetGameQuery command, CancellationToken ct)
+        public override async Task<Result<GameResponse>> ExecuteAsync(GetGameQuery command, CancellationToken ct)
         {
             using var connection = await _sqlConnectionFactory.CreateConnectionAsync(ct).ConfigureAwait(false);
 

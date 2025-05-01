@@ -6,7 +6,7 @@ using TC.CloudGames.Application.Games.GetGame;
 
 namespace TC.CloudGames.Application.Games.GetGameList
 {
-    internal sealed class GetGameListQueryHandler : IQueryHandler<GetGameListQuery, IReadOnlyList<GameListResponse>>
+    internal sealed class GetGameListQueryHandler : QueryHandler<GetGameListQuery, IReadOnlyList<GameListResponse>>
     {
         private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
@@ -34,7 +34,7 @@ namespace TC.CloudGames.Application.Games.GetGameList
             { "Recommended", "system_requirements_recommended" }
         };
 
-        public async Task<Result<IReadOnlyList<GameListResponse>>> ExecuteAsync(GetGameListQuery query, CancellationToken ct)
+        public override async Task<Result<IReadOnlyList<GameListResponse>>> ExecuteAsync(GetGameListQuery query, CancellationToken ct)
         {
             using var connection = await _sqlConnectionFactory.CreateConnectionAsync(ct).ConfigureAwait(false);
 
