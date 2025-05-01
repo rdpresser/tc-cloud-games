@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using TC.CloudGames.Application.Games.CreateGame;
+using TC.CloudGames.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Api.Endpoints.Games
 {
@@ -29,12 +30,13 @@ namespace TC.CloudGames.Api.Endpoints.Games
         public override async Task HandleAsync(CreateGameCommand req, CancellationToken ct)
         {
             var response = await req.ExecuteAsync(ct: ct).ConfigureAwait(false);
+
             if (response.IsSuccess)
             {
                 await SendAsync(response.Value, cancellation: ct).ConfigureAwait(false);
                 return;
             }
-            response.Errors.ToList().ForEach(e => AddError(e));
+
             await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
         }
 
@@ -43,7 +45,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
             return new CreateGameCommand(
                 Name: "Game Name",
                 ReleaseDate: DateOnly.FromDateTime(DateTime.UtcNow),
-                AgeRating: $"Choose one of valid age rate: {string.Join(", ", Domain.Game.AgeRating.ValidRatings)}",
+                AgeRating: $"Choose one of valid age rate: {Domain.Game.AgeRating.ValidRatings.JoinWithQuotes()}",
                 Description: "Game Description",
                 DeveloperInfo: new DeveloperInfo("Developer Name", "Publisher Name"),
                 DiskSize: 50.0m,
@@ -54,15 +56,15 @@ namespace TC.CloudGames.Api.Endpoints.Games
                     Genre: "Genre",
                     Platform: [.. Domain.Game.GameDetails.ValidPlatforms],
                     Tags: "Tags",
-                    GameMode: $"Choose one of valid game modes: {string.Join(", ", Domain.Game.GameDetails.ValidGameModes)}",
-                    DistributionFormat: $"Choose one of valid distribution format: {string.Join(", ", Domain.Game.GameDetails.ValidDistributionFormats)}",
+                    GameMode: $"Choose one of valid game modes: {Domain.Game.GameDetails.ValidGameModes.JoinWithQuotes()}",
+                    DistributionFormat: $"Choose one of valid distribution format: {Domain.Game.GameDetails.ValidDistributionFormats.JoinWithQuotes()}",
                     AvailableLanguages: "Available Languages",
                     SupportsDlcs: true
                 ),
                 SystemRequirements: new SystemRequirements("Minimum Requirements", "Recommended Requirements"),
                 Rating: 4.5m,
                 OfficialLink: "https://example.com",
-                GameStatus: $"Choose one of valid game status: {string.Join(", ", Domain.Game.Game.ValidGameStatus)}"
+                GameStatus: $"Choose one of valid game status: {Domain.Game.Game.ValidGameStatus.JoinWithQuotes()}"
             );
         }
 

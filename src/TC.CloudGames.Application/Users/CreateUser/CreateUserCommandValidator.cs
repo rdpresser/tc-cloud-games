@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using FluentValidation;
+using TC.CloudGames.CrossCutting.Commons.Extensions;
 using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.CreateUser
@@ -33,7 +34,7 @@ namespace TC.CloudGames.Application.Users.CreateUser
                 {
                     RuleFor(x => x.Role)
                         .Must(role => Role.ValidRoles.Contains(role))
-                        .WithMessage($"Invalid role specified. Valid roles are: {string.Join(", ", Role.ValidRoles)}.");
+                        .WithMessage($"Invalid role specified. Valid roles are: {Role.ValidRoles.JoinWithQuotes()}.");
                 });
 
 

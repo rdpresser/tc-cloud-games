@@ -1,17 +1,17 @@
 ﻿using Ardalis.Result;
+using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Exceptions;
 using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 
-internal sealed class CreateUserCommandHandler : Abstractions.Messaging.CommandHandler<CreateUserCommand, CreateUserResponse>
+internal sealed class CreateUserCommandHandler : CommandHandler<CreateUserCommand, CreateUserResponse>
 {
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateUserCommandHandler(IUserRepository userRepository,
-        IUnitOfWork unitOfWork)
+    public CreateUserCommandHandler(IUserRepository userRepository, IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
@@ -26,7 +26,8 @@ internal sealed class CreateUserCommandHandler : Abstractions.Messaging.CommandH
             // Check if the email already exists
             if (await _userRepository.EmailExistsAsync(command.Email, ct).ConfigureAwait(false))
             {
-                AddError(x => x.Email, UserDomainErrors.EmailAlreadyExists.ErrorMessage, UserDomainErrors.EmailAlreadyExists.ErrorCode);
+                AddError(x => x.Email, UserDomainErrors.EmailAlreadyExists.ErrorMessage,
+                    UserDomainErrors.EmailAlreadyExists.ErrorCode);
                 return ValidationErrorsInvalid();
             }
 

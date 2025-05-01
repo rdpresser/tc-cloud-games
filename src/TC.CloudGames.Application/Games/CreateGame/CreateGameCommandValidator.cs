@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using FluentValidation;
+using TC.CloudGames.CrossCutting.Commons.Extensions;
 using TC.CloudGames.Domain.Game;
 
 namespace TC.CloudGames.Application.Games.CreateGame
@@ -26,7 +27,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
                 .MaximumLength(10)
                 .WithMessage("Age rating must not exceed 10 characters.")
                 .Must(rating => AgeRating.ValidRatings.Contains(rating))
-                .WithMessage($"Invalid age rating specified. Valid age rating are: {string.Join(", ", AgeRating.ValidRatings)}.");
+                .WithMessage($"Invalid age rating specified. Valid age rating are: {AgeRating.ValidRatings.JoinWithQuotes()}.");
 
             RuleFor(x => x.DeveloperInfo)
                 .NotNull()
@@ -92,7 +93,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         {
                             RuleFor(x => x.GameDetails.Platform)
                                 .Must(platform => Domain.Game.GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
-                                .WithMessage($"Invalid platform specified. Valid platforms are: {string.Join(", ", Domain.Game.GameDetails.ValidPlatforms)}.");
+                                .WithMessage($"Invalid platform specified. Valid platforms are: {Domain.Game.GameDetails.ValidPlatforms.JoinWithQuotes()}.");
                         });
 
                     RuleFor(x => x.GameDetails.GameMode)
@@ -102,7 +103,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         {
                             RuleFor(x => x.GameDetails.GameMode)
                                 .Must(mode => Domain.Game.GameDetails.ValidGameModes.Contains(mode))
-                                .WithMessage($"Invalid game mode specified. Valid game modes are: {string.Join(", ", Domain.Game.GameDetails.ValidGameModes)}.");
+                                .WithMessage($"Invalid game mode specified. Valid game modes are: {Domain.Game.GameDetails.ValidGameModes.JoinWithQuotes()}.");
                         });
 
                     RuleFor(x => x.GameDetails.DistributionFormat)
@@ -112,7 +113,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         {
                             RuleFor(x => x.GameDetails.DistributionFormat)
                                 .Must(format => Domain.Game.GameDetails.ValidDistributionFormats.Contains(format))
-                                .WithMessage($"Invalid distribution format specified. Valid formats are: {string.Join(", ", Domain.Game.GameDetails.ValidDistributionFormats)}.");
+                                .WithMessage($"Invalid distribution format specified. Valid formats are: {Domain.Game.GameDetails.ValidDistributionFormats.JoinWithQuotes()}.");
                         });
 
                     RuleFor(x => x.GameDetails.SupportsDlcs)
@@ -138,7 +139,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
 
             RuleFor(x => x.GameStatus)
                 .Must(status => status == null || Game.ValidGameStatus.Contains(status))
-                .WithMessage($"Invalid game status specified. Valid status are: {string.Join(", ", Game.ValidGameStatus)}.")
+                .WithMessage($"Invalid game status specified. Valid status are: {Game.ValidGameStatus.JoinWithQuotes()}.")
                 .MaximumLength(50)
                 .When(x => x.GameStatus != null)
                 .WithMessage("Game status must not exceed 50 characters.");

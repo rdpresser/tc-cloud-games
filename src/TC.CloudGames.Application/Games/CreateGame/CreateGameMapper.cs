@@ -7,7 +7,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
     {
         public static Result<Game> ToEntity(CreateGameCommand command)
         {
-            var allErrors = new List<string>();
+            List<ValidationError> validation = [];
 
             var gameDetailsResult = Domain.Game.GameDetails.Create(
                 genre: command.GameDetails.Genre,
@@ -21,19 +21,19 @@ namespace TC.CloudGames.Application.Games.CreateGame
 
             if (!gameDetailsResult.IsSuccess)
             {
-                allErrors.AddRange(gameDetailsResult.Errors);
+                validation.AddRange(gameDetailsResult.ValidationErrors);
             }
 
             var ageRatingResult = AgeRating.Create(command.AgeRating);
             if (!ageRatingResult.IsSuccess)
             {
-                allErrors.AddRange(ageRatingResult.Errors);
+                validation.AddRange(ageRatingResult.ValidationErrors);
             }
 
             var ratingResult = Rating.Create(command.Rating);
             if (!ratingResult.IsSuccess)
             {
-                allErrors.AddRange(ratingResult.Errors);
+                validation.AddRange(ratingResult.ValidationErrors);
             }
 
             var gameResult = Game.Create(
@@ -54,15 +54,15 @@ namespace TC.CloudGames.Application.Games.CreateGame
 
             if (!gameResult.IsSuccess)
             {
-                allErrors.AddRange(gameResult.Errors);
+                validation.AddRange(gameResult.ValidationErrors);
             }
 
-            if (allErrors.Count != 0)
+            if (validation.Count != 0)
             {
-                return Result<Game>.Error(new ErrorList(allErrors));
+                return Result<Game>.Invalid(validation);
             }
 
-            return Result<Game>.Success(gameResult);
+            return gameResult;
         }
 
         public static CreateGameResponse FromEntity(Game game)

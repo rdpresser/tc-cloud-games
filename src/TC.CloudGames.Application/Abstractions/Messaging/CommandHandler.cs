@@ -1,5 +1,4 @@
 ﻿using Ardalis.Result;
-using FastEndpoints;
 using FluentValidation;
 using FluentValidation.Results;
 using System.Linq.Expressions;
@@ -11,11 +10,11 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
         where TCommand : ICommand<TResponse>
         where TResponse : class
     {
-        protected FastEndpoints.ValidationContext<TCommand> ValidationContext { get; } = Instance;
+        private FastEndpoints.ValidationContext<TCommand> ValidationContext { get; } = Instance;
 
         public abstract override Task<Result<TResponse>> ExecuteAsync(TCommand command, CancellationToken ct = default);
 
-        public Result<TResponse> HandleDuplicateKeyException(IDuplicateKeyException exception)
+        protected Result<TResponse> HandleDuplicateKeyException(IDuplicateKeyException exception)
         {
             AddError(
                 $"Table: {exception.TableName}",
@@ -26,12 +25,14 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
             return ValidationErrorsInvalid();
         }
 
-        public new void AddError(Expression<Func<TCommand, object?>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
+        protected new void AddError(Expression<Func<TCommand, object?>> property, string errorMessage,
+            string? errorCode = null, Severity severity = Severity.Error)
         {
             ValidationContext.AddError(property, errorMessage, errorCode, severity);
         }
 
-        public void AddError(string property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
+        protected void AddError(string property, string errorMessage, string? errorCode = null,
+            Severity severity = Severity.Error)
         {
             ValidationContext.AddError(new ValidationFailure
             {
@@ -42,7 +43,21 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
             });
         }
 
-        public Result<TResponse> ValidationErrorsInvalid()
+        protected void AddErrors(IEnumerable<ValidationError> validations)
+        {
+            validations.ToList().ForEach(validation =>
+            {
+                ValidationContext.AddError(new()
+                {
+                    PropertyName = validation.Identifier,
+                    ErrorMessage = validation.ErrorMessage,
+                    ErrorCode = validation.ErrorCode,
+                    Severity = (Severity)validation.Severity
+                });
+            });
+        }
+
+        protected Result<TResponse> ValidationErrorsInvalid()
         {
             if (ValidationContext.ValidationFailures.Count == 0)
             {
@@ -65,7 +80,7 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
             return Result<TResponse>.Invalid(validationErrors);
         }
 
-        public Result<TResponse> ValidationErrorNotFound()
+        protected Result<TResponse> ValidationErrorNotFound()
         {
             if (ValidationContext.ValidationFailures.Count == 0)
             {

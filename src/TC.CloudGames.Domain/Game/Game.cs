@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result;
 using System.Collections.Immutable;
 using TC.CloudGames.Domain.Abstractions;
+using TC.CloudGames.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Domain.Game
 {
@@ -78,30 +79,50 @@ namespace TC.CloudGames.Domain.Game
            string? gameStatus
         )
         {
-            var errorList = new List<string>();
+            List<ValidationError> validation = [];
 
             if (string.IsNullOrWhiteSpace(name))
             {
-                errorList.Add("Game name is required.");
+                validation.Add(new()
+                {
+                    Identifier = nameof(Name),
+                    ErrorMessage = "Game name is required.",
+                    ErrorCode = $"{nameof(Name)}.Required"
+                });
             }
 
             if (ageRating == null)
             {
-                errorList.Add("Age rating is required.");
+                validation.Add(new()
+                {
+                    Identifier = nameof(AgeRating),
+                    ErrorMessage = "Age rating is required.",
+                    ErrorCode = $"{nameof(AgeRating)}.Required"
+                });
             }
             else if (!AgeRating.ValidRatings.Contains(ageRating.Value))
             {
-                errorList.Add($"Invalid age rating specified. Valid age rating are: {string.Join(", ", AgeRating.ValidRatings)}.");
+                validation.Add(new()
+                {
+                    Identifier = nameof(AgeRating),
+                    ErrorMessage = $"Invalid age rating specified. Valid age ratings are: {AgeRating.ValidRatings.JoinWithQuotes()}.",
+                    ErrorCode = $"{nameof(AgeRating)}.Invalid"
+                });
             }
 
             if (!string.IsNullOrWhiteSpace(gameStatus) && !ValidGameStatus.Contains(gameStatus))
             {
-                errorList.Add($"Invalid game status specified. Valid status are: {string.Join(", ", ValidGameStatus)}.");
+                validation.Add(new()
+                {
+                    Identifier = nameof(GameStatus),
+                    ErrorMessage = $"Invalid game status specified. Valid status are: {ValidGameStatus.JoinWithQuotes()}.",
+                    ErrorCode = $"{nameof(GameStatus)}.Invalid"
+                });
             }
 
-            if (errorList.Count != 0)
+            if (validation.Count != 0)
             {
-                return Result<Game>.Error(new ErrorList(errorList));
+                return Result<Game>.Invalid(validation);
             }
 
             return new Game(

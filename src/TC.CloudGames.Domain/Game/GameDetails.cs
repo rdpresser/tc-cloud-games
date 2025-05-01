@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using TC.CloudGames.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Domain.Game
 {
@@ -81,29 +82,44 @@ namespace TC.CloudGames.Domain.Game
             bool supportsDlcs
         )
         {
-            var errorList = new List<string>();
+            List<ValidationError> validation = [];
 
-            if (platform != null && !ValidPlatforms.Any(x => platform.Contains(x)))
+            if (!ValidPlatforms.Any(platform.Contains))
             {
-                errorList.Add($"Invalid platform specified. Valid platforms are: {string.Join(", ", ValidPlatforms)}.");
+                validation.Add(new()
+                {
+                    Identifier = nameof(Platform),
+                    ErrorMessage = $"Invalid platform specified. Valid platforms are: {ValidPlatforms.JoinWithQuotes()}.",
+                    ErrorCode = $"{nameof(Platform)}.Invalid"
+                });
             }
 
             if (string.IsNullOrWhiteSpace(gameMode) || !ValidGameModes.Contains(gameMode))
             {
-                errorList.Add($"Invalid game mode specified. Valid game modes are: {string.Join(", ", ValidGameModes)}.");
+                validation.Add(new()
+                {
+                    Identifier = nameof(GameMode),
+                    ErrorMessage = $"Invalid game mode specified. Valid game modes are: {ValidGameModes.JoinWithQuotes()}.",
+                    ErrorCode = $"{nameof(GameMode)}.Invalid"
+                });
             }
 
             if (string.IsNullOrWhiteSpace(distributionFormat) || !ValidDistributionFormats.Contains(distributionFormat))
             {
-                errorList.Add($"Invalid distribution format specified. Valid formats are: {string.Join(", ", ValidDistributionFormats)}.");
+                validation.Add(new()
+                {
+                    Identifier = nameof(DistributionFormat),
+                    ErrorMessage = $"Invalid distribution format specified. Valid formats are: {ValidDistributionFormats.JoinWithQuotes()}.",
+                    ErrorCode = $"{nameof(DistributionFormat)}.Invalid"
+                });
             }
 
-            if (errorList.Count != 0)
+            if (validation.Count != 0)
             {
-                return Result<GameDetails>.Error(new ErrorList(errorList));
+                return Result<GameDetails>.Invalid(validation);
             }
 
-            return Result<GameDetails>.Success(new GameDetails(
+            return new GameDetails(
                 genre,
                 JsonSerializer.Serialize(platform),
                 tags,
@@ -111,7 +127,7 @@ namespace TC.CloudGames.Domain.Game
                 distributionFormat,
                 availableLanguages,
                 supportsDlcs
-            ));
+            );
         }
 
         public override string ToString()

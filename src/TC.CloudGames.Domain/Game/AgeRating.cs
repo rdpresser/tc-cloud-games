@@ -1,4 +1,5 @@
 ﻿using Ardalis.Result;
+using TC.CloudGames.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Domain.Game
 {
@@ -17,7 +18,7 @@ namespace TC.CloudGames.Domain.Game
         {
             if (!ValidRatings.Contains(value))
             {
-                return Result<AgeRating>.Error($"Invalid age rating: {value}. Valid ratings are: {string.Join(", ", ValidRatings)}");
+                return Result<AgeRating>.Error($"Invalid age rating: {value}. Valid ratings are: {ValidRatings.JoinWithQuotes()}");
             }
 
             return Result<AgeRating>.Success(new AgeRating(value));
