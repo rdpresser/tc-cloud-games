@@ -11,4 +11,8 @@
     <PackageReference Include="FastEndpoints.Messaging.Core" Version="6.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TC.CloudGames.CrossCutting.Commons\TC.CloudGames.CrossCutting.Commons.csproj" />
+  </ItemGroup>
+
 </Project>

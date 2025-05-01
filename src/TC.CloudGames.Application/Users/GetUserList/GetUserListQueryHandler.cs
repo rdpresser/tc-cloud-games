@@ -5,7 +5,7 @@ using TC.CloudGames.Application.Abstractions.Messaging;
 
 namespace TC.CloudGames.Application.Users.GetUserList
 {
-    internal sealed class GetUserListQueryHandler : IQueryHandler<GetUserListQuery, IReadOnlyList<UserListResponse>>
+    internal sealed class GetUserListQueryHandler : QueryHandler<GetUserListQuery, IReadOnlyList<UserListResponse>>
     {
         private readonly ISqlConnectionFactory _sqlConnectionFactory;
 
@@ -23,7 +23,7 @@ namespace TC.CloudGames.Application.Users.GetUserList
             { "Role", "role" }
         };
 
-        public async Task<Result<IReadOnlyList<UserListResponse>>> ExecuteAsync(GetUserListQuery query, CancellationToken ct)
+        public override async Task<Result<IReadOnlyList<UserListResponse>>> ExecuteAsync(GetUserListQuery query, CancellationToken ct)
         {
             using var connection = await _sqlConnectionFactory.CreateConnectionAsync(ct).ConfigureAwait(false);
 
