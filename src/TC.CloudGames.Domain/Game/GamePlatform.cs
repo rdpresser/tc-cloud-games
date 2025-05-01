@@ -5,7 +5,7 @@
     /// This class represents a many-to-many relationship between Game and Platform with composite key.
     /// https://medium.com/radzenhq/how-to-entity-framework-core-relationships-composite-keys-foreign-keys-data-annotations-code-f4b238086463
     /// </summary>
-    public class GamePlatform
+    public sealed class GamePlatform
     {
         public Guid GameId { get; private set; }
         //public virtual Game Game { get; set; }

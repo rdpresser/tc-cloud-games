@@ -1,5 +1,6 @@
 ﻿using Ardalis.Result;
 using System.Collections.Immutable;
+using TC.CloudGames.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Domain.User
 {
@@ -19,7 +20,12 @@ namespace TC.CloudGames.Domain.User
                 return Result<Role>.Success(new Role(value));
             }
 
-            return Result<Role>.Error("Invalid role.");
+            return Result<Role>.Invalid(new ValidationError
+            {
+                Identifier = "Role",
+                ErrorMessage = $"Invalid role specified. Valid roles are: {ValidRoles.JoinWithQuotes()}.",
+                ErrorCode = "Role.Invalid"
+            });
         }
 
         public override string ToString() => Value;

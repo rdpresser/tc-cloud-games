@@ -5,7 +5,7 @@ using TC.CloudGames.Application.Users.Login;
 
 namespace TC.CloudGames.Api.Endpoints.Login
 {
-    sealed class LoginEndpoint : Endpoint<LoginUserCommand, LoginUserResponse>
+    public sealed class LoginEndpoint : Endpoint<LoginUserCommand, LoginUserResponse>
     {
         public override void Configure()
         {

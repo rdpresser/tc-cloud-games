@@ -48,7 +48,6 @@ namespace TC.CloudGames.Api.Endpoints.Games
                 return;
             }
 
-            response.Errors.ToList().ForEach(e => AddError(e));
             await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
         }
 

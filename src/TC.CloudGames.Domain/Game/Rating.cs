@@ -15,7 +15,12 @@ namespace TC.CloudGames.Domain.Game
         {
             if (average is < 0 or > 10)
             {
-                return Result<Rating>.Error("Average must be between 0 and 10.");
+                return Result<Rating>.Invalid(new ValidationError
+                {
+                    Identifier = nameof(Average),
+                    ErrorMessage = "Average must be between 0 and 10.",
+                    ErrorCode = $"{nameof(Average)}.Invalid"
+                });
             }
 
             return Result<Rating>.Success(new Rating(average));

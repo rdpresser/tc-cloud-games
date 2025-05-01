@@ -19,10 +19,24 @@ namespace TC.CloudGames.Domain.User
         public static Result<Email> Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                return Result<Email>.Error("Email cannot be null or empty.");
+            {
+                return Result<Email>.Invalid(new ValidationError
+                {
+                    Identifier = "Email",
+                    ErrorMessage = "Email cannot be null or empty.",
+                    ErrorCode = "Email.Invalid"
+                });
+            }
 
             if (!EmailRegex.IsMatch(value))
-                return Result<Email>.Error("Invalid email format.");
+            {
+                return Result<Email>.Invalid(new ValidationError
+                {
+                    Identifier = "Email",
+                    ErrorMessage = "Invalid email format.",
+                    ErrorCode = "Email.Invalid"
+                });
+            }
 
             return Result<Email>.Success(new Email(value));
         }
