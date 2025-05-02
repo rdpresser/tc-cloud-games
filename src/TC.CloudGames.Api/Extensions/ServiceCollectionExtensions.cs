@@ -1,6 +1,7 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.CrossCutting.Commons.Extensions;
@@ -73,5 +74,18 @@ namespace TC.CloudGames.Api.Extensions
 
             return services;
         }
+
+        // public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services,
+        //     IConfiguration configuration)
+        // {
+        //     services.AddHealthChecks()
+        //         .AddNpgSql(
+        //             postgresConnectionString,
+        //             name: "PostgreSQL",
+        //             failureStatus: HealthStatus.Unhealthy,
+        //             tags: new[] { "db", "sql", "postgres" });
+        //
+        //     return services;
+        // }
     }
 }
