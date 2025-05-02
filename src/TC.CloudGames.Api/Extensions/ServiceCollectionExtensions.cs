@@ -5,6 +5,7 @@ using Newtonsoft.Json.Converters;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.CrossCutting.Commons.Extensions;
 using TC.CloudGames.CrossCutting.IoC;
+using TC.CloudGames.Infra.Data.Configurations.Connection;
 using TC.CloudGames.Infra.Data.Configurations.Data;
 
 namespace TC.CloudGames.Api.Extensions

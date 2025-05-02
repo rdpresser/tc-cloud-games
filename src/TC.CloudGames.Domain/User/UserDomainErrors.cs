@@ -16,7 +16,8 @@ namespace TC.CloudGames.Domain.User
 
         public static readonly DomainError CreateUser = new(
             "User.CreateUser",
-            "An error occurred while creating the user.");
+            "An error occurred while creating the user.",
+            "User.CreateUser");
 
         public static readonly DomainError EmailAlreadyExists = new(
             "Email",

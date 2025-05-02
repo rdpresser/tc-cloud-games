@@ -1,16 +1,20 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TC.CloudGames.Application.Abstractions.Data;
+using TC.CloudGames.Application.Games;
+using TC.CloudGames.Application.Users;
 using TC.CloudGames.CrossCutting.Commons.Clock;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Exceptions;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.Data;
+using TC.CloudGames.Infra.Data.Configurations.Connection;
 using TC.CloudGames.Infra.Data.Configurations.Data;
 using TC.CloudGames.Infra.Data.Exceptions;
 using TC.CloudGames.Infra.Data.Repositories;
+using TC.CloudGames.Infra.Data.Repositories.EfCore;
+using TC.CloudGames.Infra.Data.Repositories.PostgreSql;
 
 namespace TC.CloudGames.CrossCutting.IoC
 {
@@ -28,8 +32,8 @@ namespace TC.CloudGames.CrossCutting.IoC
         private static void RegisterInfra(IServiceCollection services, IConfiguration configuration)
         {
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
-            services.AddSingleton<IDatabaseConnectionProvider, DatabaseConnectionProvider>();
-            services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
+            services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
+            services.AddSingleton<IPgConnectionProvider, PgConnectionProvider>();
 
             services.AddDbContext<ApplicationDbContext>();
 
@@ -40,14 +44,15 @@ namespace TC.CloudGames.CrossCutting.IoC
         {
             //
             services.AddSingleton<IDuplicateKeyException, PostgresDuplicateKeyException>();
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IGameRepository, GameRepository>();
+            services.AddScoped<IUserEfRepository, UserEfRepository>();
+            services.AddScoped<IGameEfRepository, GameEfRepository>();
             services.AddScoped<IUnitOfWork, ApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
         }
 
         private static void RegisterApplication(IServiceCollection services)
         {
-
+            services.AddScoped<IUserPgRepository, UserPgRepository>();
+            services.AddScoped<IGamePgRepository, GamePgRepository>();
         }
     }
 }

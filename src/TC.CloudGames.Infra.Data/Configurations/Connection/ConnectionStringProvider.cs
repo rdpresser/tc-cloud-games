@@ -1,12 +1,13 @@
 using Microsoft.Extensions.Options;
+using TC.CloudGames.Infra.Data.Configurations.Data;
 
-namespace TC.CloudGames.Infra.Data.Configurations.Data
+namespace TC.CloudGames.Infra.Data.Configurations.Connection
 {
-    public sealed class DatabaseConnectionProvider : IDatabaseConnectionProvider
+    public sealed class ConnectionStringProvider : IConnectionStringProvider
     {
         private readonly DatabaseSettings _dbSettings;
 
-        public DatabaseConnectionProvider(IOptions<DatabaseSettings> dbSettings)
+        public ConnectionStringProvider(IOptions<DatabaseSettings> dbSettings)
         {
             _dbSettings = dbSettings.Value;
         }

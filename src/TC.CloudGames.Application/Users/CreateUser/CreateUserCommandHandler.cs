@@ -8,10 +8,10 @@ namespace TC.CloudGames.Application.Users.CreateUser;
 
 internal sealed class CreateUserCommandHandler : CommandHandler<CreateUserCommand, CreateUserResponse>
 {
-    private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserEfRepository _userRepository;
 
-    public CreateUserCommandHandler(IUserRepository userRepository, IUnitOfWork unitOfWork)
+    public CreateUserCommandHandler(IUserEfRepository userRepository, IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;

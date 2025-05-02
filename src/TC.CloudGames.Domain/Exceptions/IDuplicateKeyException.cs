@@ -5,7 +5,7 @@ public interface IDuplicateKeyException
     string Message { get; }
     string ConstraintName { get; }
     string TableName { get; }
-    string ColumnName { get; }
-    string SqlState { get; }
+    string? ColumnName { get; }
+    string? SqlState { get; }
     Exception? InnerException { get; }
 }

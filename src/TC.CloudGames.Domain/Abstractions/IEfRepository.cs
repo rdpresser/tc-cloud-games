@@ -1,6 +1,6 @@
 ﻿namespace TC.CloudGames.Domain.Abstractions;
 
-public interface IRepository<TEntity> where TEntity : Entity
+public interface IEfRepository<TEntity> where TEntity : Entity
 {
     Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
