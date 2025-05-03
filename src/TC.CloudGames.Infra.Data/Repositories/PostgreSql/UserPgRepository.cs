@@ -18,7 +18,7 @@ public class UserPgRepository : PgRepository, IUserPgRepository
             { "Role", "role" }
         };
 
-    public UserPgRepository(IPgConnectionProvider connectionProvider)
+    public UserPgRepository(IPgDbConnectionProvider connectionProvider)
         : base(connectionProvider)
     {
         

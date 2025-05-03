@@ -7,7 +7,6 @@ using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.CrossCutting.Commons.Extensions;
 using TC.CloudGames.CrossCutting.IoC;
 using TC.CloudGames.Infra.Data.Configurations.Connection;
-using TC.CloudGames.Infra.Data.Configurations.Data;
 
 namespace TC.CloudGames.Api.Extensions
 {
@@ -75,17 +74,19 @@ namespace TC.CloudGames.Api.Extensions
             return services;
         }
 
-        // public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services,
-        //     IConfiguration configuration)
-        // {
-        //     services.AddHealthChecks()
-        //         .AddNpgSql(
-        //             postgresConnectionString,
-        //             name: "PostgreSQL",
-        //             failureStatus: HealthStatus.Unhealthy,
-        //             tags: new[] { "db", "sql", "postgres" });
-        //
-        //     return services;
-        // }
+        public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services)
+        {
+            services.AddHealthChecks()
+                .AddNpgSql(sp =>
+                {
+                    var connectionProvider = sp.GetRequiredService<IConnectionStringProvider>();
+                    return connectionProvider.ConnectionString;
+                },
+                name: "PostgreSQL",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: ["db", "sql", "postgres"]);
+
+            return services;
+        }
     }
 }

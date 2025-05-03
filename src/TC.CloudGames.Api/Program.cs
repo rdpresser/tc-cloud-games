@@ -10,7 +10,8 @@ builder.Services
    .AddCustomFastEndpoints()
    .AddCustomServices(builder.Configuration)
    .AddCustomMiddleware()
-   .ConfigureDatabaseSettings(builder.Configuration);
+   .ConfigureDatabaseSettings(builder.Configuration)
+   .AddCustomHealthCheck();
 
 var app = builder.Build();
 

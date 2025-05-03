@@ -2,13 +2,13 @@
 
 namespace TC.CloudGames.Infra.Data.Configurations.Connection;
 
-public sealed class PgConnectionProvider : IPgConnectionProvider, IAsyncDisposable, IDisposable
+public sealed class PgDbConnectionProvider : IPgDbConnectionProvider, IAsyncDisposable, IDisposable
 {
     private readonly IConnectionStringProvider _connectionStringProvider;
     private NpgsqlConnection _connection;
     private bool _disposed;
 
-    public PgConnectionProvider(IConnectionStringProvider connectionStringProvider)
+    public PgDbConnectionProvider(IConnectionStringProvider connectionStringProvider)
     {
         _connectionStringProvider = connectionStringProvider ??
                                     throw new ArgumentNullException(nameof(connectionStringProvider));

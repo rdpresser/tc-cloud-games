@@ -33,7 +33,7 @@ namespace TC.CloudGames.CrossCutting.IoC
         {
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
-            services.AddSingleton<IPgConnectionProvider, PgConnectionProvider>();
+            services.AddSingleton<IPgDbConnectionProvider, PgDbConnectionProvider>();
 
             services.AddDbContext<ApplicationDbContext>();
 

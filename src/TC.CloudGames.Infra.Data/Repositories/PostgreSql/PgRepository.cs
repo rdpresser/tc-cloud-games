@@ -4,9 +4,9 @@ namespace TC.CloudGames.Infra.Data.Repositories.PostgreSql;
 
 public abstract class PgRepository
 {
-    protected readonly IPgConnectionProvider ConnectionProvider;
+    protected readonly IPgDbConnectionProvider ConnectionProvider;
 
-    public PgRepository(IPgConnectionProvider connectionProvider)
+    public PgRepository(IPgDbConnectionProvider connectionProvider)
     {
         ConnectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
     }

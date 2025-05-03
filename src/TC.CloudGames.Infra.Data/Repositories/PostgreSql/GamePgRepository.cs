@@ -8,7 +8,7 @@ namespace TC.CloudGames.Infra.Data.Repositories.PostgreSql;
 
 public class GamePgRepository : IGamePgRepository
 {
-    private readonly IPgConnectionProvider _connectionProvider;
+    private readonly IPgDbConnectionProvider _connectionProvider;
 
     private readonly IReadOnlyDictionary<string, string> _fieldMappings =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -30,7 +30,7 @@ public class GamePgRepository : IGamePgRepository
             { "Recommended", "system_requirements_recommended" }
         };
 
-    public GamePgRepository(IPgConnectionProvider connectionProvider)
+    public GamePgRepository(IPgDbConnectionProvider connectionProvider)
     {
         _connectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
     }

@@ -1,5 +1,7 @@
 ﻿using FastEndpoints;
 using FastEndpoints.Swagger;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using TC.CloudGames.Api.Middleware;
@@ -58,7 +60,12 @@ namespace TC.CloudGames.Api.Extensions
             app.UseHttpsRedirection()
                 .UseCustomExceptionHandler()
                 .UseCorrelationMiddleware()
-                .UseSerilogRequestLogging();
+                .UseSerilogRequestLogging()
+                .UseHealthChecks("/health", new HealthCheckOptions
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+                });
 
             return app;
         }
