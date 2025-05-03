@@ -2,6 +2,7 @@
 using FastEndpoints;
 using System.Net;
 using TC.CloudGames.Application.Games.GetGameList;
+using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Domain.Game;
 
 namespace TC.CloudGames.Api.Endpoints.Games
@@ -12,6 +13,8 @@ namespace TC.CloudGames.Api.Endpoints.Games
         {
             Get("game/list");
             Roles("Admin");
+            PostProcessor<CommandPostProcessor<GetGameListQuery, IReadOnlyList<GameListResponse>>>();
+
             Description(
                 x => x.Produces<GameListResponse>(200)
                       .ProducesProblemDetails()

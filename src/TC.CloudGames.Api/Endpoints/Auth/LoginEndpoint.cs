@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result;
 using FastEndpoints;
 using System.Net;
+using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.Login;
 
 namespace TC.CloudGames.Api.Endpoints.Login
@@ -11,6 +12,8 @@ namespace TC.CloudGames.Api.Endpoints.Login
         {
             Post("login");
             RoutePrefixOverride("auth");
+            PostProcessor<CommandPostProcessor<LoginUserCommand, LoginUserResponse>>();
+
             AllowAnonymous();
             Description(
                 x => x.Produces<LoginUserResponse>(200)

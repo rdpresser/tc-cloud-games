@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using TC.CloudGames.Application.Games.CreateGame;
+using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Api.Endpoints.Games
@@ -10,6 +11,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
         {
             Post("game");
             Roles("Admin");
+            PostProcessor<CommandPostProcessor<CreateGameCommand, CreateGameResponse>>();
 
             Description(
                 x => x.Produces<CreateGameResponse>(200)

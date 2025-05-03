@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result;
 using FastEndpoints;
 using System.Net;
+using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUser;
 
 namespace TC.CloudGames.Api.Endpoints.User
@@ -11,6 +12,8 @@ namespace TC.CloudGames.Api.Endpoints.User
         {
             Get("user/{Id}");
             Roles("Admin");
+            PostProcessor<CommandPostProcessor<GetUserQuery, UserResponse>>();
+
             Description(
                 x => x.Produces<UserResponse>(200)
                       .ProducesProblemDetails()

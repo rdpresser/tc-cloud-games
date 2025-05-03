@@ -45,7 +45,10 @@ namespace TC.CloudGames.Application.Middleware
 
             try
             {
-                _logger.LogInformation("Executing request: {Request}", name);
+                using (LogContext.PushProperty("RrequestContent", command, true))
+                {
+                    _logger.LogInformation("Executing request: {Request}", name);
+                }
 
                 var result = await next();
 

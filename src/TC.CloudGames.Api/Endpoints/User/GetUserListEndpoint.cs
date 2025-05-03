@@ -1,6 +1,7 @@
 ﻿using Bogus;
 using FastEndpoints;
 using System.Net;
+using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUserList;
 
 namespace TC.CloudGames.Api.Endpoints.User
@@ -13,6 +14,8 @@ namespace TC.CloudGames.Api.Endpoints.User
         {
             Get("user/list");
             Roles("Admin");
+            PostProcessor<CommandPostProcessor<GetUserListQuery, IReadOnlyList<UserListResponse>>>();
+
             Description(
                 x => x.Produces<UserListResponse>(200)
                       .ProducesProblemDetails()

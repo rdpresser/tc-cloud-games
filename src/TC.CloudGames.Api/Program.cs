@@ -9,7 +9,7 @@ builder.Services
    .AddCustomAuthentication(builder.Configuration)
    .AddCustomFastEndpoints()
    .AddCustomServices(builder.Configuration)
-   .AddCustomMiddleware()
+   //.AddCustomMiddleware()
    .ConfigureDatabaseSettings(builder.Configuration)
    .AddCustomHealthCheck();
 
