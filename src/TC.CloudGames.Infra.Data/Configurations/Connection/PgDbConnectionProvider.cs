@@ -14,6 +14,22 @@ public sealed class PgDbConnectionProvider : IPgDbConnectionProvider, IAsyncDisp
                                     throw new ArgumentNullException(nameof(connectionStringProvider));
     }
 
+    public NpgsqlConnection CreateConnection()
+    {
+        _connection = new NpgsqlConnection(_connectionStringProvider.ConnectionString);
+        _connection.Open();
+
+        return _connection;
+    }
+
+    public async Task<NpgsqlConnection> CreateConnectionAsync(CancellationToken cancellationToken = default)
+    {
+        _connection = new NpgsqlConnection(_connectionStringProvider.ConnectionString);
+        await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+        return _connection;
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (_disposed) return;
@@ -36,21 +52,5 @@ public sealed class PgDbConnectionProvider : IPgDbConnectionProvider, IAsyncDisp
         }
 
         _disposed = true;
-    }
-
-    public NpgsqlConnection CreateConnection()
-    {
-        _connection = new NpgsqlConnection(_connectionStringProvider.ConnectionString);
-        _connection.Open();
-
-        return _connection;
-    }
-
-    public async Task<NpgsqlConnection> CreateConnectionAsync(CancellationToken cancellationToken = default)
-    {
-        _connection = new NpgsqlConnection(_connectionStringProvider.ConnectionString);
-        await _connection!.OpenAsync(cancellationToken).ConfigureAwait(false);
-
-        return _connection;
     }
 }
