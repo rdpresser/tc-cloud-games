@@ -6,10 +6,8 @@ using TC.CloudGames.Infra.Data.Configurations.Connection;
 
 namespace TC.CloudGames.Infra.Data.Repositories.PostgreSql;
 
-public class GamePgRepository : IGamePgRepository
+public class GamePgRepository : PgRepository, IGamePgRepository
 {
-    private readonly IPgDbConnectionProvider _connectionProvider;
-
     private readonly IReadOnlyDictionary<string, string> _fieldMappings =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -31,14 +29,15 @@ public class GamePgRepository : IGamePgRepository
         };
 
     public GamePgRepository(IPgDbConnectionProvider connectionProvider)
+        : base(connectionProvider)
     {
-        _connectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
+
     }
 
-    public async Task<GameResponse?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<GameResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        await using var connection = await _connectionProvider
-            .CreateConnectionAsync(ct)
+        await using var connection = await ConnectionProvider
+            .CreateConnectionAsync(cancellationToken)
             .ConfigureAwait(false);
 
         const string sql = """
@@ -90,10 +89,10 @@ public class GamePgRepository : IGamePgRepository
     }
 
     public async Task<IReadOnlyList<GameListResponse>> GetGameListAsync(GetGameListQuery query,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
-        await using var connection = await _connectionProvider
-            .CreateConnectionAsync(ct)
+        await using var connection = await ConnectionProvider
+            .CreateConnectionAsync(cancellationToken)
             .ConfigureAwait(false);
 
         var orderByField = _fieldMappings.GetValueOrDefault(query.SortBy, "id");
@@ -165,6 +164,6 @@ public class GamePgRepository : IGamePgRepository
                 splitOn: "Developer,Hours,Genre,Minimum"
             ).ConfigureAwait(false);
 
-        return games.ToList();
+        return [.. games];
     }
 }

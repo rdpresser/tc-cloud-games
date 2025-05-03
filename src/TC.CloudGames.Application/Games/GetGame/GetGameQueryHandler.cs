@@ -18,7 +18,7 @@ namespace TC.CloudGames.Application.Games.GetGame
             var result = await _gameRepository.GetByIdAsync(command.Id, ct);
             if (result is not null)
                 return result;
-            
+
             AddError(x => x.Id, $"Game with id '{command.Id}' not found.", GameDomainErrors.NotFound.ErrorCode);
             return ValidationErrorNotFound();
         }

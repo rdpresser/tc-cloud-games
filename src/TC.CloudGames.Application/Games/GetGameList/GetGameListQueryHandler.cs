@@ -15,7 +15,9 @@ internal sealed class GetGameListQueryHandler : QueryHandler<GetGameListQuery, I
     public override async Task<Result<IReadOnlyList<GameListResponse>>> ExecuteAsync(GetGameListQuery query,
         CancellationToken ct = default)
     {
-        var games = await _gameRepository.GetGameListAsync(query, ct);
+        var games = await _gameRepository
+            .GetGameListAsync(query, ct)
+            .ConfigureAwait(false);
 
         if (games is null || !games.Any())
             return Result<IReadOnlyList<GameListResponse>>.Success([]);

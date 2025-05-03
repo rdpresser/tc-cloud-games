@@ -5,15 +5,12 @@ using TC.CloudGames.Domain.Game;
 
 namespace TC.CloudGames.Application.Games.CreateGame;
 
-internal sealed class CreateGameCommandHandler : CommandHandler<CreateGameCommand, CreateGameResponse>
+internal sealed class CreateGameCommandHandler : CommandHandler<CreateGameCommand, CreateGameResponse, Game, IGameEfRepository>
 {
-    private readonly IGameEfRepository _gameRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
     public CreateGameCommandHandler(IUnitOfWork unitOfWork, IGameEfRepository gameRepository)
+        : base(unitOfWork, gameRepository)
     {
-        _unitOfWork = unitOfWork;
-        _gameRepository = gameRepository;
+
     }
 
     public override async Task<Result<CreateGameResponse>> ExecuteAsync(CreateGameCommand command,
@@ -26,11 +23,10 @@ internal sealed class CreateGameCommandHandler : CommandHandler<CreateGameComman
             return Result<CreateGameResponse>.Invalid(entity.ValidationErrors);
         }
 
-        _gameRepository.Add(entity);
+        Repository.Add(entity);
 
-        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+        await UnitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
-        var response = CreateGameMapper.FromEntity(entity);
-        return Result<CreateGameResponse>.Success(response);
+        return CreateGameMapper.FromEntity(entity);
     }
 }

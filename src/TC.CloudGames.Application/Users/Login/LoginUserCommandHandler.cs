@@ -1,19 +1,21 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using FastEndpoints.Security;
 using Microsoft.Extensions.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using TC.CloudGames.Application.Abstractions.Messaging;
+using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.Login;
 
-internal sealed class LoginUserCommandHandler : CommandHandler<LoginUserCommand, LoginUserResponse>
+internal sealed class LoginUserCommandHandler : CommandHandler<LoginUserCommand, LoginUserResponse, User, IUserEfRepository>
 {
     private readonly IConfiguration _configuration;
     private readonly IUserEfRepository _userRepository;
 
-    public LoginUserCommandHandler(IUserEfRepository userRepository, IConfiguration configuration)
+    public LoginUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository userRepository, IConfiguration configuration)
+        : base(unitOfWork, userRepository)
     {
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));

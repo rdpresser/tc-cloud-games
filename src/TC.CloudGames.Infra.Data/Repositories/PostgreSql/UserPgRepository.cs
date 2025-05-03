@@ -21,13 +21,13 @@ public class UserPgRepository : PgRepository, IUserPgRepository
     public UserPgRepository(IPgDbConnectionProvider connectionProvider)
         : base(connectionProvider)
     {
-        
+
     }
 
-    public async Task<UserResponse?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<UserResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var connection = await ConnectionProvider
-            .CreateConnectionAsync(ct)
+            .CreateConnectionAsync(cancellationToken)
             .ConfigureAwait(false);
 
         const string sql = """
@@ -41,13 +41,14 @@ public class UserPgRepository : PgRepository, IUserPgRepository
                            WHERE id = @Id;
                            """;
 
-        return await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, new { id }).ConfigureAwait(false);
+        return await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, new { id })
+            .ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<UserListResponse>> GetUserListAsync(GetUserListQuery query, CancellationToken ct = default)
+    public async Task<IReadOnlyList<UserListResponse>> GetUserListAsync(GetUserListQuery query, CancellationToken cancellationToken = default)
     {
         await using var connection = await ConnectionProvider
-            .CreateConnectionAsync(ct)
+            .CreateConnectionAsync(cancellationToken)
             .ConfigureAwait(false);
 
         var orderByField = _fieldMappings.GetValueOrDefault(query.SortBy, "id");
@@ -89,7 +90,7 @@ public class UserPgRepository : PgRepository, IUserPgRepository
         var users = await connection
             .QueryAsync<UserListResponse>(sql, parameters)
             .ConfigureAwait(false);
-        
-        return users.ToList();
+
+        return [.. users];
     }
 }

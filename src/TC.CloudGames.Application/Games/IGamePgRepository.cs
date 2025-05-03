@@ -5,8 +5,7 @@ namespace TC.CloudGames.Application.Games;
 
 public interface IGamePgRepository
 {
-    Task<GameResponse?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<GameResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<GameListResponse>> GetGameListAsync(GetGameListQuery query,
-        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<GameListResponse>> GetGameListAsync(GetGameListQuery query, CancellationToken cancellationToken = default);
 }

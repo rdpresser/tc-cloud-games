@@ -6,34 +6,31 @@ using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 
-internal sealed class CreateUserCommandHandler : CommandHandler<CreateUserCommand, CreateUserResponse>
+internal sealed class CreateUserCommandHandler : CommandHandler<CreateUserCommand, CreateUserResponse, User, IUserEfRepository>
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserEfRepository _userRepository;
-
-    public CreateUserCommandHandler(IUserEfRepository userRepository, IUnitOfWork unitOfWork)
+    public CreateUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository userRepository)
+        : base(unitOfWork, userRepository)
     {
-        _userRepository = userRepository;
-        _unitOfWork = unitOfWork;
+
     }
 
-    public override async Task<Result<CreateUserResponse>> ExecuteAsync(CreateUserCommand command, CancellationToken ct)
+    public override async Task<Result<CreateUserResponse>> ExecuteAsync(CreateUserCommand command, CancellationToken ct = default)
     {
         var entity = CreateUserMapper.ToEntity(command);
 
         try
         {
             // Check if the email already exists
-            if (await _userRepository.EmailExistsAsync(command.Email, ct).ConfigureAwait(false))
+            if (await Repository.EmailExistsAsync(command.Email, ct).ConfigureAwait(false))
             {
                 AddError(x => x.Email, UserDomainErrors.EmailAlreadyExists.ErrorMessage,
                     UserDomainErrors.EmailAlreadyExists.ErrorCode);
                 return ValidationErrorsInvalid();
             }
 
-            _userRepository.Add(entity);
+            Repository.Add(entity);
 
-            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+            await UnitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is IDuplicateKeyException duplicateEx)
         {

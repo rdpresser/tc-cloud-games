@@ -15,11 +15,13 @@ namespace TC.CloudGames.Application.Users.GetUser
 
         public override async Task<Result<UserResponse>> ExecuteAsync(GetUserQuery command, CancellationToken ct)
         {
-            var user = await _userRepository.GetByIdAsync(command.Id, ct).ConfigureAwait(false);
+            var user = await _userRepository
+                .GetByIdAsync(command.Id, ct)
+                .ConfigureAwait(false);
 
-            if (user is not null) 
+            if (user is not null)
                 return user;
-            
+
             AddError(x => x.Id, $"User with id '{command.Id}' not found.", UserDomainErrors.NotFound.ErrorCode);
             return ValidationErrorNotFound();
         }
