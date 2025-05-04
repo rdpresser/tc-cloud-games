@@ -1,29 +1,29 @@
-services:  
-  tc.cloudgames.api:  
-    environment:  
-      - ASPNETCORE_ENVIRONMENT=Development  
-      - ASPNETCORE_HTTP_PORTS=8080  
-      - ASPNETCORE_HTTPS_PORTS=8081  
-      - DB_HOST=tc-cloud-games-db  
-      - DB_PORT=5432  
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx  
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=SecurePassword123!  
-    ports:  
-      - "8080"  
-      - "8081"  
-    volumes:  
+services:
+  tc-cloudgames-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - DB_HOST=tc-cloudgames-db
+      - DB_PORT=5432
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=SecurePassword123!
+    ports:
+      - "8080"
+      - "8081"
+    volumes:
       # User Secrets configuration for both Windows and Linux  
-      - ${APPDATA:-$HOME/.microsoft}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro  
-      - ${APPDATA:-$HOME/.microsoft}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro  
-
+      - ${APPDATA:-$HOME/.microsoft}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA:-$HOME/.microsoft}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      
       # Certificate configuration for both Windows and Linux  
       # Maps the certificate path dynamically based on OS  
-      - ${USERPROFILE:-$HOME}/.aspnet/https/aspnetapp.pfx:/https/aspnetapp.pfx:ro  
-    entrypoint: >  
+      - ${USERPROFILE:-$HOME}/.aspnet/https/aspnetapp.pfx:/https/aspnetapp.pfx:ro
+    entrypoint: >
       sh -c "
         CERT_PATH_LINUX=$HOME/.aspnet/https/aspnetapp.pfx;
         CERT_PATH_WINDOWS=$USERPROFILE/.aspnet/https/aspnetapp.pfx;
-        
+      
         if [ ! -f /https/aspnetapp.pfx ]; then  
           if [ -f $CERT_PATH_LINUX ]; then  
             cp $CERT_PATH_LINUX /https/aspnetapp.pfx;  

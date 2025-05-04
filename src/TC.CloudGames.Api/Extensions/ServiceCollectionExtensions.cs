@@ -8,21 +8,22 @@ using TC.CloudGames.CrossCutting.Commons.Extensions;
 using TC.CloudGames.CrossCutting.IoC;
 using TC.CloudGames.Infra.Data.Configurations.Connection;
 
-namespace TC.CloudGames.Api.Extensions
+namespace TC.CloudGames.Api.Extensions;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static IServiceCollection AddCustomAuthentication(this IServiceCollection services,
+        IConfiguration configuration)
     {
-        public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddAuthenticationJwtBearer(s => s.SigningKey = configuration["JwtSecretKey"])
-                    .AddAuthorization();
+        services.AddAuthenticationJwtBearer(s => s.SigningKey = configuration["JwtSecretKey"])
+            .AddAuthorization();
 
-            return services;
-        }
+        return services;
+    }
 
-        public static IServiceCollection AddCustomFastEndpoints(this IServiceCollection services)
-        {
-            services.AddFastEndpoints(dicoveryOptions =>
+    public static IServiceCollection AddCustomFastEndpoints(this IServiceCollection services)
+    {
+        services.AddFastEndpoints(dicoveryOptions =>
             {
                 dicoveryOptions.Assemblies = [typeof(Application.Abstractions.Messaging.ICommand<>).Assembly];
             })
@@ -37,47 +38,49 @@ namespace TC.CloudGames.Api.Extensions
                 };
 
                 o.RemoveEmptyRequestSchema = true;
-                o.NewtonsoftSettings = s =>
-                {
-                    s.Converters.Add(new StringEnumConverter());
-                };
+                o.NewtonsoftSettings = s => { s.Converters.Add(new StringEnumConverter()); };
             });
 
-            return services;
-        }
+        return services;
+    }
 
-        public static IServiceCollection AddCustomMiddleware(this IServiceCollection services)
+    public static IServiceCollection AddCustomMiddleware(this IServiceCollection services)
+    {
+        services.AddCommandMiddleware(c =>
         {
-            services.AddCommandMiddleware(c =>
+            c.Register(
+                typeof(CommandLogger<,>),
+                typeof(CommandValidator<,>));
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDependencyInjection(configuration)
+            .AddCorrelationIdGenerator()
+            .AddHttpClient()
+            .AddStackExchangeRedisCache(options =>
             {
-                c.Register(
-                    typeof(CommandLogger<,>),
-                    typeof(CommandValidator<,>));
+                options.Configuration = configuration.GetConnectionString("Cache");
             });
 
-            return services;
-        }
+        return services;
+    }
 
-        public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddDependencyInjection(configuration)
-                    .AddCorrelationIdGenerator()
-                    .AddHttpClient();
+    public static IServiceCollection ConfigureDatabaseSettings(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.Configure<DatabaseSettings>(configuration.GetSection("Database"));
 
-            return services;
-        }
+        return services;
+    }
 
-        public static IServiceCollection ConfigureDatabaseSettings(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.Configure<DatabaseSettings>(configuration.GetSection("Database"));
-
-            return services;
-        }
-
-        public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services)
-        {
-            services.AddHealthChecks()
-                .AddNpgSql(sp =>
+    public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services)
+    {
+        services.AddHealthChecks()
+            .AddNpgSql(sp =>
                 {
                     var connectionProvider = sp.GetRequiredService<IConnectionStringProvider>();
                     return connectionProvider.ConnectionString;
@@ -86,7 +89,6 @@ namespace TC.CloudGames.Api.Extensions
                 failureStatus: HealthStatus.Unhealthy,
                 tags: ["db", "sql", "postgres"]);
 
-            return services;
-        }
+        return services;
     }
 }

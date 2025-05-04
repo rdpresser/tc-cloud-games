@@ -1,7 +1,8 @@
+version: "3.8"
 services:
-  tc.cloudgames.api:
+  tc-cloudgames-api:
     image: ${DOCKER_REGISTRY-}tccloudgamesapi
-    ports: 
+    ports:
       - "55555:8080"
       - "55556:8081"
     container_name: TC.CloudGames.Api
@@ -9,9 +10,9 @@ services:
       context: .
       dockerfile: src/TC.CloudGames.Api/Dockerfile
     depends_on:
-      - tc-cloud-games-db
+      - tc-cloudgames-db
 
-  tc-cloud-games-db:
+  tc-cloudgames-db:
     image: postgres:latest
     container_name: TC.CloudGames.Db
     environment:
@@ -27,7 +28,17 @@ services:
     image: datalust/seq:latest
     container_name: TC.CloudGames.Seq
     environment:
-     - ACCEPT_EULA=Y
+      - ACCEPT_EULA=Y
     ports:
-     - 5341:5341
-     - 8082:80
+      - 5341:5341
+      - 8082:80
+
+  tc-cloudgames-redis:
+    image: redis:latest
+    restart: always
+    container_name: TC.CloudGames.Redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./.containers/redis:/data
+    command: redis-server --appendonly yes --appendfilename appendonly.aof --dir /data

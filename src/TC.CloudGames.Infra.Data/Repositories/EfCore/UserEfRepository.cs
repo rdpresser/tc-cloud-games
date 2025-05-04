@@ -16,6 +16,7 @@ public sealed class UserEfRepository : EfRepository<User>, IUserEfRepository
     {
         return await DbContext
             .Users
+            .AsNoTracking()
             .FirstOrDefaultAsync(entity =>
                 entity.Email == Email.Create(email) &&
                 entity.Password == Password.Create(password), cancellationToken).ConfigureAwait(false);
@@ -25,6 +26,7 @@ public sealed class UserEfRepository : EfRepository<User>, IUserEfRepository
     {
         return await DbContext
             .Users
+            .AsNoTracking()
             .AnyAsync(entity => entity.Email == Email.Create(email), cancellationToken).ConfigureAwait(false);
     }
 }
