@@ -36,7 +36,6 @@ namespace TC.CloudGames.CrossCutting.IoC
             services.AddSingleton<IPgDbConnectionProvider, PgDbConnectionProvider>();
 
             services.AddDbContext<ApplicationDbContext>();
-
             SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
         }
 

@@ -93,4 +93,22 @@ public class UserPgRepository : PgRepository, IUserPgRepository
 
         return [.. users];
     }
+    
+    public async Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)
+    {
+        await using var connection = await ConnectionProvider
+            .CreateConnectionAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        const string sql = """
+                           SELECT 1
+                           FROM public.users
+                           WHERE UPPER(email) = UPPER(@Email)
+                           """;
+
+        var result = await connection.QueryFirstOrDefaultAsync<int?>(sql, new { Email = email })
+            .ConfigureAwait(false);
+    
+        return result.HasValue;
+    }
 }

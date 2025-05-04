@@ -7,4 +7,5 @@ public interface IUserPgRepository
 {
     Task<UserResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<UserListResponse>> GetUserListAsync(GetUserListQuery query, CancellationToken cancellationToken = default);
+    Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default);
 }

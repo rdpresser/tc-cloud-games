@@ -7,7 +7,7 @@ namespace TC.CloudGames.Application.Users.CreateUser
 {
     public sealed class CreateUserCommandValidator : Validator<CreateUserCommand>
     {
-        public CreateUserCommandValidator()
+        public CreateUserCommandValidator(IUserPgRepository userPgRepository)
         {
             RuleFor(x => x.FirstName)
                 .NotEmpty()
@@ -24,7 +24,10 @@ namespace TC.CloudGames.Application.Users.CreateUser
                 {
                     RuleFor(x => x.Email)
                         .EmailAddress()
-                        .WithMessage("Invalid email format.");
+                        .WithMessage("Invalid email format.")
+                        .MustAsync(async (email, cancellation) =>
+                            !await userPgRepository.EmailExistsAsync(email, cancellation))
+                        .WithMessage("Email already exists.");
                 });
 
             RuleFor(x => x.Role)
