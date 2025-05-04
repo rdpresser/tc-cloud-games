@@ -1,7 +1,7 @@
-﻿using System.Net;
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using FastEndpoints;
 using Microsoft.Extensions.Caching.Distributed;
+using System.Net;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUser;
 
@@ -36,7 +36,10 @@ public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
             s.ExampleRequest = new GetUserQuery(Guid.NewGuid());
             s.ResponseExamples[200] = new UserResponse
             {
-                Email = "John.smith@gmail.com", Id = Guid.NewGuid(), FirstName = "John", LastName = "Smith",
+                Email = "John.smith@gmail.com",
+                Id = Guid.NewGuid(),
+                FirstName = "John",
+                LastName = "Smith",
                 Role = "Admin"
             };
             s.Responses[200] = "Returned when user information is successfully retrieved.";
@@ -49,14 +52,13 @@ public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
 
     public override async Task HandleAsync(GetUserQuery req, CancellationToken ct)
     {
-        // const string cacheKeyPrefix = "User-";
-        // var response = await _cache.GetAsync(
-        //     $"{cacheKeyPrefix}{req.Id}",
-        //     async token => await req.ExecuteAsync(token),
-        //     CacheOptions.DefaultExpiration,
-        //     ct);
-
-        var response = await req.ExecuteAsync(ct: ct).ConfigureAwait(false);
+        var response = await _cache.GetAsync($"User-{req.Id}",
+            async token =>
+            {
+                return await req.ExecuteAsync(token).ConfigureAwait(false);
+            },
+            CacheOptions.DefaultExpiration,
+            ct).ConfigureAwait(false);
 
         if (response.IsSuccess)
         {

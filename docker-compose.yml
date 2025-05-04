@@ -1,4 +1,5 @@
 version: "3.8"
+
 services:
   tc-cloudgames-api:
     image: ${DOCKER_REGISTRY-}tccloudgamesapi

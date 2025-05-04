@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using FastEndpoints;
+using Microsoft.Extensions.Caching.Distributed;
 using System.Net;
 using TC.CloudGames.Application.Games.GetGameList;
 using TC.CloudGames.Application.Middleware;
@@ -9,6 +10,13 @@ namespace TC.CloudGames.Api.Endpoints.Games
 {
     public sealed class GetGameListEndpoint : Endpoint<GetGameListQuery, IReadOnlyList<GameListResponse>>
     {
+        private readonly IDistributedCache _cache;
+
+        public GetGameListEndpoint(IDistributedCache cache)
+        {
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        }
+
         public override void Configure()
         {
             Get("game/list");
@@ -43,7 +51,14 @@ namespace TC.CloudGames.Api.Endpoints.Games
 
         public override async Task HandleAsync(GetGameListQuery req, CancellationToken ct)
         {
-            var response = await req.ExecuteAsync(ct: ct).ConfigureAwait(false);
+            var cacheKey = $"GameList-{req.PageNumber}-{req.PageSize}-{req.SortBy}-{req.SortDirection}-{req.Filter}";
+            var response = await _cache.GetAsync(cacheKey,
+                async token =>
+                {
+                    return await req.ExecuteAsync(token).ConfigureAwait(false);
+                },
+                CacheOptions.DefaultExpiration,
+                ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
             {
