@@ -1,4 +1,5 @@
 ﻿using Serilog;
+using Serilog.Enrichers.Sensitive;
 using Serilog.Events;
 
 namespace TC.CloudGames.Api.Extensions
@@ -22,7 +23,11 @@ namespace TC.CloudGames.Api.Extensions
                             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                             .Enrich.FromLogContext()
                             .Enrich.With(new UtcToLocalTimeEnricher(timeZone)) // Pass the timezone to the enricher
-                            .WriteTo.Console(outputTemplate: "[{LocalTimestamp}] {Level:u3} {Message:lj}{NewLine}{Exception}"));
+                            .WriteTo.Console(outputTemplate: "[{LocalTimestamp}] {Level:u3} {Message:lj}{NewLine}{Exception}"))
+                            .Enrich.WithSensitiveDataMasking(options =>
+                            {
+                                options.MaskProperties = ["Password", "Email", "PhoneNumber"];
+                            });
                 });
             }
         }
