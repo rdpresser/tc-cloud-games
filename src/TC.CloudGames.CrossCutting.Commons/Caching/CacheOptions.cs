@@ -1,7 +1,18 @@
-﻿namespace Microsoft.Extensions.Caching.Distributed;
+﻿using ZiggyCreatures.Caching.Fusion;
+
+namespace TC.CloudGames.CrossCutting.Commons.Caching;
 
 public static class CacheOptions
 {
-    public static DistributedCacheEntryOptions DefaultExpiration =>
-        new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(20) };
+    public static FusionCacheEntryOptions DefaultExpiration
+    {
+        get
+        {
+            return new()
+            {
+                Duration = TimeSpan.FromSeconds(20),
+                DistributedCacheDuration = TimeSpan.FromSeconds(30)
+            };
+        }
+    }
 }

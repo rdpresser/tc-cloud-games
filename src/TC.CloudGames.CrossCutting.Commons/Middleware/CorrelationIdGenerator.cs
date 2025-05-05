@@ -1,4 +1,4 @@
-﻿namespace TC.CloudGames.CrossCutting.Commons.Logger
+﻿namespace TC.CloudGames.CrossCutting.Commons.Middleware
 {
     public class CorrelationIdGenerator : ICorrelationIdGenerator
     {

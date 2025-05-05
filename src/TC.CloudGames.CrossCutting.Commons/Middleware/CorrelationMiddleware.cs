@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Serilog.Context;
-using TC.CloudGames.CrossCutting.Commons.Logger;
 
 namespace TC.CloudGames.CrossCutting.Commons.Middleware
 {

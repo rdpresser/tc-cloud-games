@@ -7,6 +7,11 @@ namespace TC.CloudGames.Api.Extensions
 {
     public static class SeedDataExtension
     {
+        /// <summary>
+        /// Seeds the database with user data if it is empty.
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
         public static async Task SeedUserData(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
@@ -37,6 +42,11 @@ namespace TC.CloudGames.Api.Extensions
 
         private static readonly string[] AvailableLanguagesList = ["English", "Spanish", "French", "German", "Japanese"];
 
+        /// <summary>
+        /// Seeds the database with game data if it is empty.
+        /// </summary>
+        /// <param name="app"></param>
+        /// <returns></returns>
         public static async Task SeedGameData(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();

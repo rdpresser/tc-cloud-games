@@ -1,17 +1,18 @@
 ﻿using Ardalis.Result;
 using FastEndpoints;
-using Microsoft.Extensions.Caching.Distributed;
 using System.Net;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUser;
+using TC.CloudGames.CrossCutting.Commons.Caching;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.User;
 
 public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
 {
-    private readonly IDistributedCache _cache;
+    private readonly IFusionCache _cache;
 
-    public GetUserEndpoint(IDistributedCache cache)
+    public GetUserEndpoint(IFusionCache cache)
     {
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
     }
@@ -52,12 +53,12 @@ public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
 
     public override async Task HandleAsync(GetUserQuery req, CancellationToken ct)
     {
-        var response = await _cache.GetAsync($"User-{req.Id}",
+        var response = await _cache.GetOrSetAsync($"User-{req.Id}",
             async token =>
             {
                 return await req.ExecuteAsync(token).ConfigureAwait(false);
             },
-            CacheOptions.DefaultExpiration,
+            options: CacheOptions.DefaultExpiration,
             ct).ConfigureAwait(false);
 
         if (response.IsSuccess)

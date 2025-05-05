@@ -2,6 +2,15 @@
 
 namespace TC.CloudGames.Api.Extensions
 {
+    /// <summary>
+    /// Provides functionality to generate secure random passwords that meet specific complexity requirements.
+    /// </summary>
+    /// <remarks>
+    /// The generated password will always include at least one uppercase letter, one lowercase letter, 
+    /// one digit, and one special character to ensure compliance with common password policies. 
+    /// The remaining characters are randomly selected from a combination of uppercase, lowercase, digits, 
+    /// and special characters. The password is then shuffled to ensure randomness.
+    /// </remarks>
     public static class PasswordGenerator
     {
         private static Random random = new Random();

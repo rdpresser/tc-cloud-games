@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TC.CloudGames.CrossCutting.Commons.Logger;
+using TC.CloudGames.CrossCutting.Commons.Middleware;
 
 namespace TC.CloudGames.CrossCutting.Commons.Extensions
 {

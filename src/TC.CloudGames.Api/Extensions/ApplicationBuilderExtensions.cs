@@ -12,22 +12,23 @@ namespace TC.CloudGames.Api.Extensions
 {
     public static class ApplicationBuilderExtensions
     {
+        // Applies pending migrations to the database
         public static async Task ApplyMigrations(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
-
             using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             await dbContext.Database.MigrateAsync().ConfigureAwait(false);
         }
 
+        // Configures the custom exception handling middleware
         public static IApplicationBuilder UseCustomExceptionHandler(this IApplicationBuilder app)
         {
             app.UseMiddleware<ExceptionHandlingMiddleware>();
-
             return app;
         }
 
+        // Configures FastEndpoints with custom settings and Swagger generation
         public static IApplicationBuilder UseCustomFastEndpoints(this IApplicationBuilder app)
         {
             app.UseFastEndpoints(c =>
@@ -55,6 +56,7 @@ namespace TC.CloudGames.Api.Extensions
             return app;
         }
 
+        // Configures custom middlewares including HTTPS redirection, exception handling, correlation, logging, and health checks
         public static IApplicationBuilder UseCustomMiddlewares(this IApplicationBuilder app)
         {
             app.UseHttpsRedirection()
@@ -64,7 +66,6 @@ namespace TC.CloudGames.Api.Extensions
                 .UseHealthChecks("/health", new HealthCheckOptions
                 {
                     Predicate = _ => true,
-
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
                 });
 

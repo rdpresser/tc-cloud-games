@@ -1,26 +1,30 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.CrossCutting.Commons.Extensions;
 using TC.CloudGames.CrossCutting.IoC;
 using TC.CloudGames.Infra.Data.Configurations.Connection;
+using ZiggyCreatures.Caching.Fusion;
+using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 
 namespace TC.CloudGames.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCustomAuthentication(this IServiceCollection services,
-        IConfiguration configuration)
+    // Authentication and Authorization
+    public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthenticationJwtBearer(s => s.SigningKey = configuration["JwtSecretKey"])
-            .AddAuthorization();
+                .AddAuthorization();
 
         return services;
     }
 
+    // FastEndpoints Configuration
     public static IServiceCollection AddCustomFastEndpoints(this IServiceCollection services)
     {
         services.AddFastEndpoints(dicoveryOptions =>
@@ -44,6 +48,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    // Middleware Configuration
     public static IServiceCollection AddCustomMiddleware(this IServiceCollection services)
     {
         services.AddCommandMiddleware(c =>
@@ -56,38 +61,51 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    // Dependency Injection and Caching
     public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDependencyInjection(configuration)
-            .AddCorrelationIdGenerator()
-            .AddHttpClient()
-            .AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = configuration.GetConnectionString("Cache");
-            });
+                .AddCorrelationIdGenerator()
+                .AddHttpClient()
+                .AddFusionCache()
+                .WithDefaultEntryOptions(options =>
+                {
+                    options.Duration = TimeSpan.FromSeconds(20);
+                    options.DistributedCacheDuration = TimeSpan.FromSeconds(30);
+                })
+                .WithDistributedCache(_ =>
+                {
+                    var connectionString = configuration.GetConnectionString("Cache");
+                    var options = new RedisCacheOptions { Configuration = connectionString, InstanceName = "FusionCache" };
+
+                    return new RedisCache(options);
+                })
+                .WithSerializer(new FusionCacheSystemTextJsonSerializer())
+                .AsHybridCache();
 
         return services;
     }
 
-    public static IServiceCollection ConfigureDatabaseSettings(this IServiceCollection services,
-        IConfiguration configuration)
+    // Database Settings Configuration
+    public static IServiceCollection ConfigureDatabaseSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<DatabaseSettings>(configuration.GetSection("Database"));
 
         return services;
     }
 
+    // Health Checks
     public static IServiceCollection AddCustomHealthCheck(this IServiceCollection services)
     {
         services.AddHealthChecks()
-            .AddNpgSql(sp =>
-                {
-                    var connectionProvider = sp.GetRequiredService<IConnectionStringProvider>();
-                    return connectionProvider.ConnectionString;
-                },
-                name: "PostgreSQL",
-                failureStatus: HealthStatus.Unhealthy,
-                tags: ["db", "sql", "postgres"]);
+                .AddNpgSql(sp =>
+                    {
+                        var connectionProvider = sp.GetRequiredService<IConnectionStringProvider>();
+                        return connectionProvider.ConnectionString;
+                    },
+                    name: "PostgreSQL",
+                    failureStatus: HealthStatus.Unhealthy,
+                    tags: ["db", "sql", "postgres"]);
 
         return services;
     }

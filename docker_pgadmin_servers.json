@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "tc-cloudgames-db",
+      "Group": "Servers",
+      "Host": "tc-cloudgames-db",
+      "Port": 5432,
+      "MaintenanceDB": "tc_cloud_games",
+      "Username": "postgres",
+      "Password": "postgres",
+      "PassFile": "/pgadmin4/pgpass",
+      "SSLMode": "prefer"
+    }
+  }
+}

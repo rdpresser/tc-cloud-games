@@ -1,18 +1,19 @@
 ﻿using Bogus;
 using FastEndpoints;
-using Microsoft.Extensions.Caching.Distributed;
 using System.Net;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUserList;
+using TC.CloudGames.CrossCutting.Commons.Caching;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.User
 {
     public sealed class GetUserListEndpoint : Endpoint<GetUserListQuery, IReadOnlyList<UserListResponse>>
     {
         private static readonly string[] items = ["Admin", "User"];
-        private readonly IDistributedCache _cache;
+        private readonly IFusionCache _cache;
 
-        public GetUserListEndpoint(IDistributedCache cache)
+        public GetUserListEndpoint(IFusionCache cache)
         {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
@@ -59,12 +60,12 @@ namespace TC.CloudGames.Api.Endpoints.User
         public override async Task HandleAsync(GetUserListQuery req, CancellationToken ct)
         {
             var cacheKey = $"UserList-{req.PageNumber}-{req.PageSize}-{req.SortBy}-{req.SortDirection}-{req.Filter}";
-            var response = await _cache.GetAsync(cacheKey,
+            var response = await _cache.GetOrSetAsync(cacheKey,
                 async token =>
                 {
                     return await req.ExecuteAsync(token).ConfigureAwait(false);
                 },
-                CacheOptions.DefaultExpiration,
+                options: CacheOptions.DefaultExpiration,
                 ct).ConfigureAwait(false);
 
             if (response.IsSuccess)
