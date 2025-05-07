@@ -39,7 +39,7 @@ internal sealed class UserConfiguration : Configuration<User>
             .IsRequired()
             .HasMaxLength(20)
             .HasConversion(
-                role => role.Value.ToString(),
+                role => role.ToString(),
                 value => Role.Create(value)
             );
 

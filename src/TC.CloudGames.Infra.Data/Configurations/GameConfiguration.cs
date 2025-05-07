@@ -33,7 +33,7 @@ namespace TC.CloudGames.Infra.Data.Configurations
             builder.Property(g => g.Rating)
                 .IsRequired(false)
                 .HasConversion(
-                    rating => rating.Average,
+                    rating => rating == null || !rating.Average.HasValue ? 0 : rating.Average.Value,
                     value => Rating.Create(value).Value
                 );
 
@@ -106,10 +106,18 @@ namespace TC.CloudGames.Infra.Data.Configurations
             builder.OwnsOne(g => g.Playtime, playtime =>
             {
                 playtime.Property(p => p.Hours)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .HasConversion(
+                        hours => hours ?? 0,
+                        value => value
+                    );
 
                 playtime.Property(p => p.PlayerCount)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .HasConversion(
+                        playerCount => playerCount ?? 0,
+                        value => value
+                    );
             });
 
             builder.Property(g => g.OfficialLink)
