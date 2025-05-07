@@ -18,7 +18,12 @@ namespace TC.CloudGames.Domain.Game
         {
             if (!ValidRatings.Contains(value))
             {
-                return Result<AgeRating>.Error($"Invalid age rating: {value}. Valid ratings are: {ValidRatings.JoinWithQuotes()}");
+                return Result<AgeRating>.Invalid(new ValidationError()
+                {
+                    Identifier = nameof(AgeRating),
+                    ErrorMessage = $"Invalid age rating: {value}. Valid ratings are: {ValidRatings.JoinWithQuotes()}",
+                    ErrorCode = $"{nameof(AgeRating)}.Invalid"
+                });
             }
 
             return Result<AgeRating>.Success(new AgeRating(value));

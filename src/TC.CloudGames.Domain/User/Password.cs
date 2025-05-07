@@ -19,29 +19,71 @@ namespace TC.CloudGames.Domain.User
 
         public static Result<Password> Create(string value)
         {
-            var errorList = new List<string>();
+            List<ValidationError> validation = [];
 
             if (string.IsNullOrWhiteSpace(value))
-                errorList.Add("Password cannot be null or empty.");
+            {
+                validation.Add(new()
+                {
+                    Identifier = nameof(Password),
+                    ErrorMessage = "Password cannot be null or empty.",
+                    ErrorCode = $"{nameof(Password)}.Required"
+                });
+            }
 
             if (value.Length < 8)
-                errorList.Add("Password must be at least 8 characters long.");
+            {
+                validation.Add(new()
+                {
+                    Identifier = nameof(Password),
+                    ErrorMessage = "Password must be at least 8 characters long.",
+                    ErrorCode = $"{nameof(Password)}.Invalid"
+                });
+            }
 
             if (!UppercaseRegex.IsMatch(value))
-                errorList.Add("Password must contain at least one uppercase letter.");
+            {
+                validation.Add(new()
+                {
+                    Identifier = nameof(Password),
+                    ErrorMessage = "Password must contain at least one uppercase letter.",
+                    ErrorCode = $"{nameof(Password)}.Invalid"
+                });
+            }
 
             if (!LowercaseRegex.IsMatch(value))
-                errorList.Add("Password must contain at least one lowercase letter.");
+            {
+                validation.Add(new()
+                {
+                    Identifier = nameof(Password),
+                    ErrorMessage = "Password must contain at least one lowercase letter.",
+                    ErrorCode = $"{nameof(Password)}.Invalid"
+                });
+            }
 
             if (!DigitRegex.IsMatch(value))
-                errorList.Add("Password must contain at least one digit.");
+            {
+                validation.Add(new()
+                {
+                    Identifier = nameof(Password),
+                    ErrorMessage = "Password must contain at least one digit.",
+                    ErrorCode = $"{nameof(Password)}.Invalid"
+                });
+            }
 
             if (!SpecialCharRegex.IsMatch(value))
-                errorList.Add("Password must contain at least one special character.");
-
-            if (errorList.Count != 0)
             {
-                return Result<Password>.Error(new ErrorList(errorList));
+                validation.Add(new()
+                {
+                    Identifier = nameof(Password),
+                    ErrorMessage = "Password must contain at least one special character.",
+                    ErrorCode = $"{nameof(Password)}.Invalid"
+                });
+            }
+
+            if (validation.Count != 0)
+            {
+                return Result<Password>.Invalid(validation);
             }
 
             return Result<Password>.Success(new Password(value));
