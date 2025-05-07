@@ -1,11 +1,12 @@
 ﻿using Ardalis.Result;
+using TC.CloudGames.CrossCutting.Commons.Clock;
 using TC.CloudGames.Domain.Game;
 
 namespace TC.CloudGames.Application.Games.CreateGame
 {
     public static class CreateGameMapper
     {
-        public static Result<Game> ToEntity(CreateGameCommand command)
+        public static Result<Game> ToEntity(CreateGameCommand command, IDateTimeProvider dateTimeProvider)
         {
             List<ValidationError> validation = [];
 
@@ -49,7 +50,8 @@ namespace TC.CloudGames.Application.Games.CreateGame
                 systemRequirements: new Domain.Game.SystemRequirements(command.SystemRequirements.Minimum, command.SystemRequirements.Recommended),
                 rating: ratingResult.Value,
                 officialLink: command.OfficialLink,
-                gameStatus: command.GameStatus
+                gameStatus: command.GameStatus,
+                createdOnUtc: dateTimeProvider.UtcNow
             );
 
             if (!gameResult.IsSuccess)

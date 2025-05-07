@@ -2,14 +2,15 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TC.CloudGames.Domain.User;
 
-internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
+namespace TC.CloudGames.Infra.Data.Configurations;
+
+internal sealed class UserConfiguration : Configuration<User>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public override void Configure(EntityTypeBuilder<User> builder)
     {
+        base.Configure(builder);
         builder.ToTable("users");
-
-        builder.HasKey(u => u.Id);
-
+        
         builder.Property(u => u.FirstName)
             .IsRequired()
             .HasMaxLength(200);

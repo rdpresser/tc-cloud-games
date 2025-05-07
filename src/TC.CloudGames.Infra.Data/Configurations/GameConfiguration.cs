@@ -4,13 +4,12 @@ using TC.CloudGames.Domain.Game;
 
 namespace TC.CloudGames.Infra.Data.Configurations
 {
-    internal sealed class GameConfiguration : IEntityTypeConfiguration<Game>
+    internal sealed class GameConfiguration : Configuration<Game>
     {
-        public void Configure(EntityTypeBuilder<Game> builder)
+        public override void Configure(EntityTypeBuilder<Game> builder)
         {
+            base.Configure(builder);
             builder.ToTable("games");
-
-            builder.HasKey(g => g.Id);
 
             builder.Property(g => g.Name)
                 .IsRequired()
@@ -38,7 +37,7 @@ namespace TC.CloudGames.Infra.Data.Configurations
                     value => Rating.Create(value).Value
                 );
 
-            builder.OwnsOne(builder => builder.DeveloperInfo, developerInfo =>
+            builder.OwnsOne(x => x.DeveloperInfo, developerInfo =>
             {
                 developerInfo.Property(d => d.Developer)
                     .IsRequired()

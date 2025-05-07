@@ -1,22 +1,28 @@
 ﻿using Ardalis.Result;
 using TC.CloudGames.Application.Abstractions.Messaging;
+using TC.CloudGames.CrossCutting.Commons.Clock;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Exceptions;
 using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 
-internal sealed class CreateUserCommandHandler : CommandHandler<CreateUserCommand, CreateUserResponse, User, IUserEfRepository>
+internal sealed class
+    CreateUserCommandHandler : CommandHandler<CreateUserCommand, CreateUserResponse, User, IUserEfRepository>
 {
-    public CreateUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository userRepository)
-        : base(unitOfWork, userRepository)
-    {
+    private readonly IDateTimeProvider _dateTimeProvider;
 
+    public CreateUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository repository,
+        IDateTimeProvider dateTimeProvider)
+        : base(unitOfWork, repository)
+    {
+        _dateTimeProvider = dateTimeProvider;
     }
 
-    public override async Task<Result<CreateUserResponse>> ExecuteAsync(CreateUserCommand command, CancellationToken ct = default)
+    public override async Task<Result<CreateUserResponse>> ExecuteAsync(CreateUserCommand command,
+        CancellationToken ct = default)
     {
-        var entity = CreateUserMapper.ToEntity(command);
+        var entity = CreateUserMapper.ToEntity(command, _dateTimeProvider);
 
         try
         {

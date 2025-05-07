@@ -42,9 +42,10 @@ namespace TC.CloudGames.Domain.Game
             Playtime? playtime,
             GameDetails gameDetails,
             SystemRequirements systemRequirements,
-            Rating rating,
+            Rating? rating,
             string? officialLink,
-            string? gameStatus
+            string? gameStatus,
+            DateTime createdOnUtc
         ) : base(id)
         {
             Id = id;
@@ -61,6 +62,7 @@ namespace TC.CloudGames.Domain.Game
             Rating = rating;
             OfficialLink = officialLink;
             GameStatus = gameStatus;
+            CreatedOnUtc = createdOnUtc;
         }
 
         public static Result<Game> Create(
@@ -74,9 +76,10 @@ namespace TC.CloudGames.Domain.Game
            Playtime? playtime,
            GameDetails gameDetails,
            SystemRequirements systemRequirements,
-           Rating rating,
+           Rating? rating,
            string? officialLink,
-           string? gameStatus
+           string? gameStatus,
+           DateTime createdOnUtc
         )
         {
             List<ValidationError> validation = [];
@@ -139,7 +142,8 @@ namespace TC.CloudGames.Domain.Game
                 systemRequirements,
                 rating,
                 officialLink,
-                gameStatus
+                gameStatus,
+                createdOnUtc
             );
         }
     }
