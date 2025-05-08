@@ -12,7 +12,7 @@ using TC.CloudGames.Infra.Data;
 namespace TC.CloudGames.Infra.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250507174950_CreateNew_Field")]
+    [Migration("20250508041634_CreateNew_Field")]
     partial class CreateNew_Field
     {
         /// <inheritdoc />

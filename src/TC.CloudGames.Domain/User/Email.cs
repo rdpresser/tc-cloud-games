@@ -22,9 +22,9 @@ namespace TC.CloudGames.Domain.User
             {
                 return Result<Email>.Invalid(new ValidationError
                 {
-                    Identifier = "Email",
+                    Identifier = nameof(Email),
                     ErrorMessage = "Email cannot be null or empty.",
-                    ErrorCode = "Email.Invalid"
+                    ErrorCode = $"{nameof(Email)}.Required"
                 });
             }
 
@@ -32,9 +32,9 @@ namespace TC.CloudGames.Domain.User
             {
                 return Result<Email>.Invalid(new ValidationError
                 {
-                    Identifier = "Email",
+                    Identifier = nameof(Email),
                     ErrorMessage = "Invalid email format.",
-                    ErrorCode = "Email.Invalid"
+                    ErrorCode = $"{nameof(Email)}.Invalid"
                 });
             }
 

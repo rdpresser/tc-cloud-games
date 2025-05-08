@@ -1,7 +1,7 @@
 ﻿using Ardalis.Result;
 using System.Collections.Immutable;
-using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.CrossCutting.Commons.Extensions;
+using TC.CloudGames.Domain.Abstractions;
 
 namespace TC.CloudGames.Domain.Game
 {

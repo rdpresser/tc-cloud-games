@@ -22,9 +22,9 @@ namespace TC.CloudGames.Domain.User
 
             return Result<Role>.Invalid(new ValidationError
             {
-                Identifier = "Role",
+                Identifier = nameof(Role),
                 ErrorMessage = $"Invalid role specified. Valid roles are: {ValidRoles.JoinWithQuotes()}.",
-                ErrorCode = "Role.Invalid"
+                ErrorCode = $"{nameof(Role)}.Invalid"
             });
         }
 
