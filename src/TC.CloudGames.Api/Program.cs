@@ -28,3 +28,9 @@ if (app.Environment.IsDevelopment())
 }
 
 await app.RunAsync();
+
+// REMARK: Required for functional and integration tests to work.
+namespace TC.CloudGames.Api
+{
+    public partial class Program;
+}

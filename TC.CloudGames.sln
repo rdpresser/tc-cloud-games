@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.CrossCutting.
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{81DDED9D-158B-E303-5F62-77A2896D2A5A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchitectureTests", "test\ArchitectureTests\ArchitectureTests.csproj", "{3088A517-6C0A-41DB-B124-A2972437A734}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81DDED9D-158B-E303-5F62-77A2896D2A5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3088A517-6C0A-41DB-B124-A2972437A734}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3088A517-6C0A-41DB-B124-A2972437A734}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3088A517-6C0A-41DB-B124-A2972437A734}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3088A517-6C0A-41DB-B124-A2972437A734}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +93,7 @@ Global
 		{3FB669D0-B1A9-4624-B43B-BB8C4F794DBC} = {B8321130-6175-47D7-BC59-E2CC0ADEE6DF}
 		{CEFEA232-F6DC-F17F-D027-142A17E00FD6} = {122B4804-D1D8-420B-93EC-72978373369D}
 		{5DE6EE3C-B978-4217-8F49-F729B82F8EAE} = {122B4804-D1D8-420B-93EC-72978373369D}
+		{3088A517-6C0A-41DB-B124-A2972437A734} = {4BE74EE1-B5C8-4AF3-8024-5F60C13EC1BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A61EC7C9-970A-4856-9FA0-A09EE45536BB}
