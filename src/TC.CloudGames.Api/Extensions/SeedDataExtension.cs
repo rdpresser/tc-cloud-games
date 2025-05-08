@@ -1,7 +1,7 @@
 ﻿using Bogus;
-using TC.CloudGames.CrossCutting.Commons.Clock;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.User;
+using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 using TC.CloudGames.Infra.Data;
 
 namespace TC.CloudGames.Api.Extensions;

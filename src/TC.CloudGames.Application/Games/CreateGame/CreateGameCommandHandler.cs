@@ -1,8 +1,8 @@
 ﻿using Ardalis.Result;
 using TC.CloudGames.Application.Abstractions.Messaging;
-using TC.CloudGames.CrossCutting.Commons.Clock;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Game;
+using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Application.Games.CreateGame;
 

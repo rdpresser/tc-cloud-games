@@ -2,20 +2,20 @@
 using Microsoft.Extensions.DependencyInjection;
 using TC.CloudGames.Application.Games;
 using TC.CloudGames.Application.Users;
-using TC.CloudGames.CrossCutting.Commons.Clock;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Exceptions;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.User;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
+using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 using TC.CloudGames.Infra.Data;
 using TC.CloudGames.Infra.Data.Configurations.Connection;
 using TC.CloudGames.Infra.Data.Configurations.Data;
 using TC.CloudGames.Infra.Data.Exceptions;
-using TC.CloudGames.Infra.Data.Repositories;
 using TC.CloudGames.Infra.Data.Repositories.EfCore;
 using TC.CloudGames.Infra.Data.Repositories.PostgreSql;
 
-namespace TC.CloudGames.CrossCutting.IoC
+namespace TC.CloudGames.Infra.CrossCutting.IoC
 {
     public static class DependencyInjection
     {
@@ -33,6 +33,8 @@ namespace TC.CloudGames.CrossCutting.IoC
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
             services.AddSingleton<IPgDbConnectionProvider, PgDbConnectionProvider>();
+            services.AddScoped<ITokenProvider, TokenProvider>();
+            services.AddScoped<IUserContext, UserContext>();
 
             services.AddDbContext<ApplicationDbContext>();
             SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());

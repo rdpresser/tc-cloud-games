@@ -3,8 +3,8 @@ using FastEndpoints;
 using System.Net;
 using TC.CloudGames.Application.Games.GetGameList;
 using TC.CloudGames.Application.Middleware;
-using TC.CloudGames.CrossCutting.Commons.Caching;
 using TC.CloudGames.Domain.Game;
+using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.Games

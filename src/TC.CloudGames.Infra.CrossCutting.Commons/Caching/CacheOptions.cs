@@ -1,6 +1,6 @@
 ﻿using ZiggyCreatures.Caching.Fusion;
 
-namespace TC.CloudGames.CrossCutting.Commons.Caching;
+namespace TC.CloudGames.Infra.CrossCutting.Commons.Caching;
 
 /// <summary>
 ///     Provides default cache options for FusionCache entries.

@@ -1,4 +1,4 @@
-﻿namespace TC.CloudGames.CrossCutting.Commons.Extensions;
+﻿namespace TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 public static class StringExtensions
 {

@@ -17,5 +17,15 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
 
             return Result<TResponse>.NotFound([.. ValidationContext.ValidationFailures.Select(x => x.ErrorMessage)]);
         }
+
+        protected Result<TResponse> ValidationErrorNotAuthorized()
+        {
+            if (ValidationContext.ValidationFailures.Count == 0)
+            {
+                return Result<TResponse>.Success(default!);
+            }
+
+            return Result<TResponse>.Unauthorized([.. ValidationContext.ValidationFailures.Select(x => x.ErrorMessage)]);
+        }
     }
 }

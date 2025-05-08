@@ -5,8 +5,9 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
 using TC.CloudGames.Application.Middleware;
-using TC.CloudGames.CrossCutting.Commons.Extensions;
-using TC.CloudGames.CrossCutting.IoC;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
+using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
+using TC.CloudGames.Infra.CrossCutting.IoC;
 using TC.CloudGames.Infra.Data.Configurations.Connection;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
@@ -18,7 +19,7 @@ public static class ServiceCollectionExtensions
     // Authentication and Authorization
     public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAuthenticationJwtBearer(s => s.SigningKey = configuration["JwtSecretKey"])
+        services.AddAuthenticationJwtBearer(s => s.SigningKey = configuration["Jwt:SecretKey"])
                 .AddAuthorization();
 
         return services;
@@ -87,9 +88,10 @@ public static class ServiceCollectionExtensions
     }
 
     // Database Settings Configuration
-    public static IServiceCollection ConfigureDatabaseSettings(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureAppSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<DatabaseSettings>(configuration.GetSection("Database"));
+        services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
 
         return services;
     }

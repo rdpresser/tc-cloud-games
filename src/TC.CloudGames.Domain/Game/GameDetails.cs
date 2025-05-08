@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
-using TC.CloudGames.CrossCutting.Commons.Extensions;
+using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Domain.Game
 {

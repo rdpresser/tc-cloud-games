@@ -1,5 +1,5 @@
-﻿using TC.CloudGames.CrossCutting.Commons.Clock;
-using TC.CloudGames.Domain.User;
+﻿using TC.CloudGames.Domain.User;
+using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 

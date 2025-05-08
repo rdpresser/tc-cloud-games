@@ -1,4 +1,4 @@
-﻿namespace TC.CloudGames.CrossCutting.Commons.Clock
+﻿namespace TC.CloudGames.Infra.CrossCutting.Commons.Clock
 {
     public sealed class DateTimeProvider : IDateTimeProvider
     {

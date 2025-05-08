@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TC.CloudGames.CrossCutting.Commons.Middleware;
+using TC.CloudGames.Infra.CrossCutting.Commons.Middleware;
 
-namespace TC.CloudGames.CrossCutting.Commons.Extensions
+namespace TC.CloudGames.Infra.CrossCutting.Commons.Extensions
 {
     public static class ServiceCollectionExtensions
     {

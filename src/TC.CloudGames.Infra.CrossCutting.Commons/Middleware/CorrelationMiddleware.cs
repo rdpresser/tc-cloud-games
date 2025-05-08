@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Serilog.Context;
 
-namespace TC.CloudGames.CrossCutting.Commons.Middleware
+namespace TC.CloudGames.Infra.CrossCutting.Commons.Middleware
 {
     public class CorrelationMiddleware
     {

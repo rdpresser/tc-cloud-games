@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TC.CloudGames.Domain.User;
-using TC.CloudGames.Infra.Data.Repositories.EfCore;
 
-namespace TC.CloudGames.Infra.Data.Repositories;
+namespace TC.CloudGames.Infra.Data.Repositories.EfCore;
 
 public sealed class UserEfRepository : EfRepository<User>, IUserEfRepository
 {
@@ -17,7 +16,7 @@ public sealed class UserEfRepository : EfRepository<User>, IUserEfRepository
         return await DbContext
             .Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(entity =>
+            .SingleOrDefaultAsync(entity =>
                 entity.Email == Email.Create(email) &&
                 entity.Password == Password.Create(password), cancellationToken).ConfigureAwait(false);
     }

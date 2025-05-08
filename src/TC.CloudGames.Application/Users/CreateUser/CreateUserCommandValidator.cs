@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
 using FluentValidation;
-using TC.CloudGames.CrossCutting.Commons.Extensions;
 using TC.CloudGames.Domain.User;
+using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Application.Users.CreateUser
 {

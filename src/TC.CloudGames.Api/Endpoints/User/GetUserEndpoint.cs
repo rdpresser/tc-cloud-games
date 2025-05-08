@@ -3,7 +3,7 @@ using FastEndpoints;
 using System.Net;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUser;
-using TC.CloudGames.CrossCutting.Commons.Caching;
+using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.User;
@@ -19,8 +19,8 @@ public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
 
     public override void Configure()
     {
-        Get("user/{Id}");
-        Roles("Admin");
+        Get("user/{Email}");
+        Roles("User", "Admin");
         PostProcessor<CommandPostProcessor<GetUserQuery, UserResponse>>();
 
         Description(x => x.Produces<UserResponse>()
@@ -34,7 +34,7 @@ public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
             s.Summary = "Retrieve user details by their unique identifier.";
             s.Description =
                 "This endpoint retrieves detailed information about a user by their unique Id. Access is restricted to users with the appropriate role.";
-            s.ExampleRequest = new GetUserQuery(Guid.NewGuid());
+            s.ExampleRequest = new GetUserQuery("John.smith@gmail.com");
             s.ResponseExamples[200] = new UserResponse
             {
                 Email = "John.smith@gmail.com",
@@ -53,7 +53,7 @@ public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
 
     public override async Task HandleAsync(GetUserQuery req, CancellationToken ct)
     {
-        var response = await _cache.GetOrSetAsync($"User-{req.Id}",
+        var response = await _cache.GetOrSetAsync($"User-{req.Email}",
             async token =>
             {
                 return await req.ExecuteAsync(token).ConfigureAwait(false);
@@ -72,6 +72,13 @@ public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
             await SendErrorsAsync((int)HttpStatusCode.NotFound, ct).ConfigureAwait(false);
             return;
         }
+
+        if (response.IsUnauthorized())
+        {
+            await SendErrorsAsync((int)HttpStatusCode.Unauthorized, ct).ConfigureAwait(false);
+            return;
+        }
+
 
         await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
     }

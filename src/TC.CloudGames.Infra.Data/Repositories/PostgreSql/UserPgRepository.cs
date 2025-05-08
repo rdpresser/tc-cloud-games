@@ -45,6 +45,27 @@ public class UserPgRepository : PgRepository, IUserPgRepository
             .ConfigureAwait(false);
     }
 
+    public async Task<UserResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        await using var connection = await ConnectionProvider
+            .CreateConnectionAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        const string sql = """
+                           SELECT 
+                               id AS Id, 
+                               first_name AS FirstName, 
+                               last_name AS LastName, 
+                               email AS Email, 
+                               role AS Role
+                           FROM public.users
+                           WHERE UPPER(email) = UPPER(@Email);
+                           """;
+
+        return await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, new { email })
+            .ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyList<UserListResponse>> GetUserListAsync(GetUserListQuery query, CancellationToken cancellationToken = default)
     {
         await using var connection = await ConnectionProvider
@@ -93,7 +114,7 @@ public class UserPgRepository : PgRepository, IUserPgRepository
 
         return [.. users];
     }
-    
+
     public async Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)
     {
         await using var connection = await ConnectionProvider
@@ -108,7 +129,7 @@ public class UserPgRepository : PgRepository, IUserPgRepository
 
         var result = await connection.QueryFirstOrDefaultAsync<int?>(sql, new { Email = email })
             .ConfigureAwait(false);
-    
+
         return result.HasValue;
     }
 }
