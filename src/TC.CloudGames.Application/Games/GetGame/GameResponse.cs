@@ -13,7 +13,7 @@ namespace TC.CloudGames.Application.Games.GetGame
         public DeveloperInfo DeveloperInfo { get; set; }
         public decimal DiskSize { get; init; }
         public decimal Price { get; init; }
-        public Playtime Playtime { get; set; }
+        public Playtime? Playtime { get; set; }
         public GameDetails GameDetails { get; set; }
         public SystemRequirements SystemRequirements { get; set; }
         public decimal? Rating { get; init; }
