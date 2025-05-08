@@ -41,6 +41,12 @@
         <ProjectReference Include="..\TC.CloudGames.Infra.Data\TC.CloudGames.Infra.Data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
 
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
