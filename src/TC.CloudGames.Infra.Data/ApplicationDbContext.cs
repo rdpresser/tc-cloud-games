@@ -12,9 +12,10 @@ using TC.CloudGames.Infra.Data.Helpers;
 
 namespace TC.CloudGames.Infra.Data
 {
-    public sealed class ApplicationDbContext : DbContext, IUnitOfWork
+    public sealed class ApplicationDbContext : DbContext, IUnitOfWork, IAsyncDisposable, IDisposable
     {
         private readonly IConnectionStringProvider _connectionStringProvider;
+        private bool _disposed;
 
         public DbSet<User> Users { get; set; }
         public DbSet<Game> Games { get; set; }
@@ -89,6 +90,47 @@ namespace TC.CloudGames.Infra.Data
             {
                 await domainEvent
                     .PublishAsync(Mode.WaitForAll).ConfigureAwait(false);
+            }
+        }
+
+        public override async ValueTask DisposeAsync()
+        {
+            await DisposeAsyncCore();
+
+            // Suppress finalization to prevent the finalizer from running
+            GC.SuppressFinalize(this);
+        }
+
+        private async ValueTask DisposeAsyncCore()
+        {
+            if (!_disposed)
+            {
+                // Dispose any asynchronous resources here
+                await base.DisposeAsync().ConfigureAwait(false);
+
+                _disposed = true;
+            }
+        }
+
+        public override void Dispose()
+        {
+            Dispose(true);
+
+            // Suppress finalization to prevent the finalizer from running
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose any managed resources here
+                    base.Dispose();
+                }
+
+                _disposed = true;
             }
         }
     }

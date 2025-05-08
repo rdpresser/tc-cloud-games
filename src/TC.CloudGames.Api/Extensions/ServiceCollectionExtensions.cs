@@ -64,7 +64,7 @@ public static class ServiceCollectionExtensions
     // Dependency Injection and Caching
     public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDependencyInjection(configuration)
+        services.AddDependencyInjection()
                 .AddCorrelationIdGenerator()
                 .AddHttpClient()
                 .AddFusionCache()

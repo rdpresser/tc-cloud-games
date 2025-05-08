@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TC.CloudGames.Application.Games;
 using TC.CloudGames.Application.Users;
@@ -20,16 +19,16 @@ namespace TC.CloudGames.CrossCutting.IoC
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddDependencyInjection(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddDependencyInjection(this IServiceCollection services)
         {
-            RegisterInfra(services, configuration);
+            RegisterInfra(services);
             RegisterDomain(services);
             RegisterApplication(services);
 
             return services;
         }
 
-        private static void RegisterInfra(IServiceCollection services, IConfiguration configuration)
+        private static void RegisterInfra(IServiceCollection services)
         {
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
@@ -41,7 +40,6 @@ namespace TC.CloudGames.CrossCutting.IoC
 
         private static void RegisterDomain(IServiceCollection services)
         {
-            //
             services.AddSingleton<IDuplicateKeyException, PostgresDuplicateKeyException>();
             services.AddScoped<IUserEfRepository, UserEfRepository>();
             services.AddScoped<IGameEfRepository, GameEfRepository>();

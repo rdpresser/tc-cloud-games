@@ -6,7 +6,7 @@ public abstract class PgRepository
 {
     protected readonly IPgDbConnectionProvider ConnectionProvider;
 
-    public PgRepository(IPgDbConnectionProvider connectionProvider)
+    protected PgRepository(IPgDbConnectionProvider connectionProvider)
     {
         ConnectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
     }

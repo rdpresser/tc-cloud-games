@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.9.0.115408">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TC.CloudGames.Application\TC.CloudGames.Application.csproj" />
     <ProjectReference Include="..\TC.CloudGames.CrossCutting.Commons\TC.CloudGames.CrossCutting.Commons.csproj" />
     <ProjectReference Include="..\TC.CloudGames.Domain\TC.CloudGames.Domain.csproj" />
