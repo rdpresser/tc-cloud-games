@@ -24,7 +24,7 @@ namespace TC.CloudGames.Domain.User
         /// <returns></returns>
         public static Result<Password> CreateHashed(string value)
         {
-            return Result<Password>.Success(new Password(value));
+            return new Password(value);
         }
 
         public static Result<Password> Create(string value)
