@@ -1,0 +1,74 @@
+version: "3.8"
+
+services:
+  tc-cloudgames-api:
+    image: ${DOCKER_REGISTRY-}tccloudgamesapi
+    ports:
+      - "55555:8080"
+      - "55556:8081"
+    container_name: TC.CloudGames.Api
+    build:
+      context: .
+      dockerfile: src/TC.CloudGames.Api/Dockerfile
+    networks:
+      - my-network
+    depends_on:
+      - tc-cloudgames-db
+      - tc-cloudgames-redis
+      - tc-cloudgames-seq
+
+  tc-cloudgames-db:
+    image: postgres:latest
+    container_name: TC.CloudGames.Db
+    environment:
+      - POSTGRES_DB=tc_cloud_games
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/database:/var/lib/postgresql/data
+    ports:
+      - "54320:5432"
+    networks:
+      - my-network
+
+  tc-cloudgames-seq:
+    image: datalust/seq:latest
+    container_name: TC.CloudGames.Seq
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5341:5341
+      - 8082:80
+    networks:
+      - my-network
+
+  tc-cloudgames-redis:
+    image: redis:latest
+    restart: always
+    container_name: TC.CloudGames.Redis
+    ports:
+      - "6379:6379"
+    networks:
+      - my-network
+    volumes:
+      - ./.containers/redis:/data
+    command: redis-server --appendonly yes --appendfilename appendonly.aof --dir /data
+
+  tc-cloudgames-DbManagement:
+    image: dpage/pgadmin4:latest
+    container_name: TC.CloudGames.PgAdmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - 15432:80
+    networks:
+      - my-network
+    volumes:
+      - ./.containers/pgadmin:/var/lib/pgadmin
+      - ./docker_pgadmin_servers.json:/pgadmin4/servers.json
+    depends_on:
+      - tc-cloudgames-db
+networks:
+  my-network:
+    driver: bridge

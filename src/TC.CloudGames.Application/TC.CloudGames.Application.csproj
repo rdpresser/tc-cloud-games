@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.9.0.115408">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TC.CloudGames.Domain\TC.CloudGames.Domain.csproj" />
+    <ProjectReference Include="..\TC.CloudGames.Infra.CrossCutting.Commons\TC.CloudGames.Infra.CrossCutting.Commons.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Games\GetGameByName\" />
+    <Folder Include="Users\GetUserById\" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+
+</Project>

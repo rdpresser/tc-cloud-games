@@ -1,0 +1,42 @@
+﻿==> for shell commands, always run from the /src folder
+
+==> command to add a new migration
+Shell: dotnet ef migrations add <migration-name> -c ApplicationDbContext -s TC.CloudGames.Api -p TC.CloudGames.Infra.Data
+PMC: Add-Migration <migration-name> -Context ApplicationDbContext -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
+
+==> command to remove the last migration created (not in database)
+Shell: dotnet ef migrations remove -c ApplicationDbContext -s TC.CloudGames.Api -p TC.CloudGames.Infra.Data
+PMC: Remove-Migration -Context ApplicationDbContext -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
+
+==> command to update the database with all pending migrations
+Shell: dotnet ef database update -c ApplicationDbContext -s TC.CloudGames.Api -p TC.CloudGames.Infra.Data
+PMC: Update-Database -Context ApplicationDbContext -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
+
+==> command to remove all migrations from database but not the files from project
+Shell: dotnet ef database update 0 -c ApplicationDbContext -s TC.CloudGames.Api -p TC.CloudGames.Infra.Data
+PMC: Update-Database -Migration 0 -Context ApplicationDbContext -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
+
+==> command to undo to a specific migration
+Shell: dotnet ef database update <migration-name> -c ApplicationDbContext -s TC.CloudGames.Api -p TC.CloudGames.Infra.Data
+PMC: Update-Database <migration-name> -Context ApplicationDbContext -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
+
+==> command to generate the SQL Script DB for ALL database
+Shell: dotnet ef migrations script -c ApplicationDbContext -s TC.CloudGames.Api -p TC.CloudGames.Infra.Data | out-file ./scriptFile.sql
+PMC: Script-Migration <migration-name>
+PMC: Script-Migration -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
+
+==>Command to revert migration with script
+Script-Migration -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api -From SeedDataBase -To 0
+
+==> command to upgrade a specific database without having to change windows environment
+PMC: $env:ASPNETCORE_ENVIRONMENT="Development"
+
+==> Command to install EF Core Migration CLI Tool
+dotnet tool install --global dotnet-ef
+
+==> Command to update EF Core Migration CLI Tool with the latest version
+dotnet tool uninstall --global dotnet-ef
+dotnet tool install --global dotnet-ef
+
+==> Command to list all dotnet Tools installed
+dotnet tool list

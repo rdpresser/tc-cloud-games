@@ -1,0 +1,105 @@
+@TC.CloudGames.Api_HostAddress = https://localhost:55556
+@TC.CloudGames.JWT_TOKEN = eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDU5MDEyMjMsImlhdCI6MTc0NTg5NzYyMywic3ViIjoiMDQ1N2FkMGQtMzRmNC00YzczLTk1ZjAtMjllMTBiZmYyMzVhIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJVU0VSMTFARVhBTVBMRS5DT00iLCJyb2xlIjoiQWRtaW4iLCJuYmYiOjE3NDU4OTc2MjN9.VCBomAGGhChmrFs_qIpxOaQeMcZmsI63OZUEEWWpMlU
+
+### Authentication Endpoints
+
+# Login
+POST {{TC.CloudGames.Api_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "user11@example.com",
+    "password": "password123A@"
+}
+
+###
+
+# Register
+POST {{TC.CloudGames.Api_HostAddress}}/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "user11@example.com",
+  "password": "password123A@",
+  "role": "Admin"
+}
+
+###
+
+### User Endpoints
+
+# Get User by ID
+GET {{TC.CloudGames.Api_HostAddress}}/api/user/0457ad0d-34f4-4c73-95f0-29e10bff235a
+Authorization: Bearer {{TC.CloudGames.JWT_TOKEN}}
+
+###
+
+# Get List of Users
+GET {{TC.CloudGames.Api_HostAddress}}/api/user/list?PageNumber=1&PageSize=50&SortBy=LastName&SortDirection=ASC&Filter=user11@example.com
+Authorization: Bearer {{TC.CloudGames.JWT_TOKEN}}
+
+###
+
+### Game Endpoints
+
+# Create Game
+POST {{TC.CloudGames.Api_HostAddress}}/api/game
+Content-Type: application/json
+Authorization: Bearer {{TC.CloudGames.JWT_TOKEN}}
+
+{
+  "name": "Game Name",
+  "releaseDate": "2025-04-25",
+  "ageRating": "E10+",
+  "description": "Game Description",
+  "developerInfo": {
+    "developer": "Developer Name",
+    "publisher": "Publisher Name"
+  },
+  "diskSize": 50,
+  "price": 59.99,
+  "playtime": {
+    "hours": 10,
+    "playerCount": 1
+  },
+  "gameDetails": {
+    "genre": "Genre",
+    "platform": [
+      "Windows",
+      "Xbox",
+      "iOS",
+      "PlayStation",
+      "Linux",
+      "Android",
+      "Nintendo"
+    ],
+    "tags": "Tags",
+    "gameMode": "Singleplayer",
+    "distributionFormat": "Physical",
+    "availableLanguages": "Available Languages",
+    "supportsDlcs": true
+  },
+  "systemRequirements": {
+    "minimum": "Minimum Requirements",
+    "recommended": "Recommended Requirements"
+  },
+  "rating": 9.9,
+  "officialLink": "https://example.com",
+  "gameStatus": "Available"
+}
+
+###
+
+# Get Game by ID
+GET {{TC.CloudGames.Api_HostAddress}}/api/game/133a93b8-fe7e-400c-9b74-2c714dc3fb41
+Authorization: Bearer {{TC.CloudGames.JWT_TOKEN}}
+
+###
+
+# Get List of Games
+GET {{TC.CloudGames.Api_HostAddress}}/api/game/list?PageNumber=1&PageSize=2&SortBy=name&SortDirection=DESC&Filter=133a93b8-fe7e-400c-9b74-2c714dc3fb41
+Authorization: Bearer {{TC.CloudGames.JWT_TOKEN}}
+
+###
