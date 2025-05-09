@@ -1,8 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.DependencyInjection;
-using TC.CloudGames.Application.Games;
-using TC.CloudGames.Application.Users;
-using TC.CloudGames.Domain.Abstractions;
+using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Domain.Exceptions;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.User;
@@ -34,6 +32,7 @@ namespace TC.CloudGames.Infra.CrossCutting.IoC
             services.AddSingleton<IPgDbConnectionProvider, PgDbConnectionProvider>();
             services.AddSingleton<ITokenProvider, TokenProvider>();
             services.AddScoped<IUserContext, UserContext>();
+            services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
             services.AddDbContext<ApplicationDbContext>();
             SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());

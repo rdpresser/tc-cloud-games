@@ -1,11 +1,12 @@
 ﻿using TC.CloudGames.Domain.User;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 
 public static class CreateUserMapper
 {
-    public static User ToEntity(CreateUserCommand r, IDateTimeProvider dateTimeProvider)
+    public static User ToEntity(CreateUserCommand r, IDateTimeProvider dateTimeProvider, IPasswordHasher passwordHasher)
     {
         return User.Create(
             firstName: r.FirstName,

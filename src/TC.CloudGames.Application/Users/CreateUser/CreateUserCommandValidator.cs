@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using FluentValidation;
+using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 

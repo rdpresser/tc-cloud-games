@@ -1,6 +1,6 @@
 ﻿using Ardalis.Result;
+using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
-using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
@@ -10,12 +10,14 @@ internal sealed class LoginUserCommandHandler : CommandHandler<LoginUserCommand,
 {
     private readonly IUserEfRepository _userRepository;
     private readonly ITokenProvider _tokenProvider;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public LoginUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository userRepository, ITokenProvider tokenProvider)
+    public LoginUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository userRepository, ITokenProvider tokenProvider, IPasswordHasher passwordHasher)
         : base(unitOfWork, userRepository)
     {
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         _tokenProvider = tokenProvider;
+        _passwordHasher = passwordHasher;
     }
 
     public override async Task<Result<LoginUserResponse>> ExecuteAsync(LoginUserCommand command, CancellationToken ct)

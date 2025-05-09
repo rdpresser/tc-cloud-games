@@ -131,28 +131,6 @@ namespace TC.CloudGames.Infra.Data.Migrations
                         .HasDatabaseName("ix_users_email");
 
                     b.ToTable("users", "public");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedOnUtc = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "ADMIN@ADMIN.COM",
-                            FirstName = "Admin",
-                            LastName = "User",
-                            Password = "Admin@123",
-                            Role = "Admin"
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            CreatedOnUtc = new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "USER@USER.COM",
-                            FirstName = "Regular",
-                            LastName = "User",
-                            Password = "User@123",
-                            Role = "User"
-                        });
                 });
 
             modelBuilder.Entity("TC.CloudGames.Domain.Game.Game", b =>

@@ -1,8 +1,10 @@
 ﻿using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using Serilog;
+using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Exceptions;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Game;
@@ -16,15 +18,17 @@ namespace TC.CloudGames.Infra.Data
     public sealed class ApplicationDbContext : DbContext, IUnitOfWork, IAsyncDisposable, IDisposable
     {
         private readonly IConnectionStringProvider _connectionStringProvider;
+        private readonly IServiceProvider _serviceProvider;
         private bool _disposed;
 
         public DbSet<User> Users { get; set; }
         public DbSet<Game> Games { get; set; }
 
-        public ApplicationDbContext(DbContextOptions options, IConnectionStringProvider connectionStringProvider)
+        public ApplicationDbContext(DbContextOptions options, IConnectionStringProvider connectionStringProvider, IServiceProvider serviceProvider)
             : base(options)
         {
             _connectionStringProvider = connectionStringProvider ?? throw new ArgumentNullException(nameof(connectionStringProvider));
+            _serviceProvider = serviceProvider;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -33,7 +37,9 @@ namespace TC.CloudGames.Infra.Data
             {
                 base.OnConfiguring(optionsBuilder);
 
-                optionsBuilder.UseNpgsql(_connectionStringProvider.ConnectionString).UseSnakeCaseNamingConvention();
+                optionsBuilder.UseNpgsql(_connectionStringProvider.ConnectionString, npgsqlOptions =>
+                    npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default))
+                .UseSnakeCaseNamingConvention();
 
                 // Use Serilog for EF Core logging
                 optionsBuilder.LogTo(Log.Logger.Information, LogLevel.Information);
@@ -50,37 +56,9 @@ namespace TC.CloudGames.Infra.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssemblyWithDI(typeof(ApplicationDbContext).Assembly, _serviceProvider);
 
             modelBuilder.HasDefaultSchema(Schemas.Default);
-
-            // Call the method to seed users
-            SeedUsers(modelBuilder);
-        }
-
-        private static void SeedUsers(ModelBuilder modelBuilder)
-        {
-            // Seed data for the User table with fixed GUIDs
-            modelBuilder.Entity<User>().HasData(
-                User.CreateWithIdForDbSeed(
-                    id: Guid.Parse("11111111-1111-1111-1111-111111111111"), // Fixed GUID for Admin user
-                    firstName: "Admin",
-                    lastName: "User",
-                    email: Email.Create("admin@admin.com").Value, // Replace with a valid email
-                    password: Password.Create("Admin@123").Value, // Replace with a hashed password
-                    role: Role.Create("Admin").Value,
-                    createdOnUtc: new DateTime(2025, 4, 1, 0, 0, 0, DateTimeKind.Utc) // Fixed date for Admin user
-                ),
-                User.CreateWithIdForDbSeed(
-                    id: Guid.Parse("22222222-2222-2222-2222-222222222222"), // Fixed GUID for Regular user
-                    firstName: "Regular",
-                    lastName: "User",
-                    email: Email.Create("user@user.com").Value, // Replace with a valid email
-                    password: Password.Create("User@123").Value, // Replace with a hashed password
-                    role: Role.Create("User").Value,
-                    createdOnUtc: new DateTime(2025, 4, 1, 0, 0, 0, DateTimeKind.Utc) // Fixed date for Regular user
-                )
-            );
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
