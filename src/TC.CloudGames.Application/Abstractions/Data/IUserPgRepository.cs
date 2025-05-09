@@ -1,7 +1,7 @@
 using TC.CloudGames.Application.Users.GetUser;
 using TC.CloudGames.Application.Users.GetUserList;
 
-namespace TC.CloudGames.Application.Users;
+namespace TC.CloudGames.Application.Abstractions.Data;
 
 public interface IUserPgRepository
 {

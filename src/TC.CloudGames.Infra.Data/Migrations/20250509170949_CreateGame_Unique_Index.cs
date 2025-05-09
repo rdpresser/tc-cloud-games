@@ -5,7 +5,7 @@
 namespace TC.CloudGames.Infra.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Add_Unique_Index_Game_Table : Migration
+    public partial class CreateGame_Unique_Index : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
     <PackageReference Include="SonarAnalyzer.CSharp" Version="10.9.0.115408">
       <PrivateAssets>all</PrivateAssets>
@@ -17,11 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\TC.CloudGames.Domain\TC.CloudGames.Domain.csproj" />
     <ProjectReference Include="..\TC.CloudGames.Infra.CrossCutting.Commons\TC.CloudGames.Infra.CrossCutting.Commons.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Games\GetGameByName\" />
-    <Folder Include="Users\GetUserById\" />
   </ItemGroup>
 
   <PropertyGroup>

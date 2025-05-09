@@ -17,6 +17,16 @@ namespace TC.CloudGames.Domain.User
             Value = value;
         }
 
+        /// <summary>
+        /// Used when the password is already hashed. Never use this method to create a password, only when retrieve from database
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Result<Password> CreateHashed(string value)
+        {
+            return new Password(value);
+        }
+
         public static Result<Password> Create(string value)
         {
             List<ValidationError> validation = [];

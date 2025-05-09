@@ -1,4 +1,5 @@
 ﻿using Ardalis.Result;
+using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
 
 namespace TC.CloudGames.Application.Users.GetUserList;

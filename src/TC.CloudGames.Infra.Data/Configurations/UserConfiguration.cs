@@ -1,16 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TC.CloudGames.Domain.User;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
 namespace TC.CloudGames.Infra.Data.Configurations;
 
 internal sealed class UserConfiguration : Configuration<User>
 {
+    private readonly IPasswordHasher _passwordHasher;
+
+    public UserConfiguration(IPasswordHasher passwordHasher)
+    {
+        _passwordHasher = passwordHasher;
+    }
+
     public override void Configure(EntityTypeBuilder<User> builder)
     {
         base.Configure(builder);
         builder.ToTable("users");
-        
+
         builder.Property(u => u.FirstName)
             .IsRequired()
             .HasMaxLength(200);
@@ -31,8 +39,8 @@ internal sealed class UserConfiguration : Configuration<User>
             .IsRequired()
             .HasMaxLength(200)
             .HasConversion(
-                password => password.Value,
-                value => Password.Create(value)
+                password => _passwordHasher.Hash(password.Value),
+                value => Password.CreateHashed(value)
             );
 
         builder.Property(u => u.Role)

@@ -1,5 +1,5 @@
 using Dapper;
-using TC.CloudGames.Application.Users;
+using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Users.GetUser;
 using TC.CloudGames.Application.Users.GetUserList;
 using TC.CloudGames.Infra.Data.Configurations.Connection;

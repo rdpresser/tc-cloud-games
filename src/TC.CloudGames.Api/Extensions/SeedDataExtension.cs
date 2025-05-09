@@ -26,7 +26,26 @@ public static class SeedDataExtension
         var faker = new Faker();
 
         List<User> users = [];
+
+        //Create default users
+        users.Add(User.Create(
+                "Admin",
+                "User",
+                Email.Create("admin@admin.com"),
+                Password.Create("Admin@123"),
+                Role.Create("Admin"),
+                dateTimeProvider.UtcNow));
+
+        users.Add(User.Create(
+                "Regular",
+                "User",
+                Email.Create("user@user.com"),
+                Password.Create("User@123"),
+                Role.Create("User"),
+                dateTimeProvider.UtcNow));
+
         for (var i = 0; i < 100; i++)
+        {
             users.Add(User.Create(
                 faker.Name.FirstName(),
                 faker.Name.LastName(),
@@ -34,6 +53,7 @@ public static class SeedDataExtension
                 Password.Create(PasswordGenerator.GeneratePassword()),
                 Role.Create(faker.PickRandom(Role.ValidRoles.ToArray())),
                 dateTimeProvider.UtcNow));
+        }
 
         dbContext.Users.AddRange(users);
 
@@ -62,7 +82,7 @@ public static class SeedDataExtension
                     name: $"{faker.Commerce.ProductAdjective()} {faker.Commerce.ProductMaterial()} {faker.Commerce.Product()}",
                     releaseDate: DateOnly.FromDateTime(faker.Date.Past()),
                     ageRating: AgeRating.Create(faker.PickRandom(AgeRating.ValidRatings.ToArray())),
-                    description: faker.Lorem.Paragraph(), 
+                    description: faker.Lorem.Paragraph(),
                     developerInfo: new DeveloperInfo(faker.Company.CompanyName(), faker.Company.CompanyName()),
                     diskSize: new DiskSize(faker.Random.Int(1, 150)),
                     price: new Price(decimal.Parse(faker.Commerce.Price(1.0m, 500.0m))),
@@ -80,7 +100,7 @@ public static class SeedDataExtension
                     officialLink: faker.Internet.Url(),
                     gameStatus: faker.PickRandom(Game.ValidGameStatus.ToArray()),
                     createdOnUtc: dateTimeProvider.UtcNow));
-        
+
         dbContext.Games.AddRange(games);
         await dbContext.SaveChangesAsync();
     }
