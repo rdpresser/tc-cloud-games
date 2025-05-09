@@ -8,6 +8,7 @@ using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.Data.Configurations.Connection;
+using TC.CloudGames.Infra.Data.Configurations.Data;
 using TC.CloudGames.Infra.Data.Helpers;
 
 namespace TC.CloudGames.Infra.Data
@@ -50,6 +51,36 @@ namespace TC.CloudGames.Infra.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+            modelBuilder.HasDefaultSchema(Schemas.Default);
+
+            // Call the method to seed users
+            SeedUsers(modelBuilder);
+        }
+
+        private static void SeedUsers(ModelBuilder modelBuilder)
+        {
+            // Seed data for the User table with fixed GUIDs
+            modelBuilder.Entity<User>().HasData(
+                User.CreateWithIdForDbSeed(
+                    id: Guid.Parse("11111111-1111-1111-1111-111111111111"), // Fixed GUID for Admin user
+                    firstName: "Admin",
+                    lastName: "User",
+                    email: Email.Create("admin@admin.com").Value, // Replace with a valid email
+                    password: Password.Create("Admin@123").Value, // Replace with a hashed password
+                    role: Role.Create("Admin").Value,
+                    createdOnUtc: new DateTime(2025, 4, 1, 0, 0, 0, DateTimeKind.Utc) // Fixed date for Admin user
+                ),
+                User.CreateWithIdForDbSeed(
+                    id: Guid.Parse("22222222-2222-2222-2222-222222222222"), // Fixed GUID for Regular user
+                    firstName: "Regular",
+                    lastName: "User",
+                    email: Email.Create("user@user.com").Value, // Replace with a valid email
+                    password: Password.Create("User@123").Value, // Replace with a hashed password
+                    role: Role.Create("User").Value,
+                    createdOnUtc: new DateTime(2025, 4, 1, 0, 0, 0, DateTimeKind.Utc) // Fixed date for Regular user
+                )
+            );
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

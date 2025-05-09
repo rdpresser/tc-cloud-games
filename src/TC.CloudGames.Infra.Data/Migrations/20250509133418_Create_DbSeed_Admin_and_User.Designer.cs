@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TC.CloudGames.Infra.Data;
@@ -11,9 +12,11 @@ using TC.CloudGames.Infra.Data;
 namespace TC.CloudGames.Infra.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250509133418_Create_DbSeed_Admin_and_User")]
+    partial class Create_DbSeed_Admin_and_User
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,9 +76,6 @@ namespace TC.CloudGames.Infra.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_games");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("ix_games_name");
 
                     b.ToTable("games", "public");
                 });

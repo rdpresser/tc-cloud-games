@@ -2,5 +2,5 @@
 
 namespace TC.CloudGames.Application.Games.GetGame
 {
-    public sealed record GetGameQuery(Guid Id) : IQuery<GameResponse>;
+    public sealed record GetGameByIdQuery(Guid Id) : IQuery<GameResponse>;
 }

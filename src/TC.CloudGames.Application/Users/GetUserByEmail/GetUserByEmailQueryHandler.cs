@@ -5,19 +5,19 @@ using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
 namespace TC.CloudGames.Application.Users.GetUser
 {
-    internal sealed class GetUserQueryHandler : QueryHandler<GetUserQuery, UserResponse>
+    internal sealed class GetUserByEmailQueryHandler : QueryHandler<GetUserByEmailQuery, UserResponse>
     {
         private readonly IUserPgRepository _userRepository;
         private readonly IUserContext _userContext;
         public const string UserRole = "User";
 
-        public GetUserQueryHandler(IUserPgRepository userRepository, IUserContext userContext)
+        public GetUserByEmailQueryHandler(IUserPgRepository userRepository, IUserContext userContext)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
         }
 
-        public override async Task<Result<UserResponse>> ExecuteAsync(GetUserQuery command, CancellationToken ct)
+        public override async Task<Result<UserResponse>> ExecuteAsync(GetUserByEmailQuery command, CancellationToken ct)
         {
             UserResponse? userResponse = null;
 

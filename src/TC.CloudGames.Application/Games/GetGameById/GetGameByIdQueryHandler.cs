@@ -4,16 +4,16 @@ using TC.CloudGames.Domain.Game;
 
 namespace TC.CloudGames.Application.Games.GetGame
 {
-    internal sealed class GetGameQueryHandler : QueryHandler<GetGameQuery, GameResponse>
+    internal sealed class GetGameByIdQueryHandler : QueryHandler<GetGameByIdQuery, GameResponse>
     {
         private readonly IGamePgRepository _gameRepository;
 
-        public GetGameQueryHandler(IGamePgRepository gameRepository)
+        public GetGameByIdQueryHandler(IGamePgRepository gameRepository)
         {
             _gameRepository = gameRepository ?? throw new ArgumentNullException(nameof(gameRepository));
         }
 
-        public override async Task<Result<GameResponse>> ExecuteAsync(GetGameQuery command, CancellationToken ct)
+        public override async Task<Result<GameResponse>> ExecuteAsync(GetGameByIdQuery command, CancellationToken ct)
         {
             var result = await _gameRepository.GetByIdAsync(command.Id, ct);
             if (result is not null)

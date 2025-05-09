@@ -127,6 +127,9 @@ namespace TC.CloudGames.Infra.Data.Configurations
             builder.Property(g => g.GameStatus)
                 .IsRequired(false)
                 .HasMaxLength(200);
+
+            builder.HasIndex(u => u.Name)
+                .IsUnique(false);
         }
     }
 }

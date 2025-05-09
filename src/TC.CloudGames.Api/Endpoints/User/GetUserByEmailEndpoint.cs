@@ -8,11 +8,11 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.User;
 
-public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
+public sealed class GetUserByEmailEndpoint : Endpoint<GetUserByEmailQuery, UserResponse>
 {
     private readonly IFusionCache _cache;
 
-    public GetUserEndpoint(IFusionCache cache)
+    public GetUserByEmailEndpoint(IFusionCache cache)
     {
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
     }
@@ -21,7 +21,7 @@ public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
     {
         Get("user/{Email}");
         Roles("User", "Admin");
-        PostProcessor<CommandPostProcessor<GetUserQuery, UserResponse>>();
+        PostProcessor<CommandPostProcessor<GetUserByEmailQuery, UserResponse>>();
 
         Description(x => x.Produces<UserResponse>()
             .ProducesProblemDetails()
@@ -34,7 +34,7 @@ public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
             s.Summary = "Retrieve user details by their unique identifier.";
             s.Description =
                 "This endpoint retrieves detailed information about a user by their unique Id. Access is restricted to users with the appropriate role.";
-            s.ExampleRequest = new GetUserQuery("John.smith@gmail.com");
+            s.ExampleRequest = new GetUserByEmailQuery("John.smith@gmail.com");
             s.ResponseExamples[200] = new UserResponse
             {
                 Email = "John.smith@gmail.com",
@@ -51,7 +51,7 @@ public sealed class GetUserEndpoint : Endpoint<GetUserQuery, UserResponse>
         });
     }
 
-    public override async Task HandleAsync(GetUserQuery req, CancellationToken ct)
+    public override async Task HandleAsync(GetUserByEmailQuery req, CancellationToken ct)
     {
         var response = await _cache.GetOrSetAsync($"User-{req.Email}",
             async token =>

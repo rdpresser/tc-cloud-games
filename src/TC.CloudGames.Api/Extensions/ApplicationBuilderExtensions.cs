@@ -46,6 +46,7 @@ public static class ApplicationBuilderExtensions
                     {
                         400 => "Validation Error",
                         404 => "Not Found",
+                        403 => "Forbidden",
                         _ => "One or more errors occurred!"
                     };
                 });

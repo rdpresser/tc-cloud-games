@@ -21,37 +21,42 @@ namespace TC.CloudGames.Infra.CrossCutting.IoC
     {
         public static IServiceCollection AddDependencyInjection(this IServiceCollection services)
         {
-            RegisterInfra(services);
-            RegisterDomain(services);
-            RegisterApplication(services);
-
-            return services;
+            return services
+                .RegisterInfra()
+                .RegisterDomain()
+                .RegisterApplication();
         }
 
-        private static void RegisterInfra(IServiceCollection services)
+        private static IServiceCollection RegisterInfra(this IServiceCollection services)
         {
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
             services.AddSingleton<IPgDbConnectionProvider, PgDbConnectionProvider>();
-            services.AddScoped<ITokenProvider, TokenProvider>();
+            services.AddSingleton<ITokenProvider, TokenProvider>();
             services.AddScoped<IUserContext, UserContext>();
 
             services.AddDbContext<ApplicationDbContext>();
             SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+
+            return services;
         }
 
-        private static void RegisterDomain(IServiceCollection services)
+        private static IServiceCollection RegisterDomain(this IServiceCollection services)
         {
             services.AddSingleton<IDuplicateKeyException, PostgresDuplicateKeyException>();
             services.AddScoped<IUserEfRepository, UserEfRepository>();
             services.AddScoped<IGameEfRepository, GameEfRepository>();
             services.AddScoped<IUnitOfWork, ApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
+
+            return services;
         }
 
-        private static void RegisterApplication(IServiceCollection services)
+        private static IServiceCollection RegisterApplication(this IServiceCollection services)
         {
             services.AddScoped<IUserPgRepository, UserPgRepository>();
             services.AddScoped<IGamePgRepository, GamePgRepository>();
+
+            return services;
         }
     }
 }

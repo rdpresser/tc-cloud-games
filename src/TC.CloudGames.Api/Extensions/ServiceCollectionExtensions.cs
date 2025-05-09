@@ -20,7 +20,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthenticationJwtBearer(s => s.SigningKey = configuration["Jwt:SecretKey"])
-                .AddAuthorization();
+                .AddAuthorization()
+                .AddHttpContextAccessor();
 
         return services;
     }

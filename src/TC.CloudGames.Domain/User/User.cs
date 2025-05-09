@@ -9,7 +9,7 @@ public sealed class User : Entity
     public Email Email { get; private set; }
     public Password Password { get; private set; }
     public Role Role { get; private set; }
-    
+
     private User()
     {
         //EF Core
@@ -38,5 +38,21 @@ public sealed class User : Entity
          */
 
         return user;
+    }
+
+    /// <summary>
+    /// Method used only for Seed operation
+    /// </summary>
+    /// <param name="firstName"></param>
+    /// <param name="lastName"></param>
+    /// <param name="email"></param>
+    /// <param name="password"></param>
+    /// <param name="role"></param>
+    /// <param name="createdOnUtc"></param>
+    /// <returns></returns>
+    public static User CreateWithIdForDbSeed(Guid id, string firstName, string lastName, Email email, Password password, Role role,
+        DateTime createdOnUtc)
+    {
+        return new User(id, firstName, lastName, email, password, role, createdOnUtc);
     }
 }

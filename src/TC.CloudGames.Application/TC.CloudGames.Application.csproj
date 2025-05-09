@@ -19,6 +19,11 @@
     <ProjectReference Include="..\TC.CloudGames.Infra.CrossCutting.Commons\TC.CloudGames.Infra.CrossCutting.Commons.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Games\GetGameByName\" />
+    <Folder Include="Users\GetUserById\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>

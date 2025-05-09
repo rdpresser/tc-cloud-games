@@ -8,11 +8,11 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.Games
 {
-    public sealed class GetGameEndpoint : Endpoint<GetGameQuery, GameResponse>
+    public sealed class GetGameByIdEndpoint : Endpoint<GetGameByIdQuery, GameResponse>
     {
         private readonly IFusionCache _cache;
 
-        public GetGameEndpoint(IFusionCache cache)
+        public GetGameByIdEndpoint(IFusionCache cache)
         {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
@@ -21,7 +21,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
         {
             Get("game/{Id}");
             Roles("Admin");
-            PostProcessor<CommandPostProcessor<GetGameQuery, GameResponse>>();
+            PostProcessor<CommandPostProcessor<GetGameByIdQuery, GameResponse>>();
 
             Description(
                 x => x.Produces<GameResponse>(200)
@@ -34,7 +34,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
             {
                 s.Summary = "Retrieve game details by its unique identifier.";
                 s.Description = "This endpoint retrieves detailed information about a game by its unique Id. Access is restricted to users with the appropriate roles.";
-                s.ExampleRequest = new GetGameQuery(Guid.NewGuid());
+                s.ExampleRequest = new GetGameByIdQuery(Guid.NewGuid());
                 s.ResponseExamples[200] = GetGameResponseExample();
                 s.Responses[200] = "Returned when game information is successfully retrieved.";
                 s.Responses[400] = "Returned when the request is invalid.";
@@ -44,7 +44,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
             });
         }
 
-        public override async Task HandleAsync(GetGameQuery req, CancellationToken ct)
+        public override async Task HandleAsync(GetGameByIdQuery req, CancellationToken ct)
         {
             var response = await _cache.GetOrSetAsync($"Game-{req.Id}",
                 async token =>
