@@ -8,8 +8,7 @@ using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 
-internal sealed class
-    CreateUserCommandHandler : CommandHandler<CreateUserCommand, CreateUserResponse, User, IUserEfRepository>
+internal sealed class CreateUserCommandHandler : CommandHandler<CreateUserCommand, CreateUserResponse, User, IUserEfRepository>
 {
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IPasswordHasher _passwordHasher;
@@ -26,6 +25,12 @@ internal sealed class
         CancellationToken ct = default)
     {
         var entity = CreateUserMapper.ToEntity(command, _dateTimeProvider, _passwordHasher);
+
+        if (!entity.IsSuccess)
+        {
+            AddErrors(entity.ValidationErrors);
+            return Result<CreateUserResponse>.Invalid(entity.ValidationErrors);
+        }
 
         try
         {
