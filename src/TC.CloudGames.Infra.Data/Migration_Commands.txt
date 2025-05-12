@@ -1,4 +1,4 @@
-﻿==> for shell commands, always run from the /src folder
+﻿==> When running shell commands, always run from the /src folder
 
 ==> command to add a new migration
 Shell: dotnet ef migrations add <migration-name> -c ApplicationDbContext -s TC.CloudGames.Api -p TC.CloudGames.Infra.Data
@@ -32,11 +32,14 @@ Script-Migration -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames
 PMC: $env:ASPNETCORE_ENVIRONMENT="Development"
 
 ==> Command to install EF Core Migration CLI Tool
-dotnet tool install --global dotnet-ef
+Shell: dotnet tool install --global dotnet-ef
 
 ==> Command to update EF Core Migration CLI Tool with the latest version
-dotnet tool uninstall --global dotnet-ef
-dotnet tool install --global dotnet-ef
+Shell: dotnet tool uninstall --global dotnet-ef
+Shell: dotnet tool install --global dotnet-ef
 
 ==> Command to list all dotnet Tools installed
-dotnet tool list
+Shell: dotnet tool list
+
+==> Command to list all available commands for Entity Framework Core
+PMC: Get-Help EntityFramework

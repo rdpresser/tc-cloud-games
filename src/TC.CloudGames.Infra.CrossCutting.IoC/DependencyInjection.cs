@@ -34,7 +34,7 @@ namespace TC.CloudGames.Infra.CrossCutting.IoC
             services.AddScoped<IUserContext, UserContext>();
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
-            services.AddDbContext<ApplicationDbContext>();
+            services.AddDbContext<ApplicationDbContext>(contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
             SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 
             return services;
