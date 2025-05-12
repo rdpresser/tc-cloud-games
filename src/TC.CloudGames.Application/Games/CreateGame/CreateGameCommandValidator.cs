@@ -12,7 +12,12 @@ namespace TC.CloudGames.Application.Games.CreateGame
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .WithMessage("Game name is required.")
-
+                .DependentRules(() =>
+                {
+                    RuleFor(x => x.Name)
+                        .MinimumLength(3)
+                        .WithMessage("Game name must be at least 3 characters long.");
+                })
                 .MaximumLength(100)
                 .WithMessage("Game name must not exceed 100 characters.");
 
