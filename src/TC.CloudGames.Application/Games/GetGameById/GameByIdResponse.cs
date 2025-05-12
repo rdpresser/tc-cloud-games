@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace TC.CloudGames.Application.Games.GetGame
+namespace TC.CloudGames.Application.Games.GetGameById
 {
     public class GameByIdResponse
     {

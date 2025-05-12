@@ -1,4 +1,4 @@
-using TC.CloudGames.Application.Games.GetGame;
+using TC.CloudGames.Application.Games.GetGameById;
 using TC.CloudGames.Application.Games.GetGameList;
 
 namespace TC.CloudGames.Application.Abstractions.Data;

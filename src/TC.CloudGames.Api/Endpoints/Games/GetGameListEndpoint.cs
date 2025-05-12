@@ -80,19 +80,19 @@ namespace TC.CloudGames.Api.Endpoints.Games
                 ReleaseDate = DateOnly.FromDateTime(faker.Date.Past()),
                 AgeRating = faker.PickRandom(AgeRating.ValidRatings.ToArray()),
                 Description = faker.Lorem.Paragraph(),
-                DeveloperInfo = new Application.Games.GetGame.DeveloperInfo
+                DeveloperInfo = new Application.Games.GetGameById.DeveloperInfo
                 {
                     Developer = faker.Company.CompanyName(),
                     Publisher = faker.Company.CompanyName()
                 },
                 DiskSize = faker.Random.Int(1, 150),
                 Price = decimal.Parse(faker.Commerce.Price(1.0m, 100.0m, 2)),
-                Playtime = new Application.Games.GetGame.Playtime
+                Playtime = new Application.Games.GetGameById.Playtime
                 {
                     Hours = faker.Random.Int(1, 100),
                     PlayerCount = faker.Random.Int(1, 2000)
                 },
-                GameDetails = new Application.Games.GetGame.GameDetails
+                GameDetails = new Application.Games.GetGameById.GameDetails
                 {
                     Genre = faker.Commerce.Categories(1)[0],
                     Platform = [.. faker.PickRandom(Domain.Game.GameDetails.ValidPlatforms, faker.Random.Int(1, Domain.Game.GameDetails.ValidPlatforms.Count))],
@@ -102,7 +102,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
                     AvailableLanguages = string.Join(", ", faker.Random.ListItems(AvailableLanguagesList, faker.Random.Int(1, AvailableLanguagesList.Length))),
                     SupportsDlcs = faker.Random.Bool()
                 },
-                SystemRequirements = new Application.Games.GetGame.SystemRequirements
+                SystemRequirements = new Application.Games.GetGameById.SystemRequirements
                 {
                     Minimum = faker.Lorem.Sentence(),
                     Recommended = faker.Lorem.Sentence()

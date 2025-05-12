@@ -2,7 +2,7 @@
 using System.Net;
 using TC.CloudGames.Api.Abstractions;
 using TC.CloudGames.Application.Abstractions;
-using TC.CloudGames.Application.Games.GetGame;
+using TC.CloudGames.Application.Games.GetGameById;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
@@ -71,11 +71,11 @@ namespace TC.CloudGames.Api.Endpoints.Games
                 ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow),
                 AgeRating = Domain.Game.AgeRating.ValidRatings.First(),
                 Description = "Game Description",
-                DeveloperInfo = new Application.Games.GetGame.DeveloperInfo { Developer = "Developer Name", Publisher = "Publisher Name" },
+                DeveloperInfo = new DeveloperInfo { Developer = "Developer Name", Publisher = "Publisher Name" },
                 DiskSize = 50.0m,
                 Price = 59.99m,
-                Playtime = new Application.Games.GetGame.Playtime { Hours = 10, PlayerCount = 1 },
-                GameDetails = new Application.Games.GetGame.GameDetails
+                Playtime = new Application.Games.GetGameById.Playtime { Hours = 10, PlayerCount = 1 },
+                GameDetails = new Application.Games.GetGameById.GameDetails
                 {
                     Genre = "Genre",
                     Platform = [.. Domain.Game.GameDetails.ValidPlatforms],
@@ -85,7 +85,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
                     AvailableLanguages = "Available Languages",
                     SupportsDlcs = true
                 },
-                SystemRequirements = new Application.Games.GetGame.SystemRequirements
+                SystemRequirements = new Application.Games.GetGameById.SystemRequirements
                 {
                     Minimum = "Minimum Requirements",
                     Recommended = "Recommended Requirements"
