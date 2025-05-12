@@ -2,6 +2,7 @@
 using FastEndpoints;
 using System.Net;
 using TC.CloudGames.Api.Abstractions;
+using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUserList;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
@@ -11,20 +12,17 @@ namespace TC.CloudGames.Api.Endpoints.User
 {
     public sealed class GetUserListEndpoint : ApiEndpoint<GetUserListQuery, IReadOnlyList<UserListResponse>>
     {
-        private static readonly string[] items = ["Admin", "User"];
-        private readonly IFusionCache _cache;
-        private readonly IUserContext _userContext;
+        private static readonly string[] items = [AppConstants.AdminRole, AppConstants.UserRole];
 
         public GetUserListEndpoint(IFusionCache cache, IUserContext userContext)
+            : base(cache, userContext)
         {
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-            _userContext = userContext;
         }
 
         public override void Configure()
         {
             Get("user/list");
-            Roles("Admin");
+            Roles(AppConstants.AdminRole);
             PostProcessor<CommandPostProcessor<GetUserListQuery, IReadOnlyList<UserListResponse>>>();
 
             Description(
@@ -69,12 +67,9 @@ namespace TC.CloudGames.Api.Endpoints.User
             // Use the helper to handle caching and validation
             var response = await GetOrSetWithValidationAsync
                 (
-                    _cache,
                     cacheKey,
                     validationFailuresCacheKey,
                     req.ExecuteAsync,
-                    ValidationFailures,
-                    _userContext,
                     ct
                 );
 

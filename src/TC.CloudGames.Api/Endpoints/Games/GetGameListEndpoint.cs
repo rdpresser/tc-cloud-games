@@ -1,27 +1,29 @@
 ﻿using Bogus;
 using FastEndpoints;
 using System.Net;
+using TC.CloudGames.Api.Abstractions;
+using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Games.GetGameList;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Domain.Game;
-using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.Games
 {
-    public sealed class GetGameListEndpoint : Endpoint<GetGameListQuery, IReadOnlyList<GameListResponse>>
+    public sealed class GetGameListEndpoint : ApiEndpoint<GetGameListQuery, IReadOnlyList<GameListResponse>>
     {
-        private readonly IFusionCache _cache;
+        private static readonly string[] AvailableLanguagesList = ["English", "Spanish", "French", "German", "Japanese"];
 
-        public GetGameListEndpoint(IFusionCache cache)
+        public GetGameListEndpoint(IFusionCache cache, IUserContext userContext)
+            : base(cache, userContext)
         {
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public override void Configure()
         {
             Get("game/list");
-            Roles("Admin");
+            Roles(AppConstants.AdminRole);
             PostProcessor<CommandPostProcessor<GetGameListQuery, IReadOnlyList<GameListResponse>>>();
 
             Description(
@@ -52,25 +54,22 @@ namespace TC.CloudGames.Api.Endpoints.Games
 
         public override async Task HandleAsync(GetGameListQuery req, CancellationToken ct)
         {
+            // Cache keys for user data and validation failures
             var cacheKey = $"GameList-{req.PageNumber}-{req.PageSize}-{req.SortBy}-{req.SortDirection}-{req.Filter}";
-            var response = await _cache.GetOrSetAsync(cacheKey,
-                async token =>
-                {
-                    return await req.ExecuteAsync(token).ConfigureAwait(false);
-                },
-                options: CacheOptions.DefaultExpiration,
-                ct).ConfigureAwait(false);
+            var validationFailuresCacheKey = $"ValidationFailures-{cacheKey}";
 
-            if (response.IsSuccess)
-            {
-                await SendAsync(response.Value, cancellation: ct).ConfigureAwait(false);
-                return;
-            }
+            // Use the helper to handle caching and validation
+            var response = await GetOrSetWithValidationAsync
+                (
+                    cacheKey,
+                    validationFailuresCacheKey,
+                    req.ExecuteAsync,
+                    ct
+                );
 
-            await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
+            // Use the MatchResultAsync method from the base class
+            await MatchResultAsync(response, ct);
         }
-
-        private static readonly string[] AvailableLanguagesList = ["English", "Spanish", "French", "German", "Japanese"];
 
         public static GameListResponse GetGameResponseExample(Faker faker)
         {

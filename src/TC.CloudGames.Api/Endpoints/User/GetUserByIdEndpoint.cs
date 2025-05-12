@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using System.Net;
 using TC.CloudGames.Api.Abstractions;
+using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUserById;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
@@ -10,19 +11,15 @@ namespace TC.CloudGames.Api.Endpoints.User
 {
     public sealed class GetUserByIdEndpoint : ApiEndpoint<GetUserByIdQuery, UserByIdResponse>
     {
-        private readonly IFusionCache _cache;
-        private readonly IUserContext _userContext;
-
         public GetUserByIdEndpoint(IFusionCache cache, IUserContext userContext)
+            : base(cache, userContext)
         {
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-            _userContext = userContext;
         }
 
         public override void Configure()
         {
             Get("user/{Id}");
-            Roles("User", "Admin");
+            Roles(AppConstants.UserRole, AppConstants.AdminRole);
             PostProcessor<CommandPostProcessor<GetUserByIdQuery, UserByIdResponse>>();
 
             Description(x => x.Produces<UserByIdResponse>()
@@ -62,12 +59,9 @@ namespace TC.CloudGames.Api.Endpoints.User
             // Use the helper to handle caching and validation
             var response = await GetOrSetWithValidationAsync
                 (
-                    _cache,
                     userCacheKey,
                     validationFailuresCacheKey,
                     req.ExecuteAsync,
-                    ValidationFailures,
-                    _userContext,
                     ct
                 );
 

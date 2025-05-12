@@ -1,26 +1,25 @@
-﻿using Ardalis.Result;
-using FastEndpoints;
+﻿using FastEndpoints;
 using System.Net;
+using TC.CloudGames.Api.Abstractions;
+using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Games.GetGame;
 using TC.CloudGames.Application.Middleware;
-using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.Games
 {
-    public sealed class GetGameByIdEndpoint : Endpoint<GetGameByIdQuery, GameByIdResponse>
+    public sealed class GetGameByIdEndpoint : ApiEndpoint<GetGameByIdQuery, GameByIdResponse>
     {
-        private readonly IFusionCache _cache;
-
-        public GetGameByIdEndpoint(IFusionCache cache)
+        public GetGameByIdEndpoint(IFusionCache cache, IUserContext userContext)
+            : base(cache, userContext)
         {
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public override void Configure()
         {
             Get("game/{Id}");
-            Roles("Admin");
+            Roles(AppConstants.AdminRole);
             PostProcessor<CommandPostProcessor<GetGameByIdQuery, GameByIdResponse>>();
 
             Description(
@@ -46,27 +45,21 @@ namespace TC.CloudGames.Api.Endpoints.Games
 
         public override async Task HandleAsync(GetGameByIdQuery req, CancellationToken ct)
         {
-            var response = await _cache.GetOrSetAsync($"Game-{req.Id}",
-                async token =>
-                {
-                    return await req.ExecuteAsync(token).ConfigureAwait(false);
-                },
-                options: CacheOptions.DefaultExpiration,
-                ct).ConfigureAwait(false);
+            // Cache keys for user data and validation failures
+            var cacheKey = $"Game-{req.Id}";
+            var validationFailuresCacheKey = $"ValidationFailures-{cacheKey}";
 
-            if (response.IsSuccess)
-            {
-                await SendAsync(response.Value, cancellation: ct).ConfigureAwait(false);
-                return;
-            }
+            // Use the helper to handle caching and validation
+            var response = await GetOrSetWithValidationAsync
+                (
+                    cacheKey,
+                    validationFailuresCacheKey,
+                    req.ExecuteAsync,
+                    ct
+                );
 
-            if (response.IsNotFound())
-            {
-                await SendErrorsAsync((int)HttpStatusCode.NotFound, cancellation: ct).ConfigureAwait(false);
-                return;
-            }
-
-            await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
+            // Use the MatchAsync method from the base class
+            await MatchResultAsync(response, ct);
         }
 
         public static GameByIdResponse GetGameResponseExample()

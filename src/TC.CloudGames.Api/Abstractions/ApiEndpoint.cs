@@ -11,6 +11,15 @@ namespace TC.CloudGames.Api.Abstractions
     public abstract class ApiEndpoint<TRequest, TResponse> : Endpoint<TRequest, TResponse>
         where TRequest : notnull
     {
+        protected readonly IFusionCache Cache;
+        protected readonly IUserContext UserContext;
+
+        protected ApiEndpoint(IFusionCache cache, IUserContext userContext)
+        {
+            Cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            UserContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
+        }
+
         /// <summary>
         /// Handles the result of a query or command execution and sends the appropriate response.
         /// </summary>
@@ -44,38 +53,32 @@ namespace TC.CloudGames.Api.Abstractions
         /// <summary>
         /// Handles caching and validation for queries or commands.
         /// </summary>
-        /// <param name="cache">The FusionCache instance.</param>
         /// <param name="dataCacheKey">The cache key for the data.</param>
         /// <param name="validationCacheKey">The cache key for validation failures.</param>
         /// <param name="executeQuery">The query execution function.</param>
-        /// <param name="validationFailures">The list of validation failures.</param>
-        /// <param name="userContext">The user context for generating unique cache keys.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>The result of the query or command execution.</returns>
         protected async Task<Result<TResponse>> GetOrSetWithValidationAsync(
-            IFusionCache cache,
             string dataCacheKey,
             string validationCacheKey,
             Func<CancellationToken, Task<Result<TResponse>>> executeQuery,
-            List<ValidationFailure> validationFailures,
-            IUserContext userContext,
             CancellationToken ct = default)
         {
             // Generate a unique key based on the user context
-            var uniqueKey = $"-{userContext.UserId}-{userContext.UserEmail}";
+            var uniqueKey = $"-{UserContext.UserId}-{UserContext.UserEmail}";
             dataCacheKey = $"{dataCacheKey}{uniqueKey}";
             validationCacheKey = $"{validationCacheKey}{uniqueKey}";
 
             // Try to get data from cache
-            var response = await cache.GetOrSetAsync(dataCacheKey,
+            var response = await Cache.GetOrSetAsync(dataCacheKey,
                 async token =>
                 {
                     var result = await executeQuery(token).ConfigureAwait(false);
 
                     // Cache validation failures if they exist
-                    if (validationFailures.Count != 0)
+                    if (ValidationFailures.Count != 0)
                     {
-                        await cache.SetAsync(validationCacheKey, validationFailures, CacheOptions.DefaultExpiration, token)
+                        await Cache.SetAsync(validationCacheKey, ValidationFailures, CacheOptions.DefaultExpiration, token)
                             .ConfigureAwait(false);
                     }
 
@@ -87,12 +90,12 @@ namespace TC.CloudGames.Api.Abstractions
             // Retrieve validation failures from cache if available
             if (!response.IsSuccess)
             {
-                var cachedValidationFailures = await cache.TryGetAsync<List<ValidationFailure>>(validationCacheKey, CacheOptions.DefaultExpiration, ct)
+                var cachedValidationFailures = await Cache.TryGetAsync<List<ValidationFailure>>(validationCacheKey, CacheOptions.DefaultExpiration, ct)
                     .ConfigureAwait(false);
 
-                if (cachedValidationFailures.HasValue && validationFailures.Count == 0)
+                if (cachedValidationFailures.HasValue && ValidationFailures.Count == 0)
                 {
-                    validationFailures.AddRange(cachedValidationFailures.Value);
+                    ValidationFailures.AddRange(cachedValidationFailures.Value);
                 }
             }
 

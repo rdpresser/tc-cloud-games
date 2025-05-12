@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using System.Net;
 using TC.CloudGames.Api.Abstractions;
+using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUser;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
@@ -10,19 +11,16 @@ namespace TC.CloudGames.Api.Endpoints.User;
 
 public sealed class GetUserByEmailEndpoint : ApiEndpoint<GetUserByEmailQuery, UserByEmailResponse>
 {
-    private readonly IFusionCache _cache;
-    private readonly IUserContext _userContext;
-
     public GetUserByEmailEndpoint(IFusionCache cache, IUserContext userContext)
+        : base(cache, userContext)
     {
-        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        _userContext = userContext;
+
     }
 
     public override void Configure()
     {
         Get("user/by-email/{Email}");
-        Roles("User", "Admin");
+        Roles(AppConstants.UserRole, AppConstants.AdminRole);
         PostProcessor<CommandPostProcessor<GetUserByEmailQuery, UserByEmailResponse>>();
 
         Description(x => x.Produces<UserByEmailResponse>()
@@ -62,12 +60,9 @@ public sealed class GetUserByEmailEndpoint : ApiEndpoint<GetUserByEmailQuery, Us
         // Use the helper to handle caching and validation
         var response = await GetOrSetWithValidationAsync
             (
-                _cache,
                 userCacheKey,
                 validationFailuresCacheKey,
                 req.ExecuteAsync,
-                ValidationFailures,
-                _userContext,
                 ct
             );
 

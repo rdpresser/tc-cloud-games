@@ -12,7 +12,7 @@ namespace TC.CloudGames.Application.Users.GetUserByEmail
     {
         private readonly IUserPgRepository _userRepository;
         private readonly IUserContext _userContext;
-        
+
         public GetUserByEmailQueryHandler(IUserPgRepository userRepository, IUserContext userContext)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -23,7 +23,8 @@ namespace TC.CloudGames.Application.Users.GetUserByEmail
         {
             UserByEmailResponse? userResponse = null;
 
-            if (_userContext.UserRole == AppConstants.UserRole && _userContext.UserEmail != command.Email)
+            if (_userContext.UserRole == AppConstants.UserRole
+                && !_userContext.UserEmail.Equals(command.Email, StringComparison.InvariantCultureIgnoreCase))
             {
                 AddError(x => x.Email, "You are not authorized to access this user.", UserDomainErrors.NotFound.ErrorCode);
                 return ValidationErrorNotAuthorized();
