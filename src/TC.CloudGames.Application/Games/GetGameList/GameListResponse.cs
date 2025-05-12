@@ -2,7 +2,7 @@
 
 namespace TC.CloudGames.Application.Games.GetGameList
 {
-    public class GameListResponse : GameResponse
+    public class GameListResponse : GameByIdResponse
     {
     }
 }

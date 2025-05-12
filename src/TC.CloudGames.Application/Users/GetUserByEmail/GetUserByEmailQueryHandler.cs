@@ -1,28 +1,29 @@
 ﻿using Ardalis.Result;
+using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
+using TC.CloudGames.Application.Users.GetUser;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
-namespace TC.CloudGames.Application.Users.GetUser
+namespace TC.CloudGames.Application.Users.GetUserByEmail
 {
-    internal sealed class GetUserByEmailQueryHandler : QueryHandler<GetUserByEmailQuery, UserResponse>
+    internal sealed class GetUserByEmailQueryHandler : QueryHandler<GetUserByEmailQuery, UserByEmailResponse>
     {
         private readonly IUserPgRepository _userRepository;
         private readonly IUserContext _userContext;
-        public const string UserRole = "User";
-
+        
         public GetUserByEmailQueryHandler(IUserPgRepository userRepository, IUserContext userContext)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
         }
 
-        public override async Task<Result<UserResponse>> ExecuteAsync(GetUserByEmailQuery command, CancellationToken ct)
+        public override async Task<Result<UserByEmailResponse>> ExecuteAsync(GetUserByEmailQuery command, CancellationToken ct = default)
         {
-            UserResponse? userResponse = null;
+            UserByEmailResponse? userResponse = null;
 
-            if (_userContext.UserRole == UserRole && _userContext.UserEmail != command.Email)
+            if (_userContext.UserRole == AppConstants.UserRole && _userContext.UserEmail != command.Email)
             {
                 AddError(x => x.Email, "You are not authorized to access this user.", UserDomainErrors.NotFound.ErrorCode);
                 return ValidationErrorNotAuthorized();

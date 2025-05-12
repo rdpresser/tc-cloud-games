@@ -1,6 +1,7 @@
 using Dapper;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Users.GetUser;
+using TC.CloudGames.Application.Users.GetUserById;
 using TC.CloudGames.Application.Users.GetUserList;
 using TC.CloudGames.Infra.Data.Configurations.Connection;
 
@@ -24,7 +25,7 @@ public class UserPgRepository : PgRepository, IUserPgRepository
 
     }
 
-    public async Task<UserResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<UserByIdResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var connection = await ConnectionProvider
             .CreateConnectionAsync(cancellationToken)
@@ -41,11 +42,11 @@ public class UserPgRepository : PgRepository, IUserPgRepository
                            WHERE id = @Id;
                            """;
 
-        return await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, new { id })
+        return await connection.QuerySingleOrDefaultAsync<UserByIdResponse>(sql, new { id })
             .ConfigureAwait(false);
     }
 
-    public async Task<UserResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<UserByEmailResponse?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         await using var connection = await ConnectionProvider
             .CreateConnectionAsync(cancellationToken)
@@ -62,7 +63,7 @@ public class UserPgRepository : PgRepository, IUserPgRepository
                            WHERE UPPER(email) = UPPER(@Email);
                            """;
 
-        return await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, new { email })
+        return await connection.QuerySingleOrDefaultAsync<UserByEmailResponse>(sql, new { email })
             .ConfigureAwait(false);
     }
 

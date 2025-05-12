@@ -56,20 +56,27 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
             });
         }
 
+        /// <summary>
+        /// Adds a list of validation errors to the context.
+        /// </summary>
+        /// <param name="validations"></param>
         protected void AddErrors(IEnumerable<ValidationError> validations)
         {
-            validations.ToList().ForEach(validation =>
-            {
-                ValidationContext.AddError(new()
+            ValidationContext.ValidationFailures.AddRange(validations.Select(validation =>
+                new ValidationFailure
                 {
                     PropertyName = validation.Identifier,
                     ErrorMessage = validation.ErrorMessage,
                     ErrorCode = validation.ErrorCode,
                     Severity = (Severity)validation.Severity
-                });
-            });
+                }));
         }
 
+
+        /// <summary>
+        /// Creates a result with validation errors to Result<typeparamref name="TResponse"/>.
+        /// </summary>
+        /// <returns></returns>
         protected Result<TResponse> ValidationErrorsInvalid()
         {
             if (ValidationContext.ValidationFailures.Count == 0)
@@ -79,20 +86,22 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
 
             List<ValidationError> validationErrors = [];
 
-            ValidationContext.ValidationFailures.ForEach(error =>
-            {
-                validationErrors.Add(new ValidationError
+            validationErrors.AddRange(ValidationContext.ValidationFailures
+                .Select(x => new ValidationError
                 {
-                    Identifier = error.PropertyName,
-                    ErrorCode = error.ErrorCode,
-                    ErrorMessage = error.ErrorMessage,
-                    Severity = (ValidationSeverity)error.Severity
-                });
-            });
+                    Identifier = x.PropertyName,
+                    ErrorCode = x.ErrorCode,
+                    ErrorMessage = x.ErrorMessage,
+                    Severity = (ValidationSeverity)x.Severity
+                }));
 
             return Result<TResponse>.Invalid(validationErrors);
         }
 
+        /// <summary>
+        /// Creates a result with not found error messages.
+        /// </summary>
+        /// <returns></returns>
         protected Result<TResponse> ValidationErrorNotFound()
         {
             if (ValidationContext.ValidationFailures.Count == 0)

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TC.CloudGames.Application.Abstractions.Messaging;
 
 namespace TC.CloudGames.Application.Users.GetUserById
 {
-    internal class GetUserByIdQuery
-    {
-    }
+    public sealed record GetUserByIdQuery(Guid Id) : IQuery<UserByIdResponse>;
 }

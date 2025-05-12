@@ -1,29 +1,31 @@
-﻿using Ardalis.Result;
-using FastEndpoints;
+﻿using FastEndpoints;
 using System.Net;
+using TC.CloudGames.Api.Abstractions;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUser;
-using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.User;
 
-public sealed class GetUserByEmailEndpoint : Endpoint<GetUserByEmailQuery, UserResponse>
+public sealed class GetUserByEmailEndpoint : ApiEndpoint<GetUserByEmailQuery, UserByEmailResponse>
 {
     private readonly IFusionCache _cache;
+    private readonly IUserContext _userContext;
 
-    public GetUserByEmailEndpoint(IFusionCache cache)
+    public GetUserByEmailEndpoint(IFusionCache cache, IUserContext userContext)
     {
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        _userContext = userContext;
     }
 
     public override void Configure()
     {
-        Get("user/{Email}");
+        Get("user/by-email/{Email}");
         Roles("User", "Admin");
-        PostProcessor<CommandPostProcessor<GetUserByEmailQuery, UserResponse>>();
+        PostProcessor<CommandPostProcessor<GetUserByEmailQuery, UserByEmailResponse>>();
 
-        Description(x => x.Produces<UserResponse>()
+        Description(x => x.Produces<UserByEmailResponse>()
             .ProducesProblemDetails()
             .Produces((int)HttpStatusCode.NotFound)
             .Produces((int)HttpStatusCode.Forbidden)
@@ -31,11 +33,11 @@ public sealed class GetUserByEmailEndpoint : Endpoint<GetUserByEmailQuery, UserR
 
         Summary(s =>
         {
-            s.Summary = "Retrieve user details by their unique identifier.";
+            s.Summary = "Retrieve user details by their email.";
             s.Description =
-                "This endpoint retrieves detailed information about a user by their unique Id. Access is restricted to users with the appropriate role.";
+                "This endpoint retrieves detailed information about a user by their Email. Access is restricted to users with the appropriate role.";
             s.ExampleRequest = new GetUserByEmailQuery("John.smith@gmail.com");
-            s.ResponseExamples[200] = new UserResponse
+            s.ResponseExamples[200] = new UserByEmailResponse
             {
                 Email = "John.smith@gmail.com",
                 Id = Guid.NewGuid(),
@@ -53,33 +55,23 @@ public sealed class GetUserByEmailEndpoint : Endpoint<GetUserByEmailQuery, UserR
 
     public override async Task HandleAsync(GetUserByEmailQuery req, CancellationToken ct)
     {
-        var response = await _cache.GetOrSetAsync($"User-{req.Email}",
-            async token =>
-            {
-                return await req.ExecuteAsync(token).ConfigureAwait(false);
-            },
-            options: CacheOptions.DefaultExpiration,
-            ct).ConfigureAwait(false);
+        // Cache keys for user data and validation failures
+        var userCacheKey = $"User-{req.Email}";
+        var validationFailuresCacheKey = $"ValidationFailures-{userCacheKey}";
 
-        if (response.IsSuccess)
-        {
-            await SendAsync(response.Value, cancellation: ct).ConfigureAwait(false);
-            return;
-        }
+        // Use the helper to handle caching and validation
+        var response = await GetOrSetWithValidationAsync
+            (
+                _cache,
+                userCacheKey,
+                validationFailuresCacheKey,
+                req.ExecuteAsync,
+                ValidationFailures,
+                _userContext,
+                ct
+            );
 
-        if (response.IsNotFound())
-        {
-            await SendErrorsAsync((int)HttpStatusCode.NotFound, ct).ConfigureAwait(false);
-            return;
-        }
-
-        if (response.IsUnauthorized())
-        {
-            await SendErrorsAsync((int)HttpStatusCode.Unauthorized, ct).ConfigureAwait(false);
-            return;
-        }
-
-
-        await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
+        // Use the MatchAsync method from the base class
+        await MatchResultAsync(response, ct);
     }
 }

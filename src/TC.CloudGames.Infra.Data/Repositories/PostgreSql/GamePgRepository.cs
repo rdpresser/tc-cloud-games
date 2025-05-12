@@ -34,7 +34,7 @@ public class GamePgRepository : PgRepository, IGamePgRepository
 
     }
 
-    public async Task<GameResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<GameByIdResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var connection = await ConnectionProvider
             .CreateConnectionAsync(cancellationToken)
@@ -70,7 +70,7 @@ public class GamePgRepository : PgRepository, IGamePgRepository
                            """;
 
         var game = await connection
-            .QueryAsync<GameResponse, DeveloperInfo, Playtime, GameDetails, SystemRequirements, GameResponse>(
+            .QueryAsync<GameByIdResponse, DeveloperInfo, Playtime, GameDetails, SystemRequirements, GameByIdResponse>(
                 sql,
                 (game, developerInfo, playtime, gameDetails, systemRequirements) =>
                 {
@@ -87,6 +87,7 @@ public class GamePgRepository : PgRepository, IGamePgRepository
 
         return game.FirstOrDefault();
     }
+
 
     public async Task<IReadOnlyList<GameListResponse>> GetGameListAsync(GetGameListQuery query,
         CancellationToken cancellationToken = default)

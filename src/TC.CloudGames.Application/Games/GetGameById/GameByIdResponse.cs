@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace TC.CloudGames.Application.Games.GetGame
 {
-    public class GameResponse
+    public class GameByIdResponse
     {
         public Guid Id { get; init; }
         public string Name { get; init; }

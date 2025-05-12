@@ -8,7 +8,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.Games
 {
-    public sealed class GetGameByIdEndpoint : Endpoint<GetGameByIdQuery, GameResponse>
+    public sealed class GetGameByIdEndpoint : Endpoint<GetGameByIdQuery, GameByIdResponse>
     {
         private readonly IFusionCache _cache;
 
@@ -21,10 +21,10 @@ namespace TC.CloudGames.Api.Endpoints.Games
         {
             Get("game/{Id}");
             Roles("Admin");
-            PostProcessor<CommandPostProcessor<GetGameByIdQuery, GameResponse>>();
+            PostProcessor<CommandPostProcessor<GetGameByIdQuery, GameByIdResponse>>();
 
             Description(
-                x => x.Produces<GameResponse>(200)
+                x => x.Produces<GameByIdResponse>(200)
                       .ProducesProblemDetails()
                       .Produces((int)HttpStatusCode.NotFound)
                       .Produces((int)HttpStatusCode.Forbidden)
@@ -69,9 +69,9 @@ namespace TC.CloudGames.Api.Endpoints.Games
             await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
         }
 
-        public static GameResponse GetGameResponseExample()
+        public static GameByIdResponse GetGameResponseExample()
         {
-            return new GameResponse
+            return new GameByIdResponse
             {
                 Id = Guid.NewGuid(),
                 Name = "Game Name",
