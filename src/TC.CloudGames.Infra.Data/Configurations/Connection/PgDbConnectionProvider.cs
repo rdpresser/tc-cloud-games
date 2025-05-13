@@ -2,7 +2,7 @@
 
 namespace TC.CloudGames.Infra.Data.Configurations.Connection;
 
-public sealed class PgDbConnectionProvider : IPgDbConnectionProvider, IAsyncDisposable, IDisposable
+public sealed class PgDbConnectionProvider : IPgDbConnectionProvider, IDisposable, IAsyncDisposable
 {
     private readonly IConnectionStringProvider _connectionStringProvider;
     private NpgsqlConnection? _connection;
@@ -59,8 +59,6 @@ public sealed class PgDbConnectionProvider : IPgDbConnectionProvider, IAsyncDisp
     public void Dispose()
     {
         Dispose(true);
-
-        // Suppress finalization to prevent the finalizer from running
         GC.SuppressFinalize(this);
     }
 
@@ -72,9 +70,9 @@ public sealed class PgDbConnectionProvider : IPgDbConnectionProvider, IAsyncDisp
             {
                 // Dispose managed resources
                 _connection?.Dispose();
-                _connection = null;
             }
 
+            _connection = null;
             _disposed = true;
         }
     }

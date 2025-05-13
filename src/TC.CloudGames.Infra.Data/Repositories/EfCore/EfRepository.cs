@@ -4,12 +4,14 @@ using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Infra.Data.Repositories.EfCore;
 
-public abstract class EfRepository<TEntity> : IEfRepository<TEntity>
+public abstract class EfRepository<TEntity> : IEfRepository<TEntity>, IDisposable, IAsyncDisposable
     where TEntity : Entity
 {
     protected readonly ApplicationDbContext DbContext;
     protected readonly DbSet<TEntity> DbSet;
+
     private readonly IDateTimeProvider _dateTimeProvider;
+    private bool _disposed;
 
     protected EfRepository(ApplicationDbContext dbContext, IDateTimeProvider dateTimeProvider)
     {
@@ -50,5 +52,45 @@ public abstract class EfRepository<TEntity> : IEfRepository<TEntity>
     public void Delete(TEntity entity)
     {
         DbSet.Remove(entity);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                DbContext.Dispose();
+            }
+
+            _disposed = true;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore();
+
+        // Suppress finalization to prevent the finalizer from running
+        GC.SuppressFinalize(this);
+    }
+
+    private async ValueTask DisposeAsyncCore()
+    {
+        if (!_disposed)
+        {
+            if (DbContext != null)
+            {
+                await DbContext.DisposeAsync().ConfigureAwait(false);
+            }
+
+            _disposed = true;
+        }
     }
 }
