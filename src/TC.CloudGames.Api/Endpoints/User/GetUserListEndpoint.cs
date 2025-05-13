@@ -1,27 +1,28 @@
 ﻿using Bogus;
 using FastEndpoints;
 using System.Net;
+using TC.CloudGames.Api.Abstractions;
+using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Application.Users.GetUserList;
-using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.User
 {
-    public sealed class GetUserListEndpoint : Endpoint<GetUserListQuery, IReadOnlyList<UserListResponse>>
+    public sealed class GetUserListEndpoint : ApiEndpoint<GetUserListQuery, IReadOnlyList<UserListResponse>>
     {
-        private static readonly string[] items = ["Admin", "User"];
-        private readonly IFusionCache _cache;
+        private static readonly string[] items = [AppConstants.AdminRole, AppConstants.UserRole];
 
-        public GetUserListEndpoint(IFusionCache cache)
+        public GetUserListEndpoint(IFusionCache cache, IUserContext userContext)
+            : base(cache, userContext)
         {
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public override void Configure()
         {
             Get("user/list");
-            Roles("Admin");
+            Roles(AppConstants.AdminRole);
             PostProcessor<CommandPostProcessor<GetUserListQuery, IReadOnlyList<UserListResponse>>>();
 
             Description(
@@ -59,22 +60,21 @@ namespace TC.CloudGames.Api.Endpoints.User
 
         public override async Task HandleAsync(GetUserListQuery req, CancellationToken ct)
         {
+            // Cache keys for user data and validation failures
             var cacheKey = $"UserList-{req.PageNumber}-{req.PageSize}-{req.SortBy}-{req.SortDirection}-{req.Filter}";
-            var response = await _cache.GetOrSetAsync(cacheKey,
-                async token =>
-                {
-                    return await req.ExecuteAsync(token).ConfigureAwait(false);
-                },
-                options: CacheOptions.DefaultExpiration,
-                ct).ConfigureAwait(false);
+            var validationFailuresCacheKey = $"ValidationFailures-{cacheKey}";
 
-            if (response.IsSuccess)
-            {
-                await SendAsync(response.Value, cancellation: ct).ConfigureAwait(false);
-                return;
-            }
+            // Use the helper to handle caching and validation
+            var response = await GetOrSetWithValidationAsync
+                (
+                    cacheKey,
+                    validationFailuresCacheKey,
+                    req.ExecuteAsync,
+                    ct
+                );
 
-            await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
+            // Use the MatchResultAsync method from the base class
+            await MatchResultAsync(response, ct);
         }
     }
 }

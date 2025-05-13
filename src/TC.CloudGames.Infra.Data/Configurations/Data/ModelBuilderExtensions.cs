@@ -15,7 +15,7 @@ namespace TC.CloudGames.Infra.Data.Configurations.Data
                 var constructor = type.GetConstructors().FirstOrDefault();
                 var parameters = constructor?.GetParameters().Select(p => serviceProvider.GetService(p.ParameterType)).ToArray();
                 var instance = Activator.CreateInstance(type, parameters);
-                modelBuilder.ApplyConfiguration((dynamic)instance);
+                modelBuilder.ApplyConfiguration(configuration: instance as dynamic);
             }
         }
     }

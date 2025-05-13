@@ -33,7 +33,7 @@ namespace TC.CloudGames.Domain.User
 
             if (string.IsNullOrWhiteSpace(value))
             {
-                validation.Add(new()
+                return Result<Password>.Invalid(new ValidationError
                 {
                     Identifier = nameof(Password),
                     ErrorMessage = "Password cannot be null or empty.",

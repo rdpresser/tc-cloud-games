@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace TC.CloudGames.Application.Games.GetGame
+namespace TC.CloudGames.Application.Games.GetGameById
 {
-    public class GameResponse
+    public class GameByIdResponse
     {
         public Guid Id { get; init; }
         public string Name { get; init; }

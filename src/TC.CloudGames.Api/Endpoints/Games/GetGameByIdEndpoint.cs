@@ -1,30 +1,29 @@
-﻿using Ardalis.Result;
-using FastEndpoints;
+﻿using FastEndpoints;
 using System.Net;
-using TC.CloudGames.Application.Games.GetGame;
+using TC.CloudGames.Api.Abstractions;
+using TC.CloudGames.Application.Abstractions;
+using TC.CloudGames.Application.Games.GetGameById;
 using TC.CloudGames.Application.Middleware;
-using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Endpoints.Games
 {
-    public sealed class GetGameByIdEndpoint : Endpoint<GetGameByIdQuery, GameResponse>
+    public sealed class GetGameByIdEndpoint : ApiEndpoint<GetGameByIdQuery, GameByIdResponse>
     {
-        private readonly IFusionCache _cache;
-
-        public GetGameByIdEndpoint(IFusionCache cache)
+        public GetGameByIdEndpoint(IFusionCache cache, IUserContext userContext)
+            : base(cache, userContext)
         {
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public override void Configure()
         {
             Get("game/{Id}");
-            Roles("Admin");
-            PostProcessor<CommandPostProcessor<GetGameByIdQuery, GameResponse>>();
+            Roles(AppConstants.AdminRole);
+            PostProcessor<CommandPostProcessor<GetGameByIdQuery, GameByIdResponse>>();
 
             Description(
-                x => x.Produces<GameResponse>(200)
+                x => x.Produces<GameByIdResponse>(200)
                       .ProducesProblemDetails()
                       .Produces((int)HttpStatusCode.NotFound)
                       .Produces((int)HttpStatusCode.Forbidden)
@@ -46,43 +45,37 @@ namespace TC.CloudGames.Api.Endpoints.Games
 
         public override async Task HandleAsync(GetGameByIdQuery req, CancellationToken ct)
         {
-            var response = await _cache.GetOrSetAsync($"Game-{req.Id}",
-                async token =>
-                {
-                    return await req.ExecuteAsync(token).ConfigureAwait(false);
-                },
-                options: CacheOptions.DefaultExpiration,
-                ct).ConfigureAwait(false);
+            // Cache keys for user data and validation failures
+            var cacheKey = $"Game-{req.Id}";
+            var validationFailuresCacheKey = $"ValidationFailures-{cacheKey}";
 
-            if (response.IsSuccess)
-            {
-                await SendAsync(response.Value, cancellation: ct).ConfigureAwait(false);
-                return;
-            }
+            // Use the helper to handle caching and validation
+            var response = await GetOrSetWithValidationAsync
+                (
+                    cacheKey,
+                    validationFailuresCacheKey,
+                    req.ExecuteAsync,
+                    ct
+                );
 
-            if (response.IsNotFound())
-            {
-                await SendErrorsAsync((int)HttpStatusCode.NotFound, cancellation: ct).ConfigureAwait(false);
-                return;
-            }
-
-            await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
+            // Use the MatchAsync method from the base class
+            await MatchResultAsync(response, ct);
         }
 
-        public static GameResponse GetGameResponseExample()
+        public static GameByIdResponse GetGameResponseExample()
         {
-            return new GameResponse
+            return new GameByIdResponse
             {
                 Id = Guid.NewGuid(),
                 Name = "Game Name",
                 ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow),
                 AgeRating = Domain.Game.AgeRating.ValidRatings.First(),
                 Description = "Game Description",
-                DeveloperInfo = new Application.Games.GetGame.DeveloperInfo { Developer = "Developer Name", Publisher = "Publisher Name" },
+                DeveloperInfo = new DeveloperInfo { Developer = "Developer Name", Publisher = "Publisher Name" },
                 DiskSize = 50.0m,
                 Price = 59.99m,
-                Playtime = new Application.Games.GetGame.Playtime { Hours = 10, PlayerCount = 1 },
-                GameDetails = new Application.Games.GetGame.GameDetails
+                Playtime = new Application.Games.GetGameById.Playtime { Hours = 10, PlayerCount = 1 },
+                GameDetails = new Application.Games.GetGameById.GameDetails
                 {
                     Genre = "Genre",
                     Platform = [.. Domain.Game.GameDetails.ValidPlatforms],
@@ -92,7 +85,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
                     AvailableLanguages = "Available Languages",
                     SupportsDlcs = true
                 },
-                SystemRequirements = new Application.Games.GetGame.SystemRequirements
+                SystemRequirements = new Application.Games.GetGameById.SystemRequirements
                 {
                     Minimum = "Minimum Requirements",
                     Recommended = "Recommended Requirements"

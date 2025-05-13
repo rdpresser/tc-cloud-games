@@ -2,5 +2,5 @@
 
 namespace TC.CloudGames.Application.Users.GetUser
 {
-    public sealed record GetUserByEmailQuery(string Email) : IQuery<UserResponse>;
+    public sealed record GetUserByEmailQuery(string Email) : IQuery<UserByEmailResponse>;
 }

@@ -1,8 +1,8 @@
-﻿using TC.CloudGames.Application.Games.GetGame;
+﻿using TC.CloudGames.Application.Games.GetGameById;
 
 namespace TC.CloudGames.Application.Games.GetGameList
 {
-    public class GameListResponse : GameResponse
+    public class GameListResponse : GameByIdResponse
     {
     }
 }

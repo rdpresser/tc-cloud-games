@@ -1,11 +1,12 @@
 ﻿using Ardalis.Result;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
+using TC.CloudGames.Application.Games.GetGameById;
 using TC.CloudGames.Domain.Game;
 
-namespace TC.CloudGames.Application.Games.GetGame
+namespace TC.CloudGames.Application.Games.GetGameById
 {
-    internal sealed class GetGameByIdQueryHandler : QueryHandler<GetGameByIdQuery, GameResponse>
+    internal sealed class GetGameByIdQueryHandler : QueryHandler<GetGameByIdQuery, GameByIdResponse>
     {
         private readonly IGamePgRepository _gameRepository;
 
@@ -14,7 +15,7 @@ namespace TC.CloudGames.Application.Games.GetGame
             _gameRepository = gameRepository ?? throw new ArgumentNullException(nameof(gameRepository));
         }
 
-        public override async Task<Result<GameResponse>> ExecuteAsync(GetGameByIdQuery command, CancellationToken ct)
+        public override async Task<Result<GameByIdResponse>> ExecuteAsync(GetGameByIdQuery command, CancellationToken ct)
         {
             var result = await _gameRepository.GetByIdAsync(command.Id, ct);
             if (result is not null)

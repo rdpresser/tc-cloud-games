@@ -12,11 +12,27 @@ namespace TC.CloudGames.Application.Users.CreateUser
         {
             RuleFor(x => x.FirstName)
                 .NotEmpty()
-                .WithMessage("First name is required.");
+                .WithMessage("First name is required.")
+                .DependentRules(() =>
+                {
+                    RuleFor(x => x.FirstName)
+                        .MinimumLength(3)
+                        .WithMessage("First name must be at least 3 characters long.")
+                        .Matches(@"^[a-zA-Z]+$")
+                        .WithMessage("First name can only contain letters.");
+                });
 
             RuleFor(x => x.LastName)
                 .NotEmpty()
-                .WithMessage("Last name is required.");
+                .WithMessage("Last name is required.")
+                .DependentRules(() =>
+                {
+                    RuleFor(x => x.LastName)
+                        .MinimumLength(3)
+                        .WithMessage("Last name must be at least 3 characters long.")
+                        .Matches(@"^[a-zA-Z]+$")
+                        .WithMessage("Last name can only contain letters.");
+                });
 
             RuleFor(x => x.Email)
                 .NotEmpty()
