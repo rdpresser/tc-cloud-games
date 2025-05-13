@@ -42,6 +42,16 @@ public abstract class EfRepository<TEntity> : IEfRepository<TEntity>, IDisposabl
         DbSet.AddRange(entities);
     }
 
+    public async Task BulkInsertAsync(IEnumerable<TEntity> entities)
+    {
+        foreach (var entity in entities)
+        {
+            entity.SetCreatedOnUtc(_dateTimeProvider.UtcNow);
+        }
+
+        await DbSet.BulkInsertAsync(entities);
+    }
+
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var entity = await GetByIdAsync(id, cancellationToken)
