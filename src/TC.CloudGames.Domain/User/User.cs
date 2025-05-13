@@ -16,8 +16,7 @@ public sealed class User : Entity
         //EF Core
     }
 
-    private User(Guid id, string firstName, string lastName, Email email, Password password, Role role,
-        DateTime createdOnUtc)
+    private User(Guid id, string firstName, string lastName, Email email, Password password, Role role)
         : base(id)
     {
         FirstName = firstName;
@@ -25,12 +24,10 @@ public sealed class User : Entity
         Email = email;
         Password = password;
         Role = role;
-        CreatedOnUtc = createdOnUtc;
     }
 
 
-    public static Result<User> Create(string firstName, string lastName, Email email, Password password, Role role,
-        DateTime createdOnUtc)
+    public static Result<User> Create(string firstName, string lastName, Email email, Password password, Role role)
     {
         List<ValidationError> validation = [];
 
@@ -59,28 +56,12 @@ public sealed class User : Entity
             return Result<User>.Invalid(validation);
         }
 
-        var user = new User(Guid.NewGuid(), firstName, lastName, email, password, role, createdOnUtc);
+        var user = new User(Guid.NewGuid(), firstName, lastName, email, password, role);
 
         /*
          * RaiseDomainEvent - Send onboarding email to the new user
          */
 
         return user;
-    }
-
-    /// <summary>
-    /// Method used only for Seed operation
-    /// </summary>
-    /// <param name="firstName"></param>
-    /// <param name="lastName"></param>
-    /// <param name="email"></param>
-    /// <param name="password"></param>
-    /// <param name="role"></param>
-    /// <param name="createdOnUtc"></param>
-    /// <returns></returns>
-    public static User CreateWithIdForDbSeed(Guid id, string firstName, string lastName, Email email, Password password, Role role,
-        DateTime createdOnUtc)
-    {
-        return new User(id, firstName, lastName, email, password, role, createdOnUtc);
     }
 }
