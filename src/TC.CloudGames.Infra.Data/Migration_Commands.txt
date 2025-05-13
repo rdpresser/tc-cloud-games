@@ -15,6 +15,7 @@ PMC: Update-Database -Context ApplicationDbContext -Project TC.CloudGames.Infra.
 ==> command to remove all migrations from database but not the files from project
 Shell: dotnet ef database update 0 -c ApplicationDbContext -s TC.CloudGames.Api -p TC.CloudGames.Infra.Data
 PMC: Update-Database -Migration 0 -Context ApplicationDbContext -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
+PMC: Drop-Database -Context ApplicationDbContext -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
 
 ==> command to undo to a specific migration
 Shell: dotnet ef database update <migration-name> -c ApplicationDbContext -s TC.CloudGames.Api -p TC.CloudGames.Infra.Data
@@ -23,7 +24,7 @@ PMC: Update-Database <migration-name> -Context ApplicationDbContext -Project TC.
 ==> command to generate the SQL Script DB for ALL database
 Shell: dotnet ef migrations script -c ApplicationDbContext -s TC.CloudGames.Api -p TC.CloudGames.Infra.Data | out-file ./scriptFile.sql
 PMC: Script-Migration <migration-name>
-PMC: Script-Migration -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
+PMC: Script-Migration -Context ApplicationDbContext -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api
 
 ==>Command to revert migration with script
 Script-Migration -Project TC.CloudGames.Infra.Data -StartupProject TC.CloudGames.Api -From SeedDataBase -To 0
@@ -43,3 +44,4 @@ Shell: dotnet tool list
 
 ==> Command to list all available commands for Entity Framework Core
 PMC: Get-Help EntityFramework
+PMC: Get-Help Add-Migration
