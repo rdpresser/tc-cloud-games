@@ -23,7 +23,7 @@ public abstract class EfRepository<TEntity> : IEfRepository<TEntity>, IDisposabl
     public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbSet
-            .FindAsync(id, cancellationToken).ConfigureAwait(false);
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false);
     }
 
     public void Add(TEntity entity)
