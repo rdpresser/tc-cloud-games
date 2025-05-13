@@ -28,13 +28,13 @@ public abstract class EfRepository<TEntity> : IEfRepository<TEntity>, IDisposabl
 
     public void Add(TEntity entity)
     {
-        entity.CreatedOnUtc = _dateTimeProvider.UtcNow;
+        entity.SetCreatedOnUtc(_dateTimeProvider.UtcNow);
         DbSet.Add(entity);
     }
 
     public void AddRange(IEnumerable<TEntity> entities)
     {
-        entities.ToList().ForEach(e => e.CreatedOnUtc = _dateTimeProvider.UtcNow);
+        entities.ToList().ForEach(e => e.SetCreatedOnUtc(_dateTimeProvider.UtcNow));
         DbSet.AddRange(entities);
     }
 
