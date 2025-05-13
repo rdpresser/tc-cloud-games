@@ -21,7 +21,7 @@ public abstract class EfRepository<TEntity> : IEfRepository<TEntity>
     public async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbSet
-            .FirstOrDefaultAsync(entity => entity.Id == id, cancellationToken).ConfigureAwait(false);
+            .FindAsync(id, cancellationToken).ConfigureAwait(false);
     }
 
     public void Add(TEntity entity)
@@ -34,5 +34,21 @@ public abstract class EfRepository<TEntity> : IEfRepository<TEntity>
     {
         entities.ToList().ForEach(e => e.CreatedOnUtc = _dateTimeProvider.UtcNow);
         DbSet.AddRange(entities);
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var entity = await GetByIdAsync(id, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (entity != null)
+        {
+            Delete(entity);
+        }
+    }
+
+    public void Delete(TEntity entity)
+    {
+        DbSet.Remove(entity);
     }
 }

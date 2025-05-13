@@ -7,4 +7,6 @@ public interface IEfRepository<TEntity> where TEntity : Entity
     void Add(TEntity entity);
 
     void AddRange(IEnumerable<TEntity> entities);
+
+    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }
