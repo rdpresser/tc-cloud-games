@@ -1,7 +1,6 @@
 ﻿using Bogus;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.User;
-using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 using TC.CloudGames.Infra.Data;
 
 namespace TC.CloudGames.Api.Extensions;
@@ -19,7 +18,7 @@ public static class SeedDataExtension
     {
         using var scope = app.ApplicationServices.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var dateTimeProvider = scope.ServiceProvider.GetRequiredService<IDateTimeProvider>();
+        var userRepository = scope.ServiceProvider.GetRequiredService<IUserEfRepository>();
 
         if (dbContext.Users.Count() >= 100) return;
 
@@ -33,16 +32,14 @@ public static class SeedDataExtension
                 "User",
                 Email.Create("admin@admin.com"),
                 Password.Create("Admin@123"),
-                Role.Create("Admin"),
-                dateTimeProvider.UtcNow));
+                Role.Create("Admin")));
 
         users.Add(User.Create(
                 "Regular",
                 "User",
                 Email.Create("user@user.com"),
                 Password.Create("User@123"),
-                Role.Create("User"),
-                dateTimeProvider.UtcNow));
+                Role.Create("User")));
 
         for (var i = 0; i < 100; i++)
         {
@@ -51,12 +48,10 @@ public static class SeedDataExtension
                 faker.Name.LastName(),
                 Email.Create(faker.Internet.Email()),
                 Password.Create(PasswordGenerator.GeneratePassword()),
-                Role.Create(faker.PickRandom(Role.ValidRoles.ToArray())),
-                dateTimeProvider.UtcNow));
+                Role.Create(faker.PickRandom(Role.ValidRoles.ToArray()))));
         }
 
-        dbContext.Users.AddRange(users);
-
+        userRepository.AddRange(users);
         await dbContext.SaveChangesAsync();
     }
 
@@ -69,7 +64,7 @@ public static class SeedDataExtension
     {
         using var scope = app.ApplicationServices.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var dateTimeProvider = scope.ServiceProvider.GetRequiredService<IDateTimeProvider>();
+        var gameRepository = scope.ServiceProvider.GetRequiredService<IGameEfRepository>();
 
         if (dbContext.Games.Count() >= 100) return;
 
@@ -98,10 +93,9 @@ public static class SeedDataExtension
                     systemRequirements: new SystemRequirements(faker.Lorem.Paragraph(), faker.Lorem.Paragraph()),
                     rating: Rating.Create(Math.Round(faker.Random.Decimal(1, 10), 2)),
                     officialLink: faker.Internet.Url(),
-                    gameStatus: faker.PickRandom(Game.ValidGameStatus.ToArray()),
-                    createdOnUtc: dateTimeProvider.UtcNow));
+                    gameStatus: faker.PickRandom(Game.ValidGameStatus.ToArray())));
 
-        dbContext.Games.AddRange(games);
+        gameRepository.AddRange(games);
         await dbContext.SaveChangesAsync();
     }
 }

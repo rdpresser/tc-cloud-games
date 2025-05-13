@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
+using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Infra.Data.Repositories.EfCore;
 
@@ -8,8 +9,8 @@ public sealed class UserEfRepository : EfRepository<User>, IUserEfRepository
 {
     private readonly IPasswordHasher _passwordHasher;
 
-    public UserEfRepository(ApplicationDbContext dbContext, IPasswordHasher passwordHasher)
-        : base(dbContext)
+    public UserEfRepository(ApplicationDbContext dbContext, IDateTimeProvider dateTimeProvider, IPasswordHasher passwordHasher)
+        : base(dbContext, dateTimeProvider)
     {
         _passwordHasher = passwordHasher;
     }
@@ -17,8 +18,7 @@ public sealed class UserEfRepository : EfRepository<User>, IUserEfRepository
     public async Task<User?> GetByEmailWithPasswordAsync(string email, string password,
         CancellationToken cancellationToken = default)
     {
-        var user = await DbContext
-            .Users
+        var user = await DbSet
             .AsNoTracking()
             .SingleOrDefaultAsync(entity =>
                 entity.Email == Email.Create(email), cancellationToken).ConfigureAwait(false);
@@ -31,8 +31,7 @@ public sealed class UserEfRepository : EfRepository<User>, IUserEfRepository
 
     public async Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await DbContext
-            .Users
+        return await DbSet
             .AsNoTracking()
             .AnyAsync(entity => entity.Email == Email.Create(email), cancellationToken).ConfigureAwait(false);
     }

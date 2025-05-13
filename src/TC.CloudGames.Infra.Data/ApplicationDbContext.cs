@@ -15,7 +15,7 @@ using TC.CloudGames.Infra.Data.Helpers;
 
 namespace TC.CloudGames.Infra.Data
 {
-    public sealed class ApplicationDbContext : DbContext, IUnitOfWork, IAsyncDisposable, IDisposable
+    public sealed class ApplicationDbContext : DbContext, IUnitOfWork, IDisposable, IAsyncDisposable
     {
         private readonly IConnectionStringProvider _connectionStringProvider;
         private readonly IServiceProvider _serviceProvider;

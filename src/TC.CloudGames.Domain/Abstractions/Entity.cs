@@ -15,7 +15,12 @@ public abstract class Entity
     }
 
     public Guid Id { get; protected init; }
-    public DateTime CreatedOnUtc { get; protected init; }
+    public DateTime CreatedOnUtc { get; private set; }
+
+    public void SetCreatedOnUtc(DateTime createdOnUtc)
+    {
+        CreatedOnUtc = createdOnUtc;
+    }
 
     public IReadOnlyList<IDomainEvent> GetDomainEvents()
     {

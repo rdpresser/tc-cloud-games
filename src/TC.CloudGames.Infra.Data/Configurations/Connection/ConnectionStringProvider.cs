@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Options;
-using TC.CloudGames.Infra.Data.Configurations.Data;
 
 namespace TC.CloudGames.Infra.Data.Configurations.Connection
 {

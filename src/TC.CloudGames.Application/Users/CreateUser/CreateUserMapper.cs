@@ -1,13 +1,12 @@
 ﻿using Ardalis.Result;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
-using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 
 public static class CreateUserMapper
 {
-    public static Result<User> ToEntity(CreateUserCommand r, IDateTimeProvider dateTimeProvider, IPasswordHasher passwordHasher)
+    public static Result<User> ToEntity(CreateUserCommand r, IPasswordHasher passwordHasher)
     {
         List<ValidationError> validation = [];
 
@@ -34,8 +33,7 @@ public static class CreateUserMapper
             lastName: r.LastName,
             email: emailResult,
             password: passwordResult,
-            role: roleResult,
-            createdOnUtc: dateTimeProvider.UtcNow
+            role: roleResult
         );
 
         if (!userResult.IsSuccess)

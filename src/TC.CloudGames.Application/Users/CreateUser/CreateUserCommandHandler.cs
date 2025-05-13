@@ -10,21 +10,19 @@ namespace TC.CloudGames.Application.Users.CreateUser;
 
 internal sealed class CreateUserCommandHandler : CommandHandler<CreateUserCommand, CreateUserResponse, User, IUserEfRepository>
 {
-    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IPasswordHasher _passwordHasher;
 
     public CreateUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository repository,
         IDateTimeProvider dateTimeProvider, IPasswordHasher passwordHasher)
         : base(unitOfWork, repository)
     {
-        _dateTimeProvider = dateTimeProvider;
         _passwordHasher = passwordHasher;
     }
 
     public override async Task<Result<CreateUserResponse>> ExecuteAsync(CreateUserCommand command,
         CancellationToken ct = default)
     {
-        var entity = CreateUserMapper.ToEntity(command, _dateTimeProvider, _passwordHasher);
+        var entity = CreateUserMapper.ToEntity(command, _passwordHasher);
 
         if (!entity.IsSuccess)
         {

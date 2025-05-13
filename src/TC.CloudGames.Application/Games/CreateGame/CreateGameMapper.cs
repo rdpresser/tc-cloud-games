@@ -50,8 +50,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
                 systemRequirements: new Domain.Game.SystemRequirements(command.SystemRequirements.Minimum, command.SystemRequirements.Recommended),
                 rating: ratingResult.Value,
                 officialLink: command.OfficialLink,
-                gameStatus: command.GameStatus,
-                createdOnUtc: dateTimeProvider.UtcNow
+                gameStatus: command.GameStatus
             );
 
             if (!gameResult.IsSuccess)
