@@ -51,8 +51,7 @@ public static class SeedDataExtension
                 Role.Create(faker.PickRandom(Role.ValidRoles.ToArray()))));
         }
 
-        userRepository.AddRange(users);
-        await dbContext.SaveChangesAsync();
+        await userRepository.BulkInsertAsync(users);
     }
 
     /// <summary>
@@ -95,7 +94,6 @@ public static class SeedDataExtension
                     officialLink: faker.Internet.Url(),
                     gameStatus: faker.PickRandom(Game.ValidGameStatus.ToArray())));
 
-        gameRepository.AddRange(games);
-        await dbContext.SaveChangesAsync();
+        await gameRepository.BulkInsertAsync(games);
     }
 }

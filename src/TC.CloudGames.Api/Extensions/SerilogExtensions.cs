@@ -22,6 +22,8 @@ namespace TC.CloudGames.Api.Extensions
                             .MinimumLevel.Debug()
                             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                             .Enrich.FromLogContext()
+                            .Enrich.WithProperty("Application", "TC.CloudGames.Api")
+                            .Enrich.WithProperty("Environment", hostContext.HostingEnvironment.EnvironmentName)
                             .Enrich.With(new UtcToLocalTimeEnricher(timeZone)) // Pass the timezone to the enricher
                             .WriteTo.Console(outputTemplate: "[{LocalTimestamp}] {Level:u3} {Message:lj}{NewLine}{Exception}"))
                             .Enrich.WithSensitiveDataMasking(options =>

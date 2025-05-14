@@ -37,9 +37,13 @@ namespace TC.CloudGames.Infra.Data
             {
                 base.OnConfiguring(optionsBuilder);
 
+                // Configure the DbContext to use PostgreSQL with the connection string from the provider
                 optionsBuilder.UseNpgsql(_connectionStringProvider.ConnectionString, npgsqlOptions =>
                     npgsqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Default))
                 .UseSnakeCaseNamingConvention();
+
+                // Enable lazy loading proxies
+                optionsBuilder.UseLazyLoadingProxies();
 
                 // Use Serilog for EF Core logging
                 optionsBuilder.LogTo(Log.Logger.Information, LogLevel.Information);

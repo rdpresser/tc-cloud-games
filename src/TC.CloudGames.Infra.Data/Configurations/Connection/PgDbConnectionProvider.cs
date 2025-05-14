@@ -37,9 +37,6 @@ public sealed class PgDbConnectionProvider : IPgDbConnectionProvider, IDisposabl
     public async ValueTask DisposeAsync()
     {
         await DisposeAsyncCore();
-
-        // Suppress finalization to prevent the finalizer from running
-        GC.SuppressFinalize(this);
     }
 
     private async ValueTask DisposeAsyncCore()
@@ -59,7 +56,6 @@ public sealed class PgDbConnectionProvider : IPgDbConnectionProvider, IDisposabl
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
     private void Dispose(bool disposing)

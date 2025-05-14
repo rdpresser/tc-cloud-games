@@ -8,5 +8,7 @@ public interface IEfRepository<TEntity> where TEntity : Entity
 
     void AddRange(IEnumerable<TEntity> entities);
 
+    Task BulkInsertAsync(IEnumerable<TEntity> entities);
+
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }
