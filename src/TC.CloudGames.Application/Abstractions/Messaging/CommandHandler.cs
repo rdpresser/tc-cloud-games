@@ -1,4 +1,5 @@
 ﻿using Ardalis.Result;
+using FastEndpoints;
 using FluentValidation;
 using FluentValidation.Results;
 using System.Linq.Expressions;
@@ -8,7 +9,7 @@ using TC.CloudGames.Domain.Exceptions;
 
 namespace TC.CloudGames.Application.Abstractions.Messaging
 {
-    public abstract class CommandHandler<TCommand, TResponse, TEntity, TRepository> : FastEndpoints.CommandHandler<TCommand, Result<TResponse>>
+    public abstract class CommandHandler<TCommand, TResponse, TEntity, TRepository> : CommandHandler<TCommand, Result<TResponse>>
         where TCommand : ICommand<TResponse>
         where TResponse : class
         where TEntity : Entity
@@ -17,13 +18,13 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
         protected readonly TRepository Repository;
         protected readonly IUnitOfWork UnitOfWork;
 
+        private FastEndpoints.ValidationContext<TCommand> ValidationContext { get; } = Instance;
+
         protected CommandHandler(IUnitOfWork unitOfWork, TRepository repository)
         {
             UnitOfWork = unitOfWork;
             Repository = repository;
         }
-
-        private FastEndpoints.ValidationContext<TCommand> ValidationContext { get; } = Instance;
 
         public abstract override Task<Result<TResponse>> ExecuteAsync(TCommand command, CancellationToken ct = default);
 
@@ -72,6 +73,10 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
                 }));
         }
 
+        protected void AddErrors(IEnumerable<ValidationFailure> validations)
+        {
+            ValidationContext.ValidationFailures.AddRange(validations);
+        }
 
         /// <summary>
         /// Creates a result with validation errors to Result<typeparamref name="TResponse"/>.

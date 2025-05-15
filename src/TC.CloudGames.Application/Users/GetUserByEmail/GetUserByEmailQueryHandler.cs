@@ -3,7 +3,7 @@ using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Application.Users.GetUser;
-using TC.CloudGames.Domain.User;
+using TC.CloudGames.Domain.User.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
 namespace TC.CloudGames.Application.Users.GetUserByEmail
@@ -26,7 +26,7 @@ namespace TC.CloudGames.Application.Users.GetUserByEmail
             if (_userContext.UserRole == AppConstants.UserRole
                 && !_userContext.UserEmail.Equals(command.Email, StringComparison.InvariantCultureIgnoreCase))
             {
-                AddError(x => x.Email, "You are not authorized to access this user.", UserDomainErrors.NotFound.ErrorCode);
+                AddError(x => x.Email, "You are not authorized to access this user.", $"{nameof(GetUserByEmailQuery.Email)}.NotAuthorized");
                 return ValidationErrorNotAuthorized();
             }
 

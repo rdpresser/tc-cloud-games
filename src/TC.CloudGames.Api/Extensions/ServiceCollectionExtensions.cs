@@ -1,10 +1,12 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
+using FluentValidation;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
 using TC.CloudGames.Application.Middleware;
+using TC.CloudGames.Domain.Game.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 using TC.CloudGames.Infra.CrossCutting.IoC;
@@ -69,6 +71,7 @@ public static class ServiceCollectionExtensions
         services.AddDependencyInjection()
                 .AddCorrelationIdGenerator()
                 .AddHttpClient()
+                .AddValidatorsFromAssemblyContaining<CreateGameValidator>()
                 .AddFusionCache()
                 .WithDefaultEntryOptions(options =>
                 {

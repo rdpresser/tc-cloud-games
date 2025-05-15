@@ -1,5 +1,7 @@
 ﻿using Ardalis.Result;
+using Ardalis.Result.FluentValidation;
 using TC.CloudGames.Domain.Abstractions;
+using TC.CloudGames.Domain.User.Abstractions;
 
 namespace TC.CloudGames.Domain.User;
 
@@ -13,7 +15,6 @@ public sealed class User : Entity
 
     private User()
     {
-        //EF Core
     }
 
     private User(Guid id, string firstName, string lastName, Email email, Password password, Role role)
@@ -26,37 +27,25 @@ public sealed class User : Entity
         Role = role;
     }
 
-
-    public static Result<User> Create(string firstName, string lastName, Email email, Password password, Role role)
+    public static async Task<Result<User>> CreateAsync(string firstName, string lastName, string email, string password, string role, IUserEfRepository userEfRepository)
     {
-        List<ValidationError> validation = [];
+        var emailResult = await Email.Create(email, userEfRepository);
+        var passwordResult = Password.Create(password);
+        var roleResult = Role.Create(role);
 
-        if (string.IsNullOrWhiteSpace(firstName))
-        {
-            validation.Add(new()
-            {
-                Identifier = nameof(FirstName),
-                ErrorMessage = "Firstname is required.",
-                ErrorCode = $"{nameof(FirstName)}.Required"
-            });
-        }
+        var errors = new List<ValidationError>();
+        if (!emailResult.IsSuccess) errors.AddRange(emailResult.ValidationErrors);
+        if (!passwordResult.IsSuccess) errors.AddRange(passwordResult.ValidationErrors);
+        if (!roleResult.IsSuccess) errors.AddRange(roleResult.ValidationErrors);
 
-        if (string.IsNullOrWhiteSpace(lastName))
-        {
-            validation.Add(new()
-            {
-                Identifier = nameof(LastName),
-                ErrorMessage = "Lastname is required.",
-                ErrorCode = $"{nameof(LastName)}.Required"
-            });
-        }
+        if (errors.Any())
+            return Result.Invalid(errors);
 
-        if (validation.Count != 0)
-        {
-            return Result<User>.Invalid(validation);
-        }
+        var user = new User(Guid.NewGuid(), firstName, lastName, emailResult.Value, passwordResult.Value, roleResult.Value);
+        var validator = await new CreateUserValidator().ValidationResultAsync(user).ConfigureAwait(false);
 
-        var user = new User(Guid.NewGuid(), firstName, lastName, email, password, role);
+        if (!validator.IsValid)
+            return Result.Invalid(validator.AsErrors());
 
         /*
          * RaiseDomainEvent - Send onboarding email to the new user

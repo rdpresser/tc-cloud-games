@@ -1,6 +1,6 @@
 using TC.CloudGames.Domain.Abstractions;
 
-namespace TC.CloudGames.Domain.Game;
+namespace TC.CloudGames.Domain.Game.Abstractions;
 
 public static class GameDomainErrors
 {

@@ -1,67 +1,35 @@
 ﻿using Ardalis.Result;
 using TC.CloudGames.Domain.Game;
-using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Application.Games.CreateGame
 {
     public static class CreateGameMapper
     {
-        public static Result<Game> ToEntity(CreateGameCommand command, IDateTimeProvider dateTimeProvider)
+        public static Result<Game> ToEntity(CreateGameCommand command)
         {
-            List<ValidationError> validation = [];
-
-            var gameDetailsResult = Domain.Game.GameDetails.Create(
-                genre: command.GameDetails.Genre,
-                platform: command.GameDetails.Platform,
-                tags: command.GameDetails.Tags,
-                gameMode: command.GameDetails.GameMode,
-                distributionFormat: command.GameDetails.DistributionFormat,
-                availableLanguages: command.GameDetails.AvailableLanguages,
-                supportsDlcs: command.GameDetails.SupportsDlcs
-            );
-
-            if (!gameDetailsResult.IsSuccess)
-            {
-                validation.AddRange(gameDetailsResult.ValidationErrors);
-            }
-
-            var ageRatingResult = AgeRating.Create(command.AgeRating);
-            if (!ageRatingResult.IsSuccess)
-            {
-                validation.AddRange(ageRatingResult.ValidationErrors);
-            }
-
-            var ratingResult = Rating.Create(command.Rating);
-            if (!ratingResult.IsSuccess)
-            {
-                validation.AddRange(ratingResult.ValidationErrors);
-            }
-
             var gameResult = Game.Create(
                 name: command.Name,
                 releaseDate: command.ReleaseDate,
-                ageRating: ageRatingResult.Value,
+                ageRating: command.AgeRating,
                 description: command.Description,
-                developerInfo: new Domain.Game.DeveloperInfo(command.DeveloperInfo.Developer, command.DeveloperInfo.Publisher),
-                diskSize: new DiskSize(command.DiskSize),
-                price: new Domain.Game.Price(command.Price),
-                playtime: command.Playtime != null ? new Domain.Game.Playtime(command.Playtime.Hours, command.Playtime.PlayerCount) : null,
-                gameDetails: gameDetailsResult.Value,
-                systemRequirements: new Domain.Game.SystemRequirements(command.SystemRequirements.Minimum, command.SystemRequirements.Recommended),
-                rating: ratingResult.Value,
+                developerInfo: (command.DeveloperInfo.Developer, command.DeveloperInfo.Publisher),
+                diskSize: command.DiskSize,
+                price: command.Price,
+                playtime: command.Playtime != null ? (command.Playtime.Hours, command.Playtime.PlayerCount) : null,
+                gameDetails: (
+                    genre: command.GameDetails.Genre,
+                    platform: command.GameDetails.Platform,
+                    tags: command.GameDetails.Tags,
+                    gameMode: command.GameDetails.GameMode,
+                    distributionFormat: command.GameDetails.DistributionFormat,
+                    availableLanguages: command.GameDetails.AvailableLanguages,
+                    supportsDlcs: command.GameDetails.SupportsDlcs
+                ),
+                systemRequirements: (command.SystemRequirements.Minimum, command.SystemRequirements.Recommended),
+                rating: command.Rating,
                 officialLink: command.OfficialLink,
                 gameStatus: command.GameStatus
             );
-
-            if (!gameResult.IsSuccess)
-            {
-                validation.AddRange(gameResult.ValidationErrors);
-            }
-
-            if (validation.Count != 0)
-            {
-                return Result<Game>.Invalid(validation);
-            }
 
             return gameResult;
         }

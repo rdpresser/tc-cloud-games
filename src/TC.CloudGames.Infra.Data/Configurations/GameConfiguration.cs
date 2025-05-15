@@ -27,14 +27,14 @@ namespace TC.CloudGames.Infra.Data.Configurations
                 .HasMaxLength(10)
                 .HasConversion(
                     ageRating => ageRating.Value,
-                    value => AgeRating.Create(value).Value
+                    value => AgeRating.Create(value)
                 );
 
             builder.Property(g => g.Rating)
                 .IsRequired(false)
                 .HasConversion(
                     rating => rating == null || !rating.Average.HasValue ? 0 : rating.Average.Value,
-                    value => Rating.Create(value).Value
+                    value => Rating.Create(value)
                 );
 
             builder.OwnsOne(x => x.DeveloperInfo, developerInfo =>
