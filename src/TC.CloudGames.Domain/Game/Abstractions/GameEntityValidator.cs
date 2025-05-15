@@ -113,8 +113,8 @@ namespace TC.CloudGames.Domain.Game.Abstractions
         {
             RuleFor(game => game.OfficialLink)
                 .Must(link => string.IsNullOrEmpty(link) || Uri.IsWellFormedUriString(link, UriKind.Absolute))
-                .WithMessage("Official link must be a valid URL.")
-                .WithErrorCode($"{nameof(Game.OfficialLink)}.ValidUrl");
+                    .WithMessage("Official link must be a valid URL.")
+                    .WithErrorCode($"{nameof(Game.OfficialLink)}.ValidUrl");
         }
     }
 }

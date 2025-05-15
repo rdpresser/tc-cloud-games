@@ -35,7 +35,7 @@ public static class SeedDataExtension
                 "admin@admin.com",
                 "Admin@123",
                 "Admin",
-                userRepository));
+                userRepository).ConfigureAwait(false));
 
         users.Add(await User.CreateAsync(
                 "Regular",
@@ -43,7 +43,7 @@ public static class SeedDataExtension
                 "user@user.com",
                 "User@123",
                 "User",
-                userRepository));
+                userRepository).ConfigureAwait(false));
 
         for (var i = 0; i < 100; i++)
         {
@@ -53,10 +53,10 @@ public static class SeedDataExtension
                 faker.Internet.Email(),
                 PasswordGenerator.GeneratePassword(),
                 faker.PickRandom(Role.ValidRoles.ToArray()),
-                userRepository));
+                userRepository).ConfigureAwait(false));
         }
 
-        await userRepository.BulkInsertAsync(users);
+        await userRepository.BulkInsertAsync(users).ConfigureAwait(false);
     }
 
     /// <summary>

@@ -35,7 +35,7 @@ namespace TC.CloudGames.Domain.Abstractions
                 });
             }
 
-            return [];
+            return Enumerable.Empty<ValidationError>();
         }
 
         public IEnumerable<ValidationError> ValidationErrors(ValidationResult validationResult)

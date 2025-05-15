@@ -2,6 +2,7 @@
 using Bogus;
 using NSubstitute;
 using Shouldly;
+using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Domain.User.Abstractions;
 
@@ -79,19 +80,20 @@ public class GameTests
 
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
+        var errors = result.ValidationErrors;
 
-        result.ValidationErrors.Count(x => x.Identifier == "Name").ShouldBe(1);
-        result.ValidationErrors.Count(x => x.Identifier == "ReleaseDate").ShouldBeGreaterThanOrEqualTo(1);
-        result.ValidationErrors.Count(x => x.Identifier == "AgeRating").ShouldBe(1);
-        result.ValidationErrors.Count(x => x.Identifier == "DeveloperInfo.Developer").ShouldBe(1);
-        result.ValidationErrors.Count(x => x.Identifier == "DiskSize.SizeInGb").ShouldBe(1);
-        result.ValidationErrors.Count(x => x.Identifier == "Price").ShouldBe(0);
-        result.ValidationErrors.Count(x => x.Identifier == "GameDetails.Platform").ShouldBe(1);
-        result.ValidationErrors.Count(x => x.Identifier == "GameDetails.GameMode").ShouldBe(1);
-        result.ValidationErrors.Count(x => x.Identifier == "GameDetails.DistributionFormat").ShouldBe(1);
-        result.ValidationErrors.Count(x => x.Identifier == "SystemRequirements.Minimum").ShouldBe(1);
-        result.ValidationErrors.Count(x => x.Identifier == "Rating").ShouldBe(0);
-        result.ValidationErrors.Count(x => x.Identifier == "GameStatus").ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(Game.Game.Name)).ShouldBe(0);
+        errors.Count(x => x.Identifier == nameof(Game.Game.ReleaseDate)).ShouldBe(0);
+        errors.Count(x => x.Identifier == nameof(Game.Game.AgeRating)).ShouldBe(3);
+        errors.Count(x => x.Identifier == nameof(DeveloperInfo.Developer)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(DiskSize)).ShouldBe(2);
+        errors.Count(x => x.Identifier == nameof(Price)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails.Platform)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails.GameMode)).ShouldBe(2);
+        errors.Count(x => x.Identifier == nameof(GameDetails.DistributionFormat)).ShouldBe(2);
+        errors.Count(x => x.Identifier == nameof(SystemRequirements.Minimum)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(Rating)).ShouldBe(0);
+        errors.Count(x => x.Identifier == nameof(Game.Game.GameStatus)).ShouldBe(0);
     }
 
     [Fact]

@@ -1,7 +1,6 @@
 ﻿using Ardalis.Result;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
-using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.Game.Abstractions;
 
@@ -9,7 +8,7 @@ namespace TC.CloudGames.Application.Games.CreateGame;
 
 internal sealed class CreateGameCommandHandler : CommandHandler<CreateGameCommand, CreateGameResponse, Game, IGameEfRepository>
 {
-    public CreateGameCommandHandler(IUnitOfWork unitOfWork, IGameEfRepository gameRepository, IBaseValidator<Game> validator)
+    public CreateGameCommandHandler(IUnitOfWork unitOfWork, IGameEfRepository gameRepository)
         : base(unitOfWork, gameRepository)
     {
 
