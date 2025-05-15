@@ -9,22 +9,26 @@ namespace TC.CloudGames.Domain.Game.Abstractions
         protected void ValidateName()
         {
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Game name is required.")
-                .WithErrorCode($"{nameof(Game.Name)}.Required")
+                .NotEmpty()
+                    .WithMessage("Game name is required.")
+                    .WithErrorCode($"{nameof(Game.Name)}.Required")
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.Name)
-                        .Length(1, 200).WithMessage("Name must be between 1 and 200 characters.")
-                        .WithErrorCode($"{nameof(Game.Name)}.Length");
+                        .Length(1, 200)
+                            .WithMessage("Name must be between 1 and 200 characters.")
+                            .WithErrorCode($"{nameof(Game.Name)}.Length");
                 });
         }
 
         protected void ValidateReleaseDate()
         {
             RuleFor(x => x.ReleaseDate)
-                .NotEmpty().WithMessage("Release date is required.")
-                .WithErrorCode($"{nameof(Game.ReleaseDate)}.Required")
-                .Must(date => date > DateOnly.MinValue).WithMessage("Release date must be a valid date.")
+                .NotEmpty()
+                    .WithMessage("Release date is required.")
+                    .WithErrorCode($"{nameof(Game.ReleaseDate)}.Required")
+                .Must(date => date > DateOnly.MinValue)
+                    .WithMessage("Release date must be a valid date.")
                     .WithErrorCode($"{nameof(Game.ReleaseDate)}.ValidDate");
         }
 
@@ -80,9 +84,12 @@ namespace TC.CloudGames.Domain.Game.Abstractions
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.SystemRequirements.Minimum)
-                        .NotEmpty().WithMessage("Minimum system requirements are required.").WithErrorCode($"{nameof(Game.SystemRequirements.Minimum)}.Required")
-                        .MaximumLength(1000).WithMessage("Minimum system requirements must not exceed 1000 characters.")
-                        .WithErrorCode($"{nameof(Game.SystemRequirements.Minimum)}.MaximumLength");
+                        .NotEmpty()
+                            .WithMessage("Minimum system requirements are required.")
+                            .WithErrorCode($"{nameof(Game.SystemRequirements.Minimum)}.Required")
+                        .MaximumLength(1000)
+                            .WithMessage("Minimum system requirements must not exceed 1000 characters.")
+                            .WithErrorCode($"{nameof(Game.SystemRequirements.Minimum)}.MaximumLength");
                 });
         }
 
@@ -102,10 +109,11 @@ namespace TC.CloudGames.Domain.Game.Abstractions
             {
                 RuleFor(x => x.GameStatus)
                     .Must(status => Game.ValidGameStatus.Contains(status!))
-                    .WithMessage($"Invalid game status specified. Valid status are: {Game.ValidGameStatus.JoinWithQuotes()}.")
-                    .WithErrorCode($"{nameof(Game.GameStatus)}.ValidGameStatus")
-                .MaximumLength(200).WithMessage("Game status must not exceed 200 characters.")
-                .WithErrorCode($"{nameof(Game.GameStatus)}.MaximumLength");
+                        .WithMessage($"Invalid game status specified. Valid status are: {Game.ValidGameStatus.JoinWithQuotes()}.")
+                        .WithErrorCode($"{nameof(Game.GameStatus)}.ValidGameStatus")
+                    .MaximumLength(200)
+                        .WithMessage("Game status must not exceed 200 characters.")
+                        .WithErrorCode($"{nameof(Game.GameStatus)}.MaximumLength");
             });
         }
 
