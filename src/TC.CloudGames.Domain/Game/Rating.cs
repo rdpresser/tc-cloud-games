@@ -1,4 +1,7 @@
 using Ardalis.Result;
+using Ardalis.Result.FluentValidation;
+using FluentValidation;
+using TC.CloudGames.Domain.Abstractions;
 
 namespace TC.CloudGames.Domain.Game
 {
@@ -13,22 +16,42 @@ namespace TC.CloudGames.Domain.Game
 
         public static Result<Rating> Create(decimal? average)
         {
-            if (average is < 0 or > 10)
+            var rating = new Rating(average);
+            var validator = new RatingValidator().ValidationResult(rating);
+
+            if (!validator.IsValid)
             {
-                return Result<Rating>.Invalid(new ValidationError
-                {
-                    Identifier = nameof(Average),
-                    ErrorMessage = "Average must be between 0 and 10.",
-                    ErrorCode = $"{nameof(Average)}.Invalid"
-                });
+                return Result.Invalid(validator.AsErrors());
             }
 
-            return Result<Rating>.Success(new Rating(average));
+            return rating;
         }
 
         public override string ToString()
         {
             return Average.HasValue ? $"Rating: {Average.Value}" : "No Rating";
+        }
+    }
+
+    public class RatingValidator : BaseValidator<Rating>
+    {
+        public RatingValidator()
+        {
+            ValidateRating();
+        }
+
+        protected void ValidateRating()
+        {
+            When(x => x.Average != null, () =>
+            {
+                RuleFor(x => x.Average)
+                    .GreaterThanOrEqualTo(0)
+                        .WithMessage("Rating must be greater than or equal to 0.")
+                        .WithErrorCode($"{nameof(Rating)}.GreaterThanOrEqualToZero")
+                    .LessThanOrEqualTo(10)
+                        .WithMessage("Average rating must be less than or equal to 10.")
+                        .WithErrorCode($"{nameof(Rating)}.LessThanOrEqualToTen");
+            });
         }
     }
 }

@@ -1,7 +1,10 @@
 ﻿using Ardalis.Result;
+using Ardalis.Result.FluentValidation;
+using FluentValidation;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Domain.Game
@@ -82,44 +85,7 @@ namespace TC.CloudGames.Domain.Game
             bool supportsDlcs
         )
         {
-            List<ValidationError> validation = [];
-
-            if (!ValidPlatforms.Any(platform.Contains))
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(Platform),
-                    ErrorMessage = $"Invalid platform specified. Valid platforms are: {ValidPlatforms.JoinWithQuotes()}.",
-                    ErrorCode = $"{nameof(Platform)}.Invalid"
-                });
-            }
-
-            if (string.IsNullOrWhiteSpace(gameMode) || !ValidGameModes.Contains(gameMode))
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(GameMode),
-                    ErrorMessage = $"Invalid game mode specified. Valid game modes are: {ValidGameModes.JoinWithQuotes()}.",
-                    ErrorCode = $"{nameof(GameMode)}.Invalid"
-                });
-            }
-
-            if (string.IsNullOrWhiteSpace(distributionFormat) || !ValidDistributionFormats.Contains(distributionFormat))
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(DistributionFormat),
-                    ErrorMessage = $"Invalid distribution format specified. Valid formats are: {ValidDistributionFormats.JoinWithQuotes()}.",
-                    ErrorCode = $"{nameof(DistributionFormat)}.Invalid"
-                });
-            }
-
-            if (validation.Count != 0)
-            {
-                return Result<GameDetails>.Invalid(validation);
-            }
-
-            return new GameDetails(
+            var gameDetails = new GameDetails(
                 genre,
                 JsonSerializer.Serialize(platform),
                 tags,
@@ -128,11 +94,64 @@ namespace TC.CloudGames.Domain.Game
                 availableLanguages,
                 supportsDlcs
             );
+            var validator = new GameDetailsValidator().ValidationResult(gameDetails);
+
+            if (!validator.IsValid)
+            {
+                return Result.Invalid(validator.AsErrors());
+            }
+
+            return gameDetails;
         }
 
         public override string ToString()
         {
             return $"{Platform} - {GameMode} - {DistributionFormat}";
+        }
+    }
+
+    public class GameDetailsValidator : BaseValidator<GameDetails>
+    {
+        public GameDetailsValidator()
+        {
+            ValidatePlatform();
+            ValidateGameMode();
+            DistributionFormat();
+            SupportsDlcs();
+        }
+
+        protected void ValidatePlatform()
+        {
+            RuleFor(x => x.Platform)
+                .NotEmpty().WithMessage("Platform is required.").WithErrorCode($"{nameof(GameDetails.Platform)}.Required")
+                .Must(platform => GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
+                    .WithMessage($"Invalid platform specified. Valid platforms are: {GameDetails.ValidPlatforms.JoinWithQuotes()}.")
+                    .WithErrorCode($"{nameof(GameDetails.Platform)}.ValidPlatform");
+        }
+
+        protected void ValidateGameMode()
+        {
+            RuleFor(x => x.GameMode)
+                .NotEmpty().WithMessage("Game mode is required.").WithErrorCode($"{nameof(GameDetails.GameMode)}.Required")
+                .Must(mode => GameDetails.ValidGameModes.Contains(mode))
+                    .WithMessage($"Invalid game mode specified. Valid game modes are: {GameDetails.ValidGameModes.JoinWithQuotes()}.")
+                    .WithErrorCode($"{nameof(GameDetails.GameMode)}.ValidGame");
+        }
+
+        protected void DistributionFormat()
+        {
+            RuleFor(x => x.DistributionFormat)
+                .NotEmpty().WithMessage("Distribution format is required.").WithErrorCode($"{nameof(GameDetails.DistributionFormat)}.Required")
+                .Must(format => GameDetails.ValidDistributionFormats.Contains(format))
+                    .WithMessage($"Invalid distribution format specified. Valid formats are: {GameDetails.ValidDistributionFormats.JoinWithQuotes()}.")
+                    .WithErrorCode($"{nameof(GameDetails.DistributionFormat)}.ValidDistributionFormat");
+        }
+
+        protected void SupportsDlcs()
+        {
+            RuleFor(x => x.SupportsDlcs)
+                .NotNull().WithMessage("Supports DLCs field is required.")
+                .WithErrorCode($"{nameof(GameDetails.SupportsDlcs)}.Required");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TC.CloudGames.Domain.User;
+using TC.CloudGames.Domain.User.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
@@ -21,7 +22,7 @@ public sealed class UserEfRepository : EfRepository<User>, IUserEfRepository
         var user = await DbSet
             .AsNoTracking()
             .SingleOrDefaultAsync(entity =>
-                entity.Email == Email.Create(email), cancellationToken).ConfigureAwait(false);
+                entity.Email == Email.CreateMap(email), cancellationToken).ConfigureAwait(false);
 
         if (user is null)
             return null;
@@ -33,6 +34,6 @@ public sealed class UserEfRepository : EfRepository<User>, IUserEfRepository
     {
         return await DbSet
             .AsNoTracking()
-            .AnyAsync(entity => entity.Email == Email.Create(email), cancellationToken).ConfigureAwait(false);
+            .AnyAsync(entity => entity.Email == Email.CreateMap(email), cancellationToken).ConfigureAwait(false);
     }
 }

@@ -43,7 +43,7 @@ namespace TC.CloudGames.Infra.Data
                 .UseSnakeCaseNamingConvention();
 
                 // Enable lazy loading proxies
-                optionsBuilder.UseLazyLoadingProxies();
+                //optionsBuilder.UseLazyLoadingProxies();
 
                 // Use Serilog for EF Core logging
                 optionsBuilder.LogTo(Log.Logger.Information, LogLevel.Information);

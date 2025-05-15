@@ -1,9 +1,11 @@
 ﻿using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using TC.CloudGames.Application.Abstractions.Data;
+using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Exceptions;
 using TC.CloudGames.Domain.Game;
-using TC.CloudGames.Domain.User;
+using TC.CloudGames.Domain.Game.Abstractions;
+using TC.CloudGames.Domain.User.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 using TC.CloudGames.Infra.Data;
@@ -46,6 +48,7 @@ namespace TC.CloudGames.Infra.CrossCutting.IoC
             services.AddScoped<IUserEfRepository, UserEfRepository>();
             services.AddScoped<IGameEfRepository, GameEfRepository>();
             services.AddScoped<IUnitOfWork, ApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
+            services.AddScoped<IBaseValidator<Game>, CreateGameValidator>();
 
             return services;
         }

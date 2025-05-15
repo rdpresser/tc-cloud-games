@@ -1,6 +1,8 @@
 ﻿using Bogus;
 using TC.CloudGames.Domain.Game;
+using TC.CloudGames.Domain.Game.Abstractions;
 using TC.CloudGames.Domain.User;
+using TC.CloudGames.Domain.User.Abstractions;
 using TC.CloudGames.Infra.Data;
 
 namespace TC.CloudGames.Api.Extensions;
@@ -27,28 +29,31 @@ public static class SeedDataExtension
         List<User> users = [];
 
         //Create default users
-        users.Add(User.Create(
+        users.Add(await User.CreateAsync(
                 "Admin",
                 "User",
-                Email.Create("admin@admin.com"),
-                Password.Create("Admin@123"),
-                Role.Create("Admin")));
+                "admin@admin.com",
+                "Admin@123",
+                "Admin",
+                userRepository));
 
-        users.Add(User.Create(
+        users.Add(await User.CreateAsync(
                 "Regular",
                 "User",
-                Email.Create("user@user.com"),
-                Password.Create("User@123"),
-                Role.Create("User")));
+                "user@user.com",
+                "User@123",
+                "User",
+                userRepository));
 
         for (var i = 0; i < 100; i++)
         {
-            users.Add(User.Create(
+            users.Add(await User.CreateAsync(
                 faker.Name.FirstName(),
                 faker.Name.LastName(),
-                Email.Create(faker.Internet.Email()),
-                Password.Create(PasswordGenerator.GeneratePassword()),
-                Role.Create(faker.PickRandom(Role.ValidRoles.ToArray()))));
+                faker.Internet.Email(),
+                PasswordGenerator.GeneratePassword(),
+                faker.PickRandom(Role.ValidRoles.ToArray()),
+                userRepository));
         }
 
         await userRepository.BulkInsertAsync(users);
@@ -75,13 +80,13 @@ public static class SeedDataExtension
                 Game.Create(
                     name: $"{faker.Commerce.ProductAdjective()} {faker.Commerce.ProductMaterial()} {faker.Commerce.Product()}",
                     releaseDate: DateOnly.FromDateTime(faker.Date.Past()),
-                    ageRating: AgeRating.Create(faker.PickRandom(AgeRating.ValidRatings.ToArray())),
+                    ageRating: faker.PickRandom(AgeRating.ValidRatings.ToArray()),
                     description: faker.Lorem.Paragraph(),
-                    developerInfo: new DeveloperInfo(faker.Company.CompanyName(), faker.Company.CompanyName()),
-                    diskSize: new DiskSize(faker.Random.Int(1, 150)),
-                    price: new Price(decimal.Parse(faker.Commerce.Price(1.0m, 500.0m))),
-                    playtime: new Playtime(faker.Random.Int(1, 200), faker.Random.Int(1, 2000)),
-                    gameDetails: GameDetails.Create(
+                    developerInfo: (faker.Company.CompanyName(), faker.Company.CompanyName()),
+                    diskSize: faker.Random.Int(1, 150),
+                    price: decimal.Parse(faker.Commerce.Price(1.0m, 500.0m)),
+                    playtime: (faker.Random.Int(1, 200), faker.Random.Int(1, 2000)),
+                    gameDetails: (
                         genre: faker.Lorem.Word(),
                         platform: GameDetails.ValidPlatforms.ToArray(),
                         tags: faker.Lorem.Word(),
@@ -89,8 +94,8 @@ public static class SeedDataExtension
                         distributionFormat: faker.PickRandom(GameDetails.ValidDistributionFormats.ToArray()),
                         availableLanguages: string.Join(", ", faker.Random.ListItems(AvailableLanguagesList, faker.Random.Int(1, AvailableLanguagesList.Length))),
                         supportsDlcs: faker.Random.Bool()),
-                    systemRequirements: new SystemRequirements(faker.Lorem.Paragraph(), faker.Lorem.Paragraph()),
-                    rating: Rating.Create(Math.Round(faker.Random.Decimal(1, 10), 2)),
+                    systemRequirements: (faker.Lorem.Paragraph(), faker.Lorem.Paragraph()),
+                    rating: (Math.Round(faker.Random.Decimal(1, 10), 2)),
                     officialLink: faker.Internet.Url(),
                     gameStatus: faker.PickRandom(Game.ValidGameStatus.ToArray())));
 

@@ -32,7 +32,7 @@ internal sealed class UserConfiguration : Configuration<User>
             .HasMaxLength(200)
             .HasConversion(
                 email => email.Value.ToUpper(),
-                value => Email.Create(value)
+                value => Email.CreateMap(value)
             );
 
         builder.Property(u => u.Password)
@@ -40,7 +40,7 @@ internal sealed class UserConfiguration : Configuration<User>
             .HasMaxLength(200)
             .HasConversion(
                 password => _passwordHasher.Hash(password.Value),
-                value => Password.CreateHashed(value)
+                value => Password.CreateMap(value)
             );
 
         builder.Property(u => u.Role)

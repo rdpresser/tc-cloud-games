@@ -2,7 +2,7 @@
 using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
-using TC.CloudGames.Domain.User;
+using TC.CloudGames.Domain.User.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
 namespace TC.CloudGames.Application.Users.GetUserById;
@@ -11,7 +11,7 @@ internal sealed class GetUserByIdQueryHandler : QueryHandler<GetUserByIdQuery, U
 {
     private readonly IUserPgRepository _userRepository;
     private readonly IUserContext _userContext;
-    
+
     public GetUserByIdQueryHandler(IUserPgRepository userRepository, IUserContext userContext)
     {
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -24,7 +24,7 @@ internal sealed class GetUserByIdQueryHandler : QueryHandler<GetUserByIdQuery, U
 
         if (_userContext.UserRole == AppConstants.UserRole && _userContext.UserId != command.Id)
         {
-            AddError(x => x.Id, "You are not authorized to access this user.", UserDomainErrors.NotFound.ErrorCode);
+            AddError(x => x.Id, "You are not authorized to access this user.", $"{nameof(GetUserByIdQuery.Id)}.NotAuthorized");
             return ValidationErrorNotAuthorized();
         }
 

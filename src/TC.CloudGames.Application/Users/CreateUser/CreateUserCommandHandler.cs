@@ -3,43 +3,31 @@ using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Domain.Exceptions;
 using TC.CloudGames.Domain.User;
-using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
-using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
+using TC.CloudGames.Domain.User.Abstractions;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 
 internal sealed class CreateUserCommandHandler : CommandHandler<CreateUserCommand, CreateUserResponse, User, IUserEfRepository>
 {
-    private readonly IPasswordHasher _passwordHasher;
-
-    public CreateUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository repository,
-        IDateTimeProvider dateTimeProvider, IPasswordHasher passwordHasher)
+    public CreateUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository repository)
         : base(unitOfWork, repository)
     {
-        _passwordHasher = passwordHasher;
+
     }
 
     public override async Task<Result<CreateUserResponse>> ExecuteAsync(CreateUserCommand command,
         CancellationToken ct = default)
     {
-        var entity = CreateUserMapper.ToEntity(command, _passwordHasher);
+        var entity = await CreateUserMapper.ToEntityAsync(command, Repository);
 
         if (!entity.IsSuccess)
         {
             AddErrors(entity.ValidationErrors);
-            return Result<CreateUserResponse>.Invalid(entity.ValidationErrors);
+            return Result.Invalid(entity.ValidationErrors);
         }
 
         try
         {
-            // Check if the email already exists
-            if (await Repository.EmailExistsAsync(command.Email, ct).ConfigureAwait(false))
-            {
-                AddError(x => x.Email, UserDomainErrors.EmailAlreadyExists.ErrorMessage,
-                    UserDomainErrors.EmailAlreadyExists.ErrorCode);
-                return ValidationErrorsInvalid();
-            }
-
             Repository.Add(entity);
 
             await UnitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);

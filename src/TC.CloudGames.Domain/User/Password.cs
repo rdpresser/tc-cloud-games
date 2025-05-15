@@ -1,15 +1,12 @@
 ﻿using Ardalis.Result;
-using System.Text.RegularExpressions;
+using Ardalis.Result.FluentValidation;
+using FluentValidation;
+using TC.CloudGames.Domain.Abstractions;
 
 namespace TC.CloudGames.Domain.User
 {
     public sealed record Password
     {
-        private static readonly Regex UppercaseRegex = new(@"[A-Z]", RegexOptions.Compiled);
-        private static readonly Regex LowercaseRegex = new(@"[a-z]", RegexOptions.Compiled);
-        private static readonly Regex DigitRegex = new(@"\d", RegexOptions.Compiled);
-        private static readonly Regex SpecialCharRegex = new(@"[\W_]", RegexOptions.Compiled);
-
         public string Value { get; }
 
         private Password(string value)
@@ -22,83 +19,61 @@ namespace TC.CloudGames.Domain.User
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static Result<Password> CreateHashed(string value)
+        public static Result<Password> CreateMap(string value)
         {
             return new Password(value);
         }
 
         public static Result<Password> Create(string value)
         {
-            List<ValidationError> validation = [];
+            var password = new Password(value);
+            var validator = new PasswordValidator().ValidationResult(password);
 
-            if (string.IsNullOrWhiteSpace(value))
+            if (!validator.IsValid)
             {
-                return Result<Password>.Invalid(new ValidationError
-                {
-                    Identifier = nameof(Password),
-                    ErrorMessage = "Password cannot be null or empty.",
-                    ErrorCode = $"{nameof(Password)}.Required"
-                });
+                return Result.Invalid(validator.AsErrors());
             }
 
-            if (value.Length < 8)
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(Password),
-                    ErrorMessage = "Password must be at least 8 characters long.",
-                    ErrorCode = $"{nameof(Password)}.Invalid"
-                });
-            }
-
-            if (!UppercaseRegex.IsMatch(value))
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(Password),
-                    ErrorMessage = "Password must contain at least one uppercase letter.",
-                    ErrorCode = $"{nameof(Password)}.Invalid"
-                });
-            }
-
-            if (!LowercaseRegex.IsMatch(value))
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(Password),
-                    ErrorMessage = "Password must contain at least one lowercase letter.",
-                    ErrorCode = $"{nameof(Password)}.Invalid"
-                });
-            }
-
-            if (!DigitRegex.IsMatch(value))
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(Password),
-                    ErrorMessage = "Password must contain at least one digit.",
-                    ErrorCode = $"{nameof(Password)}.Invalid"
-                });
-            }
-
-            if (!SpecialCharRegex.IsMatch(value))
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(Password),
-                    ErrorMessage = "Password must contain at least one special character.",
-                    ErrorCode = $"{nameof(Password)}.Invalid"
-                });
-            }
-
-            if (validation.Count != 0)
-            {
-                return Result<Password>.Invalid(validation);
-            }
-
-            return Result<Password>.Success(new Password(value));
+            return password;
         }
 
         public override string ToString() => Value;
+    }
+
+    public class PasswordValidator : BaseValidator<Password>
+    {
+        public PasswordValidator()
+        {
+            ValidatePassword();
+        }
+
+        protected void ValidatePassword()
+        {
+            RuleFor(x => x.Value)
+                .NotEmpty()
+                    .WithMessage("Password is required.")
+                    .WithErrorCode($"{nameof(Password)}.Required")
+                    .OverridePropertyName(nameof(Password))
+                .MinimumLength(8)
+                    .WithMessage("Password must be at least 8 characters long.")
+                    .WithErrorCode($"{nameof(Password)}.MinimumLength")
+                    .OverridePropertyName(nameof(Password))
+                .Matches(@"[A-Z]")
+                    .WithMessage("Password must contain at least one uppercase letter.")
+                    .WithErrorCode($"{nameof(Password)}.Uppercase")
+                    .OverridePropertyName(nameof(Password))
+                .Matches(@"[a-z]")
+                    .WithMessage("Password must contain at least one lowercase letter.")
+                    .WithErrorCode($"{nameof(Password)}.Lowercase")
+                    .OverridePropertyName(nameof(Password))
+                .Matches(@"[0-9]")
+                    .WithMessage("Password must contain at least one digit.")
+                    .WithErrorCode($"{nameof(Password)}.Digit")
+                    .OverridePropertyName(nameof(Password))
+                .Matches(@"[\W_]")
+                    .WithMessage("Password must contain at least one special character.")
+                    .WithErrorCode($"{nameof(Password)}.SpecialCharacter")
+                    .OverridePropertyName(nameof(Password));
+        }
     }
 }

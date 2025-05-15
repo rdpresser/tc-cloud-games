@@ -1,7 +1,8 @@
 ﻿using Ardalis.Result;
+using Ardalis.Result.FluentValidation;
 using System.Collections.Immutable;
 using TC.CloudGames.Domain.Abstractions;
-using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
+using TC.CloudGames.Domain.Game.Abstractions;
 
 namespace TC.CloudGames.Domain.Game
 {
@@ -66,91 +67,67 @@ namespace TC.CloudGames.Domain.Game
         public static Result<Game> Create(
            string name,
            DateOnly releaseDate,
-           AgeRating ageRating,
+           string ageRating,
            string? description,
-           DeveloperInfo developerInfo,
-           DiskSize diskSize,
-           Price price,
-           Playtime? playtime,
-           GameDetails gameDetails,
-           SystemRequirements systemRequirements,
-           Rating? rating,
+           (string developer, string? publisher) developerInfo,
+           decimal diskSize,
+           decimal price,
+           (int? hours, int? playerCount)? playtime,
+           (string? genre, string[] platform, string? tags, string gameMode, string distributionFormat, string? availableLanguages, bool supportsDlcs) gameDetails,
+           (string minimum, string? recommended) systemRequirements,
+           decimal? rating,
            string? officialLink,
            string? gameStatus
         )
         {
-            List<ValidationError> validation = [];
+            var ageRatingResult = AgeRating.Create(ageRating);
+            var developerInfoResult = DeveloperInfo.Create(developerInfo.developer, developerInfo.publisher);
+            var diskSizeResult = DiskSize.Create(diskSize);
+            var priceResult = Price.Create(price);
+            var playtimeResult = Playtime.Create(!playtime.HasValue || !playtime.Value.hours.HasValue ? default : playtime.Value.hours.Value, !playtime.HasValue || !playtime.Value.playerCount.HasValue ? default : playtime.Value.playerCount.Value);
+            var gameDetailsResult = GameDetails.Create(gameDetails.genre, gameDetails.platform, gameDetails.tags, gameDetails.gameMode, gameDetails.distributionFormat, gameDetails.availableLanguages, gameDetails.supportsDlcs);
+            var systemRequirementsResult = SystemRequirements.Create(systemRequirements.minimum, systemRequirements.recommended);
+            var ratingResult = Rating.Create(rating);
 
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(Name),
-                    ErrorMessage = "Game name is required.",
-                    ErrorCode = $"{nameof(Name)}.Required"
-                });
-            }
+            var errors = new List<ValidationError>();
+            if (!ageRatingResult.IsSuccess) errors.AddRange(ageRatingResult.ValidationErrors);
+            if (!developerInfoResult.IsSuccess) errors.AddRange(developerInfoResult.ValidationErrors);
+            if (!diskSizeResult.IsSuccess) errors.AddRange(diskSizeResult.ValidationErrors);
+            if (!priceResult.IsSuccess) errors.AddRange(priceResult.ValidationErrors);
+            if (!playtimeResult.IsSuccess) errors.AddRange(playtimeResult.ValidationErrors);
+            if (!gameDetailsResult.IsSuccess) errors.AddRange(gameDetailsResult.ValidationErrors);
+            if (!systemRequirementsResult.IsSuccess) errors.AddRange(systemRequirementsResult.ValidationErrors);
+            if (!ratingResult.IsSuccess) errors.AddRange(ratingResult.ValidationErrors);
 
-            if (ageRating == null)
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(AgeRating),
-                    ErrorMessage = "Age rating is required.",
-                    ErrorCode = $"{nameof(AgeRating)}.Required"
-                });
-            }
-            else if (!AgeRating.ValidRatings.Contains(ageRating.Value))
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(AgeRating),
-                    ErrorMessage = $"Invalid age rating specified. Valid age ratings are: {AgeRating.ValidRatings.JoinWithQuotes()}.",
-                    ErrorCode = $"{nameof(AgeRating)}.Invalid"
-                });
-            }
+            if (errors.Any())
+                return Result.Invalid(errors);
 
-            if (!string.IsNullOrWhiteSpace(gameStatus) && !ValidGameStatus.Contains(gameStatus))
-            {
-                validation.Add(new()
-                {
-                    Identifier = nameof(GameStatus),
-                    ErrorMessage = $"Invalid game status specified. Valid status are: {ValidGameStatus.JoinWithQuotes()}.",
-                    ErrorCode = $"{nameof(GameStatus)}.Invalid"
-                });
-            }
+            var game = new Game(
+                    Guid.NewGuid(),
+                    name,
+                    releaseDate,
+                    ageRatingResult,
+                    description,
+                    developerInfoResult,
+                    diskSizeResult,
+                    priceResult,
+                    playtimeResult,
+                    gameDetailsResult,
+                    systemRequirementsResult,
+                    ratingResult,
+                    officialLink,
+                    gameStatus
+                );
 
-            if (validation.Count != 0)
-            {
-                return Result<Game>.Invalid(validation);
-            }
+            var validator = new CreateGameValidator().ValidationResult(game);
+            if (!validator.IsValid)
+                return Result.Invalid(validator.AsErrors());
 
-            return new Game(
-                Guid.NewGuid(),
-                name,
-                releaseDate,
-                ageRating,
-                description,
-                developerInfo,
-                diskSize,
-                price,
-                playtime,
-                gameDetails,
-                systemRequirements,
-                rating,
-                officialLink,
-                gameStatus
-            );
+            /*
+             * RaiseDomainEvent - Send onboarding email to the new user
+             */
+
+            return game;
         }
     }
-
-    public sealed record DeveloperInfo(string Developer, string? Publisher);
-
-    public sealed record DiskSize(decimal SizeInGb); //TODO: fazer objeto de valor completo com validações
-
-    public sealed record Price(decimal Amount); //TODO: fazer objeto de valor completo com validações
-
-    public sealed record Playtime(int? Hours, int? PlayerCount); //TODO: fazer objeto de valor completo com validações
-
-    public sealed record SystemRequirements(string Minimum, string? Recommended);
 }

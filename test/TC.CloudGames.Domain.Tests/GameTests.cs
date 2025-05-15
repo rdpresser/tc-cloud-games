@@ -1,7 +1,9 @@
 ﻿using Ardalis.Result;
 using Bogus;
+using NSubstitute;
 using Shouldly;
-using TC.CloudGames.Domain.Game;
+using TC.CloudGames.Domain.User;
+using TC.CloudGames.Domain.User.Abstractions;
 
 namespace TC.CloudGames.Domain.Tests;
 
@@ -48,34 +50,79 @@ public class GameTests
     }
 
     [Fact]
-    public void Create_Should_Return_Invalid_When_Name_Is_Empty()
+    public void Create_Game_Should_Return_Invalid_When_Required_Fields_Are_Empty()
     {
         // Arrange
         var result = Game.Game.Create(
-            name: "",
-            releaseDate: DateOnly.FromDateTime(_faker.Date.Past(2)),
-            ageRating: AgeRating.Create(_faker.PickRandom("E", "E10+", "T", "M", "A", "RP")),
+            name: string.Empty,
+            releaseDate: DateOnly.MinValue,
+            ageRating: string.Empty,
             description: _faker.Lorem.Paragraph(),
-            developerInfo: new DeveloperInfo(_faker.Company.CompanyName(), _faker.Company.CompanyName()),
-            diskSize: new DiskSize(_faker.Random.Int(1, 150)),
-            price: new Price(decimal.Parse(_faker.Commerce.Price(200.0m, 500.0m))),
-            playtime: new Playtime(_faker.Random.Int(1, 1000), _faker.Random.Int(1, 1000000)),
-            gameDetails: GameDetails.Create(
-                _faker.PickRandom(_genres),
-                _faker.PickRandom(_platforms, 2).ToArray(),
-                _faker.PickRandom(_gameTags),
-                _faker.PickRandom(_gameModes),
-                _faker.PickRandom(_distributionFormats),
-                _faker.PickRandom(_languages),
-                _faker.Random.Bool()),
-            systemRequirements: new SystemRequirements(_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph()),
-            rating: Rating.Create(Math.Round(_faker.Random.Decimal(1, 10), 2)),
+            developerInfo: (string.Empty, _faker.Company.CompanyName()),
+            diskSize: 0,
+            price: 0,
+            playtime: (_faker.Random.Int(1, 1000), _faker.Random.Int(1, 1000000)),
+            gameDetails: (
+                genre: _faker.PickRandom(_genres),
+                platform: ["", string.Empty],
+                tags: _faker.PickRandom(_gameTags),
+                gameMode: string.Empty,
+                distributionFormat: string.Empty,
+                availableLanguages: _faker.PickRandom(_languages),
+                supportsDlcs: _faker.Random.Bool()),
+            systemRequirements: (string.Empty, _faker.Lorem.Paragraph()),
+            rating: null,
             officialLink: _faker.Internet.Url(),
-            gameStatus: _faker.PickRandom(_gameStatus)
+            gameStatus: string.Empty
         );
+
 
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
+
         result.ValidationErrors.Count(x => x.Identifier == "Name").ShouldBe(1);
+        result.ValidationErrors.Count(x => x.Identifier == "ReleaseDate").ShouldBeGreaterThanOrEqualTo(1);
+        result.ValidationErrors.Count(x => x.Identifier == "AgeRating").ShouldBe(1);
+        result.ValidationErrors.Count(x => x.Identifier == "DeveloperInfo.Developer").ShouldBe(1);
+        result.ValidationErrors.Count(x => x.Identifier == "DiskSize.SizeInGb").ShouldBe(1);
+        result.ValidationErrors.Count(x => x.Identifier == "Price").ShouldBe(0);
+        result.ValidationErrors.Count(x => x.Identifier == "GameDetails.Platform").ShouldBe(1);
+        result.ValidationErrors.Count(x => x.Identifier == "GameDetails.GameMode").ShouldBe(1);
+        result.ValidationErrors.Count(x => x.Identifier == "GameDetails.DistributionFormat").ShouldBe(1);
+        result.ValidationErrors.Count(x => x.Identifier == "SystemRequirements.Minimum").ShouldBe(1);
+        result.ValidationErrors.Count(x => x.Identifier == "Rating").ShouldBe(0);
+        result.ValidationErrors.Count(x => x.Identifier == "GameStatus").ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task Create_User_Should_Return_Invalid_When_Required_Value_Objects_Are_Empty()
+    {
+        // Arrange
+        var userEfRepository = Substitute.For<IUserEfRepository>();
+        userEfRepository.EmailExistsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(false)); // or true, depending on your test
+
+        var userResult = await User.User.CreateAsync(
+            firstName: _faker.Name.FirstName(),
+            lastName: _faker.Name.LastName(),
+            email: string.Empty,
+            password: string.Empty,
+            role: string.Empty,
+            userEfRepository
+        );
+
+        // Assert
+        var errors = userResult.ValidationErrors;
+        errors.ShouldNotBeNull()
+            .ShouldNotBeEmpty();
+        errors.ShouldBeOfType<List<ValidationError>>();
+        errors.Count().ShouldBe(10);
+
+        userResult.Status.ShouldBe(ResultStatus.Invalid);
+        errors.Count(x => x.Identifier == nameof(User.User.FirstName)).ShouldBe(0);
+        errors.Count(x => x.Identifier == nameof(User.User.LastName)).ShouldBe(0);
+        errors.Count(x => x.Identifier == nameof(Email)).ShouldBe(2);
+        errors.Count(x => x.Identifier == nameof(Password)).ShouldBe(6);
+        errors.Count(x => x.Identifier == nameof(Role)).ShouldBe(2);
     }
 }

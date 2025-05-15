@@ -11,7 +11,10 @@ namespace TC.CloudGames.Application.Middleware
         public Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> context, CancellationToken ct)
         {
             var logger = context.HttpContext.Resolve<ILogger<TRequest>>();
-            var name = context.Request!.GetType().Name;
+
+            var genericType = logger.GetType().GenericTypeArguments.FirstOrDefault()?.Name ?? "Unknown";
+            var name = context.Request?.GetType().Name
+                       ?? genericType;
 
             if (!context.HasValidationFailures)
             {

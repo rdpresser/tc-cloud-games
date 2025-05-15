@@ -2,27 +2,24 @@
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Domain.User;
+using TC.CloudGames.Domain.User.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
 namespace TC.CloudGames.Application.Users.Login;
 
 internal sealed class LoginUserCommandHandler : CommandHandler<LoginUserCommand, LoginUserResponse, User, IUserEfRepository>
 {
-    private readonly IUserEfRepository _userRepository;
     private readonly ITokenProvider _tokenProvider;
-    private readonly IPasswordHasher _passwordHasher;
 
-    public LoginUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository userRepository, ITokenProvider tokenProvider, IPasswordHasher passwordHasher)
+    public LoginUserCommandHandler(IUnitOfWork unitOfWork, IUserEfRepository userRepository, ITokenProvider tokenProvider)
         : base(unitOfWork, userRepository)
     {
-        _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         _tokenProvider = tokenProvider;
-        _passwordHasher = passwordHasher;
     }
 
     public override async Task<Result<LoginUserResponse>> ExecuteAsync(LoginUserCommand command, CancellationToken ct)
     {
-        var userDb = await _userRepository
+        var userDb = await Repository
             .GetByEmailWithPasswordAsync
             (
                 command.Email,

@@ -1,28 +1,29 @@
 ﻿using Ardalis.Result;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
+using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Game;
-using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
+using TC.CloudGames.Domain.Game.Abstractions;
 
 namespace TC.CloudGames.Application.Games.CreateGame;
 
 internal sealed class CreateGameCommandHandler : CommandHandler<CreateGameCommand, CreateGameResponse, Game, IGameEfRepository>
 {
-    private readonly IDateTimeProvider _dateTimeProvider;
-    public CreateGameCommandHandler(IUnitOfWork unitOfWork, IGameEfRepository gameRepository, IDateTimeProvider dateTimeProvider)
+    public CreateGameCommandHandler(IUnitOfWork unitOfWork, IGameEfRepository gameRepository, IBaseValidator<Game> validator)
         : base(unitOfWork, gameRepository)
     {
-        _dateTimeProvider = dateTimeProvider;
+
     }
 
     public override async Task<Result<CreateGameResponse>> ExecuteAsync(CreateGameCommand command,
         CancellationToken ct = default)
     {
-        var entity = CreateGameMapper.ToEntity(command, _dateTimeProvider);
+        var entity = CreateGameMapper.ToEntity(command);
+
         if (!entity.IsSuccess)
         {
             AddErrors(entity.ValidationErrors);
-            return Result<CreateGameResponse>.Invalid(entity.ValidationErrors);
+            return Result.Invalid(entity.ValidationErrors);
         }
 
         Repository.Add(entity);
