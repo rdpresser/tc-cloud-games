@@ -27,13 +27,15 @@ namespace TC.CloudGames.Application.Games.CreateGame
         private void ValidateName()
         {
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Game name is required.")
-                .WithErrorCode($"{nameof(Game.Name)}.Required")
+                .NotEmpty()
+                    .WithMessage("Game name is required.")
+                    .WithErrorCode($"{nameof(Game.Name)}.Required")
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.Name)
-                        .Length(1, 200).WithMessage("Name must be between 1 and 200 characters.")
-                        .WithErrorCode($"{nameof(Game.Name)}.Length");
+                        .Length(1, 200)
+                            .WithMessage("Name must be between 1 and 200 characters.")
+                            .WithErrorCode($"{nameof(Game.Name)}.Length");
                 });
         }
 
@@ -73,8 +75,8 @@ namespace TC.CloudGames.Application.Games.CreateGame
         {
             RuleFor(game => game.Description)
                 .MaximumLength(2000)
-                .WithMessage("Description cannot exceed 2000 characters.")
-                .WithErrorCode($"{nameof(Game.Description)}.MaximumLength");
+                    .WithMessage("Description cannot exceed 2000 characters.")
+                    .WithErrorCode($"{nameof(Game.Description)}.MaximumLength");
         }
 
         private void ValidateDeveloperInfo()
@@ -98,14 +100,15 @@ namespace TC.CloudGames.Application.Games.CreateGame
         private void ValidateDiskSize()
         {
             RuleFor(x => x.DiskSize)
-                .NotEmpty().WithMessage("Disk size is required.")
-                .WithErrorCode($"{nameof(Game.DiskSize)}.Required")
+                .NotEmpty()
+                    .WithMessage("Disk size is required.")
+                    .WithErrorCode($"{nameof(Game.DiskSize)}.Required")
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.DiskSize)
                         .GreaterThan(0)
-                        .WithMessage("Disk size must be greater than 0.")
-                        .WithErrorCode($"{nameof(Game.DiskSize)}.GreaterThanZero");
+                            .WithMessage("Disk size must be greater than 0.")
+                            .WithErrorCode($"{nameof(Game.DiskSize)}.GreaterThanZero");
                 });
         }
 
@@ -113,14 +116,14 @@ namespace TC.CloudGames.Application.Games.CreateGame
         {
             RuleFor(x => x.Price)
                 .NotEmpty()
-                .WithMessage("Price is required.")
-                .WithErrorCode($"{nameof(Game.Price)}.Required")
+                    .WithMessage("Price is required.")
+                    .WithErrorCode($"{nameof(Game.Price)}.Required")
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.Price)
                         .GreaterThanOrEqualTo(0)
-                        .WithMessage("Price must be greater than or equal to 0.")
-                        .WithErrorCode($"{nameof(Game.Price)}.GreaterThanOrEqualToZero");
+                            .WithMessage("Price must be greater than or equal to 0.")
+                            .WithErrorCode($"{nameof(Game.Price)}.GreaterThanOrEqualToZero");
                 });
         }
 
@@ -128,24 +131,24 @@ namespace TC.CloudGames.Application.Games.CreateGame
         {
             RuleFor(x => x.Playtime)
                 .Must(playtime => playtime == null || playtime.Hours != null || playtime.PlayerCount != null)
-                .WithMessage("At least one of Playtime Hours or Player Count must be provided.")
-                .WithErrorCode($"{nameof(Game.Playtime)}.Required")
+                    .WithMessage("At least one of Playtime Hours or Player Count must be provided.")
+                    .WithErrorCode($"{nameof(Game.Playtime)}.Required")
                 .DependentRules(() =>
                 {
                     When(x => x.Playtime?.Hours != null, () =>
                     {
                         RuleFor(x => x.Playtime!.Hours)
                             .GreaterThanOrEqualTo(0)
-                            .WithMessage("Playtime hours must be greater than or equal to 0.")
-                            .WithErrorCode($"{nameof(Playtime.Hours)}.GreaterThanOrEqualToZero");
+                                .WithMessage("Playtime hours must be greater than or equal to 0.")
+                                .WithErrorCode($"{nameof(Playtime.Hours)}.GreaterThanOrEqualToZero");
                     });
 
                     When(x => x.Playtime?.PlayerCount != null, () =>
                     {
                         RuleFor(x => x.Playtime!.PlayerCount)
                             .GreaterThanOrEqualTo(1)
-                            .WithMessage("Player count must be greater than or equal to 1.")
-                            .WithErrorCode($"{nameof(Playtime.PlayerCount)}.GreaterThanOrEqualToZero");
+                                .WithMessage("Player count must be greater than or equal to 1.")
+                                .WithErrorCode($"{nameof(Playtime.PlayerCount)}.GreaterThanOrEqualToZero");
                     });
                 });
         }
@@ -153,13 +156,15 @@ namespace TC.CloudGames.Application.Games.CreateGame
         private void ValidateGameDetails()
         {
             RuleFor(x => x.GameDetails)
-                .NotNull().WithMessage("Game details are required.")
-                .WithErrorCode($"{nameof(Game.GameDetails)}.Required")
+                .NotNull()
+                    .WithMessage("Game details are required.")
+                    .WithErrorCode($"{nameof(Game.GameDetails)}.Required")
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.GameDetails.Platform)
-                        .NotEmpty().WithMessage("Platform is required.")
-                        .WithErrorCode($"{nameof(GameDetails.Platform)}.Required")
+                        .NotEmpty()
+                            .WithMessage("Platform is required.")
+                            .WithErrorCode($"{nameof(GameDetails.Platform)}.Required")
                         .DependentRules(() =>
                         {
                             RuleFor(x => x.GameDetails.Platform)
@@ -169,8 +174,9 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         });
 
                     RuleFor(x => x.GameDetails.GameMode)
-                        .NotEmpty().WithMessage("Game mode is required.")
-                        .WithErrorCode($"{nameof(GameDetails.GameMode)}.Required")
+                        .NotEmpty()
+                            .WithMessage("Game mode is required.")
+                            .WithErrorCode($"{nameof(GameDetails.GameMode)}.Required")
                         .DependentRules(() =>
                         {
                             RuleFor(x => x.GameDetails.GameMode)
@@ -180,8 +186,9 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         });
 
                     RuleFor(x => x.GameDetails.DistributionFormat)
-                        .NotEmpty().WithMessage("Distribution format is required.")
-                        .WithErrorCode($"{nameof(GameDetails.DistributionFormat)}.Required")
+                        .NotEmpty()
+                            .WithMessage("Distribution format is required.")
+                            .WithErrorCode($"{nameof(GameDetails.DistributionFormat)}.Required")
                         .DependentRules(() =>
                         {
                             RuleFor(x => x.GameDetails.DistributionFormat)
@@ -192,8 +199,8 @@ namespace TC.CloudGames.Application.Games.CreateGame
 
                     RuleFor(x => x.GameDetails.SupportsDlcs)
                         .NotNull()
-                        .WithMessage("Supports DLCs field is required.")
-                        .WithErrorCode($"{nameof(GameDetails.SupportsDlcs)}.Required");
+                            .WithMessage("Supports DLCs field is required.")
+                            .WithErrorCode($"{nameof(GameDetails.SupportsDlcs)}.Required");
                 });
         }
 
