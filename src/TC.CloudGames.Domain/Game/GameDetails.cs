@@ -45,11 +45,14 @@ namespace TC.CloudGames.Domain.Game
         public bool SupportsDlcs { get; }
 
         public static readonly IImmutableSet<string> ValidPlatforms = ImmutableHashSet.Create(
-            "Windows", "iOS", "Linux", "Android", "PlayStation", "Xbox", "Nintendo"
+            "PC", "PlayStation 4", "PlayStation 5", "Xbox One", "Xbox Series X|S", "Nintendo Switch",
+            "Nintendo 3DS", "Wii U", "PlayStation Vita", "Android", "iOS", "macOS", "Linux", "Stadia", "Steam Deck", "Browser",
+            "VR (Oculus Quest)", "VR (HTC Vive)", "VR (PlayStation VR)"
         );
 
         public static readonly IImmutableSet<string> ValidGameModes = ImmutableHashSet.Create(
-            "Singleplayer", "Multiplayer", "Co-op", "Online"
+            "Singleplayer", "Multiplayer", "Co-op", "PvP", "PvE", "Battle Royale", "Survival",
+            "Sandbox", "Casual"
         );
 
         public static readonly IImmutableSet<string> ValidDistributionFormats = ImmutableHashSet.Create(
@@ -123,10 +126,15 @@ namespace TC.CloudGames.Domain.Game
         protected void ValidatePlatform()
         {
             RuleFor(x => x.Platform)
-                .NotEmpty().WithMessage("Platform is required.").WithErrorCode($"{nameof(GameDetails.Platform)}.Required")
-                .Must(platform => GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
+                .NotEmpty()
+                    .WithMessage("Platform is required.")
+                    .WithErrorCode($"{nameof(GameDetails.Platform)}.Required");
+
+            RuleFor(x => x.PlatformList)
+                .Must(platform => platform.All(x => GameDetails.ValidPlatforms.Contains(x)))
                     .WithMessage($"Invalid platform specified. Valid platforms are: {GameDetails.ValidPlatforms.JoinWithQuotes()}.")
-                    .WithErrorCode($"{nameof(GameDetails.Platform)}.ValidPlatform");
+                    .WithErrorCode($"{nameof(GameDetails.Platform)}.ValidPlatform")
+                    .OverridePropertyName(nameof(GameDetails.Platform));
         }
 
         protected void ValidateGameMode()
