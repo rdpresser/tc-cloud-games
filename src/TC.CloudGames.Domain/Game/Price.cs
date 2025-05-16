@@ -38,7 +38,7 @@ namespace TC.CloudGames.Domain.Game
         protected void ValidatePrice()
         {
             RuleFor(x => x.Amount)
-                .NotEmpty()
+                .NotNull()
                     .WithMessage("Price amount is required.")
                     .WithErrorCode($"{nameof(Price)}.Required")
                     .OverridePropertyName(nameof(Price))

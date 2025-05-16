@@ -33,9 +33,9 @@ namespace TC.CloudGames.Application.Games.CreateGame
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.Name)
-                        .Length(1, 200)
-                            .WithMessage("Name must be between 1 and 200 characters.")
-                            .WithErrorCode($"{nameof(Game.Name)}.Length");
+                        .MaximumLength(200)
+                            .WithMessage("Name cannot exceed 200 characters.")
+                            .WithErrorCode($"{nameof(Game.Name)}.MaximumLength");
                 });
         }
 
@@ -62,9 +62,9 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         .NotEmpty()
                             .WithMessage("Age rating value is required.")
                             .WithErrorCode($"{nameof(Game.AgeRating)}.Required")
-                        .Length(1, 10)
-                            .WithMessage("Age rating must be between 1 and 10 characters.")
-                            .WithErrorCode($"{nameof(Game.AgeRating)}.Length");
+                        .MaximumLength(10)
+                            .WithMessage("Age rating cannot exceed 10 characters.")
+                            .WithErrorCode($"{nameof(Game.AgeRating)}.MaximumLength");
                 })
                 .Must(rating => AgeRating.ValidRatings.Contains(rating))
                     .WithMessage($"Invalid age rating specified. Valid age rating are: {AgeRating.ValidRatings.JoinWithQuotes()}.")
@@ -94,13 +94,21 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         .MaximumLength(100)
                             .WithMessage("Developer name must not exceed 100 characters.")
                             .WithErrorCode($"{nameof(DeveloperInfo.Developer)}.MaximumLength");
+
+                    When(x => x.DeveloperInfo.Publisher != null, () =>
+                    {
+                        RuleFor(x => x.DeveloperInfo.Publisher)
+                            .MaximumLength(200)
+                                .WithMessage("Publisher name must not exceed 200 characters.")
+                                .WithErrorCode($"{nameof(DeveloperInfo.Publisher)}.MaximumLength");
+                    });
                 });
         }
 
         private void ValidateDiskSize()
         {
             RuleFor(x => x.DiskSize)
-                .NotEmpty()
+                .NotNull()
                     .WithMessage("Disk size is required.")
                     .WithErrorCode($"{nameof(Game.DiskSize)}.Required")
                 .DependentRules(() =>
@@ -115,8 +123,8 @@ namespace TC.CloudGames.Application.Games.CreateGame
         private void ValidatePrice()
         {
             RuleFor(x => x.Price)
-                .NotEmpty()
-                    .WithMessage("Price is required.")
+                .NotNull()
+                    .WithMessage("Price amount is required.")
                     .WithErrorCode($"{nameof(Game.Price)}.Required")
                 .DependentRules(() =>
                 {
@@ -161,6 +169,14 @@ namespace TC.CloudGames.Application.Games.CreateGame
                     .WithErrorCode($"{nameof(Game.GameDetails)}.Required")
                 .DependentRules(() =>
                 {
+                    When(x => x.GameDetails.Genre != null, () =>
+                    {
+                        RuleFor(x => x.GameDetails.Genre)
+                            .MaximumLength(50)
+                                .WithMessage("Genre must not exceed 50 characters.")
+                                .WithErrorCode($"{nameof(GameDetails.Genre)}.MaximumLength");
+                    });
+
                     RuleFor(x => x.GameDetails.Platform)
                         .NotEmpty()
                             .WithMessage("Platform is required.")
@@ -173,6 +189,14 @@ namespace TC.CloudGames.Application.Games.CreateGame
                                     .WithErrorCode($"{nameof(GameDetails.Platform)}.ValidPlatform");
                         });
 
+                    When(x => x.GameDetails.Tags != null, () =>
+                    {
+                        RuleFor(x => x.GameDetails.Tags)
+                            .MaximumLength(200)
+                                .WithMessage("Tags must not exceed 200 characters.")
+                                .WithErrorCode($"{nameof(GameDetails.Tags)}.MaximumLength");
+                    });
+
                     RuleFor(x => x.GameDetails.GameMode)
                         .NotEmpty()
                             .WithMessage("Game mode is required.")
@@ -182,7 +206,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
                             RuleFor(x => x.GameDetails.GameMode)
                                 .Must(mode => Domain.Game.GameDetails.ValidGameModes.Contains(mode))
                                     .WithMessage($"Invalid game mode specified. Valid game modes are: {Domain.Game.GameDetails.ValidGameModes.JoinWithQuotes()}.")
-                                    .WithErrorCode($"{nameof(GameDetails.GameMode)}.ValidGame");
+                                    .WithErrorCode($"{nameof(GameDetails.GameMode)}.ValidGameMode");
                         });
 
                     RuleFor(x => x.GameDetails.DistributionFormat)
@@ -196,6 +220,14 @@ namespace TC.CloudGames.Application.Games.CreateGame
                                     .WithMessage($"Invalid distribution format specified. Valid formats are: {Domain.Game.GameDetails.ValidDistributionFormats.JoinWithQuotes()}.")
                                     .WithErrorCode($"{nameof(GameDetails.DistributionFormat)}.ValidDistributionFormat");
                         });
+
+                    When(x => x.GameDetails.AvailableLanguages != null, () =>
+                    {
+                        RuleFor(x => x.GameDetails.AvailableLanguages)
+                            .MaximumLength(100)
+                                .WithMessage("Available languages must not exceed 100 characters.")
+                                .WithErrorCode($"{nameof(GameDetails.AvailableLanguages)}.MaximumLength");
+                    });
 
                     RuleFor(x => x.GameDetails.SupportsDlcs)
                         .NotNull()
@@ -252,10 +284,16 @@ namespace TC.CloudGames.Application.Games.CreateGame
 
         private void ValidateOfficialLink()
         {
-            RuleFor(game => game.OfficialLink)
-                .Must(link => string.IsNullOrEmpty(link) || Uri.IsWellFormedUriString(link, UriKind.Absolute))
-                    .WithMessage("Official link must be a valid URL.")
-                    .WithErrorCode($"{nameof(Game.OfficialLink)}.ValidUrl");
+            When(x => !string.IsNullOrWhiteSpace(x.OfficialLink), () =>
+            {
+                RuleFor(game => game.OfficialLink)
+                    .MaximumLength(200)
+                        .WithMessage("Official link must not exceed 200 characters.")
+                        .WithErrorCode($"{nameof(Game.OfficialLink)}.MaximumLength")
+                    .Must(link => Uri.IsWellFormedUriString(link, UriKind.Absolute))
+                        .WithMessage("Official link must be a valid URL.")
+                        .WithErrorCode($"{nameof(Game.OfficialLink)}.ValidUrl");
+            });
         }
     }
 }

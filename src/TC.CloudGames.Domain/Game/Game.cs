@@ -89,18 +89,23 @@ namespace TC.CloudGames.Domain.Game
             var systemRequirementsResult = SystemRequirements.Create(systemRequirements.minimum, systemRequirements.recommended);
             var ratingResult = Rating.Create(rating);
 
-            var errors = new List<ValidationError>();
-            if (!ageRatingResult.IsSuccess) errors.AddRange(ageRatingResult.ValidationErrors);
-            if (!developerInfoResult.IsSuccess) errors.AddRange(developerInfoResult.ValidationErrors);
-            if (!diskSizeResult.IsSuccess) errors.AddRange(diskSizeResult.ValidationErrors);
-            if (!priceResult.IsSuccess) errors.AddRange(priceResult.ValidationErrors);
-            if (!playtimeResult.IsSuccess) errors.AddRange(playtimeResult.ValidationErrors);
-            if (!gameDetailsResult.IsSuccess) errors.AddRange(gameDetailsResult.ValidationErrors);
-            if (!systemRequirementsResult.IsSuccess) errors.AddRange(systemRequirementsResult.ValidationErrors);
-            if (!ratingResult.IsSuccess) errors.AddRange(ratingResult.ValidationErrors);
+            var valueObjectResults = new IResult[]
+            {
+                ageRatingResult,
+                developerInfoResult,
+                diskSizeResult,
+                priceResult,
+                playtimeResult,
+                gameDetailsResult,
+                systemRequirementsResult,
+                ratingResult
+            };
 
-            if (errors.Any())
+            var errors = CollectValidationErrors(valueObjectResults);
+            if (errors.Count != 0)
+            {
                 return Result.Invalid(errors);
+            }
 
             var game = new Game(
                     Guid.NewGuid(),

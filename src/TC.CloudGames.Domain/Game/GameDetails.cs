@@ -117,18 +117,33 @@ namespace TC.CloudGames.Domain.Game
     {
         public GameDetailsValidator()
         {
+            ValidateGenre();
             ValidatePlatform();
+            ValidateTags();
             ValidateGameMode();
-            DistributionFormat();
-            SupportsDlcs();
+            ValidateDistributionFormat();
+            ValidateAvailableLanguages();
+            ValidateSupportsDlcs();
+        }
+
+        protected void ValidateGenre()
+        {
+            When(x => x.Genre != null, () =>
+            {
+                RuleFor(x => x.Genre)
+                    .MaximumLength(50)
+                        .WithMessage("Genre must not exceed 50 characters.")
+                        .WithErrorCode($"{nameof(GameDetails.Genre)}.MaximumLength");
+            });
         }
 
         protected void ValidatePlatform()
         {
-            RuleFor(x => x.Platform)
+            RuleFor(x => x.PlatformList)
                 .NotEmpty()
                     .WithMessage("Platform is required.")
-                    .WithErrorCode($"{nameof(GameDetails.Platform)}.Required");
+                    .WithErrorCode($"{nameof(GameDetails.Platform)}.Required")
+                    .OverridePropertyName(nameof(GameDetails.Platform));
 
             RuleFor(x => x.PlatformList)
                 .Must(platform => platform.All(x => GameDetails.ValidPlatforms.Contains(x)))
@@ -137,25 +152,51 @@ namespace TC.CloudGames.Domain.Game
                     .OverridePropertyName(nameof(GameDetails.Platform));
         }
 
+        protected void ValidateTags()
+        {
+            When(x => x.Tags != null, () =>
+            {
+                RuleFor(x => x.Tags)
+                    .MaximumLength(200)
+                        .WithMessage("Tags must not exceed 200 characters.")
+                        .WithErrorCode($"{nameof(GameDetails.Tags)}.MaximumLength");
+            });
+        }
+
         protected void ValidateGameMode()
         {
             RuleFor(x => x.GameMode)
-                .NotEmpty().WithMessage("Game mode is required.").WithErrorCode($"{nameof(GameDetails.GameMode)}.Required")
+                .NotEmpty()
+                    .WithMessage("Game mode is required.")
+                    .WithErrorCode($"{nameof(GameDetails.GameMode)}.Required")
                 .Must(mode => GameDetails.ValidGameModes.Contains(mode))
                     .WithMessage($"Invalid game mode specified. Valid game modes are: {GameDetails.ValidGameModes.JoinWithQuotes()}.")
-                    .WithErrorCode($"{nameof(GameDetails.GameMode)}.ValidGame");
+                    .WithErrorCode($"{nameof(GameDetails.GameMode)}.ValidGameMode");
         }
 
-        protected void DistributionFormat()
+        protected void ValidateDistributionFormat()
         {
             RuleFor(x => x.DistributionFormat)
-                .NotEmpty().WithMessage("Distribution format is required.").WithErrorCode($"{nameof(GameDetails.DistributionFormat)}.Required")
+                .NotEmpty()
+                    .WithMessage("Distribution format is required.")
+                    .WithErrorCode($"{nameof(GameDetails.DistributionFormat)}.Required")
                 .Must(format => GameDetails.ValidDistributionFormats.Contains(format))
                     .WithMessage($"Invalid distribution format specified. Valid formats are: {GameDetails.ValidDistributionFormats.JoinWithQuotes()}.")
                     .WithErrorCode($"{nameof(GameDetails.DistributionFormat)}.ValidDistributionFormat");
         }
 
-        protected void SupportsDlcs()
+        protected void ValidateAvailableLanguages()
+        {
+            When(x => x.AvailableLanguages != null, () =>
+            {
+                RuleFor(x => x.AvailableLanguages)
+                    .MaximumLength(100)
+                        .WithMessage("Available languages must not exceed 100 characters.")
+                        .WithErrorCode($"{nameof(GameDetails.AvailableLanguages)}.MaximumLength");
+            });
+        }
+
+        protected void ValidateSupportsDlcs()
         {
             RuleFor(x => x.SupportsDlcs)
                 .NotNull().WithMessage("Supports DLCs field is required.")

@@ -36,6 +36,7 @@ namespace TC.CloudGames.Domain.Game
         public DeveloperInfoValidator()
         {
             ValidateDeveloperInfo();
+            ValidatePublisherInfo();
         }
 
         protected void ValidateDeveloperInfo()
@@ -47,6 +48,17 @@ namespace TC.CloudGames.Domain.Game
                 .MaximumLength(100)
                     .WithMessage("Developer name must not exceed 100 characters.")
                     .WithErrorCode($"{nameof(DeveloperInfo.Developer)}.MaximumLength");
+        }
+
+        protected void ValidatePublisherInfo()
+        {
+            When(x => x.Publisher != null, () =>
+            {
+                RuleFor(x => x.Publisher)
+                    .MaximumLength(200)
+                        .WithMessage("Publisher name must not exceed 200 characters.")
+                        .WithErrorCode($"{nameof(DeveloperInfo.Publisher)}.MaximumLength");
+            });
         }
     }
 }

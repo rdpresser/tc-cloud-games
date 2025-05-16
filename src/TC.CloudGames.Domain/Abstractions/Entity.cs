@@ -1,4 +1,6 @@
-﻿namespace TC.CloudGames.Domain.Abstractions;
+﻿using Ardalis.Result;
+
+namespace TC.CloudGames.Domain.Abstractions;
 
 public abstract class Entity
 {
@@ -35,5 +37,20 @@ public abstract class Entity
     protected void RaiseDomainEvent(IDomainEvent domainEvent)
     {
         _domainEvents.Add(domainEvent);
+    }
+
+    // Helper method to process value object creation results and collect errors
+    protected static List<ValidationError> CollectValidationErrors(IEnumerable<IResult> results)
+    {
+        var errors = new List<ValidationError>();
+        foreach (var result in results)
+        {
+            if (result.IsOk() || !result.ValidationErrors.Any())
+            {
+                continue;
+            }
+            errors.AddRange(result.ValidationErrors);
+        }
+        return errors;
     }
 }
