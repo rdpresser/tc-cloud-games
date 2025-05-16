@@ -2,6 +2,7 @@
 using Bogus;
 using Shouldly;
 using DomainGame = TC.CloudGames.Domain.Game.Game;
+using DomainGameDetails = TC.CloudGames.Domain.Game.GameDetails;
 
 namespace TC.CloudGames.Domain.Tests.Game;
 
@@ -25,9 +26,7 @@ public class GameTests
             "Visual Novel", "Beat 'em up", "Battle Royale", "Musical", "Party Game", "Metroidvania", "Idle / Incremental",
             "Tower Defense", "MOBA", "Sandbox", "Tycoon" };
 
-        _platforms = new List<string> { "PC", "PlayStation 4", "PlayStation 5", "Xbox One", "Xbox Series X|S", "Nintendo Switch",
-            "Nintendo 3DS", "Wii U", "PlayStation Vita", "Android", "iOS", "macOS", "Linux", "Stadia", "Steam Deck", "Browser",
-            "VR (Oculus Quest)", "VR (HTC Vive)", "VR (PlayStation VR)" };
+        _platforms = [.. DomainGameDetails.ValidPlatforms];
 
         _gameTags = new List<string> { "Indie", "Multiplayer", "Singleplayer", "Co-op", "PvP", "PvE", "Online Co-op",
             "Local Multiplayer", "Story Rich", "Difficult", "Casual", "Anime", "Pixel Graphics", "Retro", "Funny", "Atmospheric",
@@ -37,14 +36,13 @@ public class GameTests
             "Realistic", "Female Protagonist", "Controller Support", "VR Support", "Moddable", "Replay Value", "Open World",
             "Procedural Generation", "Sandbox", "Nonlinear", "Mystery", "Psychological", "Dark", "Gore", "Violent" };
 
-        _gameModes = new List<string> { "Singleplayer", "Multiplayer", "Co-op", "PvP", "PvE", "Battle Royale", "Survival",
-            "Sandbox", "Casual" };
+        _gameModes = [.. DomainGameDetails.ValidGameModes];
 
-        _distributionFormats = new List<string> { "Digital", "Physical" };
+        _distributionFormats = [.. DomainGameDetails.ValidDistributionFormats];
 
         _languages = new List<string> { "PT-BR", "EN-US", "ES-ES", "FR-FR", "ZH-CN", "JA-JP", "RU-RU", "KO-KR" };
 
-        _gameStatus = new List<string> { "Available", "Soon", "Early Access" };
+        _gameStatus = [.. DomainGame.ValidGameStatus];
     }
 
     [Fact]
@@ -83,21 +81,21 @@ public class GameTests
             .ShouldNotBeEmpty();
         errors.ShouldBeOfType<List<ValidationError>>();
         errors.Count().ShouldBe(13);
-        
+
         errors.Count(x => x.Identifier == nameof(DomainGame.Name)).ShouldBe(0);
         errors.Count(x => x.Identifier == nameof(DomainGame.ReleaseDate)).ShouldBe(0);
         errors.Count(x => x.Identifier == nameof(DomainGame.AgeRating)).ShouldBe(3);
         errors.Count(x => x.Identifier == nameof(DomainGame.DeveloperInfo.Developer)).ShouldBe(1);
         errors.Count(x => x.Identifier == nameof(DomainGame.DiskSize)).ShouldBe(2);
         errors.Count(x => x.Identifier == nameof(DomainGame.Price)).ShouldBe(1);
-        errors.Count(x => x.Identifier == nameof(DomainGame.GameDetails.Platform)).ShouldBe(1);
-        errors.Count(x => x.Identifier == nameof(DomainGame.GameDetails.GameMode)).ShouldBe(2);
-        errors.Count(x => x.Identifier == nameof(DomainGame.GameDetails.DistributionFormat)).ShouldBe(2);
+        errors.Count(x => x.Identifier == nameof(DomainGameDetails.Platform)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(DomainGameDetails.GameMode)).ShouldBe(2);
+        errors.Count(x => x.Identifier == nameof(DomainGameDetails.DistributionFormat)).ShouldBe(2);
         errors.Count(x => x.Identifier == nameof(DomainGame.SystemRequirements.Minimum)).ShouldBe(1);
         errors.Count(x => x.Identifier == nameof(DomainGame.Rating)).ShouldBe(0);
         errors.Count(x => x.Identifier == nameof(DomainGame.GameStatus)).ShouldBe(0);
     }
-    
+
     [Fact]
     public void Create_Game_Should_Return_Success_When_All_Fields_Are_Valid()
     {
@@ -168,10 +166,12 @@ public class GameTests
             officialLink: _faker.Internet.Url(),
             gameStatus: _faker.PickRandom(_gameStatus)
         );
+        var errors = result.ValidationErrors;
 
         // Assert
+
         result.Status.ShouldBe(ResultStatus.Invalid);
-        result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(DomainGame.Price));
+        errors.ShouldContain(x => x.Identifier == nameof(DomainGame.Price));
     }
 
     [Fact]
@@ -189,7 +189,7 @@ public class GameTests
             playtime: (_faker.Random.Int(1, 10), _faker.Random.Int(10, 100)),
             gameDetails: (
                 genre: _faker.PickRandom(_genres),
-                platform: _faker.PickRandom(_platforms, 3).ToArray(),
+                platform: _faker.PickRandom(DomainGameDetails.ValidPlatforms, 3).ToArray(),
                 tags: _faker.PickRandom(_gameTags),
                 gameMode: _faker.PickRandom(_gameModes),
                 distributionFormat: _faker.PickRandom(_distributionFormats),
@@ -201,8 +201,11 @@ public class GameTests
             gameStatus: _faker.PickRandom(_gameStatus)
         );
 
+        var errors = result.ValidationErrors;
+
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
-        result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(DomainGame.ReleaseDate));
+        errors.ShouldContain(x => x.Identifier == nameof(DomainGame.ReleaseDate));
+        errors.Count(x => x.Identifier == nameof(DomainGame.ReleaseDate)).ShouldBe(2);
     }
 }

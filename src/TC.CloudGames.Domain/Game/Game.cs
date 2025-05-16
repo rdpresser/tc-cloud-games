@@ -23,7 +23,7 @@ namespace TC.CloudGames.Domain.Game
         public string? GameStatus { get; private set; }
 
         public static readonly IImmutableSet<string> ValidGameStatus = ImmutableHashSet.Create(
-            "In Development", "Released", "Discontinued", "Available"
+            "In Development", "Released", "Discontinued", "Available", "Soon", "Early Access"
         );
 
         private Game()
