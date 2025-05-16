@@ -202,7 +202,7 @@ public class GameTests
         );
 
         var errors = result.ValidationErrors;
-        int errorCount = 16;
+        int errorCount = 15;
 
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
@@ -214,12 +214,11 @@ public class GameTests
         errors.Count(x => x.Identifier == nameof(DomainGame.ReleaseDate)).ShouldBe(0);
 
         //AgeRating validation errors
-        errors.Count(x => x.Identifier == nameof(DomainGame.AgeRating)).ShouldBe(3);
-        errorCount -= 3;
+        errors.Count(x => x.Identifier == nameof(DomainGame.AgeRating)).ShouldBe(2);
+        errorCount -= 2;
         errors.ShouldSatisfyAllConditions(errors =>
         {
             errors.Any(x => x.Identifier == nameof(DomainGame.AgeRating) && x.ErrorCode == $"{nameof(AgeRating)}.Required").ShouldBeTrue();
-            errors.Any(x => x.Identifier == nameof(DomainGame.AgeRating) && x.ErrorCode == $"{nameof(AgeRating)}.MaximumLength").ShouldBeTrue();
             errors.Any(x => x.Identifier == nameof(DomainGame.AgeRating) && x.ErrorCode == $"{nameof(AgeRating)}.ValidRating").ShouldBeTrue();
         });
 
@@ -563,12 +562,12 @@ public class GameTests
                 supportsDlcs: true),
             systemRequirements: (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph()),
             rating: null,
-            officialLink: _faker.Internet.Url(),
+            officialLink: $"https://{new string('A', 201)}.com",
             gameStatus: _faker.PickRandom(_gameStatus)
         );
 
         var errors = result.ValidationErrors;
-        int errorCount = 2;
+        int errorCount = 3;
 
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
@@ -585,6 +584,11 @@ public class GameTests
         errors.Count(x => x.Identifier == nameof(DomainGame.Description)).ShouldBe(1);
         errorCount -= 1;
         errors.ShouldContain(x => x.Identifier == nameof(DomainGame.Description) && x.ErrorCode == $"{nameof(DomainGame.Description)}.MaximumLength");
+
+        // OfficialLink max length
+        errors.Count(x => x.Identifier == nameof(DomainGame.OfficialLink)).ShouldBe(1);
+        errorCount -= 1;
+        errors.ShouldContain(x => x.Identifier == nameof(DomainGame.OfficialLink) && x.ErrorCode == $"{nameof(DomainGame.OfficialLink)}.MaximumLength");
 
         // If counter is 0, it means that all errors were found
         errorCount.ShouldBe(0);
