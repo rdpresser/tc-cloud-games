@@ -287,8 +287,8 @@ namespace TC.CloudGames.Application.Games.CreateGame
             When(x => !string.IsNullOrWhiteSpace(x.OfficialLink), () =>
             {
                 RuleFor(game => game.OfficialLink)
-                    .MaximumLength(2000)
-                        .WithMessage("Official link must not exceed 2000 characters.")
+                    .MaximumLength(200)
+                        .WithMessage("Official link must not exceed 200 characters.")
                         .WithErrorCode($"{nameof(Game.OfficialLink)}.MaximumLength")
                     .Must(link => Uri.IsWellFormedUriString(link, UriKind.Absolute))
                         .WithMessage("Official link must be a valid URL.")
