@@ -42,15 +42,17 @@ namespace TC.CloudGames.Domain.Game
             When(x => x.Hours != null, () =>
             {
                 RuleFor(x => x.Hours)
-                    .GreaterThanOrEqualTo(0).WithMessage("Playtime hours must be greater than or equal to 0.")
-                    .WithErrorCode($"{nameof(Playtime.Hours)}.GreaterThanOrEqualToZero");
+                    .GreaterThanOrEqualTo(0)
+                        .WithMessage("Playtime hours must be greater than or equal to 0.")
+                        .WithErrorCode($"{nameof(Playtime.Hours)}.GreaterThanOrEqualToZero");
             });
 
             When(x => x.PlayerCount != null, () =>
             {
                 RuleFor(x => x.PlayerCount)
-                    .GreaterThanOrEqualTo(1).WithMessage("Player count must be greater than or equal to 1.")
-                    .WithErrorCode($"{nameof(Playtime.PlayerCount)}.GreaterThanOrEqualToOne");
+                    .GreaterThanOrEqualTo(1)
+                        .WithMessage("Player count must be greater than or equal to 1.")
+                        .WithErrorCode($"{nameof(Playtime.PlayerCount)}.GreaterThanOrEqualToOne");
             });
         }
     }

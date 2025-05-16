@@ -15,9 +15,9 @@ namespace TC.CloudGames.Domain.Game.Abstractions
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.Name)
-                        .Length(1, 200)
-                            .WithMessage("Name must be between 1 and 200 characters.")
-                            .WithErrorCode($"{nameof(Game.Name)}.Length");
+                        .MaximumLength(200)
+                            .WithMessage("Name cannot exceed 200 characters.")
+                            .WithErrorCode($"{nameof(Game.Name)}.MaximumLength");
                 });
         }
 
@@ -35,46 +35,57 @@ namespace TC.CloudGames.Domain.Game.Abstractions
         protected void ValidateAgeRating()
         {
             RuleFor(x => x.AgeRating)
-                .NotEmpty().WithMessage("Age rating is required.")
-                .WithErrorCode($"{nameof(Game.AgeRating)}.Required");
+                .NotEmpty()
+                    .WithMessage("Age rating is required.")
+                    .WithErrorCode($"{nameof(Game.AgeRating)}.Required");
         }
 
         protected void ValidateDescription()
         {
             RuleFor(game => game.Description)
-                .MaximumLength(2000).WithMessage("Description cannot exceed 2000 characters.")
-                .WithErrorCode($"{nameof(Game.Description)}.MaximumLength");
+                .MaximumLength(2000)
+                    .WithMessage("Description cannot exceed 2000 characters.")
+                    .WithErrorCode($"{nameof(Game.Description)}.MaximumLength");
         }
 
         protected void ValidateDeveloperInfo()
         {
             RuleFor(x => x.DeveloperInfo)
-                .NotNull().WithMessage("Developer information is required.").WithErrorCode($"{nameof(Game.DeveloperInfo)}.Required");
+                .NotNull()
+                    .WithMessage("Developer information is required.")
+                    .WithErrorCode($"{nameof(Game.DeveloperInfo)}.Required");
         }
 
         protected void ValidateDiskSize()
         {
             RuleFor(x => x.DiskSize)
-                .NotEmpty().WithMessage("Disk size is required.").WithErrorCode($"{nameof(Game.DiskSize)}.Required");
+                .NotNull()
+                    .WithMessage("Disk size is required.")
+                    .WithErrorCode($"{nameof(Game.DiskSize)}.Required");
         }
 
         protected void ValidatePrice()
         {
             RuleFor(x => x.Price)
-                .NotEmpty().WithMessage("Price is required.").WithErrorCode($"{nameof(Game.Price)}.Required");
+                .NotNull()
+                    .WithMessage("Price is required.")
+                    .WithErrorCode($"{nameof(Game.Price)}.Required");
         }
 
         protected void ValidatePlaytime()
         {
             RuleFor(x => x.Playtime)
                 .Must(playtime => playtime == null || playtime.Hours != null || playtime.PlayerCount != null)
-                .WithMessage("Playtime Hours or Player Count must be provided if specified.").WithErrorCode($"{nameof(Game.Playtime)}.RequiredConditional");
+                    .WithMessage("Playtime Hours or Player Count must be provided if specified.")
+                    .WithErrorCode($"{nameof(Game.Playtime)}.RequiredConditional");
         }
 
         protected void ValidateGameDetails()
         {
             RuleFor(x => x.GameDetails)
-                .NotNull().WithMessage("Game details are required.").WithErrorCode($"{nameof(Game.GameDetails)}.Required");
+                .NotNull()
+                    .WithMessage("Game details are required.")
+                    .WithErrorCode($"{nameof(Game.GameDetails)}.Required");
         }
 
         protected void ValidateSystemRequirements()
@@ -98,8 +109,9 @@ namespace TC.CloudGames.Domain.Game.Abstractions
             When(x => x.Rating != null && x.Rating.Average.HasValue, () =>
             {
                 RuleFor(x => x.Rating!.Average)
-                    .GreaterThan(0).WithMessage("Rating must be greater than 0.")
-                    .WithErrorCode($"{nameof(Game.Rating)}.GreaterThanZero");
+                    .GreaterThan(0)
+                        .WithMessage("Rating must be greater than 0.")
+                        .WithErrorCode($"{nameof(Game.Rating)}.GreaterThanZero");
             });
         }
 
@@ -119,10 +131,16 @@ namespace TC.CloudGames.Domain.Game.Abstractions
 
         protected void ValidateOfficialLink()
         {
-            RuleFor(game => game.OfficialLink)
-                .Must(link => string.IsNullOrEmpty(link) || Uri.IsWellFormedUriString(link, UriKind.Absolute))
-                    .WithMessage("Official link must be a valid URL.")
-                    .WithErrorCode($"{nameof(Game.OfficialLink)}.ValidUrl");
+            When(x => !string.IsNullOrWhiteSpace(x.OfficialLink), () =>
+            {
+                RuleFor(game => game.OfficialLink)
+                    .MaximumLength(2000)
+                        .WithMessage("Official link must not exceed 2000 characters.")
+                        .WithErrorCode($"{nameof(Game.OfficialLink)}.MaximumLength")
+                    .Must(link => Uri.IsWellFormedUriString(link, UriKind.Absolute))
+                        .WithMessage("Official link must be a valid URL.")
+                        .WithErrorCode($"{nameof(Game.OfficialLink)}.ValidUrl");
+            });
         }
     }
 }

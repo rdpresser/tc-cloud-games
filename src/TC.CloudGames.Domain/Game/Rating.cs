@@ -48,9 +48,11 @@ namespace TC.CloudGames.Domain.Game
                     .GreaterThanOrEqualTo(0)
                         .WithMessage("Rating must be greater than or equal to 0.")
                         .WithErrorCode($"{nameof(Rating)}.GreaterThanOrEqualToZero")
+                        .OverridePropertyName(nameof(Rating))
                     .LessThanOrEqualTo(10)
                         .WithMessage("Average rating must be less than or equal to 10.")
-                        .WithErrorCode($"{nameof(Rating)}.LessThanOrEqualToTen");
+                        .WithErrorCode($"{nameof(Rating)}.LessThanOrEqualToTen")
+                        .OverridePropertyName(nameof(Rating));
             });
         }
     }

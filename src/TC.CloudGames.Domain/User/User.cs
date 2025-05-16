@@ -33,13 +33,18 @@ public sealed class User : Entity
         var passwordResult = Password.Create(password);
         var roleResult = Role.Create(role);
 
-        var errors = new List<ValidationError>();
-        if (!emailResult.IsSuccess) errors.AddRange(emailResult.ValidationErrors);
-        if (!passwordResult.IsSuccess) errors.AddRange(passwordResult.ValidationErrors);
-        if (!roleResult.IsSuccess) errors.AddRange(roleResult.ValidationErrors);
+        var valueObjectResults = new IResult[]
+            {
+                emailResult,
+                passwordResult,
+                roleResult
+            };
 
-        if (errors.Any())
+        var errors = CollectValidationErrors(valueObjectResults);
+        if (errors.Count != 0)
+        {
             return Result.Invalid(errors);
+        }
 
         var user = new User(Guid.NewGuid(), firstName, lastName, emailResult.Value, passwordResult.Value, roleResult.Value);
         var validator = await new CreateUserValidator().ValidationResultAsync(user).ConfigureAwait(false);
