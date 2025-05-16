@@ -124,7 +124,12 @@ namespace TC.CloudGames.Domain.Game
         {
             RuleFor(x => x.Platform)
                 .NotEmpty().WithMessage("Platform is required.").WithErrorCode($"{nameof(GameDetails.Platform)}.Required")
-                .Must(platform => GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
+                .Must(platform => 
+                {
+                    if (platform is not string) return false;
+                    var platforms = JsonSerializer.Deserialize<string[]>(platform);
+                    return platforms != null && platforms.All(p => GameDetails.ValidPlatforms.Contains(p));
+                })
                     .WithMessage($"Invalid platform specified. Valid platforms are: {GameDetails.ValidPlatforms.JoinWithQuotes()}.")
                     .WithErrorCode($"{nameof(GameDetails.Platform)}.ValidPlatform");
         }

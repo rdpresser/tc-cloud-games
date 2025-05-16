@@ -28,9 +28,7 @@ public class GameTests
             "Visual Novel", "Beat 'em up", "Battle Royale", "Musical", "Party Game", "Metroidvania", "Idle/Incremental",
             "Tower Defense", "MOBA", "Sandbox", "Tycoon" };
 
-        _platforms = new List<string> { "PC", "PlayStation 4", "PlayStation 5", "Xbox One", "Xbox Series X|S", "Nintendo Switch",
-            "Nintendo 3DS", "Wii U", "PlayStation Vita", "Android", "iOS", "macOS", "Linux", "Stadia", "Steam Deck", "Browser",
-            "VR (Oculus Quest)", "VR (HTC Vive)", "VR (PlayStation VR)" };
+        _platforms = new List<string> { "Windows", "iOS", "Linux", "Android", "PlayStation", "Xbox", "Nintendo" };
 
         _gameTags = new List<string> { "Indie", "Multiplayer", "Singleplayer", "Co-op", "PvP", "PvE", "Online Co-op",
             "Local Multiplayer", "Story Rich", "Difficult", "Casual", "Anime", "Pixel Graphics", "Retro", "Funny", "Atmospheric",
@@ -40,8 +38,7 @@ public class GameTests
             "Realistic", "Female Protagonist", "Controller Support", "VR Support", "Moddable", "Replay Value", "Open World",
             "Procedural Generation", "Sandbox", "Nonlinear", "Mystery", "Psychological", "Dark", "Gore", "Violent" };
 
-        _gameModes = new List<string> { "Singleplayer", "Multiplayer", "Co-op", "PvP", "PvE", "Battle Royale", "Survival",
-            "Sandbox", "Casual" };
+        _gameModes = new List<string> { "Singleplayer", "Multiplayer", "Co-op", "Online" };
 
         _distributionFormats = new List<string> { "Digital", "Physical" };
 
@@ -126,5 +123,41 @@ public class GameTests
         errors.Count(x => x.Identifier == nameof(Email)).ShouldBe(2);
         errors.Count(x => x.Identifier == nameof(Password)).ShouldBe(6);
         errors.Count(x => x.Identifier == nameof(Role)).ShouldBe(2);
+    }
+
+    [Fact]
+    public void Create_Game_Should_Return_Invalid_When_Description_Exceed_Character_Size()
+    {
+        const int maxCharacters = 2000;
+
+        // Arrange
+        var result = Game.Game.Create(
+            name: _faker.Random.String(20),
+            releaseDate: DateOnly.FromDateTime(_faker.Date.Past(2)),
+            ageRating:_faker.PickRandom("E", "E10+", "T", "M", "A", "RP"),
+            description: new string('A', maxCharacters +1),
+            developerInfo: (_faker.Company.CompanyName(), _faker.Company.CompanyName()),
+            diskSize: _faker.Random.Int(1, 150),
+            price: decimal.Parse(_faker.Commerce.Price(200.0m, 500.0m)),
+            playtime: (_faker.Random.Int(1, 1000), _faker.Random.Int(1, 1000000)),
+            gameDetails: (
+                _faker.PickRandom(_genres),
+                _faker.PickRandom(_platforms, 2).ToArray(),
+                _faker.PickRandom(_gameTags),
+                _faker.PickRandom(_gameModes),
+                _faker.PickRandom(_distributionFormats),
+                _faker.PickRandom(_languages),
+                _faker.Random.Bool()),
+            systemRequirements: (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph()),
+            rating: Math.Round(_faker.Random.Decimal(1, 10), 2),
+            officialLink: _faker.Internet.Url(),
+            gameStatus: _faker.PickRandom(_gameStatus)
+        );
+        
+        // Assert
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        var errors = result.ValidationErrors;
+        
+        errors.Count(x => x.Identifier == nameof(Game.Game.Description)).ShouldBeGreaterThan(0);
     }
 }
