@@ -44,7 +44,7 @@ public class GameTests
 
         _languages = new List<string> { "PT-BR", "EN-US", "ES-ES", "FR-FR", "ZH-CN", "JA-JP", "RU-RU", "KO-KR" };
 
-        _gameStatus = new List<string> { "Available", "Soon", "Early Access" };
+        _gameStatus = new List<string> { "In Development", "Released", "Discontinued", "Available" };
     }
 
     [Fact]
@@ -159,5 +159,149 @@ public class GameTests
         var errors = result.ValidationErrors;
         
         errors.Count(x => x.Identifier == nameof(Game.Game.Description)).ShouldBeGreaterThan(0);
+    }
+    
+    [Fact]
+    public void Create_Game_Should_Return_Invalid_When_GameStatus_Exceed_Character_Size()
+    {
+        const int maxCharacters = 200;
+
+        // Arrange
+        var result = Game.Game.Create(
+            name: _faker.Random.String(20),
+            releaseDate: DateOnly.FromDateTime(_faker.Date.Past(2)),
+            ageRating:_faker.PickRandom("E", "E10+", "T", "M", "A", "RP"),
+            description: _faker.Random.String(20),
+            developerInfo: (_faker.Company.CompanyName(), _faker.Company.CompanyName()),
+            diskSize: _faker.Random.Int(1, 150),
+            price: decimal.Parse(_faker.Commerce.Price(200.0m, 500.0m)),
+            playtime: (_faker.Random.Int(1, 1000), _faker.Random.Int(1, 1000000)),
+            gameDetails: (
+                _faker.PickRandom(_genres),
+                _faker.PickRandom(_platforms, 2).ToArray(),
+                _faker.PickRandom(_gameTags),
+                _faker.PickRandom(_gameModes),
+                _faker.PickRandom(_distributionFormats),
+                _faker.PickRandom(_languages),
+                _faker.Random.Bool()),
+            systemRequirements: (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph()),
+            rating: Math.Round(_faker.Random.Decimal(1, 10), 2),
+            officialLink: _faker.Internet.Url(),
+            gameStatus: new string('A', maxCharacters +1)
+        );
+        
+        // Assert
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        var errors = result.ValidationErrors;
+        
+        errors.Count(x => x.Identifier == nameof(Game.Game.GameStatus)).ShouldBeGreaterThan(0);
+    }
+    
+    [Fact]
+    public void Create_Game_Should_Return_Invalid_When_SystemRequirements_Minimum_Exceed_Character_Size()
+    {
+        const int maxCharacters = 1000;
+
+        // Arrange
+        var result = Game.Game.Create(
+            name: _faker.Random.String(20),
+            releaseDate: DateOnly.FromDateTime(_faker.Date.Past(2)),
+            ageRating:_faker.PickRandom("E", "E10+", "T", "M", "A", "RP"),
+            description: _faker.Random.String(20),
+            developerInfo: (_faker.Company.CompanyName(), _faker.Company.CompanyName()),
+            diskSize: _faker.Random.Int(1, 150),
+            price: decimal.Parse(_faker.Commerce.Price(200.0m, 500.0m)),
+            playtime: (_faker.Random.Int(1, 1000), _faker.Random.Int(1, 1000000)),
+            gameDetails: (
+                _faker.PickRandom(_genres),
+                _faker.PickRandom(_platforms, 2).ToArray(),
+                _faker.PickRandom(_gameTags),
+                _faker.PickRandom(_gameModes),
+                _faker.PickRandom(_distributionFormats),
+                _faker.PickRandom(_languages),
+                _faker.Random.Bool()),
+            systemRequirements: (new string('A', maxCharacters +1), _faker.Lorem.Paragraph()),
+            rating: Math.Round(_faker.Random.Decimal(1, 10), 2),
+            officialLink: _faker.Internet.Url(),
+            gameStatus: _faker.PickRandom(_gameStatus)
+        );
+        
+        // Assert
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        var errors = result.ValidationErrors;
+        
+        errors.Count(x => x.Identifier == nameof(Game.Game.SystemRequirements.Minimum)).ShouldBeGreaterThan(0);
+    }
+    
+    [Fact]
+    public void Create_Game_Should_Return_Invalid_When_OfficialLink_Is_Not_A_Valid_URL()
+    {
+        const string invalidUrl = "invalid_url";
+        
+        // Arrange
+        var result = Game.Game.Create(
+            name: _faker.Random.String(20),
+            releaseDate: DateOnly.FromDateTime(_faker.Date.Past(2)),
+            ageRating:_faker.PickRandom("E", "E10+", "T", "M", "A", "RP"),
+            description: _faker.Random.String(20),
+            developerInfo: (_faker.Company.CompanyName(), _faker.Company.CompanyName()),
+            diskSize: _faker.Random.Int(1, 150),
+            price: decimal.Parse(_faker.Commerce.Price(200.0m, 500.0m)),
+            playtime: (_faker.Random.Int(1, 1000), _faker.Random.Int(1, 1000000)),
+            gameDetails: (
+                _faker.PickRandom(_genres),
+                _faker.PickRandom(_platforms, 2).ToArray(),
+                _faker.PickRandom(_gameTags),
+                _faker.PickRandom(_gameModes),
+                _faker.PickRandom(_distributionFormats),
+                _faker.PickRandom(_languages),
+                _faker.Random.Bool()),
+            systemRequirements: (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph()),
+            rating: Math.Round(_faker.Random.Decimal(1, 10), 2),
+            officialLink: invalidUrl,
+            gameStatus: _faker.PickRandom(_gameStatus)
+        );
+        
+        // Assert
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        var errors = result.ValidationErrors;
+        
+        errors.Count(x => x.Identifier == nameof(Game.Game.OfficialLink)).ShouldBe(1);
+    }
+    
+    [Fact]
+    public void Create_Game_Should_Return_Invalid_When_Rating_Is_Lower_A_Zero()
+    {
+        const decimal invalidRating = -10;
+        
+        // Arrange
+        var result = Game.Game.Create(
+            name: _faker.Random.String(20),
+            releaseDate: DateOnly.FromDateTime(_faker.Date.Past(2)),
+            ageRating:_faker.PickRandom("E", "E10+", "T", "M", "A", "RP"),
+            description: _faker.Random.String(20),
+            developerInfo: (_faker.Company.CompanyName(), _faker.Company.CompanyName()),
+            diskSize: _faker.Random.Int(1, 150),
+            price: decimal.Parse(_faker.Commerce.Price(200.0m, 500.0m)),
+            playtime: (_faker.Random.Int(1, 1000), _faker.Random.Int(1, 1000000)),
+            gameDetails: (
+                _faker.PickRandom(_genres),
+                _faker.PickRandom(_platforms, 2).ToArray(),
+                _faker.PickRandom(_gameTags),
+                _faker.PickRandom(_gameModes),
+                _faker.PickRandom(_distributionFormats),
+                _faker.PickRandom(_languages),
+                _faker.Random.Bool()),
+            systemRequirements: (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph()),
+            rating: invalidRating,
+            officialLink: _faker.Internet.Url(),
+            gameStatus: _faker.PickRandom(_gameStatus)
+        );
+        
+        // Assert
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        var errors = result.ValidationErrors;
+        
+        errors.Count(x => x.Identifier == nameof(Game.Game.Rating)).ShouldBeGreaterThanOrEqualTo(0);
     }
 }
