@@ -23,9 +23,9 @@ public class GameTests
     {
         _faker = new Faker();
 
-        _genres = new List<string> { "Ação", "Aventura", "RPG", "Estratégia", "Simulação", "Corrida", "Esporte", "Puzzle",
-            "Luta", "Plataforma", "FPS", "TPS", "Survival", "Horror", "Stealth", "Mundo Aberto", "MMORPG", "Roguelike",
-            "Visual Novel", "Beat 'em up", "Battle Royale", "Musical", "Party Game", "Metroidvania", "Idle / Incremental",
+        _genres = new List<string> { "Action", "Adventure", "RPG", "Strategy", "Simulation", "Racing", "Sport", "Puzzle",
+            "Fighter", "Platform", "FPS", "TPS", "Survival", "Horror", "Stealth", "Open World", "MMORPG", "Roguelike",
+            "Visual Novel", "Beat 'em up", "Battle Royale", "Musical", "Party Game", "Metroidvania", "Idle/Incremental",
             "Tower Defense", "MOBA", "Sandbox", "Tycoon" };
 
         _platforms = [.. DomainGameDetails.ValidPlatforms];

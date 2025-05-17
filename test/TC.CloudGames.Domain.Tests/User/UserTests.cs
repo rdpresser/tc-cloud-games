@@ -2,8 +2,8 @@ using Ardalis.Result;
 using Bogus;
 using NSubstitute;
 using Shouldly;
-using TC.CloudGames.Domain.User.Abstractions;
 using TC.CloudGames.Domain.User;
+using TC.CloudGames.Domain.User.Abstractions;
 using DomainUser = TC.CloudGames.Domain.User.User;
 
 namespace TC.CloudGames.Domain.Tests.User;
@@ -18,7 +18,7 @@ public class UserTests
         _faker = new Faker();
         _userEfRepository = Substitute.For<IUserEfRepository>();
     }
-    
+
     [Fact]
     public async Task Create_User_Should_Return_Invalid_When_Required_Value_Objects_Are_Empty()
     {
@@ -51,7 +51,7 @@ public class UserTests
         errors.Count(x => x.Identifier == nameof(Password)).ShouldBe(6);
         errors.Count(x => x.Identifier == nameof(Role)).ShouldBe(2);
     }
-    
+
     [Fact]
     public async Task Create_User_Should_Return_Success_When_All_Fields_Are_Valid()
     {
@@ -129,5 +129,31 @@ public class UserTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(Password));
+    }
+
+    [Fact]
+    public async Task Create_User_Should_Return_Error_When_All_Child_Fields_Are_Valid_But_Root_Class_Not()
+    {
+        // Arrange
+        var email = _faker.Internet.Email();
+        var password = "Senha@123456";
+        var role = "User";
+
+        _userEfRepository.EmailExistsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(false));
+
+        // Act
+        var result = await DomainUser.CreateAsync(
+            firstName: string.Empty,
+            lastName: string.Empty,
+            email: email,
+            password: password,
+            role: role,
+            _userEfRepository
+        );
+
+        // Assert
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.Value.ShouldBeNull();
     }
 }
