@@ -1,6 +1,4 @@
-﻿using TC.CloudGames.Domain.Abstractions;
-
-namespace TC.CloudGames.Domain.User.Abstractions;
+﻿namespace TC.CloudGames.Domain.User.Abstractions;
 
 public interface IUserEfRepository : IEfRepository<User>
 {

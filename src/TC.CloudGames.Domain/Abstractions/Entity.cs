@@ -1,5 +1,4 @@
-﻿using Ardalis.Result;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Domain.Abstractions;
 

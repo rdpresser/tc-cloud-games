@@ -12,15 +12,15 @@ namespace TC.CloudGames.Application.Tests.Games;
 
 public class CreateGameTests
 {
-    
+
     [Fact]
     public async Task Handle_CreateGame()
     {
-        
+
         // Arrange
         var unitOfWork = A.Fake<IUnitOfWork>();
         var gameRepository = A.Fake<IGameEfRepository>();
-        
+
         var command = new CreateGameCommand(
             Name: "Test Game",
             ReleaseDate: DateOnly.FromDateTime(DateTime.UtcNow),
@@ -44,7 +44,7 @@ public class CreateGameTests
             OfficialLink: "https://testgame.com",
             GameStatus: "Released"
         );
-        
+
         var expectedResponse = new CreateGameResponse(
             Id: Guid.NewGuid(),
             Name: command.Name,
@@ -61,15 +61,15 @@ public class CreateGameTests
             OfficialLink: command.OfficialLink,
             GameStatus: command.GameStatus
         );
-        
+
         var fakerHandler = A.Fake<ICommandHandler<CreateGameCommand, CreateGameResponse>>();
 
         A.CallTo(() => fakerHandler.ExecuteAsync(command, A<CancellationToken>.Ignored))
             .Returns(expectedResponse);
-        
+
         // Act
         var result = await fakerHandler.ExecuteAsync(command, CancellationToken.None);
-        
+
         // Assert
         Assert.NotNull(result);
         Assert.Equal(expectedResponse.Id, result.Value.Id);

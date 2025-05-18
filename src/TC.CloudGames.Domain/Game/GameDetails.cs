@@ -1,11 +1,7 @@
-﻿using Ardalis.Result;
-using Ardalis.Result.FluentValidation;
-using FluentValidation;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Domain.Game

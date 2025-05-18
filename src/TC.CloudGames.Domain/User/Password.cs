@@ -1,9 +1,4 @@
-﻿using Ardalis.Result;
-using Ardalis.Result.FluentValidation;
-using FluentValidation;
-using TC.CloudGames.Domain.Abstractions;
-
-namespace TC.CloudGames.Domain.User
+﻿namespace TC.CloudGames.Domain.User
 {
     public sealed record Password
     {

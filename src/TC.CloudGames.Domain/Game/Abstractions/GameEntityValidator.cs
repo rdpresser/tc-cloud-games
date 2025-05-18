@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-using TC.CloudGames.Domain.Abstractions;
-using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
+﻿using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Domain.Game.Abstractions
 {

@@ -1,9 +1,4 @@
-﻿using Ardalis.Result;
-using Ardalis.Result.FluentValidation;
-using FluentValidation;
-using TC.CloudGames.Domain.Abstractions;
-
-namespace TC.CloudGames.Domain.Game
+﻿namespace TC.CloudGames.Domain.Game
 {
     public sealed record DiskSize
     {
