@@ -1,7 +1,9 @@
 ﻿using Ardalis.Result;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Domain.Abstractions;
 
+[ExcludeFromCodeCoverage]
 public abstract class Entity
 {
     private readonly List<IDomainEvent> _domainEvents = [];

@@ -1,9 +1,11 @@
 ﻿using Ardalis.Result;
 using FluentValidation;
 using FluentValidation.Results;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Domain.Abstractions
 {
+    [ExcludeFromCodeCoverage]
     public abstract class BaseValidator<TEntity> : AbstractValidator<TEntity>, IBaseValidator<TEntity>
         where TEntity : class
     {

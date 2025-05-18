@@ -1,5 +1,8 @@
-﻿namespace TC.CloudGames.Domain.Abstractions
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TC.CloudGames.Domain.Abstractions
 {
+    [ExcludeFromCodeCoverage]
     public record DomainError(string Property, string ErrorMessage, string ErrorCode = default!)
     {
         public static readonly DomainError None = new(string.Empty, string.Empty, string.Empty);

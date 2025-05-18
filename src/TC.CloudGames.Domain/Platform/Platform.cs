@@ -1,10 +1,12 @@
-﻿using TC.CloudGames.Domain.Abstractions;
+﻿using System.Diagnostics.CodeAnalysis;
+using TC.CloudGames.Domain.Abstractions;
 
 namespace TC.CloudGames.Domain.Platform
 {
     /// <summary>
     /// This class will be used in a future version and have its own repository and domain tables
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public sealed class Platform : Entity
     {
         public string Name { get; private set; }

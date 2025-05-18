@@ -1,5 +1,8 @@
-﻿namespace TC.CloudGames.Domain.Abstractions;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace TC.CloudGames.Domain.Abstractions;
+
+[ExcludeFromCodeCoverage]
 public abstract class ValueObject
 {
     protected abstract IEnumerable<object> GetEqualityComponents();
