@@ -1,6 +1,4 @@
-﻿using TC.CloudGames.Application.Abstractions.Messaging;
-
-namespace TC.CloudGames.Application.Users.GetUserList
+﻿namespace TC.CloudGames.Application.Users.GetUserList
 {
     public sealed record GetUserListQuery(
         int PageNumber = 1,

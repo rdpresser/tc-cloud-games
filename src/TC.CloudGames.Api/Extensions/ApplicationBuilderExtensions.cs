@@ -1,12 +1,6 @@
-﻿using FastEndpoints;
-using FastEndpoints.Swagger;
-using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+﻿using HealthChecks.UI.Client;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 using TC.CloudGames.Api.Middleware;
-using TC.CloudGames.Infra.CrossCutting.Commons.Middleware;
-using TC.CloudGames.Infra.Data;
 
 namespace TC.CloudGames.Api.Extensions;
 

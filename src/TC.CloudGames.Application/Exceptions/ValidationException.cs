@@ -1,6 +1,4 @@
-﻿using Ardalis.Result;
-
-namespace TC.CloudGames.Application.Exceptions
+﻿namespace TC.CloudGames.Application.Exceptions
 {
     public sealed class ValidationException : Exception
     {

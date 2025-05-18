@@ -1,6 +1,4 @@
-﻿using TC.CloudGames.Application.Abstractions.Messaging;
-
-namespace TC.CloudGames.Application.Users.GetUser
+﻿namespace TC.CloudGames.Application.Users.GetUserByEmail
 {
     public sealed record GetUserByEmailQuery(string Email) : IQuery<UserByEmailResponse>;
 }

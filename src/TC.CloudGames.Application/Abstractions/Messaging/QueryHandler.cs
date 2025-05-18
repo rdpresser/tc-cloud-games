@@ -1,6 +1,4 @@
-﻿using Ardalis.Result;
-
-namespace TC.CloudGames.Application.Abstractions.Messaging
+﻿namespace TC.CloudGames.Application.Abstractions.Messaging
 {
     public abstract class QueryHandler<TQuery, TResponse> : FastEndpoints.CommandHandler<TQuery, Result<TResponse>>
             where TQuery : IQuery<TResponse>

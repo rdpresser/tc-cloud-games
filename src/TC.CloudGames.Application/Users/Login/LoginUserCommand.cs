@@ -1,8 +1,6 @@
-﻿using TC.CloudGames.Application.Abstractions.Messaging;
-
-namespace TC.CloudGames.Application.Users.Login
+﻿namespace TC.CloudGames.Application.Users.Login
 {
     public sealed record LoginUserCommand(
         string Email,
-        string Password) : ICommand<LoginUserResponse>;
+        string Password) : Abstractions.Messaging.ICommand<LoginUserResponse>;
 }

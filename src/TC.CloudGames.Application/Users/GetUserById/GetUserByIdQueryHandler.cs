@@ -1,7 +1,4 @@
-﻿using Ardalis.Result;
-using TC.CloudGames.Application.Abstractions;
-using TC.CloudGames.Application.Abstractions.Data;
-using TC.CloudGames.Application.Abstractions.Messaging;
+﻿using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Domain.User.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 

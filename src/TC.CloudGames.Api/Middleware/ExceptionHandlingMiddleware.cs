@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TC.CloudGames.Application.Exceptions;
+﻿using TC.CloudGames.Application.Exceptions;
 
 namespace TC.CloudGames.Api.Middleware
 {
@@ -26,7 +25,7 @@ namespace TC.CloudGames.Api.Middleware
 
                 var exceptionDetails = GetExceptionDetails(exception);
 
-                var problemDetails = new ProblemDetails
+                var problemDetails = new Microsoft.AspNetCore.Mvc.ProblemDetails
                 {
                     Status = exceptionDetails.Status,
                     Type = exceptionDetails.Type,

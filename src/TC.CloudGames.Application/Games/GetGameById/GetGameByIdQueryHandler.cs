@@ -1,7 +1,4 @@
-﻿using Ardalis.Result;
-using TC.CloudGames.Application.Abstractions.Data;
-using TC.CloudGames.Application.Abstractions.Messaging;
-using TC.CloudGames.Application.Games.GetGameById;
+﻿using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Domain.Game.Abstractions;
 
 namespace TC.CloudGames.Application.Games.GetGameById

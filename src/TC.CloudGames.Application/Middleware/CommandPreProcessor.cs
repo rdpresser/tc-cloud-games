@@ -1,6 +1,4 @@
-﻿using FastEndpoints;
-using Microsoft.Extensions.Logging;
-using Serilog.Context;
+﻿using Serilog.Context;
 
 namespace TC.CloudGames.Application.Middleware
 {

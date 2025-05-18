@@ -1,6 +1,4 @@
-﻿using Ardalis.Result;
-
-namespace TC.CloudGames.Application.Abstractions.Messaging
+﻿namespace TC.CloudGames.Application.Abstractions.Messaging
 {
     public interface ICommand : FastEndpoints.ICommand<Result>, IBaseCommand
     {

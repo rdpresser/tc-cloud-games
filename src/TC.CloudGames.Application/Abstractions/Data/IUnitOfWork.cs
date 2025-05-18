@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using TC.CloudGames.Domain.Game;
+﻿using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Application.Abstractions.Data

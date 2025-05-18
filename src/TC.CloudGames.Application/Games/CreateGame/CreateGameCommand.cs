@@ -1,6 +1,4 @@
-﻿using TC.CloudGames.Application.Abstractions.Messaging;
-
-namespace TC.CloudGames.Application.Games.CreateGame
+﻿namespace TC.CloudGames.Application.Games.CreateGame
 {
     public sealed record CreateGameCommand(
         string Name,
@@ -15,7 +13,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
         SystemRequirements SystemRequirements,
         decimal? Rating,
         string? OfficialLink,
-        string? GameStatus) : ICommand<CreateGameResponse>;
+        string? GameStatus) : Abstractions.Messaging.ICommand<CreateGameResponse>;
 
     public sealed record DeveloperInfo(string Developer, string? Publisher);
 

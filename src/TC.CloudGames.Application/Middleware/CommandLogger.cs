@@ -1,12 +1,9 @@
-﻿using Ardalis.Result;
-using FastEndpoints;
-using Microsoft.Extensions.Logging;
-using Serilog.Context;
+﻿using Serilog.Context;
 
 namespace TC.CloudGames.Application.Middleware
 {
     public sealed class CommandLogger<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
-            where TCommand : ICommand<TResult>
+            where TCommand : FastEndpoints.ICommand<TResult>
             where TResult : class, IResult
     {
         private readonly ILogger<CommandLogger<TCommand, TResult>> _logger;

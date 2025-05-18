@@ -1,5 +1,4 @@
-﻿using Ardalis.Result;
-using TC.CloudGames.Domain.User;
+﻿using TC.CloudGames.Domain.User;
 using TC.CloudGames.Domain.User.Abstractions;
 
 namespace TC.CloudGames.Application.Users.CreateUser;

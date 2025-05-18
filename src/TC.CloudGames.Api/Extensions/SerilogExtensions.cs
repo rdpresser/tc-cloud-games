@@ -1,5 +1,4 @@
-﻿using Serilog;
-using Serilog.Enrichers.Sensitive;
+﻿using Serilog.Enrichers.Sensitive;
 using Serilog.Events;
 
 namespace TC.CloudGames.Api.Extensions

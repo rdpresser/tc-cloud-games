@@ -1,10 +1,5 @@
 ﻿using Bogus;
-using FastEndpoints;
-using System.Net;
-using TC.CloudGames.Api.Abstractions;
-using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Games.GetGameList;
-using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;

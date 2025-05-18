@@ -3,7 +3,6 @@ using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.Game.Abstractions;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Domain.User.Abstractions;
-using TC.CloudGames.Infra.Data;
 
 namespace TC.CloudGames.Api.Extensions;
 

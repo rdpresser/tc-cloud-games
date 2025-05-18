@@ -1,4 +1,4 @@
-using TC.CloudGames.Application.Users.GetUser;
+using TC.CloudGames.Application.Users.GetUserByEmail;
 using TC.CloudGames.Application.Users.GetUserById;
 using TC.CloudGames.Application.Users.GetUserList;
 

@@ -1,11 +1,7 @@
-﻿using Ardalis.Result;
-using FastEndpoints;
-using FluentValidation;
-
-namespace TC.CloudGames.Application.Middleware
+﻿namespace TC.CloudGames.Application.Middleware
 {
     public sealed class CommandValidator<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
-        where TCommand : ICommand<TResult>
+        where TCommand : FastEndpoints.ICommand<TResult>
     {
         private readonly IEnumerable<AbstractValidator<TCommand>> _validators;
 
