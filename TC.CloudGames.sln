@@ -39,8 +39,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Infra.CrossCu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Domain.Tests", "test\TC.CloudGames.Domain.Tests\TC.CloudGames.Domain.Tests.csproj", "{96417C62-3D54-45C6-A5E3-666C0DB50A76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Application.Tests", "test\TC.CloudGames.Application.Tests\TC.CloudGames.Application.Tests.csproj", "{EEAFF556-8997-4D3F-9DC9-02476DBC2A80}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,10 +81,6 @@ Global
 		{96417C62-3D54-45C6-A5E3-666C0DB50A76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96417C62-3D54-45C6-A5E3-666C0DB50A76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96417C62-3D54-45C6-A5E3-666C0DB50A76}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EEAFF556-8997-4D3F-9DC9-02476DBC2A80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EEAFF556-8997-4D3F-9DC9-02476DBC2A80}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EEAFF556-8997-4D3F-9DC9-02476DBC2A80}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EEAFF556-8997-4D3F-9DC9-02476DBC2A80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -107,7 +101,6 @@ Global
 		{A57A0494-52D9-AE21-52E2-C73D531B4A48} = {122B4804-D1D8-420B-93EC-72978373369D}
 		{AD5B37BE-46D6-6868-6947-50579E86992D} = {122B4804-D1D8-420B-93EC-72978373369D}
 		{96417C62-3D54-45C6-A5E3-666C0DB50A76} = {4BE74EE1-B5C8-4AF3-8024-5F60C13EC1BD}
-		{EEAFF556-8997-4D3F-9DC9-02476DBC2A80} = {4BE74EE1-B5C8-4AF3-8024-5F60C13EC1BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A61EC7C9-970A-4856-9FA0-A09EE45536BB}
