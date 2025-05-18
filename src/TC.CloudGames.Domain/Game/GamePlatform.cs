@@ -1,10 +1,13 @@
-﻿namespace TC.CloudGames.Domain.Game
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TC.CloudGames.Domain.Game
 {
     /// <summary>
     /// This class will be used in a future version and have its own repository and domain tables
     /// This class represents a many-to-many relationship between Game and Platform with composite key.
     /// https://medium.com/radzenhq/how-to-entity-framework-core-relationships-composite-keys-foreign-keys-data-annotations-code-f4b238086463
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public sealed class GamePlatform
     {
         public Guid GameId { get; private set; }

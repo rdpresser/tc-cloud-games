@@ -1,7 +1,9 @@
-﻿using TC.CloudGames.Domain.Abstractions;
+﻿using System.Diagnostics.CodeAnalysis;
+using TC.CloudGames.Domain.Abstractions;
 
 namespace TC.CloudGames.Domain.User.Abstractions
 {
+    [ExcludeFromCodeCoverage]
     public static class UserDomainErrors
     {
         public static readonly DomainError NotFound = new(
