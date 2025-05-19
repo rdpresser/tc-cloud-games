@@ -2,7 +2,7 @@
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
-namespace TC.CloudGames.Api.Endpoints.Games
+namespace TC.CloudGames.Api.Endpoints.Game
 {
     public sealed class GetGameByIdEndpoint : ApiEndpoint<GetGameByIdQuery, GameByIdResponse>
     {
@@ -69,8 +69,8 @@ namespace TC.CloudGames.Api.Endpoints.Games
                 DeveloperInfo = new DeveloperInfo { Developer = "Developer Name", Publisher = "Publisher Name" },
                 DiskSize = 50.0m,
                 Price = 59.99m,
-                Playtime = new Application.Games.GetGameById.Playtime { Hours = 10, PlayerCount = 1 },
-                GameDetails = new Application.Games.GetGameById.GameDetails
+                Playtime = new Playtime { Hours = 10, PlayerCount = 1 },
+                GameDetails = new GameDetails
                 {
                     Genre = "Genre",
                     Platform = [.. Domain.Game.GameDetails.ValidPlatforms],
@@ -80,7 +80,7 @@ namespace TC.CloudGames.Api.Endpoints.Games
                     AvailableLanguages = "Available Languages",
                     SupportsDlcs = true
                 },
-                SystemRequirements = new Application.Games.GetGameById.SystemRequirements
+                SystemRequirements = new SystemRequirements
                 {
                     Minimum = "Minimum Requirements",
                     Recommended = "Recommended Requirements"

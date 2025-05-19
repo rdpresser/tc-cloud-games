@@ -10,3 +10,5 @@ global using TC.CloudGames.Domain.Abstractions;
 
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("TC.CloudGames.Application.Tests")]
+[assembly: InternalsVisibleTo("TC.CloudGames.Api.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

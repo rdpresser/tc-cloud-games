@@ -1,7 +1,7 @@
 ﻿using TC.CloudGames.Application.Games.CreateGame;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
-namespace TC.CloudGames.Api.Endpoints.Games
+namespace TC.CloudGames.Api.Endpoints.Game
 {
     public sealed class CreateGameEndpoint : Endpoint<CreateGameCommand, CreateGameResponse>
     {
