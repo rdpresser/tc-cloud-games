@@ -18,7 +18,7 @@ public sealed class GetUserByEmailEndpoint : ApiEndpoint<GetUserByEmailQuery, Us
         Roles(AppConstants.UserRole, AppConstants.AdminRole);
         PostProcessor<CommandPostProcessor<GetUserByEmailQuery, UserByEmailResponse>>();
 
-        Description(x => x.Produces<UserByEmailResponse>()
+        Description(x => x.Produces<UserByEmailResponse>(200)
             .ProducesProblemDetails()
             .Produces((int)HttpStatusCode.NotFound)
             .Produces((int)HttpStatusCode.Forbidden)

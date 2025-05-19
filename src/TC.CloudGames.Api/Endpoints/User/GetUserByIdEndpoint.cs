@@ -17,7 +17,7 @@ namespace TC.CloudGames.Api.Endpoints.User
             Roles(AppConstants.UserRole, AppConstants.AdminRole);
             PostProcessor<CommandPostProcessor<GetUserByIdQuery, UserByIdResponse>>();
 
-            Description(x => x.Produces<UserByIdResponse>()
+            Description(x => x.Produces<UserByIdResponse>(200)
                 .ProducesProblemDetails()
                 .Produces((int)HttpStatusCode.NotFound)
                 .Produces((int)HttpStatusCode.Forbidden)
