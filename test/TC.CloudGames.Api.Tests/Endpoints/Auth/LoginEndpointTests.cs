@@ -1,12 +1,6 @@
-﻿using Ardalis.Result;
-using FakeItEasy;
-using FastEndpoints;
-using NSubstitute;
-using Shouldly;
-using TC.CloudGames.Api.Endpoints.Auth;
+﻿using TC.CloudGames.Api.Endpoints.Auth;
 using TC.CloudGames.Application.Users.Login;
 using TC.CloudGames.Domain.User.Abstractions;
-using IAppCommandHandler = TC.CloudGames.Application.Abstractions.Messaging;
 
 namespace TC.CloudGames.Api.Tests.Endpoints.Auth
 {
@@ -32,6 +26,14 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Auth
             // Assert
             ep.Response.JwtToken.ShouldBe(loginRes.JwtToken);
             ep.Response.Email.ShouldBe(loginRes.Email);
+
+            // Additional Assertions
+            var result = await fakeHandler.ExecuteAsync(loginReq, CancellationToken.None);
+            result.IsSuccess.ShouldBeTrue();
+            result.IsInvalid().ShouldBeFalse();
+            result.ValidationErrors.Count().ShouldBe(0);
+            result.Value.ShouldNotBeNull();
+            result.Errors.Count().ShouldBe(0);
         }
 
         [Fact]
