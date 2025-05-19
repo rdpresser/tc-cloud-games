@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Tests
 {
@@ -25,7 +26,55 @@ namespace TC.CloudGames.Api.Tests
             // Example: Replace a real service with a mock or test double
             // services.AddSingleton<IMyService, MyMockService>();
 
-            // You can also remove or modify services as needed for tests
+            services
+                //.AddFastEndpoints(static dicoveryOptions =>
+                //{
+                //    dicoveryOptions.Assemblies = [typeof(IAppCommandHandler.ICommand<>).Assembly];
+                //})
+                .AddFusionCache()
+                .WithDefaultEntryOptions(options =>
+                {
+                    options.Duration = TimeSpan.FromSeconds(20);
+                    options.DistributedCacheDuration = TimeSpan.FromSeconds(30);
+                });
+
+            //services.AddKeyedScoped("ValidUserContextAccessor", (sp, key) =>
+            //services.AddScoped(sp =>
+            //{
+            //    var userId = Guid.NewGuid();
+            //    var claims = new List<Claim>
+            //        {
+            //            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            //            new(JwtRegisteredClaimNames.Email, "john.doe@test.com"),
+            //            new(JwtRegisteredClaimNames.Name, "John Doe"),
+            //            new("role", "User")
+            //        };
+
+            //    var identity = new ClaimsIdentity(claims, "TestAuthType");
+            //    var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            //    var httpContextAccessor = new HttpContextAccessor();
+            //    var httpContext = new DefaultHttpContext
+            //    {
+            //        User = claimsPrincipal,
+            //        RequestServices = sp
+            //    };
+            //    httpContextAccessor.HttpContext = httpContext;
+
+            //    // Ensure the returned IHttpContextAccessor is not null
+            //    return (IHttpContextAccessor)httpContextAccessor ?? throw new InvalidOperationException("HttpContextAccessor cannot be null.");
+            //});
+
+            //services.AddKeyedScoped("ValidLoggedUser", (sp, key) =>
+            //services.AddScoped(sp =>
+            //{
+            //    var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
+
+            //    // Ensure the IHttpContextAccessor is not null before passing it to UserContext
+            //    return httpContextAccessor == null
+            //        ? throw new InvalidOperationException("IHttpContextAccessor cannot be null.")
+            //        : (IUserContext)new UserContext(httpContextAccessor);
+            //});
         }
 
         // Runs once after all tests in this fixture
