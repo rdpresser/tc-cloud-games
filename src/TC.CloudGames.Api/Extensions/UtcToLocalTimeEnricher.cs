@@ -1,8 +1,10 @@
 ﻿using Serilog.Core;
 using Serilog.Events;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Api.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public class UtcToLocalTimeEnricher : ILogEventEnricher
     {
         private readonly TimeZoneInfo _timeZone;

@@ -1,7 +1,9 @@
 ﻿using Serilog.Context;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Application.Middleware
 {
+    [ExcludeFromCodeCoverage]
     public class CommandPreProcessor<TRequest> : IPreProcessor<TRequest>
     {
         public Task PreProcessAsync(IPreProcessorContext<TRequest> context, CancellationToken ct)

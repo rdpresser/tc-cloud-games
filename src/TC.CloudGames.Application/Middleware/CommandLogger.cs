@@ -1,7 +1,9 @@
 ﻿using Serilog.Context;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Application.Middleware
 {
+    [ExcludeFromCodeCoverage]
     public sealed class CommandLogger<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
             where TCommand : FastEndpoints.ICommand<TResult>
             where TResult : class, IResult

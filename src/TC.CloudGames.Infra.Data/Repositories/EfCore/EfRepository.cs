@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Infra.Data.Repositories.EfCore;
 
+[ExcludeFromCodeCoverage]
 public abstract class EfRepository<TEntity> : IEfRepository<TEntity>, IDisposable, IAsyncDisposable
     where TEntity : Entity
 {

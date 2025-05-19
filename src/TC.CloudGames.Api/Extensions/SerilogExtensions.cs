@@ -1,10 +1,12 @@
 ﻿using Serilog.Enrichers.Sensitive;
 using Serilog.Events;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Api.Extensions
 {
     namespace TC.CloudGames.Api.Extensions
     {
+        [ExcludeFromCodeCoverage]
         public static class SerilogExtensions
         {
             public static IHostBuilder UseCustomSerilog(this IHostBuilder hostBuilder, IConfiguration configuration)

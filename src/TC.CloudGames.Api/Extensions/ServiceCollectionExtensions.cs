@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
+using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Domain.Game.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
@@ -12,6 +13,7 @@ using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 
 namespace TC.CloudGames.Api.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
     // Authentication and Authorization

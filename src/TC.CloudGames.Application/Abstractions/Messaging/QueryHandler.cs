@@ -1,5 +1,8 @@
-﻿namespace TC.CloudGames.Application.Abstractions.Messaging
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TC.CloudGames.Application.Abstractions.Messaging
 {
+    [ExcludeFromCodeCoverage]
     internal abstract class QueryHandler<TQuery, TResponse> : FastEndpoints.CommandHandler<TQuery, Result<TResponse>>
             where TQuery : IQuery<TResponse>
             where TResponse : class

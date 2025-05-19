@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace TC.CloudGames.Application.Games.GetGameById
@@ -57,6 +58,7 @@ namespace TC.CloudGames.Application.Games.GetGameById
         public string? AvailableLanguages { get; init; }
         public bool SupportsDlcs { get; init; }
 
+        [ExcludeFromCodeCoverage]
         public string[] Platform
         {
             get

@@ -1,9 +1,11 @@
 ﻿using HealthChecks.UI.Client;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Api.Middleware;
 
 namespace TC.CloudGames.Api.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class ApplicationBuilderExtensions
 {
     // Applies pending migrations to the database

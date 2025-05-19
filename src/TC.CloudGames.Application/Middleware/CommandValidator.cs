@@ -1,5 +1,8 @@
-﻿namespace TC.CloudGames.Application.Middleware
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TC.CloudGames.Application.Middleware
 {
+    [ExcludeFromCodeCoverage]
     public sealed class CommandValidator<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
         where TCommand : FastEndpoints.ICommand<TResult>
     {

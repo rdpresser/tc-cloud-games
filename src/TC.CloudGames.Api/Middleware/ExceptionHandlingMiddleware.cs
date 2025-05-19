@@ -1,7 +1,9 @@
-﻿using TC.CloudGames.Application.Exceptions;
+﻿using System.Diagnostics.CodeAnalysis;
+using TC.CloudGames.Application.Exceptions;
 
 namespace TC.CloudGames.Api.Middleware
 {
+    [ExcludeFromCodeCoverage]
     public class ExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;

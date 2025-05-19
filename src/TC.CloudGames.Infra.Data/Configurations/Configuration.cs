@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Domain.Abstractions;
 
 namespace TC.CloudGames.Infra.Data.Configurations;
 
+[ExcludeFromCodeCoverage]
 public class Configuration<TEntity> : IEntityTypeConfiguration<TEntity>
     where TEntity : Entity
 {

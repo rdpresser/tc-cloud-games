@@ -1,7 +1,9 @@
 ﻿using Serilog.Context;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Application.Middleware
 {
+    [ExcludeFromCodeCoverage]
     public class CommandPostProcessor<TRequest, TResponse> : IPostProcessor<TRequest, TResponse>
         where TRequest : Abstractions.Messaging.ICommand<TResponse>
         where TResponse : class

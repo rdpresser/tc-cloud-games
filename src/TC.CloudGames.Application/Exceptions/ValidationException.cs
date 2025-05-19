@@ -1,5 +1,8 @@
-﻿namespace TC.CloudGames.Application.Exceptions
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TC.CloudGames.Application.Exceptions
 {
+    [ExcludeFromCodeCoverage]
     public sealed class ValidationException : Exception
     {
         public ValidationException(IEnumerable<ValidationError> errors)

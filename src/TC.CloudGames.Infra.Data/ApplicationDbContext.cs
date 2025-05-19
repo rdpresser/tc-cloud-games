@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using Serilog;
+using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Exceptions;
 using TC.CloudGames.Domain.Abstractions;
@@ -15,6 +16,7 @@ using TC.CloudGames.Infra.Data.Helpers;
 
 namespace TC.CloudGames.Infra.Data
 {
+    [ExcludeFromCodeCoverage]
     public sealed class ApplicationDbContext : DbContext, IUnitOfWork, IDisposable, IAsyncDisposable
     {
         private readonly IConnectionStringProvider _connectionStringProvider;

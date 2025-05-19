@@ -1,4 +1,6 @@
-﻿namespace TC.CloudGames.Domain.User
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TC.CloudGames.Domain.User
 {
     public sealed record Password
     {
@@ -14,6 +16,7 @@
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
+        [ExcludeFromCodeCoverage]
         public static Result<Password> CreateMap(string value)
         {
             return new Password(value);
