@@ -1,4 +1,8 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.JsonWebTokens;
+using System.Security.Claims;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Tests
@@ -24,13 +28,8 @@ namespace TC.CloudGames.Api.Tests
         protected override void ConfigureServices(IServiceCollection services)
         {
             // Example: Replace a real service with a mock or test double
-            // services.AddSingleton<IMyService, MyMockService>();
 
             services
-                //.AddFastEndpoints(static dicoveryOptions =>
-                //{
-                //    dicoveryOptions.Assemblies = [typeof(IAppCommandHandler.ICommand<>).Assembly];
-                //})
                 .AddFusionCache()
                 .WithDefaultEntryOptions(options =>
                 {
@@ -38,43 +37,52 @@ namespace TC.CloudGames.Api.Tests
                     options.DistributedCacheDuration = TimeSpan.FromSeconds(30);
                 });
 
-            //services.AddKeyedScoped("ValidUserContextAccessor", (sp, key) =>
-            //services.AddScoped(sp =>
-            //{
-            //    var userId = Guid.NewGuid();
-            //    var claims = new List<Claim>
-            //        {
-            //            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            //            new(JwtRegisteredClaimNames.Email, "john.doe@test.com"),
-            //            new(JwtRegisteredClaimNames.Name, "John Doe"),
-            //            new("role", "User")
-            //        };
+            services.AddKeyedScoped(nameof(ValidUserContextAccessor), (sp, key) =>
+            {
+                return ValidUserContextAccessor(sp);
+            });
 
-            //    var identity = new ClaimsIdentity(claims, "TestAuthType");
-            //    var claimsPrincipal = new ClaimsPrincipal(identity);
+            services.AddKeyedScoped("ValidLoggedUser", (sp, key) =>
+            {
+                return ValidLoggedUser(sp);
+            });
+        }
 
-            //    var httpContextAccessor = new HttpContextAccessor();
-            //    var httpContext = new DefaultHttpContext
-            //    {
-            //        User = claimsPrincipal,
-            //        RequestServices = sp
-            //    };
-            //    httpContextAccessor.HttpContext = httpContext;
+        internal static IUserContext ValidLoggedUser(IServiceProvider sp)
+        {
+            var httpContextAccessor = sp.GetRequiredKeyedService<IHttpContextAccessor>(nameof(ValidUserContextAccessor));
 
-            //    // Ensure the returned IHttpContextAccessor is not null
-            //    return (IHttpContextAccessor)httpContextAccessor ?? throw new InvalidOperationException("HttpContextAccessor cannot be null.");
-            //});
+            // Ensure the IHttpContextAccessor is not null before passing it to UserContext
+            return httpContextAccessor == null
+                ? throw new InvalidOperationException("IHttpContextAccessor cannot be null.")
+                : (IUserContext)new UserContext(httpContextAccessor);
+        }
 
-            //services.AddKeyedScoped("ValidLoggedUser", (sp, key) =>
-            //services.AddScoped(sp =>
-            //{
-            //    var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
+        internal static IHttpContextAccessor ValidUserContextAccessor(IServiceProvider sp)
+        {
+            var userId = Guid.NewGuid();
+            var claims = new List<Claim>
+                    {
+                        new(JwtRegisteredClaimNames.Sub, userId.ToString()),
+                        new(JwtRegisteredClaimNames.Email, "john.doe@test.com"),
+                        new(JwtRegisteredClaimNames.Name, "John Doe"),
+                        new("role", "User")
+                    };
 
-            //    // Ensure the IHttpContextAccessor is not null before passing it to UserContext
-            //    return httpContextAccessor == null
-            //        ? throw new InvalidOperationException("IHttpContextAccessor cannot be null.")
-            //        : (IUserContext)new UserContext(httpContextAccessor);
-            //});
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            var httpContextAccessor = new HttpContextAccessor();
+            var httpContext = new DefaultHttpContext
+            {
+                User = claimsPrincipal,
+                RequestServices = sp
+            };
+            httpContextAccessor.HttpContext = httpContext;
+
+            // Ensure the returned IHttpContextAccessor is not null
+            return (IHttpContextAccessor)httpContextAccessor ??
+                throw new InvalidOperationException("HttpContextAccessor cannot be null.");
         }
 
         // Runs once after all tests in this fixture
