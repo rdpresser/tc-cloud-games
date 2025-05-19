@@ -1,9 +1,4 @@
-﻿using FastEndpoints;
-using System.Net;
-using TC.CloudGames.Api.Abstractions;
-using TC.CloudGames.Application.Abstractions;
-using TC.CloudGames.Application.Middleware;
-using TC.CloudGames.Application.Users.GetUser;
+﻿using TC.CloudGames.Application.Users.GetUserByEmail;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -23,7 +18,7 @@ public sealed class GetUserByEmailEndpoint : ApiEndpoint<GetUserByEmailQuery, Us
         Roles(AppConstants.UserRole, AppConstants.AdminRole);
         PostProcessor<CommandPostProcessor<GetUserByEmailQuery, UserByEmailResponse>>();
 
-        Description(x => x.Produces<UserByEmailResponse>()
+        Description(x => x.Produces<UserByEmailResponse>(200)
             .ProducesProblemDetails()
             .Produces((int)HttpStatusCode.NotFound)
             .Produces((int)HttpStatusCode.Forbidden)

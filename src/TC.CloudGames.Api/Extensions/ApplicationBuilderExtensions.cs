@@ -1,15 +1,11 @@
-﻿using FastEndpoints;
-using FastEndpoints.Swagger;
-using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+﻿using HealthChecks.UI.Client;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
+using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Api.Middleware;
-using TC.CloudGames.Infra.CrossCutting.Commons.Middleware;
-using TC.CloudGames.Infra.Data;
 
 namespace TC.CloudGames.Api.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class ApplicationBuilderExtensions
 {
     // Applies pending migrations to the database

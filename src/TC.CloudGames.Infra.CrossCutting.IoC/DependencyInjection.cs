@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Exceptions;
@@ -17,6 +18,7 @@ using TC.CloudGames.Infra.Data.Repositories.PostgreSql;
 
 namespace TC.CloudGames.Infra.CrossCutting.IoC
 {
+    [ExcludeFromCodeCoverage]
     public static class DependencyInjection
     {
         public static IServiceCollection AddDependencyInjection(this IServiceCollection services)

@@ -1,7 +1,4 @@
-﻿using FluentValidation;
-using TC.CloudGames.Domain.Abstractions;
-
-namespace TC.CloudGames.Domain.User.Abstractions
+﻿namespace TC.CloudGames.Domain.User.Abstractions
 {
     public class UserEntityValidator : BaseValidator<User>
     {

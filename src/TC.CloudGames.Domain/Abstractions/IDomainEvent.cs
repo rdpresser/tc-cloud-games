@@ -4,5 +4,5 @@ namespace TC.CloudGames.Domain.Abstractions;
 
 public interface IDomainEvent : IEvent
 {
-    
+
 }

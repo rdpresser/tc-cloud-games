@@ -1,7 +1,4 @@
-﻿using Ardalis.Result;
-using FluentValidation;
-using FluentValidation.Results;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Domain.Abstractions
 {

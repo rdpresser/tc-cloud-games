@@ -1,15 +1,12 @@
-﻿using Ardalis.Result;
-using FastEndpoints;
-using FluentValidation;
-using FluentValidation.Results;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using TC.CloudGames.Application.Abstractions.Data;
-using TC.CloudGames.Domain.Abstractions;
 using TC.CloudGames.Domain.Exceptions;
 
 namespace TC.CloudGames.Application.Abstractions.Messaging
 {
-    public abstract class CommandHandler<TCommand, TResponse, TEntity, TRepository> : CommandHandler<TCommand, Result<TResponse>>
+    [ExcludeFromCodeCoverage]
+    internal abstract class CommandHandler<TCommand, TResponse, TEntity, TRepository> : CommandHandler<TCommand, Result<TResponse>>
         where TCommand : ICommand<TResponse>
         where TResponse : class
         where TEntity : Entity

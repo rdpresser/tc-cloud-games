@@ -1,9 +1,8 @@
-﻿using Ardalis.Result;
-using FastEndpoints;
-using FluentValidation.Results;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Application.Exceptions
 {
+    [ExcludeFromCodeCoverage]
     public static class ValidationExtensions
     {
         public static void AddValidationErrors<TCommand, TResult>(this IEnumerable<ValidationError> validationErrors, Endpoint<TCommand, TResult> endpoint)

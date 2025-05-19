@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Application.Exceptions;
 
 namespace TC.CloudGames.Api.Middleware
 {
+    [ExcludeFromCodeCoverage]
     public class ExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
@@ -26,7 +27,7 @@ namespace TC.CloudGames.Api.Middleware
 
                 var exceptionDetails = GetExceptionDetails(exception);
 
-                var problemDetails = new ProblemDetails
+                var problemDetails = new Microsoft.AspNetCore.Mvc.ProblemDetails
                 {
                     Status = exceptionDetails.Status,
                     Type = exceptionDetails.Type,

@@ -1,6 +1,4 @@
-﻿using FastEndpoints;
-using TC.CloudGames.Application.Middleware;
-using TC.CloudGames.Application.Users.CreateUser;
+﻿using TC.CloudGames.Application.Users.CreateUser;
 using TC.CloudGames.Domain.User;
 
 namespace TC.CloudGames.Api.Endpoints.Auth

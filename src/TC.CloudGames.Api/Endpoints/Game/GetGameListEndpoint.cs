@@ -1,15 +1,10 @@
 ﻿using Bogus;
-using FastEndpoints;
-using System.Net;
-using TC.CloudGames.Api.Abstractions;
-using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Games.GetGameList;
-using TC.CloudGames.Application.Middleware;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
-namespace TC.CloudGames.Api.Endpoints.Games
+namespace TC.CloudGames.Api.Endpoints.Game
 {
     public sealed class GetGameListEndpoint : ApiEndpoint<GetGameListQuery, IReadOnlyList<GameListResponse>>
     {
@@ -95,10 +90,10 @@ namespace TC.CloudGames.Api.Endpoints.Games
                 GameDetails = new Application.Games.GetGameById.GameDetails
                 {
                     Genre = faker.Commerce.Categories(1)[0],
-                    Platform = [.. faker.PickRandom(Domain.Game.GameDetails.ValidPlatforms, faker.Random.Int(1, Domain.Game.GameDetails.ValidPlatforms.Count))],
+                    Platform = [.. faker.PickRandom(GameDetails.ValidPlatforms, faker.Random.Int(1, GameDetails.ValidPlatforms.Count))],
                     Tags = string.Join(", ", faker.Lorem.Words(5)),
-                    GameMode = faker.PickRandom(Domain.Game.GameDetails.ValidGameModes.ToArray()),
-                    DistributionFormat = faker.PickRandom(Domain.Game.GameDetails.ValidDistributionFormats.ToArray()),
+                    GameMode = faker.PickRandom(GameDetails.ValidGameModes.ToArray()),
+                    DistributionFormat = faker.PickRandom(GameDetails.ValidDistributionFormats.ToArray()),
                     AvailableLanguages = string.Join(", ", faker.Random.ListItems(AvailableLanguagesList, faker.Random.Int(1, AvailableLanguagesList.Length))),
                     SupportsDlcs = faker.Random.Bool()
                 },

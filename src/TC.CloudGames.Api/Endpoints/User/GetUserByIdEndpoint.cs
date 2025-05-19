@@ -1,9 +1,4 @@
-﻿using FastEndpoints;
-using System.Net;
-using TC.CloudGames.Api.Abstractions;
-using TC.CloudGames.Application.Abstractions;
-using TC.CloudGames.Application.Middleware;
-using TC.CloudGames.Application.Users.GetUserById;
+﻿using TC.CloudGames.Application.Users.GetUserById;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -22,7 +17,7 @@ namespace TC.CloudGames.Api.Endpoints.User
             Roles(AppConstants.UserRole, AppConstants.AdminRole);
             PostProcessor<CommandPostProcessor<GetUserByIdQuery, UserByIdResponse>>();
 
-            Description(x => x.Produces<UserByIdResponse>()
+            Description(x => x.Produces<UserByIdResponse>(200)
                 .ProducesProblemDetails()
                 .Produces((int)HttpStatusCode.NotFound)
                 .Produces((int)HttpStatusCode.Forbidden)

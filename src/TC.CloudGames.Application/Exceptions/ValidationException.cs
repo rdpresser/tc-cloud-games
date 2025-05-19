@@ -1,7 +1,8 @@
-﻿using Ardalis.Result;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Application.Exceptions
 {
+    [ExcludeFromCodeCoverage]
     public sealed class ValidationException : Exception
     {
         public ValidationException(IEnumerable<ValidationError> errors)

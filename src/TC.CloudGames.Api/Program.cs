@@ -1,6 +1,3 @@
-using TC.CloudGames.Api.Extensions;
-using TC.CloudGames.Api.Extensions.TC.CloudGames.Api.Extensions;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseCustomSerilog(builder.Configuration);
@@ -28,9 +25,3 @@ if (app.Environment.IsDevelopment())
 }
 
 await app.RunAsync();
-
-// REMARK: Required for functional and integration tests to work.
-namespace TC.CloudGames.Api
-{
-    public partial class Program;
-}

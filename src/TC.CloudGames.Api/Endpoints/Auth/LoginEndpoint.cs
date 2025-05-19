@@ -1,10 +1,6 @@
-﻿using Ardalis.Result;
-using FastEndpoints;
-using System.Net;
-using TC.CloudGames.Application.Middleware;
-using TC.CloudGames.Application.Users.Login;
+﻿using TC.CloudGames.Application.Users.Login;
 
-namespace TC.CloudGames.Api.Endpoints.Login
+namespace TC.CloudGames.Api.Endpoints.Auth
 {
     public sealed class LoginEndpoint : Endpoint<LoginUserCommand, LoginUserResponse>
     {

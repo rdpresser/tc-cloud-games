@@ -1,7 +1,4 @@
-﻿using Ardalis.Result;
-using Ardalis.Result.FluentValidation;
-using FluentValidation;
-using TC.CloudGames.Domain.Abstractions;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Domain.User
 {
@@ -19,6 +16,7 @@ namespace TC.CloudGames.Domain.User
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
+        [ExcludeFromCodeCoverage]
         public static Result<Password> CreateMap(string value)
         {
             return new Password(value);

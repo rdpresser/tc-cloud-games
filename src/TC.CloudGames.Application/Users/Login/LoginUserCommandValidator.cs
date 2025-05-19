@@ -1,7 +1,4 @@
-﻿using FastEndpoints;
-using FluentValidation;
-
-namespace TC.CloudGames.Application.Users.Login
+﻿namespace TC.CloudGames.Application.Users.Login
 {
     public sealed class LoginUserCommandValidator : Validator<LoginUserCommand>
     {

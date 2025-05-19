@@ -1,8 +1,9 @@
-﻿using Ardalis.Result;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace TC.CloudGames.Application.Abstractions.Messaging
 {
-    public abstract class QueryHandler<TQuery, TResponse> : FastEndpoints.CommandHandler<TQuery, Result<TResponse>>
+    [ExcludeFromCodeCoverage]
+    internal abstract class QueryHandler<TQuery, TResponse> : CommandHandler<TQuery, Result<TResponse>>
             where TQuery : IQuery<TResponse>
             where TResponse : class
     {

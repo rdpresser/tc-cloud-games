@@ -1,6 +1,4 @@
-﻿using FluentValidation.Results;
-
-namespace TC.CloudGames.Domain.Abstractions
+﻿namespace TC.CloudGames.Domain.Abstractions
 {
     public interface IBaseValidator<in TEntity>
         where TEntity : class
