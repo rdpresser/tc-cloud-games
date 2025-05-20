@@ -1,6 +1,6 @@
 ﻿namespace TC.CloudGames.Domain.Game
 {
-    public record Playtime
+    public sealed record Playtime
     {
         public int? Hours { get; }
         public int? PlayerCount { get; }
@@ -11,17 +11,45 @@
             PlayerCount = playerCount;
         }
 
-        public static Result<Playtime> Create(int? hours, int? playerCount)
+        public static Result<Playtime> Create(Action<PlaytimeBuilder> configure)
         {
-            var playtime = new Playtime(hours, playerCount);
-            var validator = new PlaytimeValidator().ValidationResult(playtime);
+            var builder = new PlaytimeBuilder();
+            configure(builder);
+            return builder.Build();
+        }
 
-            if (!validator.IsValid)
+        public static Result<Playtime> Create(params Action<PlaytimeBuilder>[] configure)
+        {
+            var builder = new PlaytimeBuilder();
+            foreach (var action in configure)
             {
-                return Result.Invalid(validator.AsErrors());
+                action(builder);
             }
+            return builder.Build();
+        }
 
-            return playtime;
+        public class PlaytimeBuilder
+        {
+            public int? Hours { get; set; }
+            public int? PlayerCount { get; set; }
+
+            public Result<Playtime> Build()
+            {
+                var playtime = new Playtime(Hours, PlayerCount);
+                var validator = new PlaytimeValidator().ValidationResult(playtime);
+
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return playtime;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{Hours} hours, {PlayerCount} players";
         }
     }
 

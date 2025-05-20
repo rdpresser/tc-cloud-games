@@ -12,18 +12,33 @@ namespace TC.CloudGames.Domain.Game
 
         private AgeRating(string value) => Value = value;
 
-        public static Result<AgeRating> Create(string value)
+        /// <summary>
+        /// Builder pattern for GameDetails.
+        /// </summary>
+        public static Result<AgeRating> Create(Action<AgeRatingBuilder> configure)
         {
-            var ageRating = new AgeRating(value);
-            var validator = new AgeRatingValidator()
-                .ValidationResult(ageRating);
+            var builder = new AgeRatingBuilder();
+            configure(builder);
+            return builder.Build();
+        }
 
-            if (!validator.IsValid)
+        public class AgeRatingBuilder
+        {
+            public string Value { get; set; } = string.Empty;
+
+            public Result<AgeRating> Build()
             {
-                return Result.Invalid(validator.AsErrors());
-            }
+                var ageRating = new AgeRating(Value);
+                var validator = new AgeRatingValidator()
+                    .ValidationResult(ageRating);
 
-            return ageRating;
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return ageRating;
+            }
         }
 
         public override string ToString() => Value;

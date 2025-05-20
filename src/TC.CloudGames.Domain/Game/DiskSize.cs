@@ -9,17 +9,32 @@
             SizeInGb = sizeInGb;
         }
 
-        public static Result<DiskSize> Create(decimal sizeInGb)
+        /// <summary>
+        /// Builder pattern for GameDetails.
+        /// </summary>
+        public static Result<DiskSize> Create(Action<DiskSizeBuilder> configure)
         {
-            var diskSize = new DiskSize(sizeInGb);
-            var validator = new DiskSizeValidator().ValidationResult(diskSize);
+            var builder = new DiskSizeBuilder();
+            configure(builder);
+            return builder.Build();
+        }
 
-            if (!validator.IsValid)
+        public class DiskSizeBuilder
+        {
+            public decimal SizeInGb { get; set; }
+
+            public Result<DiskSize> Build()
             {
-                return Result.Invalid(validator.AsErrors());
-            }
+                var diskSize = new DiskSize(SizeInGb);
+                var validator = new DiskSizeValidator().ValidationResult(diskSize);
 
-            return diskSize;
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return diskSize;
+            }
         }
 
         public class DiskSizeValidator : BaseValidator<DiskSize>

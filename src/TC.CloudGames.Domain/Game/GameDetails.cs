@@ -6,7 +6,7 @@ using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Domain.Game
 {
-    public record GameDetails
+    public sealed record GameDetails
     {
         public string? Genre { get; }
 
@@ -76,33 +76,46 @@ namespace TC.CloudGames.Domain.Game
             SupportsDlcs = supportsDlcs;
         }
 
-        public static Result<GameDetails> Create(
-            string? genre,
-            string[] platform,
-            string? tags,
-            string gameMode,
-            string distributionFormat,
-            string? availableLanguages,
-            bool supportsDlcs
-        )
+        /// <summary>
+        /// Builder pattern for GameDetails.
+        /// </summary>
+        public static Result<GameDetails> Create(Action<GameDetailsBuilder> configure)
         {
-            var gameDetails = new GameDetails(
-                genre,
-                JsonSerializer.Serialize(platform),
-                tags,
-                gameMode,
-                distributionFormat,
-                availableLanguages,
-                supportsDlcs
-            );
-            var validator = new GameDetailsValidator().ValidationResult(gameDetails);
+            var builder = new GameDetailsBuilder();
+            configure(builder);
+            return builder.Build();
+        }
 
-            if (!validator.IsValid)
+        public class GameDetailsBuilder
+        {
+            public string? Genre { get; set; }
+            public string[] Platform { get; set; } = [];
+            public string? Tags { get; set; }
+            public string GameMode { get; set; } = string.Empty;
+            public string DistributionFormat { get; set; } = string.Empty;
+            public string? AvailableLanguages { get; set; }
+            public bool SupportsDlcs { get; set; }
+
+            public Result<GameDetails> Build()
             {
-                return Result.Invalid(validator.AsErrors());
-            }
+                var gameDetails = new GameDetails(
+                    Genre,
+                    JsonSerializer.Serialize(Platform),
+                    Tags,
+                    GameMode,
+                    DistributionFormat,
+                    AvailableLanguages,
+                    SupportsDlcs
+                );
 
-            return gameDetails;
+                var validator = new GameDetailsValidator().ValidationResult(gameDetails);
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return gameDetails;
+            }
         }
 
         public override string ToString()

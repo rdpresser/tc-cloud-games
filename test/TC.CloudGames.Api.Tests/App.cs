@@ -3,13 +3,53 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
 using TC.CloudGames.Application.Abstractions;
+using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
+using DomainGame = TC.CloudGames.Domain.Game.Game;
+using DomainGameDetails = TC.CloudGames.Domain.Game.GameDetails;
 
 namespace TC.CloudGames.Api.Tests
 {
     public class App : AppFixture<Program>
     {
+        internal readonly List<string> Genres;
+        internal readonly List<string> Platforms;
+        internal readonly List<string> GameTags;
+        internal readonly List<string> GameModes;
+        internal readonly List<string> DistributionFormats;
+        internal readonly List<string> Languages;
+        internal readonly List<string> GameStatus;
+        internal readonly List<string> AgeRatings;
+
+        public App()
+        {
+            Genres = new List<string> { "Action", "Adventure", "RPG", "Strategy", "Simulation", "Racing", "Sport", "Puzzle",
+            "Fighter", "Platform", "FPS", "TPS", "Survival", "Horror", "Stealth", "Open World", "MMORPG", "Roguelike",
+            "Visual Novel", "Beat 'em up", "Battle Royale", "Musical", "Party Game", "Metroidvania", "Idle/Incremental",
+            "Tower Defense", "MOBA", "Sandbox", "Tycoon" };
+
+            Platforms = [.. DomainGameDetails.ValidPlatforms];
+
+            GameTags = new List<string> { "Indie", "Multiplayer", "Singleplayer", "Co-op", "PvP", "PvE", "Online Co-op",
+            "Local Multiplayer", "Story Rich", "Difficult", "Casual", "Anime", "Pixel Graphics", "Retro", "Funny", "Atmospheric",
+            "Horror", "Sci-fi", "Fantasy", "Cyberpunk", "Steampunk", "Post-apocalyptic", "Choices Matter", "Narration",
+            "Character Customization", "Exploration", "Loot", "Crafting", "Building", "Resource Management", "Base Building",
+            "Turn-Based", "Real Time", "Fast-Paced", "Third Person", "First Person", "Top-Down", "Isometric", "Stylized",
+            "Realistic", "Female Protagonist", "Controller Support", "VR Support", "Moddable", "Replay Value", "Open World",
+            "Procedural Generation", "Sandbox", "Nonlinear", "Mystery", "Psychological", "Dark", "Gore", "Violent" };
+
+            GameModes = [.. DomainGameDetails.ValidGameModes];
+
+            DistributionFormats = [.. DomainGameDetails.ValidDistributionFormats];
+
+            Languages = new List<string> { "PT-BR", "EN-US", "ES-ES", "FR-FR", "ZH-CN", "JA-JP", "RU-RU", "KO-KR" };
+
+            GameStatus = [.. DomainGame.ValidGameStatus];
+
+            AgeRatings = [.. AgeRating.ValidRatings];
+        }
+
         // Runs once before any tests in this fixture
         protected override ValueTask SetupAsync()
         {

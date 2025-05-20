@@ -6,16 +6,17 @@ namespace TC.CloudGames.Application.Games.CreateGame
     {
         public static Result<Game> ToEntity(CreateGameCommand command)
         {
-            var gameResult = Game.Create(
-                name: command.Name,
-                releaseDate: command.ReleaseDate,
-                ageRating: command.AgeRating,
-                description: command.Description,
-                developerInfo: (command.DeveloperInfo.Developer, command.DeveloperInfo.Publisher),
-                diskSize: command.DiskSize,
-                price: command.Price,
-                playtime: command.Playtime != null ? (command.Playtime.Hours, command.Playtime.PlayerCount) : null,
-                gameDetails: (
+            var gameResult = Game.Create(builder =>
+            {
+                builder.Name = command.Name;
+                builder.ReleaseDate = command.ReleaseDate;
+                builder.AgeRating = command.AgeRating;
+                builder.Description = command.Description;
+                builder.DeveloperInfo = (command.DeveloperInfo.Developer, command.DeveloperInfo.Publisher);
+                builder.DiskSize = command.DiskSize;
+                builder.Price = command.Price;
+                builder.Playtime = command.Playtime != null ? (command.Playtime.Hours, command.Playtime.PlayerCount) : null;
+                builder.GameDetails = (
                     genre: command.GameDetails.Genre,
                     platform: command.GameDetails.Platform,
                     tags: command.GameDetails.Tags,
@@ -23,12 +24,12 @@ namespace TC.CloudGames.Application.Games.CreateGame
                     distributionFormat: command.GameDetails.DistributionFormat,
                     availableLanguages: command.GameDetails.AvailableLanguages,
                     supportsDlcs: command.GameDetails.SupportsDlcs
-                ),
-                systemRequirements: (command.SystemRequirements.Minimum, command.SystemRequirements.Recommended),
-                rating: command.Rating,
-                officialLink: command.OfficialLink,
-                gameStatus: command.GameStatus
-            );
+                );
+                builder.SystemRequirements = (command.SystemRequirements.Minimum, command.SystemRequirements.Recommended);
+                builder.Rating = command.Rating;
+                builder.OfficialLink = command.OfficialLink;
+                builder.GameStatus = command.GameStatus;
+            });
 
             return gameResult;
         }

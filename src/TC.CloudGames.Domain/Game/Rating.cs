@@ -9,17 +9,29 @@ namespace TC.CloudGames.Domain.Game
             Average = average;
         }
 
-        public static Result<Rating> Create(decimal? average)
+        public static Result<Rating> Create(Action<RatingBuilder> configure)
         {
-            var rating = new Rating(average);
-            var validator = new RatingValidator().ValidationResult(rating);
+            var builder = new RatingBuilder();
+            configure(builder);
+            return builder.Build();
+        }
 
-            if (!validator.IsValid)
+        public class RatingBuilder
+        {
+            public decimal? Average { get; set; }
+
+            public Result<Rating> Build()
             {
-                return Result.Invalid(validator.AsErrors());
-            }
+                var rating = new Rating(Average);
+                var validator = new RatingValidator().ValidationResult(rating);
 
-            return rating;
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return rating;
+            }
         }
 
         public override string ToString()

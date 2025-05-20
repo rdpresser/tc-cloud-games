@@ -5,19 +5,19 @@ namespace TC.CloudGames.Domain.Game
 {
     public sealed class Game : Entity
     {
-        public string Name { get; private set; }
-        public DateOnly ReleaseDate { get; private set; }
-        public AgeRating AgeRating { get; private set; }
-        public string? Description { get; private set; }
-        public DeveloperInfo DeveloperInfo { get; private set; }
-        public DiskSize DiskSize { get; private set; }
-        public Price Price { get; private set; }
-        public Playtime? Playtime { get; private set; }
-        public GameDetails GameDetails { get; private set; }
-        public SystemRequirements SystemRequirements { get; private set; }
-        public Rating? Rating { get; private set; }
-        public string? OfficialLink { get; private set; }
-        public string? GameStatus { get; private set; }
+        public string Name { get; }
+        public DateOnly ReleaseDate { get; }
+        public AgeRating AgeRating { get; }
+        public string? Description { get; }
+        public DeveloperInfo DeveloperInfo { get; }
+        public DiskSize DiskSize { get; }
+        public Price Price { get; }
+        public Playtime? Playtime { get; }
+        public GameDetails GameDetails { get; }
+        public SystemRequirements SystemRequirements { get; }
+        public Rating? Rating { get; }
+        public string? OfficialLink { get; }
+        public string? GameStatus { get; }
 
         public static readonly IImmutableSet<string> ValidGameStatus = ImmutableHashSet.Create(
             "In Development", "Released", "Discontinued", "Available", "Soon", "Early Access"
@@ -25,7 +25,7 @@ namespace TC.CloudGames.Domain.Game
 
         private Game()
         {
-            //EF Core
+            // EF Core
         }
 
         private Game(
@@ -61,55 +61,90 @@ namespace TC.CloudGames.Domain.Game
             GameStatus = gameStatus;
         }
 
-        public static Result<Game> Create(
-           string name,
-           DateOnly releaseDate,
-           string ageRating,
-           string? description,
-           (string developer, string? publisher) developerInfo,
-           decimal diskSize,
-           decimal price,
-           (int? hours, int? playerCount)? playtime,
-           (string? genre, string[] platform, string? tags, string gameMode, string distributionFormat, string? availableLanguages, bool supportsDlcs) gameDetails,
-           (string minimum, string? recommended) systemRequirements,
-           decimal? rating,
-           string? officialLink,
-           string? gameStatus
-        )
+        // Builder pattern
+        public static Result<Game> Create(Action<GameBuilder> configure)
         {
-            var ageRatingResult = AgeRating.Create(ageRating);
-            var developerInfoResult = DeveloperInfo.Create(developerInfo.developer, developerInfo.publisher);
-            var diskSizeResult = DiskSize.Create(diskSize);
-            var priceResult = Price.Create(price);
-            var playtimeResult = Playtime.Create(!playtime.HasValue || !playtime.Value.hours.HasValue ? default : playtime.Value.hours.Value, !playtime.HasValue || !playtime.Value.playerCount.HasValue ? default : playtime.Value.playerCount.Value);
-            var gameDetailsResult = GameDetails.Create(gameDetails.genre, gameDetails.platform, gameDetails.tags, gameDetails.gameMode, gameDetails.distributionFormat, gameDetails.availableLanguages, gameDetails.supportsDlcs);
-            var systemRequirementsResult = SystemRequirements.Create(systemRequirements.minimum, systemRequirements.recommended);
-            var ratingResult = Rating.Create(rating);
+            var builder = new GameBuilder();
+            configure(builder);
+            return builder.Build();
+        }
 
-            var valueObjectResults = new IResult[]
+        public class GameBuilder
+        {
+            public string Name { get; set; } = string.Empty;
+            public DateOnly ReleaseDate { get; set; }
+            public string AgeRating { get; set; } = string.Empty;
+            public string? Description { get; set; }
+            public (string Developer, string? Publisher) DeveloperInfo { get; set; } = (string.Empty, null);
+            public decimal DiskSize { get; set; }
+            public decimal Price { get; set; }
+            public (int? Hours, int? PlayerCount)? Playtime { get; set; }
+            public (string? Genre, string[] Platform, string? Tags, string GameMode, string DistributionFormat, string? AvailableLanguages, bool SupportsDlcs) GameDetails { get; set; }
+                = (null, [], null, string.Empty, string.Empty, null, false);
+            public (string Minimum, string? Recommended) SystemRequirements { get; set; } = (string.Empty, null);
+            public decimal? Rating { get; set; }
+            public string? OfficialLink { get; set; }
+            public string? GameStatus { get; set; }
+
+            public Result<Game> Build()
             {
-                ageRatingResult,
-                developerInfoResult,
-                diskSizeResult,
-                priceResult,
-                playtimeResult,
-                gameDetailsResult,
-                systemRequirementsResult,
-                ratingResult
-            };
+                // Value object creation
+                var ageRatingResult = Domain.Game.AgeRating.Create(builder => builder.Value = AgeRating);
+                var developerInfoResult = Domain.Game.DeveloperInfo.Create(builder =>
+                {
+                    builder.Developer = DeveloperInfo.Developer;
+                    builder.Publisher = DeveloperInfo.Publisher;
+                });
+                var diskSizeResult = Domain.Game.DiskSize.Create(builder => builder.SizeInGb = DiskSize);
+                var priceResult = Domain.Game.Price.Create(builder => builder.Amount = Price);
+                var playtimeResult = Domain.Game.Playtime.Create(builder =>
+                {
+                    builder.Hours = !Playtime.HasValue || !Playtime.Value.Hours.HasValue ? default : Playtime.Value.Hours.Value;
+                    builder.PlayerCount = !Playtime.HasValue || !Playtime.Value.PlayerCount.HasValue ? default : Playtime.Value.PlayerCount.Value;
+                });
 
-            var errors = CollectValidationErrors(valueObjectResults);
-            if (errors.Count != 0)
-            {
-                return Result.Invalid(errors);
-            }
+                var gameDetailsResult = Domain.Game.GameDetails.Create(builder =>
+                {
+                    builder.Genre = GameDetails.Genre;
+                    builder.Platform = GameDetails.Platform;
+                    builder.Tags = GameDetails.Tags;
+                    builder.GameMode = GameDetails.GameMode;
+                    builder.DistributionFormat = GameDetails.DistributionFormat;
+                    builder.AvailableLanguages = GameDetails.AvailableLanguages;
+                    builder.SupportsDlcs = GameDetails.SupportsDlcs;
+                });
 
-            var game = new Game(
-                    Guid.NewGuid(),
-                    name,
-                    releaseDate,
+                var systemRequirementsResult = Domain.Game.SystemRequirements.Create(builder =>
+                {
+                    builder.Minimum = SystemRequirements.Minimum;
+                    builder.Recommended = SystemRequirements.Recommended;
+                });
+                var ratingResult = Domain.Game.Rating.Create(builder => builder.Average = Rating);
+
+                var valueObjectResults = new IResult[]
+                {
                     ageRatingResult,
-                    description,
+                    developerInfoResult,
+                    diskSizeResult,
+                    priceResult,
+                    playtimeResult,
+                    gameDetailsResult,
+                    systemRequirementsResult,
+                    ratingResult
+                };
+
+                var errors = CollectValidationErrors(valueObjectResults);
+                if (errors.Count != 0)
+                {
+                    return Result.Invalid(errors);
+                }
+
+                var game = new Game(
+                    Guid.NewGuid(),
+                    Name,
+                    ReleaseDate,
+                    ageRatingResult,
+                    Description,
                     developerInfoResult,
                     diskSizeResult,
                     priceResult,
@@ -117,19 +152,19 @@ namespace TC.CloudGames.Domain.Game
                     gameDetailsResult,
                     systemRequirementsResult,
                     ratingResult,
-                    officialLink,
-                    gameStatus
+                    OfficialLink,
+                    GameStatus
                 );
 
-            var validator = new CreateGameValidator().ValidationResult(game);
-            if (!validator.IsValid)
-                return Result.Invalid(validator.AsErrors());
+                var validator = new CreateGameValidator().ValidationResult(game);
+                if (!validator.IsValid)
+                    return Result.Invalid(validator.AsErrors());
 
-            /*
-             * RaiseDomainEvent - Send onboarding email to the new user
-             */
-
-            return game;
+                /*
+                 * RaiseDomainEvent - Send onboarding email to the new user
+                 */
+                return game;
+            }
         }
     }
 }
