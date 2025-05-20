@@ -102,7 +102,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.User
 
 
         [Fact]
-        public async Task GetUserByEmail_ValidEmail_ReturnsUnAuthorized()
+        public async Task GetUserByEmail_ValidEmail_ReturnsUnauthorized()
         {
             // Arrange
             var httpContext = App.GetValidUserContextAccessor(AppConstants.UserRole);
@@ -151,7 +151,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.User
         }
 
         [Fact]
-        public async Task GetUserByEmail_ValidEmail_ReturnsForbiden()
+        public async Task GetUserByEmail_ValidEmail_ReturnsForbidden()
         {
             // Arrange
             var httpContext = App.GetValidUserContextAccessor(AppConstants.UnknownRole);
