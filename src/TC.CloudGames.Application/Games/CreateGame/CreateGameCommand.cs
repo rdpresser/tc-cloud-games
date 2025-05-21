@@ -22,40 +22,40 @@
             configure(builder);
             return builder.Build();
         }
-    }
 
-    public class CreateGameCommandBuilder
-    {
-        public string Name { get; set; } = string.Empty;
-        public DateOnly ReleaseDate { get; set; }
-        public string AgeRating { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public DeveloperInfo DeveloperInfo { get; set; } = new("", null);
-        public decimal DiskSize { get; set; }
-        public decimal Price { get; set; }
-        public Playtime Playtime { get; set; } = new(null, null);
-        public GameDetails GameDetails { get; set; } = new(null, [], null, "", "", null, false);
-        public SystemRequirements SystemRequirements { get; set; } = new("", null);
-        public decimal? Rating { get; set; }
-        public string? OfficialLink { get; set; }
-        public string? GameStatus { get; set; }
+        public class CreateGameCommandBuilder
+        {
+            public string Name { get; set; } = string.Empty;
+            public DateOnly ReleaseDate { get; set; }
+            public string AgeRating { get; set; } = string.Empty;
+            public string? Description { get; set; }
+            public DeveloperInfo DeveloperInfo { get; set; } = new("", null);
+            public decimal DiskSize { get; set; }
+            public decimal Price { get; set; }
+            public Playtime Playtime { get; set; } = new(null, null);
+            public GameDetails GameDetails { get; set; } = new(null, [], null, "", "", null, false);
+            public SystemRequirements SystemRequirements { get; set; } = new("", null);
+            public decimal? Rating { get; set; }
+            public string? OfficialLink { get; set; }
+            public string? GameStatus { get; set; }
 
-        public CreateGameCommand Build() =>
-            new(
-                Name,
-                ReleaseDate,
-                AgeRating,
-                Description,
-                DeveloperInfo,
-                DiskSize,
-                Price,
-                Playtime,
-                GameDetails,
-                SystemRequirements,
-                Rating,
-                OfficialLink,
-                GameStatus
-            );
+            public CreateGameCommand Build() =>
+                new(
+                    Name,
+                    ReleaseDate,
+                    AgeRating,
+                    Description,
+                    DeveloperInfo,
+                    DiskSize,
+                    Price,
+                    Playtime,
+                    GameDetails,
+                    SystemRequirements,
+                    Rating,
+                    OfficialLink,
+                    GameStatus
+                );
+        }
     }
 
     public sealed record DeveloperInfo(string Developer, string? Publisher);

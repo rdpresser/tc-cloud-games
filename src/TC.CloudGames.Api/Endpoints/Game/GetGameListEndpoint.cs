@@ -75,33 +75,29 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 ReleaseDate = DateOnly.FromDateTime(faker.Date.Past()),
                 AgeRating = faker.PickRandom(AgeRating.ValidRatings.ToArray()),
                 Description = faker.Lorem.Paragraph(),
-                DeveloperInfo = new Application.Games.GetGameById.DeveloperInfo
-                {
-                    Developer = faker.Company.CompanyName(),
-                    Publisher = faker.Company.CompanyName()
-                },
+                DeveloperInfo = new(
+                    developer: faker.Company.CompanyName(),
+                    publisher: faker.Company.CompanyName()
+                ),
                 DiskSize = faker.Random.Int(1, 150),
                 Price = decimal.Parse(faker.Commerce.Price(1.0m, 100.0m, 2)),
-                Playtime = new Application.Games.GetGameById.Playtime
-                {
-                    Hours = faker.Random.Int(1, 100),
-                    PlayerCount = faker.Random.Int(1, 2000)
-                },
-                GameDetails = new Application.Games.GetGameById.GameDetails
-                {
-                    Genre = faker.Commerce.Categories(1)[0],
-                    Platform = [.. faker.PickRandom(GameDetails.ValidPlatforms, faker.Random.Int(1, GameDetails.ValidPlatforms.Count))],
-                    Tags = string.Join(", ", faker.Lorem.Words(5)),
-                    GameMode = faker.PickRandom(GameDetails.ValidGameModes.ToArray()),
-                    DistributionFormat = faker.PickRandom(GameDetails.ValidDistributionFormats.ToArray()),
-                    AvailableLanguages = string.Join(", ", faker.Random.ListItems(AvailableLanguagesList, faker.Random.Int(1, AvailableLanguagesList.Length))),
-                    SupportsDlcs = faker.Random.Bool()
-                },
-                SystemRequirements = new Application.Games.GetGameById.SystemRequirements
-                {
-                    Minimum = faker.Lorem.Sentence(),
-                    Recommended = faker.Lorem.Sentence()
-                },
+                Playtime = new(
+                    hours: faker.Random.Int(1, 100),
+                    playerCount: faker.Random.Int(1, 2000)
+                ),
+                GameDetails = new(
+                    genre: faker.Commerce.Categories(1)[0],
+                    platform: [.. faker.PickRandom(GameDetails.ValidPlatforms, faker.Random.Int(1, GameDetails.ValidPlatforms.Count))],
+                    tags: string.Join(", ", faker.Lorem.Words(5)),
+                    gameMode: faker.PickRandom(GameDetails.ValidGameModes.ToArray()),
+                    distributionFormat: faker.PickRandom(GameDetails.ValidDistributionFormats.ToArray()),
+                    availableLanguages: string.Join(", ", faker.Random.ListItems(AvailableLanguagesList, faker.Random.Int(1, AvailableLanguagesList.Length))),
+                    supportsDlcs: faker.Random.Bool()
+                ),
+                SystemRequirements = new(
+                    minimum: faker.Lorem.Sentence(),
+                    recommended: faker.Lorem.Sentence()
+                ),
                 Rating = Math.Round(faker.Random.Decimal(1, 10), 2),
                 OfficialLink = faker.Internet.Url(),
                 GameStatus = faker.PickRandom(Domain.Game.Game.ValidGameStatus.ToArray())
