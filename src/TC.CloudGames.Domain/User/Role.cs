@@ -12,17 +12,29 @@ namespace TC.CloudGames.Domain.User
 
         private Role(string value) => Value = value;
 
-        public static Result<Role> Create(string value)
+        public static Result<Role> Create(Action<RoleBuilder> configure)
         {
-            var role = new Role(value);
-            var validator = new RoleValidator().ValidationResult(role);
+            var builder = new RoleBuilder();
+            configure(builder);
+            return builder.Build();
+        }
 
-            if (!validator.IsValid)
+        public class RoleBuilder
+        {
+            public string Value { get; set; } = string.Empty;
+
+            public Result<Role> Build()
             {
-                return Result.Invalid(validator.AsErrors());
-            }
+                var role = new Role(Value);
+                var validator = new RoleValidator().ValidationResult(role);
 
-            return role;
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return role;
+            }
         }
 
         public override string ToString() => Value;

@@ -26,16 +26,16 @@ public sealed class User : Entity
 
     public static async Task<Result<User>> CreateAsync(string firstName, string lastName, string email, string password, string role, IUserEfRepository userEfRepository)
     {
-        var emailResult = await Email.Create(email, userEfRepository);
-        var passwordResult = Password.Create(password);
-        var roleResult = Role.Create(role);
+        var emailResult = await Email.CreateAsync(builder => builder.Value = email, userEfRepository).ConfigureAwait(false);
+        var passwordResult = Password.Create(builder => builder.Value = password);
+        var roleResult = Role.Create(builder => builder.Value = role);
 
         var valueObjectResults = new IResult[]
-            {
-                emailResult,
-                passwordResult,
-                roleResult
-            };
+        {
+            emailResult,
+            passwordResult,
+            roleResult
+        };
 
         var errors = CollectValidationErrors(valueObjectResults);
         if (errors.Count != 0)

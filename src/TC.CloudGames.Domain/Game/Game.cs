@@ -69,6 +69,59 @@ namespace TC.CloudGames.Domain.Game
             return builder.Build();
         }
 
+        public static Result<Game> CreateFromValueObjects(Action<GameBuilderFromValueObjects> configure)
+        {
+            var builder = new GameBuilderFromValueObjects();
+            configure(builder);
+            return builder.Build();
+        }
+
+        public class GameBuilderFromValueObjects
+        {
+            public string Name { get; set; } = string.Empty;
+            public DateOnly ReleaseDate { get; set; }
+            public AgeRating AgeRating { get; set; }
+            public string? Description { get; set; }
+            public DeveloperInfo DeveloperInfo { get; set; }
+            public DiskSize DiskSize { get; set; }
+            public Price Price { get; set; }
+            public Playtime? Playtime { get; set; }
+            public GameDetails GameDetails { get; set; }
+            public SystemRequirements SystemRequirements { get; set; }
+            public Rating? Rating { get; set; }
+            public string? OfficialLink { get; set; }
+            public string? GameStatus { get; set; }
+
+            public Result<Game> Build()
+            {
+                var game = new Game(
+                    Guid.NewGuid(),
+                    Name,
+                    ReleaseDate,
+                    AgeRating,
+                    Description,
+                    DeveloperInfo,
+                    DiskSize,
+                    Price,
+                    Playtime,
+                    GameDetails,
+                    SystemRequirements,
+                    Rating,
+                    OfficialLink,
+                    GameStatus
+                );
+
+                var validator = new CreateGameValidator().ValidationResult(game);
+                if (!validator.IsValid)
+                    return Result.Invalid(validator.AsErrors());
+
+                /*
+                 * RaiseDomainEvent - Send onboarding email to the new user
+                 */
+                return game;
+            }
+        }
+
         public class GameBuilder
         {
             public string Name { get; set; } = string.Empty;
@@ -158,7 +211,9 @@ namespace TC.CloudGames.Domain.Game
 
                 var validator = new CreateGameValidator().ValidationResult(game);
                 if (!validator.IsValid)
+                {
                     return Result.Invalid(validator.AsErrors());
+                }
 
                 /*
                  * RaiseDomainEvent - Send onboarding email to the new user

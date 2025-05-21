@@ -1,6 +1,6 @@
 ﻿namespace TC.CloudGames.Domain.Game
 {
-    public record Price
+    public sealed record Price
     {
         public decimal Amount { get; }
 

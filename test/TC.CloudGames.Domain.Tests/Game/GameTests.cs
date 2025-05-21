@@ -294,6 +294,65 @@ public class GameTests
     }
 
     [Fact]
+    public void Create_Game_Using_Builder_Should_Return_Success_When_All_Fields_Are_Valid()
+    {
+        // Arrange
+        var name = _faker.Commerce.ProductName();
+        var releaseDate = DateOnly.FromDateTime(DateTime.Now);
+        var ageRating = AgeRating.Create(builder => builder.Value = _faker.PickRandom(_ageRatings.ToArray()));
+        var description = _faker.Lorem.Paragraph();
+        var developerInfo = DeveloperInfo.Create(builder =>
+        {
+            builder.Developer = _faker.Company.CompanyName();
+            builder.Publisher = _faker.Company.CompanyName();
+        });
+        var diskSize = DiskSize.Create(builder => builder.SizeInGb = _faker.Random.Decimal(1, 100));
+        var price = Price.Create(builder => builder.Amount = _faker.Random.Decimal(10, 300));
+        var playtime = Playtime.Create(builder =>
+        {
+            builder.Hours = _faker.Random.Int(1, 10);
+            builder.PlayerCount = _faker.Random.Int(10, 100);
+        });
+
+        // Act
+        var result = DomainGame.CreateFromValueObjects(builder =>
+        {
+            builder.Name = name;
+            builder.ReleaseDate = releaseDate;
+            builder.AgeRating = ageRating;
+            builder.Description = description;
+            builder.DeveloperInfo = developerInfo;
+            builder.DiskSize = diskSize;
+            builder.Price = price;
+            builder.Playtime = playtime;
+            builder.GameDetails = DomainGameDetails.Create(builder =>
+            {
+                builder.Genre = _faker.PickRandom(_genres);
+                builder.Platform = _faker.PickRandom(_platforms, 3).ToArray();
+                builder.Tags = _faker.PickRandom(_gameTags);
+                builder.GameMode = _faker.PickRandom(_gameModes);
+                builder.DistributionFormat = _faker.PickRandom(_distributionFormats);
+                builder.AvailableLanguages = _faker.PickRandom(_languages);
+                builder.SupportsDlcs = true;
+            });
+            builder.SystemRequirements = SystemRequirements.Create(builder =>
+            {
+                builder.Minimum = _faker.Lorem.Paragraph();
+                builder.Recommended = _faker.Lorem.Paragraph();
+            });
+            builder.Rating = Rating.Create(builder => builder.Average = null);
+            builder.OfficialLink = _faker.Internet.Url();
+            builder.GameStatus = _faker.PickRandom(_gameStatus);
+        });
+
+        // Assert
+        result.Status.ShouldBe(ResultStatus.Ok);
+        result.Value.ShouldNotBeNull();
+        result.Value.Name.ShouldBe(name);
+        result.Value.ReleaseDate.ShouldBe(releaseDate);
+    }
+
+    [Fact]
     public void Create_Game_Should_Return_Success_When_All_Fields_Are_Valid()
     {
         // Arrange

@@ -11,6 +11,31 @@ namespace TC.CloudGames.Domain.User
             Value = value;
         }
 
+        public static Result<Password> Create(Action<PasswordBuilder> configure)
+        {
+            var builder = new PasswordBuilder();
+            configure(builder);
+            return builder.Build();
+        }
+
+        public class PasswordBuilder
+        {
+            public string Value { get; set; } = string.Empty;
+
+            public Result<Password> Build()
+            {
+                var password = new Password(Value);
+                var validator = new PasswordValidator().ValidationResult(password);
+
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return password;
+            }
+        }
+
         /// <summary>
         /// Used when the password is already hashed. Never use this method to create a password, only when retrieve from database
         /// </summary>
@@ -20,19 +45,6 @@ namespace TC.CloudGames.Domain.User
         public static Result<Password> CreateMap(string value)
         {
             return new Password(value);
-        }
-
-        public static Result<Password> Create(string value)
-        {
-            var password = new Password(value);
-            var validator = new PasswordValidator().ValidationResult(password);
-
-            if (!validator.IsValid)
-            {
-                return Result.Invalid(validator.AsErrors());
-            }
-
-            return password;
         }
 
         public override string ToString() => Value;
