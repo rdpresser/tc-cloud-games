@@ -10,7 +10,7 @@
         }
 
         /// <summary>
-        /// Builder pattern for GameDetails.
+        /// Builder pattern for creating and validating DiskSize objects.
         /// </summary>
         public static Result<DiskSize> Create(Action<DiskSizeBuilder> configure)
         {

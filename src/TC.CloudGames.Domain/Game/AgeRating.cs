@@ -13,7 +13,7 @@ namespace TC.CloudGames.Domain.Game
         private AgeRating(string value) => Value = value;
 
         /// <summary>
-        /// Builder pattern for GameDetails.
+        /// Builder pattern for AgeRating.
         /// </summary>
         public static Result<AgeRating> Create(Action<AgeRatingBuilder> configure)
         {
