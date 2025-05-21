@@ -1,6 +1,6 @@
 ﻿namespace TC.CloudGames.Domain.Game
 {
-    public record Price
+    public sealed record Price
     {
         public decimal Amount { get; }
 
@@ -9,17 +9,34 @@
             Amount = amount;
         }
 
-        public static Result<Price> Create(decimal amount)
+        public static Result<Price> Create(Action<PriceBuilder> configure)
         {
-            var price = new Price(amount);
-            var validator = new PriceValidator().ValidationResult(price);
+            var builder = new PriceBuilder();
+            configure(builder);
+            return builder.Build();
+        }
 
-            if (!validator.IsValid)
+        public class PriceBuilder
+        {
+            public decimal Amount { get; set; }
+
+            public Result<Price> Build()
             {
-                return Result.Invalid(validator.AsErrors());
-            }
+                var price = new Price(Amount);
+                var validator = new PriceValidator().ValidationResult(price);
 
-            return price;
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return price;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{Amount:C}";
         }
     }
 

@@ -6,6 +6,16 @@ namespace TC.CloudGames.Infra.Data.Configurations
 {
     internal sealed class GameConfiguration : Configuration<Game>
     {
+        private static AgeRating ConvertAgeRatingFromDatabase(string value)
+        {
+            return AgeRating.Create(builder => builder.Value = value);
+        }
+
+        private static Rating ConvertRatingFromDatabase(decimal value)
+        {
+            return Rating.Create(builder => builder.Average = value);
+        }
+
         public override void Configure(EntityTypeBuilder<Game> builder)
         {
             base.Configure(builder);
@@ -27,14 +37,14 @@ namespace TC.CloudGames.Infra.Data.Configurations
                 .HasMaxLength(10)
                 .HasConversion(
                     ageRating => ageRating.Value,
-                    value => AgeRating.Create(value)
+                    value => ConvertAgeRatingFromDatabase(value)
                 );
 
             builder.Property(g => g.Rating)
                 .IsRequired(false)
                 .HasConversion(
                     rating => rating == null || !rating.Average.HasValue ? 0 : rating.Average.Value,
-                    value => Rating.Create(value)
+                    value => ConvertRatingFromDatabase(value)
                 );
 
             builder.OwnsOne(x => x.DeveloperInfo, developerInfo =>

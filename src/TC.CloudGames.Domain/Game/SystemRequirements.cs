@@ -11,18 +11,36 @@
             Recommended = recommended;
         }
 
-        public static Result<SystemRequirements> Create(string minimum, string? recommended)
+        public static Result<SystemRequirements> Create(Action<SystemRequirementsBuilder> configure)
         {
-            var systemRequirements = new SystemRequirements(minimum, recommended);
-            var validator = new SystemRequirementsValidator()
-                .ValidationResult(systemRequirements);
+            var builder = new SystemRequirementsBuilder();
+            configure(builder);
+            return builder.Build();
+        }
 
-            if (!validator.IsValid)
+        public class SystemRequirementsBuilder
+        {
+            public string Minimum { get; set; } = string.Empty;
+            public string? Recommended { get; set; }
+
+            public Result<SystemRequirements> Build()
             {
-                return Result.Invalid(validator.AsErrors());
-            }
+                var systemRequirements = new SystemRequirements(Minimum, Recommended);
+                var validator = new SystemRequirementsValidator()
+                    .ValidationResult(systemRequirements);
 
-            return systemRequirements;
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return systemRequirements;
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.IsNullOrWhiteSpace(Recommended) ? Minimum : $"{Minimum} (Recommended: {Recommended})";
         }
     }
 

@@ -66,25 +66,24 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow),
                 AgeRating = Domain.Game.AgeRating.ValidRatings.First(),
                 Description = "Game Description",
-                DeveloperInfo = new DeveloperInfo { Developer = "Developer Name", Publisher = "Publisher Name" },
+                DeveloperInfo = new(developer: "Developer Name", publisher: "Publisher Name"),
                 DiskSize = 50.0m,
                 Price = 59.99m,
-                Playtime = new Playtime { Hours = 10, PlayerCount = 1 },
-                GameDetails = new GameDetails
-                {
-                    Genre = "Genre",
-                    Platform = [.. Domain.Game.GameDetails.ValidPlatforms],
-                    Tags = "Tags",
-                    GameMode = Domain.Game.GameDetails.ValidGameModes.First(),
-                    DistributionFormat = Domain.Game.GameDetails.ValidDistributionFormats.First(),
-                    AvailableLanguages = "Available Languages",
-                    SupportsDlcs = true
-                },
-                SystemRequirements = new SystemRequirements
-                {
-                    Minimum = "Minimum Requirements",
-                    Recommended = "Recommended Requirements"
-                },
+                Playtime = new(10, 1),
+                GameDetails = new(
+                    genre: "Genre",
+                    platform: [.. Domain.Game.GameDetails.ValidPlatforms],
+                    tags: "Tags",
+                    gameMode: Domain.Game.GameDetails.ValidGameModes.First(),
+                    distributionFormat: Domain.Game.GameDetails.ValidDistributionFormats.First(),
+                    availableLanguages: "Available Languages",
+                    supportsDlcs: true
+                ),
+                SystemRequirements = new
+                (
+                    minimum: "Minimum Requirements",
+                    recommended: "Recommended Requirements"
+                ),
                 Rating = 4.5m,
                 OfficialLink = "https://example.com",
                 GameStatus = Domain.Game.Game.ValidGameStatus.First()

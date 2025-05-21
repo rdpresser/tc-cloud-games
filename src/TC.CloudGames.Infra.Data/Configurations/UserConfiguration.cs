@@ -9,6 +9,11 @@ internal sealed class UserConfiguration : Configuration<User>
 {
     private readonly IPasswordHasher _passwordHasher;
 
+    private static Role ConvertRoleFromDatabase(string value)
+    {
+        return Role.Create(builder => builder.Value = value);
+    }
+
     public UserConfiguration(IPasswordHasher passwordHasher)
     {
         _passwordHasher = passwordHasher;
@@ -48,7 +53,7 @@ internal sealed class UserConfiguration : Configuration<User>
             .HasMaxLength(20)
             .HasConversion(
                 role => role.ToString(),
-                value => Role.Create(value)
+                value => ConvertRoleFromDatabase(value)
             );
 
         builder.HasIndex(u => u.Email)

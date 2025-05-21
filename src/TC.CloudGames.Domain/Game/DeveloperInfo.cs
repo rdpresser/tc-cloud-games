@@ -11,18 +11,35 @@
             Publisher = publisher;
         }
 
-        public static Result<DeveloperInfo> Create(string developer, string? publisher)
+        public static Result<DeveloperInfo> Create(Action<DeveloperInfoBuilder> configure)
         {
-            var developerInfo = new DeveloperInfo(developer, publisher);
-            var validator = new DeveloperInfoValidator()
-                .ValidationResult(developerInfo);
+            var builder = new DeveloperInfoBuilder();
+            configure(builder);
+            return builder.Build();
+        }
 
-            if (!validator.IsValid)
+        public class DeveloperInfoBuilder
+        {
+            public string Developer { get; set; } = string.Empty;
+            public string? Publisher { get; set; }
+
+            public Result<DeveloperInfo> Build()
             {
-                return Result.Invalid(validator.AsErrors());
-            }
+                var developerInfo = new DeveloperInfo(Developer, Publisher);
 
-            return developerInfo;
+                var validator = new DeveloperInfoValidator().ValidationResult(developerInfo);
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return developerInfo;
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.IsNullOrWhiteSpace(Publisher) ? Developer : $"{Developer} - {Publisher}";
         }
     }
 

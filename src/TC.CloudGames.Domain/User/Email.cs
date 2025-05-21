@@ -12,18 +12,30 @@ namespace TC.CloudGames.Domain.User
             Value = value;
         }
 
-        public static async Task<Result<Email>> Create(string value, IUserEfRepository userEfRepository)
+        public static async Task<Result<Email>> CreateAsync(Action<EmailBuilder> configure, IUserEfRepository userEfRepository)
         {
-            var email = new Email(value);
-            var validator = await new EmailValidator(userEfRepository)
-                .ValidationResultAsync(email);
+            var builder = new EmailBuilder();
+            configure(builder);
+            return await builder.Build(userEfRepository).ConfigureAwait(false);
+        }
 
-            if (!validator.IsValid)
+        public class EmailBuilder
+        {
+            public string Value { get; set; } = string.Empty;
+
+            public async Task<Result<Email>> Build(IUserEfRepository userEfRepository)
             {
-                return Result.Invalid(validator.AsErrors());
-            }
+                var email = new Email(Value);
+                var validator = await new EmailValidator(userEfRepository)
+                    .ValidationResultAsync(email);
 
-            return email;
+                if (!validator.IsValid)
+                {
+                    return Result.Invalid(validator.AsErrors());
+                }
+
+                return email;
+            }
         }
 
         /// <summary>

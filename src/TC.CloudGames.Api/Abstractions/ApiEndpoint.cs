@@ -1,9 +1,11 @@
-﻿using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
+﻿using System.Diagnostics.CodeAnalysis;
+using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace TC.CloudGames.Api.Abstractions
 {
+    [ExcludeFromCodeCoverage]
     public abstract class ApiEndpoint<TRequest, TResponse> : Endpoint<TRequest, TResponse>
         where TRequest : notnull
     {
