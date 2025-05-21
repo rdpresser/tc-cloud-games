@@ -55,7 +55,7 @@
                     .WithErrorCode($"{nameof(Price)}.Required")
                     .OverridePropertyName(nameof(Price))
                 .GreaterThanOrEqualTo(0)
-                    .WithMessage("Price must be greater than or equal to 0.")
+                    .WithMessage("Price amount must be greater than or equal to 0.")
                     .WithErrorCode($"{nameof(Price)}.GreaterThanOrEqualToZero")
                     .OverridePropertyName(nameof(Price));
         }

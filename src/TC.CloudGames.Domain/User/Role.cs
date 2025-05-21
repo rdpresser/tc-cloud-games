@@ -57,6 +57,10 @@ namespace TC.CloudGames.Domain.User
                 .Must(role => Role.ValidRoles.Contains(role))
                     .WithMessage($"Invalid role specified. Valid roles are: {Role.ValidRoles.JoinWithQuotes()}.")
                     .WithErrorCode($"{nameof(Role)}.InvalidRole")
+                    .OverridePropertyName(nameof(Role))
+                .MaximumLength(20)
+                    .WithMessage("Role cannot exceed 20 characters.")
+                    .WithErrorCode($"{nameof(Role)}.MaximumLength")
                     .OverridePropertyName(nameof(Role));
         }
     }

@@ -14,7 +14,7 @@
             ValidatePlaytime();
             ValidateGameDetails();
             ValidateSystemRequirements();
-            ValidateRating();
+            //ValidateRating();
             ValidateGameStatus();
             ValidateOfficialLink();
         }

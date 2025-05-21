@@ -52,7 +52,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
         {
             RuleFor(x => x.AgeRating)
                 .NotEmpty()
-                    .WithMessage("Age rating is required.")
+                    .WithMessage("Age rating object is required.")
                     .WithErrorCode($"{nameof(Game.AgeRating)}.Required")
                 .DependentRules(() =>
                 {
@@ -61,11 +61,11 @@ namespace TC.CloudGames.Application.Games.CreateGame
                             .WithMessage("Age rating value is required.")
                             .WithErrorCode($"{nameof(Game.AgeRating)}.Required")
                         .MaximumLength(10)
-                            .WithMessage("Age rating cannot exceed 10 characters.")
+                            .WithMessage("Age rating value cannot exceed 10 characters.")
                             .WithErrorCode($"{nameof(Game.AgeRating)}.MaximumLength");
                 })
                 .Must(rating => AgeRating.ValidRatings.Contains(rating))
-                    .WithMessage($"Invalid age rating specified. Valid age rating are: {AgeRating.ValidRatings.JoinWithQuotes()}.")
+                    .WithMessage($"Invalid age rating value specified. Valid age rating are: {AgeRating.ValidRatings.JoinWithQuotes()}.")
                     .WithErrorCode($"{nameof(Game.AgeRating)}.ValidRating");
         }
 
@@ -81,7 +81,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
         {
             RuleFor(x => x.DeveloperInfo)
                 .NotNull()
-                    .WithMessage("Developer information is required.")
+                    .WithMessage("Developer information object is required.")
                     .WithErrorCode($"{nameof(Game.DeveloperInfo)}.Required")
                 .DependentRules(() =>
                 {
@@ -107,13 +107,13 @@ namespace TC.CloudGames.Application.Games.CreateGame
         {
             RuleFor(x => x.DiskSize)
                 .NotNull()
-                    .WithMessage("Disk size is required.")
+                    .WithMessage("Disk size object is required.")
                     .WithErrorCode($"{nameof(Game.DiskSize)}.Required")
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.DiskSize)
                         .GreaterThan(0)
-                            .WithMessage("Disk size must be greater than 0.")
+                            .WithMessage("Disk size value must be greater than 0.")
                             .WithErrorCode($"{nameof(Game.DiskSize)}.GreaterThanZero");
                 });
         }
@@ -122,13 +122,13 @@ namespace TC.CloudGames.Application.Games.CreateGame
         {
             RuleFor(x => x.Price)
                 .NotNull()
-                    .WithMessage("Price amount is required.")
+                    .WithMessage("Price object is required.")
                     .WithErrorCode($"{nameof(Game.Price)}.Required")
                 .DependentRules(() =>
                 {
                     RuleFor(x => x.Price)
                         .GreaterThanOrEqualTo(0)
-                            .WithMessage("Price must be greater than or equal to 0.")
+                            .WithMessage("Price amount must be greater than or equal to 0.")
                             .WithErrorCode($"{nameof(Game.Price)}.GreaterThanOrEqualToZero");
                 });
         }
@@ -137,7 +137,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
         {
             RuleFor(x => x.Playtime)
                 .Must(playtime => playtime == null || playtime.Hours != null || playtime.PlayerCount != null)
-                    .WithMessage("At least one of Playtime Hours or Player Count must be provided.")
+                    .WithMessage("At least one of Playtime Hours or Player Count must be provided for Playtime object.")
                     .WithErrorCode($"{nameof(Game.Playtime)}.Required")
                 .DependentRules(() =>
                 {
@@ -163,7 +163,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
         {
             RuleFor(x => x.GameDetails)
                 .NotNull()
-                    .WithMessage("Game details are required.")
+                    .WithMessage("Game details object are required.")
                     .WithErrorCode($"{nameof(Game.GameDetails)}.Required")
                 .DependentRules(() =>
                 {
@@ -238,7 +238,7 @@ namespace TC.CloudGames.Application.Games.CreateGame
         {
             RuleFor(x => x.SystemRequirements)
                 .NotNull()
-                    .WithMessage("System requirements are required.")
+                    .WithMessage("System requirements object are required.")
                     .WithErrorCode($"{nameof(Game.SystemRequirements)}.Required")
                 .DependentRules(() =>
                 {
@@ -258,10 +258,10 @@ namespace TC.CloudGames.Application.Games.CreateGame
             {
                 RuleFor(x => x.Rating!)
                     .GreaterThanOrEqualTo(0)
-                        .WithMessage("Rating must be greater than or equal to 0.")
+                        .WithMessage("Rating value must be greater than or equal to 0.")
                         .WithErrorCode($"{nameof(Game.Rating)}.GreaterThanOrEqualToZero")
                     .LessThanOrEqualTo(10)
-                        .WithMessage("Rating must be less than or equal to 10.")
+                        .WithMessage("Rating value must be less than or equal to 10.")
                         .WithErrorCode($"{nameof(Game.Rating)}.LessThanOrEqualToTen");
             });
         }

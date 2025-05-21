@@ -40,12 +40,54 @@ public abstract class Entity
         _domainEvents.Add(domainEvent);
     }
 
+    // Helper to ensure Result<T> is always non-null, even if the object is null
+    protected static Result<T> EnsureResult<T>(T? result, string valueObjectName) where T : class
+    {
+        if (result is not null)
+        {
+            return Result<T>.Success(result);
+        }
+
+        return Result<T>.Invalid(new ValidationError(
+                identifier: valueObjectName,
+                errorMessage: $"Value object '{valueObjectName}' creation failed.",
+                errorCode: "ValueObjectCreation.Error",
+                severity: ValidationSeverity.Error));
+    }
+
+    // Helper to ensure Result<T> is always non-null, even if the object is null
+    protected static Result<T> EnsureResult<T>(Result<T>? result, string valueObjectName) where T : class
+    {
+        if (result is not null)
+        {
+            return result;
+        }
+
+        return Result<T>.Invalid(new ValidationError(
+                identifier: valueObjectName,
+                errorMessage: $"Value object '{valueObjectName}' creation failed.",
+                errorCode: "ValueObjectCreation.Error",
+                severity: ValidationSeverity.Error));
+    }
+
     // Helper method to process value object creation results and collect errors
     protected static List<ValidationError> CollectValidationErrors(IEnumerable<IResult> results)
     {
         var errors = new List<ValidationError>();
         foreach (var result in results)
         {
+            if (result == null)
+            {
+                var name = result?.GetType().Name ?? "Unknown";
+                errors.Add(new ValidationError(
+                    identifier: name,
+                    errorMessage: $"Value object '{name}' creation failed.",
+                    errorCode: "ValueObjectCreation.Error",
+                    severity: ValidationSeverity.Error));
+
+                continue;
+            }
+
             if (result.IsOk() || !result.ValidationErrors.Any())
             {
                 continue;

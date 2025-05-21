@@ -48,11 +48,11 @@
             {
                 RuleFor(x => x.SizeInGb)
                     .NotEmpty()
-                        .WithMessage("Disk size is required.")
+                        .WithMessage("Disk size value is required.")
                         .WithErrorCode($"{nameof(DiskSize)}.Required")
                         .OverridePropertyName(nameof(DiskSize))
                     .GreaterThan(0)
-                        .WithMessage("Disk size must be greater than 0.")
+                        .WithMessage("Disk size value must be greater than 0.")
                         .WithErrorCode($"{nameof(DiskSize)}.GreaterThanZero")
                         .OverridePropertyName(nameof(DiskSize));
             }

@@ -31,31 +31,38 @@ public static class SeedDataExtension
         List<User> users = [];
 
         //Create default users
-        users.Add(await User.CreateAsync(
-                "Admin",
-                "User",
-                "admin@admin.com",
-                "Admin@123",
-                "Admin",
-                userRepository).ConfigureAwait(false));
+        users.Add(await User.CreateAsync(builder =>
+        {
+            builder.FirstName = "Admin";
+            builder.LastName = "User";
+            builder.Email = "admin@admin.com";
+            builder.Password = "Admin@123";
+            builder.Role = "Admin";
+        },
+        userRepository).ConfigureAwait(false));
 
-        users.Add(await User.CreateAsync(
-                "Regular",
-                "User",
-                "user@user.com",
-                "User@123",
-                "User",
-                userRepository).ConfigureAwait(false));
+
+        users.Add(await User.CreateAsync(builder =>
+        {
+            builder.FirstName = "Regular";
+            builder.LastName = "User";
+            builder.Email = "user@user.com";
+            builder.Password = "User@123";
+            builder.Role = "User";
+        },
+        userRepository).ConfigureAwait(false));
 
         for (var i = 0; i < 100; i++)
         {
-            var newUser = await User.CreateAsync(
-                faker.Name.FirstName().OnlyLetters(),
-                faker.Name.LastName().OnlyLetters(),
-                faker.Internet.Email(),
-                PasswordGenerator.GeneratePassword(),
-                faker.PickRandom(Role.ValidRoles.ToArray()),
-                userRepository).ConfigureAwait(false);
+            var newUser = await User.CreateAsync(builder =>
+            {
+                builder.FirstName = faker.Name.FirstName().OnlyLetters();
+                builder.LastName = faker.Name.LastName().OnlyLetters();
+                builder.Email = faker.Internet.Email();
+                builder.Password = PasswordGenerator.GeneratePassword();
+                builder.Role = faker.PickRandom(Role.ValidRoles.ToArray());
+            },
+            userRepository).ConfigureAwait(false);
 
             if (!newUser.IsSuccess) continue;
 

@@ -76,6 +76,10 @@ namespace TC.CloudGames.Domain.User
                 .MustAsync(async (email, cancellation) => !await _userEfRepository.EmailExistsAsync(email, cancellation))
                     .WithMessage("Email already exists.")
                     .WithErrorCode($"{nameof(Email)}.AlreadyExists")
+                    .OverridePropertyName(nameof(Email))
+                .MaximumLength(200)
+                    .WithMessage("Email cannot exceed 200 characters.")
+                    .WithErrorCode($"{nameof(User.Email)}.MaximumLength")
                     .OverridePropertyName(nameof(Email));
         }
     }

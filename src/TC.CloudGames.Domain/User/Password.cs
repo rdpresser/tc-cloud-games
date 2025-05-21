@@ -83,6 +83,10 @@ namespace TC.CloudGames.Domain.User
                 .Matches(@"[\W_]")
                     .WithMessage("Password must contain at least one special character.")
                     .WithErrorCode($"{nameof(Password)}.SpecialCharacter")
+                    .OverridePropertyName(nameof(Password))
+                .MaximumLength(200)
+                    .WithMessage("Password cannot exceed 200 characters.")
+                    .WithErrorCode($"{nameof(Password)}.MaximumLength")
                     .OverridePropertyName(nameof(Password));
         }
     }
