@@ -59,11 +59,11 @@ namespace TC.CloudGames.Domain.Game
                     .WithErrorCode($"{nameof(AgeRating)}.Required")
                     .OverridePropertyName(nameof(AgeRating))
                 .MaximumLength(10)
-                    .WithMessage("Age rating cannot exceed 10 characters.")
+                    .WithMessage("Age rating value cannot exceed 10 characters.")
                     .WithErrorCode($"{nameof(Game.AgeRating)}.MaximumLength")
                     .OverridePropertyName(nameof(AgeRating))
                 .Must(rating => AgeRating.ValidRatings.Contains(rating))
-                    .WithMessage($"Invalid age rating specified. Valid age rating are: {AgeRating.ValidRatings.JoinWithQuotes()}.")
+                    .WithMessage($"Invalid age rating value specified. Valid age rating are: {AgeRating.ValidRatings.JoinWithQuotes()}.")
                     .WithErrorCode($"{nameof(AgeRating)}.ValidRating")
                     .OverridePropertyName(nameof(AgeRating));
         }

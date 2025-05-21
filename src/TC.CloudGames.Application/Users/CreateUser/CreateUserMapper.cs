@@ -7,14 +7,15 @@ public static class CreateUserMapper
 {
     public static async Task<Result<User>> ToEntityAsync(CreateUserCommand r, IUserEfRepository userEfRepository)
     {
-        return await User.CreateAsync(
-            firstName: r.FirstName,
-            lastName: r.LastName,
-            email: r.Email,
-            password: r.Password,
-            role: r.Role,
-            userEfRepository
-        );
+        return await User.CreateAsync(builder =>
+        {
+            builder.FirstName = r.FirstName;
+            builder.LastName = r.LastName;
+            builder.Email = r.Email;
+            builder.Password = r.Password;
+            builder.Role = r.Role;
+        },
+        userEfRepository).ConfigureAwait(false);
     }
 
     public static CreateUserResponse FromEntity(User e)

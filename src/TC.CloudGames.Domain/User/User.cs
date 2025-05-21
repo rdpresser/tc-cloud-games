@@ -24,30 +24,123 @@ public sealed class User : Entity
         Role = role;
     }
 
-    public static async Task<Result<User>> CreateAsync(string firstName, string lastName, string email, string password, string role, IUserEfRepository userEfRepository)
+    // Builder pattern using raw values
+    public static async Task<Result<User>> CreateAsync(Action<UserBuilder> configure, IUserEfRepository userEfRepository)
     {
-        var emailResult = await Email.CreateAsync(builder => builder.Value = email, userEfRepository).ConfigureAwait(false);
-        var passwordResult = Password.Create(builder => builder.Value = password);
-        var roleResult = Role.Create(builder => builder.Value = role);
+        var builder = new UserBuilder();
+        configure(builder);
+        return await builder.BuildAsync(userEfRepository).ConfigureAwait(false);
+    }
 
+    // Builder pattern using value objects
+    public static Result<User> CreateFromValueObjects(Action<UserBuilderFromValueObjects> configure)
+    {
+        var builder = new UserBuilderFromValueObjects();
+        configure(builder);
+        return builder.Build();
+    }
+
+    // Builder pattern using Result-wrapped value objects
+    public static Result<User> CreateFromResult(Action<UserBuilderFromResultValueObjects> configure)
+    {
+        var builder = new UserBuilderFromResultValueObjects();
+        configure(builder);
+        return builder.Build();
+    }
+
+    public class UserBuilder
+    {
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+
+        public async Task<Result<User>> BuildAsync(IUserEfRepository userEfRepository)
+        {
+            var emailResult = await Domain.User.Email.CreateAsync(builder => builder.Value = Email, userEfRepository).ConfigureAwait(false);
+            var passwordResult = Domain.User.Password.Create(builder => builder.Value = Password);
+            var roleResult = Domain.User.Role.Create(builder => builder.Value = Role);
+
+            return BuildUser(
+                FirstName,
+                LastName,
+                emailResult,
+                passwordResult,
+                roleResult
+            );
+        }
+    }
+
+    public class UserBuilderFromValueObjects
+    {
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public Email Email { get; set; }
+        public Password Password { get; set; }
+        public Role Role { get; set; }
+
+        public Result<User> Build()
+        {
+            return BuildUser(
+                FirstName,
+                LastName,
+                EnsureResult(Email, nameof(Domain.User.Email)),
+                EnsureResult(Password, nameof(Domain.User.Password)),
+                EnsureResult(Role, nameof(Domain.User.Role))
+            );
+        }
+    }
+
+    public class UserBuilderFromResultValueObjects
+    {
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public Result<Email> Email { get; set; }
+        public Result<Password> Password { get; set; }
+        public Result<Role> Role { get; set; }
+
+        public Result<User> Build()
+        {
+            return BuildUser(
+                FirstName,
+                LastName,
+                Email,
+                Password,
+                Role
+            );
+        }
+    }
+
+    // Shared construction and validation logic
+    private static Result<User> BuildUser(
+        string firstName,
+        string lastName,
+        Result<Email> emailResult,
+        Result<Password> passwordResult,
+        Result<Role> roleResult)
+    {
         var valueObjectResults = new IResult[]
         {
-            emailResult,
-            passwordResult,
-            roleResult
+            EnsureResult(emailResult, nameof(Domain.User.Email)),
+            EnsureResult(passwordResult, nameof(Domain.User.Password)),
+            EnsureResult(roleResult , nameof(Domain.User.Role))
         };
 
         var errors = CollectValidationErrors(valueObjectResults);
+
+        var user = new User(Guid.NewGuid(), firstName, lastName, emailResult.Value, passwordResult.Value, roleResult.Value);
+
+        var validator = new CreateUserValidator().ValidationResult(user);
+        if (!validator.IsValid)
+        {
+            errors.AddRange(validator.AsErrors());
+        }
+
         if (errors.Count != 0)
         {
             return Result.Invalid(errors);
         }
-
-        var user = new User(Guid.NewGuid(), firstName, lastName, emailResult.Value, passwordResult.Value, roleResult.Value);
-        var validator = await new CreateUserValidator().ValidationResultAsync(user).ConfigureAwait(false);
-
-        if (!validator.IsValid)
-            return Result.Invalid(validator.AsErrors());
 
         /*
          * RaiseDomainEvent - Send onboarding email to the new user

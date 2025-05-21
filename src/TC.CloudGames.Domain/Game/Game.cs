@@ -61,6 +61,70 @@ namespace TC.CloudGames.Domain.Game
             GameStatus = gameStatus;
         }
 
+        // Shared construction and validation logic
+        private static Result<Game> BuildGame(
+            string name,
+            DateOnly releaseDate,
+            Result<AgeRating> ageRating,
+            string? description,
+            Result<DeveloperInfo> developerInfo,
+            Result<DiskSize> diskSize,
+            Result<Price> price,
+            Result<Playtime>? playtime,
+            Result<GameDetails> gameDetails,
+            Result<SystemRequirements> systemRequirements,
+            Result<Rating>? rating,
+            string? officialLink,
+            string? gameStatus)
+        {
+            var valueObjectResults = new IResult[]
+            {
+                EnsureResult(ageRating, nameof(AgeRating)),
+                EnsureResult(developerInfo, nameof(developerInfo)),
+                EnsureResult(diskSize, nameof(DiskSize)),
+                EnsureResult(price, nameof(Price)),
+                EnsureResult(playtime, nameof(Playtime)),
+                EnsureResult(gameDetails, nameof(GameDetails)),
+                EnsureResult(systemRequirements, nameof(SystemRequirements)),
+                EnsureResult(rating, nameof(Rating))
+            };
+
+            var errors = CollectValidationErrors(valueObjectResults);
+
+            var game = new Game(
+                Guid.NewGuid(),
+                name,
+                releaseDate,
+                ageRating.Value,
+                description,
+                developerInfo.Value,
+                diskSize.Value,
+                price.Value,
+                playtime?.Value,
+                gameDetails.Value,
+                systemRequirements.Value,
+                rating?.Value,
+                officialLink,
+                gameStatus
+            );
+
+            var validator = new CreateGameValidator().ValidationResult(game);
+            if (!validator.IsValid)
+            {
+                errors.AddRange(validator.AsErrors());
+            }
+
+            if (errors.Count != 0)
+            {
+                return Result.Invalid(errors);
+            }
+
+            /*
+             * RaiseDomainEvent - Send onboarding email to the new user
+            */
+            return game;
+        }
+
         // Builder pattern
         public static Result<Game> Create(Action<GameBuilder> configure)
         {
@@ -74,6 +138,49 @@ namespace TC.CloudGames.Domain.Game
             var builder = new GameBuilderFromValueObjects();
             configure(builder);
             return builder.Build();
+        }
+
+        public static Result<Game> CreateFromResult(Action<GameBuilderFromResultValueObjects> configure)
+        {
+            var builder = new GameBuilderFromResultValueObjects();
+            configure(builder);
+            return builder.Build();
+        }
+
+        public class GameBuilderFromResultValueObjects
+        {
+            public string Name { get; set; } = string.Empty;
+            public DateOnly ReleaseDate { get; set; }
+            public Result<AgeRating> AgeRating { get; set; }
+            public string? Description { get; set; }
+            public Result<DeveloperInfo> DeveloperInfo { get; set; }
+            public Result<DiskSize> DiskSize { get; set; }
+            public Result<Price> Price { get; set; }
+            public Result<Playtime>? Playtime { get; set; }
+            public Result<GameDetails> GameDetails { get; set; }
+            public Result<SystemRequirements> SystemRequirements { get; set; }
+            public Result<Rating>? Rating { get; set; }
+            public string? OfficialLink { get; set; }
+            public string? GameStatus { get; set; }
+
+            public Result<Game> Build()
+            {
+                return BuildGame(
+                    Name,
+                    ReleaseDate,
+                    AgeRating,
+                    Description,
+                    DeveloperInfo,
+                    DiskSize,
+                    Price,
+                    Playtime,
+                    GameDetails,
+                    SystemRequirements,
+                    Rating,
+                    OfficialLink,
+                    GameStatus
+                );
+            }
         }
 
         public class GameBuilderFromValueObjects
@@ -94,31 +201,22 @@ namespace TC.CloudGames.Domain.Game
 
             public Result<Game> Build()
             {
-                var game = new Game(
-                    Guid.NewGuid(),
+                // Wrap value objects in Result<T> for shared logic
+                return BuildGame(
                     Name,
                     ReleaseDate,
-                    AgeRating,
+                    EnsureResult(AgeRating, nameof(AgeRating)),
                     Description,
-                    DeveloperInfo,
-                    DiskSize,
-                    Price,
-                    Playtime,
-                    GameDetails,
-                    SystemRequirements,
-                    Rating,
+                    EnsureResult(DeveloperInfo, nameof(DeveloperInfo)),
+                    EnsureResult(DiskSize, nameof(DiskSize)),
+                    EnsureResult(Price, nameof(Price)),
+                    EnsureResult(Playtime, nameof(Playtime)),
+                    EnsureResult(GameDetails, nameof(GameDetails)),
+                    EnsureResult(SystemRequirements, nameof(SystemRequirements)),
+                    EnsureResult(Rating, nameof(Rating)),
                     OfficialLink,
                     GameStatus
                 );
-
-                var validator = new CreateGameValidator().ValidationResult(game);
-                if (!validator.IsValid)
-                    return Result.Invalid(validator.AsErrors());
-
-                /*
-                 * RaiseDomainEvent - Send onboarding email to the new user
-                 */
-                return game;
             }
         }
 
@@ -141,7 +239,7 @@ namespace TC.CloudGames.Domain.Game
 
             public Result<Game> Build()
             {
-                // Value object creation
+                // Create value objects from raw values
                 var ageRatingResult = Domain.Game.AgeRating.Create(builder => builder.Value = AgeRating);
                 var developerInfoResult = Domain.Game.DeveloperInfo.Create(builder =>
                 {
@@ -174,26 +272,7 @@ namespace TC.CloudGames.Domain.Game
                 });
                 var ratingResult = Domain.Game.Rating.Create(builder => builder.Average = Rating);
 
-                var valueObjectResults = new IResult[]
-                {
-                    ageRatingResult,
-                    developerInfoResult,
-                    diskSizeResult,
-                    priceResult,
-                    playtimeResult,
-                    gameDetailsResult,
-                    systemRequirementsResult,
-                    ratingResult
-                };
-
-                var errors = CollectValidationErrors(valueObjectResults);
-                if (errors.Count != 0)
-                {
-                    return Result.Invalid(errors);
-                }
-
-                var game = new Game(
-                    Guid.NewGuid(),
+                return BuildGame(
                     Name,
                     ReleaseDate,
                     ageRatingResult,
@@ -208,17 +287,6 @@ namespace TC.CloudGames.Domain.Game
                     OfficialLink,
                     GameStatus
                 );
-
-                var validator = new CreateGameValidator().ValidationResult(game);
-                if (!validator.IsValid)
-                {
-                    return Result.Invalid(validator.AsErrors());
-                }
-
-                /*
-                 * RaiseDomainEvent - Send onboarding email to the new user
-                 */
-                return game;
             }
         }
     }

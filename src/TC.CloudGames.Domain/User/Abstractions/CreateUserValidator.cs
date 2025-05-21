@@ -7,6 +7,9 @@
             ValidateId();
             ValidateFirstName();
             ValidateLastName();
+            ValidateEmail();
+            ValidatePassword();
+            ValidateRole();
         }
     }
 }
