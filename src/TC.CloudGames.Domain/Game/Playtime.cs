@@ -18,16 +18,6 @@
             return builder.Build();
         }
 
-        public static Result<Playtime> Create(params Action<PlaytimeBuilder>[] configure)
-        {
-            var builder = new PlaytimeBuilder();
-            foreach (var action in configure)
-            {
-                action(builder);
-            }
-            return builder.Build();
-        }
-
         public class PlaytimeBuilder
         {
             public int? Hours { get; set; }

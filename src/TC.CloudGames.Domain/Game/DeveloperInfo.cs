@@ -18,16 +18,6 @@
             return builder.Build();
         }
 
-        public static Result<DeveloperInfo> Create(params Action<DeveloperInfoBuilder>[] configure)
-        {
-            var builder = new DeveloperInfoBuilder();
-            foreach (var action in configure)
-            {
-                action(builder);
-            }
-            return builder.Build();
-        }
-
         public class DeveloperInfoBuilder
         {
             public string Developer { get; set; } = string.Empty;
