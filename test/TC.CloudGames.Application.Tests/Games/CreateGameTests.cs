@@ -57,7 +57,6 @@ public class CreateGameTests
     [Fact]
     public async Task Handle_CreateGame()
     {
-        
         // Arrange
         var name = _faker.Commerce.ProductName();
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
