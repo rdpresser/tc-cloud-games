@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="xunit.runner.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="8.3.0" />
     <PackageReference Include="Bogus" Version="35.6.3" />
     <PackageReference Include="coverlet.collector" Version="6.0.4">

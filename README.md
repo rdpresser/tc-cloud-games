@@ -80,7 +80,7 @@ TC.CloudGames is a cloud-based gaming platform built using modern software devel
   All operations return `Result<T>` (Ardalis.Result), supporting success, invalid, and error states.
 
 - **Testing**:  
-  - Unit and integration tests for all layers.
+  - Unit tests for all layers.
   - AutoFixture and Bogus for random data.
   - FakeItEasy for mocking.
   - Architecture tests to enforce boundaries.
@@ -92,7 +92,6 @@ TC.CloudGames is a cloud-based gaming platform built using modern software devel
 
 - **Health Checks**:  
   - PostgreSQL health check.
-  - UI client for health status.
 
 - **Docker & Cloud-Native**:  
   - Dockerfile and docker-compose for local and cloud deployment.
@@ -164,12 +163,6 @@ This will start:
 4. **Seed Data:**
    - The API will seed users and games on startup if the database is empty.
 
----
-
-## Testing
-
-- **Unit & Integration Tests:**
-
 The mapped ports can be seen using:
 
 ```bash
@@ -206,11 +199,34 @@ To access the database, you can use a PostgreSQL client like pgAdmin or DBeaver.
 
 ### Database Structure
 
-The application will create a database named `tc.cloudgames` with the following tables:
+The application will create a database named `tc_cloud_games` with the following tables:
 - `Users`
 - `Games`
 
 ![Tables](images/002_ER_Diagram.png)
+
+---
+## Testing
+
+- **Unit Tests:**
+
+```bash
+# Run unit tests for solution in the root folder of the application
+dotnet test TC.CloudGames.sln --logger "console;verbosity=minimal"
+```
+
+- All test projects target .NET 9.
+  - Coverage is collected via `coverlet.collector`.
+  - Architecture rules are enforced via `ArchitectureTests`.
+
+- **Test Libraries Used:**
+  - xUnit
+  - Shouldly
+  - FakeItEasy
+  - AutoFixture
+  - Bogus
+
+---
 
 ### Notes
 
