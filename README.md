@@ -25,7 +25,7 @@ TC.CloudGames is a cloud-based gaming platform built using modern software devel
 - **Serilog.Sinks.Seq** (log aggregation)
 - **FakeItEasy** (mocking for tests)
 - **AutoFixture** (test data auto-generation)
-- **NetArchTest** (architecture tests)
+- **Architecture Tests** (architecture tests)
 
 ---
 
@@ -109,9 +109,11 @@ TC.CloudGames is a cloud-based gaming platform built using modern software devel
 ### Quick Start
 
 1. **Clone the repository:**
-```
-# Run the following git command
+```bash
+# Run the following git command to clone the repository:
 git clone https://github.com/your-org/TC.CloudGames.git 
+
+# Navigate to the project directory:
 cd TC.CloudGames
 ```
 
@@ -146,19 +148,69 @@ docker compose up --build
 
 **Or simply make docker project in Visual Studio 2022 the default startup project and hit F5**
 
-![ER Diagram](images/001_Docker_Compose_Startup_Project.png)
+![Docker Compose](images/001_Docker_Compose_Startup_Project.png)
 
-The application will be available at:
-- HTTP: [http://localhost:55555](http://localhost:55555)
-- HTTPS: [https://localhost:55556](https://localhost:55556)
-- Swagger UI: [https://localhost:55556/swagger/index.html](https://localhost:55556/swagger/index.html)
+This will start:
+   - `tc.cloudgames.api` (Web API)
+   - `postgres` (database)
+   - `seq` (log aggregation)
+   - (optionally) `pgadmin` for DB management
+
+3. **Access the API:**
+   - Swagger UI: [http://localhost:55556/swagger](http://localhost:55556/swagger)
+   - Health checks: [http://localhost:55556/health](http://localhost:55556/health)
+   - Seq logs: [http://localhost:8082](http://localhost:8082)
+
+4. **Seed Data:**
+   - The API will seed users and games on startup if the database is empty.
+
+---
+
+## Testing
+
+- **Unit & Integration Tests:**
 
 The mapped ports can be seen using:
 
 ```bash
 docker port TC.CloudGames.Api
+docker port TC.CloudGames.Seq
+docker port TC.CloudGames.PgAdmin4
 ```
-<button onclick="navigator.clipboard.writeText('docker port TC.CloudGames.Api')">Copy to Clipboard</button>
+
+The application will also create a PostgreSQL database container and run migrations automatically.
+
+To access the database, you can use a PostgreSQL client like pgAdmin or DBeaver.
+- pgAdmin: [http://localhost:15432/](http://localhost:15432/)
+```bash
+# Default credentials for pgAdmin:
+# Username:
+    - admin@admin.com
+# Password: 
+    - admin
+```
+![pgAdmin](images/003_pgAdmin_login_screen.png)
+
+### Database Login on localhost server
+- After logging in to pgAdmin, you can access the database using the following credentials:
+
+![database login](images/004_database_server_login.png)
+
+```bash
+# Default credentials for PostgreSQL:
+# Username:
+    - postgres
+# Password:
+    - postgres
+```
+
+### Database Structure
+
+The application will create a database named `tc.cloudgames` with the following tables:
+- `Users`
+- `Games`
+
+![Tables](images/002_ER_Diagram.png)
 
 ### Notes
 
