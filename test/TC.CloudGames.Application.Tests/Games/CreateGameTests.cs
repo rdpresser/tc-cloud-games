@@ -11,7 +11,7 @@ using Playtime = TC.CloudGames.Application.Games.CreateGame.Playtime;
 using SystemRequirements = TC.CloudGames.Application.Games.CreateGame.SystemRequirements;
 using DomainGame = TC.CloudGames.Domain.Game.Game;
 using DomainGameDetails = TC.CloudGames.Domain.Game.GameDetails;
-using Price  = TC.CloudGames.Application.Games.CreateGame.Price;
+using Price = TC.CloudGames.Application.Games.CreateGame.Price;
 
 namespace TC.CloudGames.Application.Tests.Games;
 
@@ -61,6 +61,7 @@ public class CreateGameTests
     [Fact]
     public async Task Handle_CreateGame()
     {
+
         // Arrange
         var name = _faker.Commerce.ProductName();
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
@@ -89,9 +90,9 @@ public class CreateGameTests
                 AvailableLanguages: _faker.PickRandom(_languages),
                 SupportsDlcs: true
             ),
-            SystemRequirements: new SystemRequirements("Min Spec", "Rec Spec"),
-            Rating: 4.5m,
-            OfficialLink: "https://testgame.com",
+            SystemRequirements: new SystemRequirements(_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph()),
+            Rating: null,
+            OfficialLink: _faker.Internet.Url(),
             GameStatus: "Released"
         );
 
