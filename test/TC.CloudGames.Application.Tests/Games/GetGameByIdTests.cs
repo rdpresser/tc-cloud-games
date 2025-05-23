@@ -51,5 +51,38 @@ public class GetGameByIdTests
         Assert.NotNull(result);
         Assert.Equal(expectedGame.Id, result.Value.Id);
     }
-    
+
+    [Fact]
+    public void Constructor_SetsAmount()
+    {
+        // Arrange
+        decimal expectedAmount = 59.99m;
+
+        // Act
+        var price = new Price(expectedAmount);
+
+        // Assert
+        Assert.Equal(expectedAmount, price.Amount);
+    }
+
+    [Fact]
+    public void Amount_CanBeZero()
+    {
+        // Arrange & Act
+        var price = new Price(0m);
+
+        // Assert
+        Assert.Equal(0m, price.Amount);
+    }
+
+    [Fact]
+    public void Amount_CanBeNegative()
+    {
+        // Arrange & Act
+        var price = new Price(-10m);
+
+        // Assert
+        Assert.Equal(-10m, price.Amount);
+    }
+
 }
