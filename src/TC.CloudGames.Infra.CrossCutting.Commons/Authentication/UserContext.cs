@@ -16,7 +16,7 @@ namespace TC.CloudGames.Infra.CrossCutting.Commons.Authentication
                 .HttpContext?
                 .User
                 .GetUserId() ??
-            throw new ApplicationException("User context is unavailable");
+            throw new InvalidOperationException("User context is unavailable");
 
 
         public string UserEmail =>
@@ -24,20 +24,20 @@ namespace TC.CloudGames.Infra.CrossCutting.Commons.Authentication
                 .HttpContext?
                 .User
                 .GetUserEmail() ??
-            throw new ApplicationException("User context is unavailable");
+            throw new InvalidOperationException("User context is unavailable");
 
         public string UserName =>
             _httpContextAccessor
                 .HttpContext?
                 .User
                 .GetUserName() ??
-            throw new ApplicationException("User context is unavailable");
+            throw new InvalidOperationException("User context is unavailable");
 
         public string UserRole =>
             _httpContextAccessor
                 .HttpContext?
                 .User
                 .GetUserRole() ??
-            throw new ApplicationException("User context is unavailable");
+            throw new InvalidOperationException("User context is unavailable");
     }
 }

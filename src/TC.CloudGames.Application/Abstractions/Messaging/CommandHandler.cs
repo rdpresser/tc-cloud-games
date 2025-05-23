@@ -12,8 +12,8 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
         where TEntity : Entity
         where TRepository : IEfRepository<TEntity>
     {
-        protected readonly TRepository Repository;
-        protected readonly IUnitOfWork UnitOfWork;
+        protected TRepository Repository { get; }
+        protected IUnitOfWork UnitOfWork { get; }
 
         private FastEndpoints.ValidationContext<TCommand> ValidationContext { get; } = Instance;
 
@@ -25,7 +25,7 @@ namespace TC.CloudGames.Application.Abstractions.Messaging
 
         public abstract override Task<Result<TResponse>> ExecuteAsync(TCommand command, CancellationToken ct = default);
 
-        protected Result<TResponse> HandleDuplicateKeyException(IDuplicateKeyException exception)
+        protected Result<TResponse> HandleDuplicateKeyException(IDuplicateKeyViolation exception)
         {
             AddError(
                 $"Table: {exception.TableName}",

@@ -6,7 +6,7 @@ using TC.CloudGames.Api.Middleware;
 namespace TC.CloudGames.Api.Extensions;
 
 [ExcludeFromCodeCoverage]
-public static class ApplicationBuilderExtensions
+internal static class ApplicationBuilderExtensions
 {
     // Applies pending migrations to the database
     public static async Task ApplyMigrations(this IApplicationBuilder app)

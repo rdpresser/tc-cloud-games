@@ -9,7 +9,7 @@ namespace TC.CloudGames.Domain.Abstractions
         public async Task<ValidationResult> ValidationResultAsync(TEntity entity)
         {
             var context = new ValidationContext<TEntity>(entity);
-            return await base.ValidateAsync(context);
+            return await base.ValidateAsync(context).ConfigureAwait(false);
         }
 
         public ValidationResult ValidationResult(TEntity entity)
@@ -39,6 +39,8 @@ namespace TC.CloudGames.Domain.Abstractions
 
         public IEnumerable<ValidationError> ValidationErrors(ValidationResult validationResult)
         {
+            ArgumentNullException.ThrowIfNull(validationResult);
+
             return validationResult.Errors.Select(e => new ValidationError
             {
                 Identifier = e.PropertyName,
@@ -50,6 +52,8 @@ namespace TC.CloudGames.Domain.Abstractions
 
         public IDictionary<string, string[]> Errors(ValidationResult validationResult)
         {
+            ArgumentNullException.ThrowIfNull(validationResult);
+
             return validationResult.ToDictionary();
         }
     }

@@ -28,8 +28,7 @@ public class UserPgRepository : PgRepository, IUserPgRepository
     public async Task<UserByIdResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var connection = await ConnectionProvider
-            .CreateConnectionAsync(cancellationToken)
-            .ConfigureAwait(false);
+            .CreateConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         const string sql = """
                            SELECT 

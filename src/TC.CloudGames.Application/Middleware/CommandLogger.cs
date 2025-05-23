@@ -40,16 +40,18 @@ namespace TC.CloudGames.Application.Middleware
 
         public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
         {
+            ArgumentNullException.ThrowIfNull(next);
+
             var name = command.GetType().Name;
 
             try
             {
-                using (LogContext.PushProperty("RrequestContent", command, true))
+                using (LogContext.PushProperty("RequestContent", command, true))
                 {
                     _logger.LogInformation("Executing request: {Request}", name);
                 }
 
-                var result = await next();
+                var result = await next().ConfigureAwait(false);
 
                 if (!result.IsOk())
                 {
@@ -81,7 +83,10 @@ namespace TC.CloudGames.Application.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Request {Request} processing failed", name);
+                using (LogContext.PushProperty("RequestContent", command, true))
+                {
+                    _logger.LogError(ex, "Request {Request} processing failed", name);
+                }
 
                 throw;
             }

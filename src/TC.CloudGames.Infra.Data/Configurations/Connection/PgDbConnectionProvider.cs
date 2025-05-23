@@ -36,7 +36,7 @@ public sealed class PgDbConnectionProvider : IPgDbConnectionProvider, IDisposabl
 
     public async ValueTask DisposeAsync()
     {
-        await DisposeAsyncCore();
+        await DisposeAsyncCore().ConfigureAwait(false);
     }
 
     private async ValueTask DisposeAsyncCore()

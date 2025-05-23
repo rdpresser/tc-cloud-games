@@ -6,6 +6,5 @@ public interface IPgDbConnectionProvider
 {
     NpgsqlConnection CreateConnection();
     Task<NpgsqlConnection> CreateConnectionAsync(CancellationToken cancellationToken = default);
-    void Dispose();
     ValueTask DisposeAsync();
 }

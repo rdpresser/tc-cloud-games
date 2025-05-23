@@ -10,16 +10,19 @@ namespace TC.CloudGames.Infra.CrossCutting.Commons.Middleware
         private readonly RequestDelegate _next;
         private const string _correlationIdHeader = "x-correlation-id";
 
-        public CorrelationMiddleware(RequestDelegate next) => _next = next;
+        public CorrelationMiddleware(RequestDelegate next) => _next = next ?? throw new ArgumentNullException(nameof(next));
 
         public async Task Invoke(HttpContext context, ICorrelationIdGenerator correlationIdGenerator)
         {
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(correlationIdGenerator);
+
             var correlationId = GetCorrelationId(context, correlationIdGenerator);
             AddCorrelationIdHeaderToResponse(context, correlationId);
 
             using (LogContext.PushProperty("CorrelationId", correlationId.ToString()))
             {
-                await _next(context);
+                await _next(context).ConfigureAwait(false);
             }
         }
 
@@ -27,14 +30,13 @@ namespace TC.CloudGames.Infra.CrossCutting.Commons.Middleware
         {
             if (context.Request.Headers.TryGetValue(_correlationIdHeader, out var correlationId))
             {
-                correlationIdGenerator.Set(correlationId.ToString());
+                correlationIdGenerator.SetCorrelationId(correlationId.ToString());
                 return correlationId;
             }
             else
             {
-                correlationId = context.TraceIdentifier ?? Guid.NewGuid().ToString();
-                correlationIdGenerator.Set(correlationId.ToString());
-                return correlationId;
+                correlationIdGenerator.SetCorrelationId(context.TraceIdentifier ?? Guid.NewGuid().ToString());
+                return correlationIdGenerator.CorrelationId;
             }
         }
 

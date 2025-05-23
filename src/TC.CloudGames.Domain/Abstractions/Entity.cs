@@ -25,10 +25,7 @@ public abstract class Entity
         CreatedOnUtc = createdOnUtc;
     }
 
-    public IReadOnlyList<IDomainEvent> GetDomainEvents()
-    {
-        return _domainEvents.ToList();
-    }
+    public IReadOnlyList<IDomainEvent> DomainEvents => [.. _domainEvents];
 
     public void ClearDomainEvents()
     {
@@ -71,17 +68,18 @@ public abstract class Entity
     }
 
     // Helper method to process value object creation results and collect errors
-    protected static List<ValidationError> CollectValidationErrors(IEnumerable<IResult> results)
+    protected static IReadOnlyList<ValidationError> CollectValidationErrors(IEnumerable<IResult> results)
     {
+        ArgumentNullException.ThrowIfNull(results);
+
         var errors = new List<ValidationError>();
         foreach (var result in results)
         {
             if (result == null)
             {
-                var name = result?.GetType().Name ?? "Unknown";
                 errors.Add(new ValidationError(
-                    identifier: name,
-                    errorMessage: $"Value object '{name}' creation failed.",
+                    identifier: "Unknown",
+                    errorMessage: "Value object creation failed.",
                     errorCode: "ValueObjectCreation.Error",
                     severity: ValidationSeverity.Error));
 

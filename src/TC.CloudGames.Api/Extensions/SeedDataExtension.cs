@@ -101,13 +101,13 @@ public static class SeedDataExtension
                 builder.Price = decimal.Parse(faker.Commerce.Price(1.0m, 500.0m));
                 builder.Playtime = (faker.Random.Int(1, 200), faker.Random.Int(1, 2000));
                 builder.GameDetails = (
-                    genre: faker.Lorem.Word(),
-                    platform: GameDetails.ValidPlatforms.ToArray(),
-                    tags: faker.Lorem.Word(),
-                    gameMode: faker.PickRandom(GameDetails.ValidGameModes.ToArray()),
-                    distributionFormat: faker.PickRandom(GameDetails.ValidDistributionFormats.ToArray()),
-                    availableLanguages: string.Join(", ", faker.Random.ListItems(AvailableLanguagesList, faker.Random.Int(1, AvailableLanguagesList.Length))),
-                    supportsDlcs: faker.Random.Bool());
+                    Genre: faker.Lorem.Word(),
+                    Platform: GameDetails.ValidPlatforms.ToArray(),
+                    Tags: faker.Lorem.Word(),
+                    GameMode: faker.PickRandom(GameDetails.ValidGameModes.ToArray()),
+                    DistributionFormat: faker.PickRandom(GameDetails.ValidDistributionFormats.ToArray()),
+                    AvailableLanguages: string.Join(", ", faker.Random.ListItems(AvailableLanguagesList, faker.Random.Int(1, AvailableLanguagesList.Length))),
+                    SupportsDlcs: faker.Random.Bool());
                 builder.SystemRequirements = (faker.Lorem.Paragraph(), faker.Lorem.Paragraph());
                 builder.Rating = Math.Round(faker.Random.Decimal(1, 10), 2);
                 builder.OfficialLink = faker.Internet.Url();
@@ -119,6 +119,6 @@ public static class SeedDataExtension
             games.Add(newGame);
         }
 
-        await gameRepository.BulkInsertAsync(games);
+        await gameRepository.BulkInsertAsync(games).ConfigureAwait(false);
     }
 }

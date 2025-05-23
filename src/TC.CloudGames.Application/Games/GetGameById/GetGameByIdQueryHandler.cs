@@ -14,7 +14,7 @@ namespace TC.CloudGames.Application.Games.GetGameById
 
         public override async Task<Result<GameByIdResponse>> ExecuteAsync(GetGameByIdQuery command, CancellationToken ct)
         {
-            var result = await _gameRepository.GetByIdAsync(command.Id, ct);
+            var result = await _gameRepository.GetByIdAsync(command.Id, ct).ConfigureAwait(false);
             if (result is not null)
                 return result;
 

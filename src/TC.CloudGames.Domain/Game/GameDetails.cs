@@ -12,7 +12,7 @@ namespace TC.CloudGames.Domain.Game
 
         [NotMapped]
         [ExcludeFromCodeCoverage]
-        public List<string> PlatformList
+        public IReadOnlyCollection<string> PlatformList
         {
             get
             {
@@ -37,8 +37,8 @@ namespace TC.CloudGames.Domain.Game
 
         public string Platform { get; private set; }
         public string? Tags { get; }
-        public string GameMode { get; } //TODO: mudar para array 
-        public string DistributionFormat { get; } //TODO: mudar para array 
+        public string GameMode { get; }
+        public string DistributionFormat { get; }
         public string? AvailableLanguages { get; }
         public bool SupportsDlcs { get; }
 

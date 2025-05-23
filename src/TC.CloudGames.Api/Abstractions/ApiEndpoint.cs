@@ -9,8 +9,8 @@ namespace TC.CloudGames.Api.Abstractions
     public abstract class ApiEndpoint<TRequest, TResponse> : Endpoint<TRequest, TResponse>
         where TRequest : notnull
     {
-        protected readonly IFusionCache Cache;
-        protected readonly IUserContext UserContext;
+        protected IFusionCache Cache { get; }
+        protected IUserContext UserContext { get; }
 
         protected ApiEndpoint(IFusionCache cache, IUserContext userContext)
         {

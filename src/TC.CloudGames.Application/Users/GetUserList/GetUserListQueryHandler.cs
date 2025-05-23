@@ -14,7 +14,7 @@ internal sealed class GetUserListQueryHandler : QueryHandler<GetUserListQuery, I
     public override async Task<Result<IReadOnlyList<UserListResponse>>> ExecuteAsync(GetUserListQuery query,
         CancellationToken ct = default)
     {
-        var users = await _userRepository.GetUserListAsync(query, ct);
+        var users = await _userRepository.GetUserListAsync(query, ct).ConfigureAwait(false);
 
         if (users is null || !users.Any())
             return Result<IReadOnlyList<UserListResponse>>.Success([]);

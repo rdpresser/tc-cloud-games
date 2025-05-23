@@ -9,16 +9,16 @@ namespace TC.CloudGames.Infra.Data.Repositories.EfCore;
 public abstract class EfRepository<TEntity> : IEfRepository<TEntity>, IDisposable, IAsyncDisposable
     where TEntity : Entity
 {
-    protected readonly ApplicationDbContext DbContext;
-    protected readonly DbSet<TEntity> DbSet;
+    private bool _disposed;
 
     private readonly IDateTimeProvider _dateTimeProvider;
-    private bool _disposed;
+    protected ApplicationDbContext DbContext { get; }
+    protected DbSet<TEntity> DbSet { get; }
 
     protected EfRepository(ApplicationDbContext dbContext, IDateTimeProvider dateTimeProvider)
     {
-        DbContext = dbContext;
-        _dateTimeProvider = dateTimeProvider;
+        DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
         DbSet = dbContext.Set<TEntity>();
     }
 
@@ -51,7 +51,7 @@ public abstract class EfRepository<TEntity> : IEfRepository<TEntity>, IDisposabl
             entity.SetCreatedOnUtc(_dateTimeProvider.UtcNow);
         }
 
-        await DbSet.BulkInsertAsync(entities);
+        await DbSet.BulkInsertAsync(entities).ConfigureAwait(false);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
@@ -91,7 +91,7 @@ public abstract class EfRepository<TEntity> : IEfRepository<TEntity>, IDisposabl
 
     public async ValueTask DisposeAsync()
     {
-        await DisposeAsyncCore();
+        await DisposeAsyncCore().ConfigureAwait(false);
 
         // Suppress finalization to prevent the finalizer from running
         GC.SuppressFinalize(this);

@@ -27,7 +27,7 @@ namespace TC.CloudGames.Domain.User
             {
                 var email = new Email(Value);
                 var validator = await new EmailValidator(userEfRepository)
-                    .ValidationResultAsync(email);
+                    .ValidationResultAsync(email).ConfigureAwait(false);
 
                 if (!validator.IsValid)
                 {
@@ -73,7 +73,7 @@ namespace TC.CloudGames.Domain.User
                     .WithMessage("Invalid email format.")
                     .WithErrorCode($"{nameof(Email)}.InvalidFormat")
                     .OverridePropertyName(nameof(Email))
-                .MustAsync(async (email, cancellation) => !await _userEfRepository.EmailExistsAsync(email, cancellation))
+                .MustAsync(async (email, cancellation) => !await _userEfRepository.EmailExistsAsync(email, cancellation).ConfigureAwait(false))
                     .WithMessage("Email already exists.")
                     .WithErrorCode($"{nameof(Email)}.AlreadyExists")
                     .OverridePropertyName(nameof(Email))

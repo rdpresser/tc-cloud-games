@@ -19,7 +19,7 @@ namespace TC.CloudGames.Api.Middleware
         {
             try
             {
-                await _next(context);
+                await _next(context).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -42,7 +42,7 @@ namespace TC.CloudGames.Api.Middleware
 
                 context.Response.StatusCode = exceptionDetails.Status;
 
-                await context.Response.WriteAsJsonAsync(problemDetails);
+                await context.Response.WriteAsJsonAsync(problemDetails).ConfigureAwait(false);
             }
         }
 

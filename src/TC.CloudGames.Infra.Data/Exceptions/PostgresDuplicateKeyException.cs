@@ -3,7 +3,7 @@ using TC.CloudGames.Domain.Exceptions;
 
 namespace TC.CloudGames.Infra.Data.Exceptions
 {
-    public class PostgresDuplicateKeyException : NpgsqlException, IDuplicateKeyException
+    public class PostgresDuplicateKeyException : NpgsqlException, IDuplicateKeyViolation
     {
         public string ConstraintName { get; }
         public string TableName { get; }

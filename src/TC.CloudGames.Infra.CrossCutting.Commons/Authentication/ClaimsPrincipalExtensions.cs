@@ -11,14 +11,14 @@ namespace TC.CloudGames.Infra.CrossCutting.Commons.Authentication
 
             return Guid.TryParse(userId, out Guid parsedUserId) ?
                 parsedUserId :
-                throw new ApplicationException("User id is unavailable");
+                throw new InvalidOperationException("User id is unavailable");
         }
 
         public static string GetUserEmail(this ClaimsPrincipal? principal)
         {
             string? userEmail = principal?.FindFirstValue(JwtRegisteredClaimNames.Email);
             return string.IsNullOrEmpty(userEmail) ?
-                throw new ApplicationException("User email is unavailable") :
+                throw new InvalidOperationException("User email is unavailable") :
                 userEmail;
         }
 
@@ -26,7 +26,7 @@ namespace TC.CloudGames.Infra.CrossCutting.Commons.Authentication
         {
             string? userName = principal?.FindFirstValue(JwtRegisteredClaimNames.Name);
             return string.IsNullOrEmpty(userName) ?
-                throw new ApplicationException("User name is unavailable") :
+                throw new InvalidOperationException("User name is unavailable") :
                 userName;
         }
 
@@ -34,7 +34,7 @@ namespace TC.CloudGames.Infra.CrossCutting.Commons.Authentication
         {
             string? userRole = principal?.FindFirstValue("role");
             return string.IsNullOrEmpty(userRole) ?
-                throw new ApplicationException("User role is unavailable") :
+                throw new InvalidOperationException("User role is unavailable") :
                 userRole;
         }
     }

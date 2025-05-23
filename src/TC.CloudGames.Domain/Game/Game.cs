@@ -89,7 +89,7 @@ namespace TC.CloudGames.Domain.Game
                 EnsureResult(rating, nameof(Rating))
             };
 
-            var errors = CollectValidationErrors(valueObjectResults);
+            var errors = CollectValidationErrors(valueObjectResults).ToList();
 
             var game = new Game(
                 Guid.NewGuid(),

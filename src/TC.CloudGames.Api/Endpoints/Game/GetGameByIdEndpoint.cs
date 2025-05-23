@@ -51,10 +51,10 @@ namespace TC.CloudGames.Api.Endpoints.Game
                     validationFailuresCacheKey,
                     req.ExecuteAsync,
                     ct
-                );
+                ).ConfigureAwait(false);
 
             // Use the MatchAsync method from the base class
-            await MatchResultAsync(response, ct);
+            await MatchResultAsync(response, ct).ConfigureAwait(false);
         }
 
         public static GameByIdResponse GetGameResponseExample()

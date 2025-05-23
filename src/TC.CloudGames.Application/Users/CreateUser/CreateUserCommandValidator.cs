@@ -45,7 +45,7 @@ namespace TC.CloudGames.Application.Users.CreateUser
                         .EmailAddress()
                             .WithMessage("Invalid email format.")
                             .WithErrorCode($"{nameof(CreateUserCommand.Email)}.InvalidFormat")
-                        .MustAsync(async (email, cancellation) => !await userPgRepository.EmailExistsAsync(email, cancellation))
+                        .MustAsync(async (email, cancellation) => !await userPgRepository.EmailExistsAsync(email, cancellation).ConfigureAwait(false))
                             .WithMessage("Email already exists.")
                             .WithErrorCode($"{nameof(CreateUserCommand.Email)}.AlreadyExists");
                 });

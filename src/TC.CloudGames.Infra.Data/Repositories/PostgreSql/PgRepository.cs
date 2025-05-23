@@ -6,7 +6,7 @@ namespace TC.CloudGames.Infra.Data.Repositories.PostgreSql;
 [ExcludeFromCodeCoverage]
 public abstract class PgRepository
 {
-    protected readonly IPgDbConnectionProvider ConnectionProvider;
+    protected IPgDbConnectionProvider ConnectionProvider { get; }
 
     protected PgRepository(IPgDbConnectionProvider connectionProvider)
     {

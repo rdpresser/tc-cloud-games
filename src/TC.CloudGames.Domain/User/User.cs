@@ -127,7 +127,7 @@ public sealed class User : Entity
             EnsureResult(roleResult , nameof(Domain.User.Role))
         };
 
-        var errors = CollectValidationErrors(valueObjectResults);
+        var errors = CollectValidationErrors(valueObjectResults).ToList();
 
         var user = new User(Guid.NewGuid(), firstName, lastName, emailResult.Value, passwordResult.Value, roleResult.Value);
 
