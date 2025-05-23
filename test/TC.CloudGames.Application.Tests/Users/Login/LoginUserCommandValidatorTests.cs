@@ -12,7 +12,7 @@ public class LoginUserCommandValidatorTests
     {
         // Arrange
         const string email = "";
-        const string password = "senha123";
+        const string password = "J35!8G0+eP8z";
         var command = new LoginUserCommand(email, password);
         
         // Act
@@ -33,6 +33,7 @@ public class LoginUserCommandValidatorTests
         // Act
         var result = _validator.Validate(command);
         
+        // Assert
         result.Errors.ShouldContain(e => e.PropertyName == nameof(LoginUserCommand.Password));
     }
     
