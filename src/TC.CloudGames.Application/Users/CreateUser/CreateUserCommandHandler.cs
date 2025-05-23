@@ -16,7 +16,7 @@ internal sealed class CreateUserCommandHandler : CommandHandler<CreateUserComman
     public override async Task<Result<CreateUserResponse>> ExecuteAsync(CreateUserCommand command,
         CancellationToken ct = default)
     {
-        var entity = await CreateUserMapper.ToEntityAsync(command, Repository);
+        var entity = await CreateUserMapper.ToEntityAsync(command, Repository).ConfigureAwait(false);
 
         if (!entity.IsSuccess)
         {
@@ -30,7 +30,7 @@ internal sealed class CreateUserCommandHandler : CommandHandler<CreateUserComman
 
             await UnitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is IDuplicateKeyException duplicateEx)
+        catch (Exception ex) when (ex is IDuplicateKeyViolation duplicateEx)
         {
             return HandleDuplicateKeyException(duplicateEx);
         }

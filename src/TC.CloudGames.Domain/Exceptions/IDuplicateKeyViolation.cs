@@ -1,6 +1,6 @@
 ﻿namespace TC.CloudGames.Domain.Exceptions;
 
-public interface IDuplicateKeyException
+public interface IDuplicateKeyViolation
 {
     string Message { get; }
     string ConstraintName { get; }

@@ -12,7 +12,7 @@ namespace TC.CloudGames.Domain.Game
 
         [NotMapped]
         [ExcludeFromCodeCoverage]
-        public List<string> PlatformList
+        public IReadOnlyCollection<string> PlatformList
         {
             get
             {

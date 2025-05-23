@@ -20,6 +20,8 @@ namespace TC.CloudGames.Infra.CrossCutting.Commons.Authentication
 
         public bool Verify(string password, string passwordHash)
         {
+            ArgumentNullException.ThrowIfNull(passwordHash);
+
             string[] parts = passwordHash.Split('-');
             byte[] hash = Convert.FromHexString(parts[0]);
             byte[] salt = Convert.FromHexString(parts[1]);

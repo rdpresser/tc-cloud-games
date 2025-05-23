@@ -22,11 +22,11 @@ public static class CreateUserMapper
     {
         return new CreateUserResponse
         (
-            e.Id,
-            e.FirstName,
-            e.LastName,
-            e.Email.Value,
-            e.Role.Value
+            Id: e.Id,
+            FirstName: e.FirstName,
+            LastName: e.LastName,
+            Email: e.Email.Value,
+            Role: e.Role.Value
         );
     }
 }

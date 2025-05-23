@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace TC.CloudGames.Api.Extensions
 {
     [ExcludeFromCodeCoverage]
-    public class UtcToLocalTimeEnricher : ILogEventEnricher
+    internal class UtcToLocalTimeEnricher : ILogEventEnricher
     {
         private readonly TimeZoneInfo _timeZone;
 
@@ -16,7 +16,7 @@ namespace TC.CloudGames.Api.Extensions
 
         public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
         {
-            if (logEvent == null) throw new ArgumentNullException(nameof(logEvent));
+            ArgumentNullException.ThrowIfNull(logEvent);
 
             try
             {

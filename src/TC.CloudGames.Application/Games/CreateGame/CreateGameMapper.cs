@@ -17,13 +17,13 @@ namespace TC.CloudGames.Application.Games.CreateGame
                 builder.Price = command.Price;
                 builder.Playtime = command.Playtime != null ? (command.Playtime.Hours, command.Playtime.PlayerCount) : null;
                 builder.GameDetails = (
-                    genre: command.GameDetails.Genre,
-                    platform: command.GameDetails.Platform,
-                    tags: command.GameDetails.Tags,
-                    gameMode: command.GameDetails.GameMode,
-                    distributionFormat: command.GameDetails.DistributionFormat,
-                    availableLanguages: command.GameDetails.AvailableLanguages,
-                    supportsDlcs: command.GameDetails.SupportsDlcs
+                    command.GameDetails.Genre,
+                    command.GameDetails.Platform,
+                    command.GameDetails.Tags,
+                    command.GameDetails.GameMode,
+                    command.GameDetails.DistributionFormat,
+                    command.GameDetails.AvailableLanguages,
+                    command.GameDetails.SupportsDlcs
                 );
                 builder.SystemRequirements = (command.SystemRequirements.Minimum, command.SystemRequirements.Recommended);
                 builder.Rating = command.Rating;

@@ -8,6 +8,8 @@ namespace TC.CloudGames.Application.Middleware
     {
         public Task PreProcessAsync(IPreProcessorContext<TRequest> context, CancellationToken ct)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
             var logger = context.HttpContext.Resolve<ILogger<TRequest>>();
             var name = context.Request!.GetType().Name;
 

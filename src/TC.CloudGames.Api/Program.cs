@@ -24,4 +24,4 @@ if (app.Environment.IsDevelopment())
     await app.SeedGameData().ConfigureAwait(false);
 }
 
-await app.RunAsync();
+await app.RunAsync().ConfigureAwait(false);

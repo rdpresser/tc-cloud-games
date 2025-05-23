@@ -2,10 +2,11 @@
 {
     public class CorrelationIdGenerator : ICorrelationIdGenerator
     {
-        private static string _correlationId;
+        public string CorrelationId { get; private set; } = string.Empty;
 
-        public string Get() => _correlationId;
-
-        public void Set(string correlationId) => _correlationId = correlationId;
+        public void SetCorrelationId(string correlationId)
+        {
+            CorrelationId = correlationId;
+        }
     }
 }

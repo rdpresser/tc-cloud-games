@@ -52,7 +52,10 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_Fields_Have_Invalid_Values()
     {
-        // Arrange - Act
+        // Arrange
+        string[] configure = ["Invalid"];
+
+        // Act
         var result = DomainGame.Create(builder =>
         {
             builder.Name = $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}";
@@ -64,13 +67,13 @@ public class GameTests
             builder.Price = decimal.Parse(_faker.Commerce.Price(1.0m, 500.0m));
             builder.Playtime = (_faker.Random.Int(1, 200), _faker.Random.Int(1, 2000));
             builder.GameDetails = (
-                genre: _faker.Lorem.Word(),
-                platform: new[] { "Invalid" },
-                tags: _faker.Lorem.Word(),
-                gameMode: "Invalid",
-                distributionFormat: "Invalid",
-                availableLanguages: "EN-US",
-                supportsDlcs: _faker.Random.Bool());
+                Genre: _faker.Lorem.Word(),
+                Platform: configure,
+                Tags: _faker.Lorem.Word(),
+                GameMode: "Invalid",
+                DistributionFormat: "Invalid",
+                AvailableLanguages: "EN-US",
+                SupportsDlcs: _faker.Random.Bool());
             builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
             builder.Rating = -1;
             builder.OfficialLink = "Invalid_URL";
@@ -159,13 +162,13 @@ public class GameTests
             builder.Price = price;
             builder.Playtime = playtime;
             builder.GameDetails = (
-                genre: _faker.PickRandom(_genres),
-                platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                tags: _faker.PickRandom(_gameTags),
-                gameMode: _faker.PickRandom(_gameModes),
-                distributionFormat: _faker.PickRandom(_distributionFormats),
-                availableLanguages: _faker.PickRandom(_languages),
-                supportsDlcs: true);
+                Genre: _faker.PickRandom(_genres),
+                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
+                Tags: _faker.PickRandom(_gameTags),
+                GameMode: _faker.PickRandom(_gameModes),
+                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                AvailableLanguages: _faker.PickRandom(_languages),
+                SupportsDlcs: true);
             builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
             builder.Rating = null;
             builder.OfficialLink = "Invalid_URL";
@@ -210,13 +213,13 @@ public class GameTests
             builder.Price = -5; //Test with negative price
             builder.Playtime = (-1, 0); //Test with invalid playtime
             builder.GameDetails = (
-                genre: _faker.PickRandom(_genres),
-                platform: [], //Test with empty array platform
-                tags: _faker.PickRandom(_gameTags),
-                gameMode: string.Empty, //Test with empty game mode
-                distributionFormat: string.Empty, //Test with empty distribution format
-                availableLanguages: _faker.PickRandom(_languages),
-                supportsDlcs: _faker.Random.Bool());
+                Genre: _faker.PickRandom(_genres),
+                Platform: [], //Test with empty array platform
+                Tags: _faker.PickRandom(_gameTags),
+                GameMode: string.Empty, //Test with empty game mode
+                DistributionFormat: string.Empty, //Test with empty distribution format
+                AvailableLanguages: _faker.PickRandom(_languages),
+                SupportsDlcs: _faker.Random.Bool());
             builder.SystemRequirements = (string.Empty, _faker.Lorem.Paragraph()); //Test with empty system requirements
             builder.Rating = 11; //Test with invalid range rating
             builder.OfficialLink = "Invalid_URL"; //Test with empty url
@@ -225,8 +228,6 @@ public class GameTests
 
         var errors = result.ValidationErrors;
         int errorCount = 26;
-
-        var groupByErrors = GroupValidationErrorsByIdentifier(errors);
 
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
@@ -575,13 +576,13 @@ public class GameTests
             builder.Price = price;
             builder.Playtime = playtime;
             builder.GameDetails = (
-                genre: _faker.PickRandom(_genres),
-                platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                tags: _faker.PickRandom(_gameTags),
-                gameMode: _faker.PickRandom(_gameModes),
-                distributionFormat: _faker.PickRandom(_distributionFormats),
-                availableLanguages: _faker.PickRandom(_languages),
-                supportsDlcs: true);
+                Genre: _faker.PickRandom(_genres),
+                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
+                Tags: _faker.PickRandom(_gameTags),
+                GameMode: _faker.PickRandom(_gameModes),
+                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                AvailableLanguages: _faker.PickRandom(_languages),
+                SupportsDlcs: true);
             builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
             builder.Rating = null;
             builder.OfficialLink = _faker.Internet.Url();
@@ -610,13 +611,13 @@ public class GameTests
             builder.Price = -50;
             builder.Playtime = (_faker.Random.Int(1, 10), _faker.Random.Int(10, 100));
             builder.GameDetails = (
-                genre: _faker.PickRandom(_genres),
-                platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                tags: _faker.PickRandom(_gameTags),
-                gameMode: _faker.PickRandom(_gameModes),
-                distributionFormat: _faker.PickRandom(_distributionFormats),
-                availableLanguages: _faker.PickRandom(_languages),
-                supportsDlcs: true);
+                Genre: _faker.PickRandom(_genres),
+                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
+                Tags: _faker.PickRandom(_gameTags),
+                GameMode: _faker.PickRandom(_gameModes),
+                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                AvailableLanguages: _faker.PickRandom(_languages),
+                SupportsDlcs: true);
             builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
             builder.Rating = null;
             builder.OfficialLink = _faker.Internet.Url();
@@ -653,13 +654,13 @@ public class GameTests
             builder.Price = 50;
             builder.Playtime = (_faker.Random.Int(1, 10), _faker.Random.Int(10, 100));
             builder.GameDetails = (
-                genre: _faker.PickRandom(_genres),
-                platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                tags: _faker.PickRandom(_gameTags),
-                gameMode: _faker.PickRandom(_gameModes),
-                distributionFormat: _faker.PickRandom(_distributionFormats),
-                availableLanguages: _faker.PickRandom(_languages),
-                supportsDlcs: true);
+                Genre: _faker.PickRandom(_genres),
+                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
+                Tags: _faker.PickRandom(_gameTags),
+                GameMode: _faker.PickRandom(_gameModes),
+                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                AvailableLanguages: _faker.PickRandom(_languages),
+                SupportsDlcs: true);
             builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
             builder.Rating = null;
             builder.OfficialLink = _faker.Internet.Url();
@@ -692,13 +693,13 @@ public class GameTests
             builder.Price = 50;
             builder.Playtime = (10, 2);
             builder.GameDetails = (
-                genre: _faker.PickRandom("RPG", "Ação"),
-                platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                tags: "Indie",
-                gameMode: _faker.PickRandom(_gameModes),
-                distributionFormat: _faker.PickRandom(_distributionFormats),
-                availableLanguages: "EN-US",
-                supportsDlcs: true
+                Genre: _faker.PickRandom("RPG", "Ação"),
+                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
+                Tags: "Indie",
+                GameMode: _faker.PickRandom(_gameModes),
+                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                AvailableLanguages: "EN-US",
+                SupportsDlcs: true
             );
             builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
             builder.Rating = 5;
@@ -743,13 +744,13 @@ public class GameTests
             builder.Price = 50;
             builder.Playtime = (10, 2);
             builder.GameDetails = (
-                genre: new string('D', 501), // Max 500
-                platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                tags: new string('D', 501), // Max 500
-                gameMode: _faker.PickRandom(_gameModes),
-                distributionFormat: _faker.PickRandom(_distributionFormats),
-                availableLanguages: new string('A', 201), // Max 200
-                supportsDlcs: true
+                Genre: new string('D', 501), // Max 500
+                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
+                Tags: new string('D', 501), // Max 500
+                GameMode: _faker.PickRandom(_gameModes),
+                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                AvailableLanguages: new string('A', 201), // Max 200
+                SupportsDlcs: true
             );
             builder.SystemRequirements = (new string('M', 2001), new string('R', 2001)); // Max 2000 each
             builder.Rating = 5;
@@ -759,7 +760,6 @@ public class GameTests
 
         var errors = result.ValidationErrors;
         int errorCount = 13;
-        var groupByErrors = GroupValidationErrorsByIdentifier(errors);
 
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);

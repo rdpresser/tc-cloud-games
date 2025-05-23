@@ -9,5 +9,13 @@ namespace TC.CloudGames.Application.Exceptions
             : base(message, innerException)
         {
         }
+
+        public ConcurrencyException()
+        {
+        }
+
+        public ConcurrencyException(string message) : base(message)
+        {
+        }
     }
 }

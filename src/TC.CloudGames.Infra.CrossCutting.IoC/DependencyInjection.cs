@@ -46,7 +46,7 @@ namespace TC.CloudGames.Infra.CrossCutting.IoC
 
         private static IServiceCollection RegisterDomain(this IServiceCollection services)
         {
-            services.AddSingleton<IDuplicateKeyException, PostgresDuplicateKeyException>();
+            services.AddSingleton<IDuplicateKeyViolation, PostgresDuplicateKeyException>();
             services.AddScoped<IUserEfRepository, UserEfRepository>();
             services.AddScoped<IGameEfRepository, GameEfRepository>();
             services.AddScoped<IUnitOfWork, ApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());

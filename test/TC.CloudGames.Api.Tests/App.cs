@@ -58,52 +58,51 @@ namespace TC.CloudGames.Api.Tests
         }
 
         // Configure the web host builder before the app starts
-        protected override void ConfigureApp(IWebHostBuilder builder)
+        protected override void ConfigureApp(IWebHostBuilder a)
         {
             // Example: Use a different environment for testing
-            builder.UseEnvironment("Testing");
+            a.UseEnvironment("Testing");
             // You can also configure test-specific settings here
         }
 
         // Register or override services for testing
-        protected override void ConfigureServices(IServiceCollection services)
+        protected override void ConfigureServices(IServiceCollection s)
         {
             // Example: Replace a real service with a mock or test double
 
-            services
-                .AddFusionCache()
+            s.AddFusionCache()
                 .WithDefaultEntryOptions(options =>
                 {
                     options.Duration = TimeSpan.FromSeconds(20);
                     options.DistributedCacheDuration = TimeSpan.FromSeconds(30);
                 });
 
-            services.AddKeyedTransient($"{nameof(ValidUserContextAccessor)}.{AppConstants.AdminRole}", (sp, key) =>
+            s.AddKeyedTransient($"{nameof(ValidUserContextAccessor)}.{AppConstants.AdminRole}", (sp, key) =>
             {
                 return ValidUserContextAccessor(sp, AppConstants.AdminRole);
             });
 
-            services.AddKeyedTransient($"{nameof(ValidUserContextAccessor)}.{AppConstants.UserRole}", (sp, key) =>
+            s.AddKeyedTransient($"{nameof(ValidUserContextAccessor)}.{AppConstants.UserRole}", (sp, key) =>
             {
                 return ValidUserContextAccessor(sp, AppConstants.UserRole);
             });
 
-            services.AddKeyedTransient($"{nameof(ValidUserContextAccessor)}.{AppConstants.UnknownRole}", (sp, key) =>
+            s.AddKeyedTransient($"{nameof(ValidUserContextAccessor)}.{AppConstants.UnknownRole}", (sp, key) =>
             {
                 return ValidUserContextAccessor(sp, AppConstants.UnknownRole);
             });
 
-            services.AddKeyedTransient($"{nameof(ValidLoggedUser)}.{AppConstants.AdminRole}", (sp, key) =>
+            s.AddKeyedTransient($"{nameof(ValidLoggedUser)}.{AppConstants.AdminRole}", (sp, key) =>
             {
                 return ValidLoggedUser(sp, AppConstants.AdminRole);
             });
 
-            services.AddKeyedTransient($"{nameof(ValidLoggedUser)}.{AppConstants.UserRole}", (sp, key) =>
+            s.AddKeyedTransient($"{nameof(ValidLoggedUser)}.{AppConstants.UserRole}", (sp, key) =>
             {
                 return ValidLoggedUser(sp, AppConstants.UserRole);
             });
 
-            services.AddKeyedTransient($"{nameof(ValidLoggedUser)}.{AppConstants.UnknownRole}", (sp, key) =>
+            s.AddKeyedTransient($"{nameof(ValidLoggedUser)}.{AppConstants.UnknownRole}", (sp, key) =>
             {
                 return ValidLoggedUser(sp, AppConstants.UnknownRole);
             });
@@ -133,11 +132,10 @@ namespace TC.CloudGames.Api.Tests
             httpContextAccessor.HttpContext = httpContext;
 
             // Ensure the returned IHttpContextAccessor is not null
-            return (IHttpContextAccessor)httpContextAccessor ??
-                throw new InvalidOperationException("HttpContextAccessor cannot be null.");
+            return httpContextAccessor;
         }
 
-        protected static List<Claim> GetClaimsType(string userRole = AppConstants.AdminRole)
+        protected static IReadOnlyList<Claim> GetClaimsType(string userRole = AppConstants.AdminRole)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(userRole);
 

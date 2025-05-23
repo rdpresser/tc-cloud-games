@@ -2,7 +2,7 @@
 {
     public interface ICorrelationIdGenerator
     {
-        string Get();
-        void Set(string correlationId);
+        string CorrelationId { get; }
+        void SetCorrelationId(string correlationId);
     }
 }

@@ -25,7 +25,7 @@ TC.CloudGames is a cloud-based gaming platform built using modern software devel
 - **Serilog.Sinks.Seq** (log aggregation)
 - **FakeItEasy** (mocking for tests)
 - **AutoFixture** (test data auto-generation)
-- **Architecture Tests** (architecture tests)
+- **NetArchTest** (architecture tests)
 
 ---
 
