@@ -9,6 +9,7 @@ using Playtime = TC.CloudGames.Application.Games.CreateGame.Playtime;
 using SystemRequirements = TC.CloudGames.Application.Games.CreateGame.SystemRequirements;
 using DomainGame = TC.CloudGames.Domain.Game.Game;
 using DomainGameDetails = TC.CloudGames.Domain.Game.GameDetails;
+using Price  = TC.CloudGames.Application.Games.CreateGame.Price;
 
 namespace TC.CloudGames.Application.Tests.Games;
 
@@ -123,5 +124,24 @@ public class CreateGameTests
 
         A.CallTo(() => fakerHandler.ExecuteAsync(command, A<CancellationToken>.Ignored))
             .MustHaveHappenedOnceExactly();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(10.5)]
+    [InlineData(99999.99)]
+    public void Price_CanBeCreated_WithValidAmount(decimal amount)
+    {
+        var price = new Price(amount);
+        Assert.Equal(amount, price.Amount);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(-100)]
+    public void Price_AllowsNegativeAmount_ButShouldBeValidatedElsewhere(decimal amount)
+    {
+        var price = new Price(amount);
+        Assert.Equal(amount, price.Amount);
     }
 }
