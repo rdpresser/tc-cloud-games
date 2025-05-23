@@ -12,6 +12,7 @@ public class LoginUserCommandValidatorTests
     {
         // Arrange
         const string email = "";
+        const string password = "J35!8G0+eP8z";
         var command = new LoginUserCommand(email, password);
         
         // Act
