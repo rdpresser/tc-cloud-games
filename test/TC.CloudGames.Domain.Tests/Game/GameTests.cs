@@ -23,26 +23,26 @@ public class GameTests
     {
         _faker = new Faker();
 
-        _genres = new List<string> { "Action", "Adventure", "RPG", "Strategy", "Simulation", "Racing", "Sport", "Puzzle",
+        _genres = [ "Action", "Adventure", "RPG", "Strategy", "Simulation", "Racing", "Sport", "Puzzle",
             "Fighter", "Platform", "FPS", "TPS", "Survival", "Horror", "Stealth", "Open World", "MMORPG", "Roguelike",
             "Visual Novel", "Beat 'em up", "Battle Royale", "Musical", "Party Game", "Metroidvania", "Idle/Incremental",
-            "Tower Defense", "MOBA", "Sandbox", "Tycoon" };
+            "Tower Defense", "MOBA", "Sandbox", "Tycoon" ];
 
         _platforms = [.. DomainGameDetails.ValidPlatforms];
 
-        _gameTags = new List<string> { "Indie", "Multiplayer", "Singleplayer", "Co-op", "PvP", "PvE", "Online Co-op",
+        _gameTags = [ "Indie", "Multiplayer", "Singleplayer", "Co-op", "PvP", "PvE", "Online Co-op",
             "Local Multiplayer", "Story Rich", "Difficult", "Casual", "Anime", "Pixel Graphics", "Retro", "Funny", "Atmospheric",
             "Horror", "Sci-fi", "Fantasy", "Cyberpunk", "Steampunk", "Post-apocalyptic", "Choices Matter", "Narration",
             "Character Customization", "Exploration", "Loot", "Crafting", "Building", "Resource Management", "Base Building",
             "Turn-Based", "Real Time", "Fast-Paced", "Third Person", "First Person", "Top-Down", "Isometric", "Stylized",
             "Realistic", "Female Protagonist", "Controller Support", "VR Support", "Moddable", "Replay Value", "Open World",
-            "Procedural Generation", "Sandbox", "Nonlinear", "Mystery", "Psychological", "Dark", "Gore", "Violent" };
+            "Procedural Generation", "Sandbox", "Nonlinear", "Mystery", "Psychological", "Dark", "Gore", "Violent" ];
 
         _gameModes = [.. DomainGameDetails.ValidGameModes];
 
         _distributionFormats = [.. DomainGameDetails.ValidDistributionFormats];
 
-        _languages = new List<string> { "PT-BR", "EN-US", "ES-ES", "FR-FR", "ZH-CN", "JA-JP", "RU-RU", "KO-KR" };
+        _languages = ["PT-BR", "EN-US", "ES-ES", "FR-FR", "ZH-CN", "JA-JP", "RU-RU", "KO-KR"];
 
         _gameStatus = [.. DomainGame.ValidGameStatus];
 
@@ -390,7 +390,7 @@ public class GameTests
             builder.GameDetails = DomainGameDetails.Create(builder =>
             {
                 builder.Genre = _faker.PickRandom(_genres);
-                builder.Platform = _faker.PickRandom(_platforms, 3).ToArray();
+                builder.Platform = [.. _faker.PickRandom(_platforms, 3)];
                 builder.Tags = _faker.PickRandom(_gameTags);
                 builder.GameMode = _faker.PickRandom(_gameModes);
                 builder.DistributionFormat = _faker.PickRandom(_distributionFormats);
@@ -527,7 +527,7 @@ public class GameTests
             builder.GameDetails = DomainGameDetails.Create(builder =>
             {
                 builder.Genre = _faker.PickRandom(_genres);
-                builder.Platform = _faker.PickRandom(_platforms, 3).ToArray();
+                builder.Platform = [.. _faker.PickRandom(_platforms, 3)];
                 builder.Tags = _faker.PickRandom(_gameTags);
                 builder.GameMode = _faker.PickRandom(_gameModes);
                 builder.DistributionFormat = _faker.PickRandom(_distributionFormats);

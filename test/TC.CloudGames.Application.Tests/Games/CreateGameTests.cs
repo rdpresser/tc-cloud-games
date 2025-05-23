@@ -32,7 +32,7 @@ public class CreateGameTests
             Playtime: new Playtime(10, 1),
             GameDetails: new GameDetails(
                 Genre: "Test Genre",
-                Platform: new[] { "PC" },
+                Platform: ["PC"],
                 Tags: "Action,Adventure",
                 GameMode: "Singleplayer",
                 DistributionFormat: "Digital",
