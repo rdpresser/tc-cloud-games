@@ -8,16 +8,19 @@ namespace TC.CloudGames.Application.Exceptions
         public IEnumerable<ValidationError> Errors { get; }
 
         public ValidationException()
+            : base("One or more validation failures have occurred.")
         {
             Errors = [];
         }
 
-        public ValidationException(string message) : base(message)
+        public ValidationException(string message)
+            : base(message)
         {
             Errors = [new(message)];
         }
 
-        public ValidationException(string message, Exception innerException) : base(message, innerException)
+        public ValidationException(string message, Exception innerException)
+            : base(message, innerException)
         {
             Errors = [new(message)];
         }
