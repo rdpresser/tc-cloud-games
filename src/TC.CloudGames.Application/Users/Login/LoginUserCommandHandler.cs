@@ -15,7 +15,7 @@ internal sealed class LoginUserCommandHandler : CommandHandler<LoginUserCommand,
         _tokenProvider = tokenProvider;
     }
 
-    public override async Task<Result<LoginUserResponse>> ExecuteAsync(LoginUserCommand command, CancellationToken ct)
+    public override async Task<Result<LoginUserResponse>> ExecuteAsync(LoginUserCommand command, CancellationToken ct = default)
     {
         var userDb = await Repository
             .GetByEmailWithPasswordAsync

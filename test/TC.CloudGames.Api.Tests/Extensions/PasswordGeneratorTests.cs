@@ -1,8 +1,9 @@
 ﻿using TC.CloudGames.Api.Extensions;
+using TC.CloudGames.Api.Tests.Abstractions;
 
 namespace TC.CloudGames.Api.Tests.Extensions
 {
-    public class PasswordGeneratorTests(App App) : TestBase<App>
+    public class PasswordGeneratorTests : TestBase<App>
     {
         [Fact]
         public void GeneratePassword_ValidLength_ReturnsPassword()

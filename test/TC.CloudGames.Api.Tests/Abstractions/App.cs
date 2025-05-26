@@ -9,7 +9,7 @@ using ZiggyCreatures.Caching.Fusion;
 using DomainGame = TC.CloudGames.Domain.Game.Game;
 using DomainGameDetails = TC.CloudGames.Domain.Game.GameDetails;
 
-namespace TC.CloudGames.Api.Tests
+namespace TC.CloudGames.Api.Tests.Abstractions
 {
     public class App : AppFixture<Program>
     {
@@ -61,7 +61,7 @@ namespace TC.CloudGames.Api.Tests
         protected override void ConfigureApp(IWebHostBuilder a)
         {
             // Example: Use a different environment for testing
-            a.UseEnvironment("Testing");
+            a.UseEnvironment("Development");
             // You can also configure test-specific settings here
         }
 
@@ -131,7 +131,6 @@ namespace TC.CloudGames.Api.Tests
             };
             httpContextAccessor.HttpContext = httpContext;
 
-            // Ensure the returned IHttpContextAccessor is not null
             return httpContextAccessor;
         }
 

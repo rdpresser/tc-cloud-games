@@ -14,6 +14,8 @@ global using TC.CloudGames.Infra.CrossCutting.Commons.Middleware;
 global using TC.CloudGames.Infra.Data;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("TC.CloudGames.Api.Tests")]
+[assembly: InternalsVisibleTo("TC.CloudGames.Integration.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 // REMARK: Required for functional and integration tests to work.
 namespace TC.CloudGames.Api

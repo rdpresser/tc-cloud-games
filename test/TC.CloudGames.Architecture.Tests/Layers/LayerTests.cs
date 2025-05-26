@@ -2,7 +2,7 @@
 using Shouldly;
 using TestResult = NetArchTest.Rules.TestResult;
 
-namespace ArchitectureTests.Layers
+namespace TC.CloudGames.Architecture.Tests.Layers
 {
     public class LayerTests : BaseTest
     {

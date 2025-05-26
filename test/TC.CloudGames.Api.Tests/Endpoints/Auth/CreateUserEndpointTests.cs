@@ -1,10 +1,11 @@
 ﻿using TC.CloudGames.Api.Endpoints.Auth;
+using TC.CloudGames.Api.Tests.Abstractions;
 using TC.CloudGames.Application.Users.CreateUser;
 using TC.CloudGames.Domain.User.Abstractions;
 
 namespace TC.CloudGames.Api.Tests.Endpoints.Auth
 {
-    public class CreateUserEndpointTests(App App) : TestBase<App>
+    public class CreateUserEndpointTests : TestBase<App>
     {
         [Fact]
         public async Task CreateUser_ValidData_ReturnsSuccess()

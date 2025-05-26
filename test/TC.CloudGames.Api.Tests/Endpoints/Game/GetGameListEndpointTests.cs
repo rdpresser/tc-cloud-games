@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using TC.CloudGames.Api.Endpoints.Game;
+using TC.CloudGames.Api.Tests.Abstractions;
 using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Games.GetGameList;
 using TC.CloudGames.Domain.Game;

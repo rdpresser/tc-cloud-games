@@ -4,7 +4,7 @@ using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Domain.User;
 using TC.CloudGames.Infra.Data;
 
-namespace ArchitectureTests
+namespace TC.CloudGames.Architecture.Tests
 {
     public abstract class BaseTest
     {
