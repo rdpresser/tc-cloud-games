@@ -1,0 +1,12 @@
+sonar.host.url=http://localhost:9000
+sonar.projectKey=tc-cloudgames-local
+sonar.login=sqp_c3c48b658840cb4ba8ae948682f254550baf4845
+sonar.sources=src/
+sonar.language=cs
+sonar.cs.vscoveragexml.reportsPaths=./TestResults/coverage.xml
+sonar.coverage.exclusions=**/mocks/**,**/dto/**
+
+# Additional configurations for .NET Core projects
+sonar.dotnet.key=TC.CloudGames.sln
+sonar.dotnet.tests=test/
+sonar.sourceEncoding=UTF-8

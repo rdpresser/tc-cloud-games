@@ -2,7 +2,7 @@
 
 namespace TC.CloudGames.Integration.Tests.User
 {
-    internal class GetUserByEmailEndpointTests(App App) : TestBase<App>
+    public class GetUserByEmailEndpointTests(App App) : TestBase<App>
     {
     }
 }

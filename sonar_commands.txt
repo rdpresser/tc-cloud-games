@@ -1,0 +1,54 @@
+#rodar apenas se ainda não estiver instalado
+dotnet tool install --global dotnet-sonarscanner
+
+dotnet sonarscanner begin /k:"tc-cloudgames-local" /d:sonar.host.url="http://localhost:9000"  /d:sonar.token="sqp_c3c48b658840cb4ba8ae948682f254550baf4845"
+dotnet build TC.CloudGames.sln
+dotnet test TC.CloudGames.sln /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/coverage.xml
+dotnet sonarscanner end /d:sonar.token="sqp_c3c48b658840cb4ba8ae948682f254550baf4845"
+
+dotnet sonarscanner begin /k:"tc-cloudgames-local" /d:sonar.host.url="http://localhost:9000" /d:sonar.login="sqp_c3c48b658840cb4ba8ae948682f254550baf4845"
+dotnet build TC.CloudGames.sln
+dotnet test TC.CloudGames.sln /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/coverage.xml
+dotnet sonarscanner end /d:sonar.login="sqp_c3c48b658840cb4ba8ae948682f254550baf4845"
+
+
+dotnet msbuild TC.CloudGames.sln /t:RunCodeCoverageAndSonar
+dotnet msbuild TC.CloudGames.sln /t:Test;RunCodeCoverageAndSonar
+
+
+<Project>
+  <Target Name="RunCodeCoverageAndSonar" AfterTargets="Test">
+    <Exec Command="dotnet sonarscanner begin /k:'tc-cloudgames-local' /d:sonar.host.url='http://localhost:9000'  /d:sonar.token='sqp_c3c48b658840cb4ba8ae948682f254550baf4845'" />
+    <Exec Command="dotnet build TC.CloudGames.sln" />
+    <Exec Command="dotnet test TC.CloudGames.sln /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/coverage.xml" />
+    <Exec Command="dotnet sonarscanner end /d:sonar.token='sqp_c3c48b658840cb4ba8ae948682f254550baf4845'" />
+  </Target>
+</Project>
+
+<Project>
+  <Target Name="RunCodeCoverageAndSonar" AfterTargets="Test">
+    <Exec Command="dotnet sonarscanner begin /k:'tc-cloudgames-local' /d:sonar.host.url='http://localhost:9000'  /d:sonar.login='sqp_c3c48b658840cb4ba8ae948682f254550baf4845'" />
+    <Exec Command="dotnet build TC.CloudGames.sln" />
+    <Exec Command="dotnet test TC.CloudGames.sln /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/coverage.xml" />
+    <Exec Command="dotnet sonarscanner end /d:sonar.login='sqp_c3c48b658840cb4ba8ae948682f254550baf4845'" />
+  </Target>
+</Project>
+
+
+
+<Target Name="RunCodeCoverageAndSonar" AfterTargets="Test">
+    <Exec Command="dotnet sonarscanner begin /k:'tc-cloudgames-local' /d:sonar.host.url='http://localhost:9000'  /d:sonar.login='sqp_c3c48b658840cb4ba8ae948682f254550baf4845'" />
+    <Exec Command="dotnet build TC.CloudGames.sln" />
+    <Exec Command="dotnet test TC.CloudGames.sln /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./TestResults/coverage.xml" />
+    <Exec Command="dotnet sonarscanner end /d:sonar.login='sqp_c3c48b658840cb4ba8ae948682f254550baf4845'" />
+  </Target>
+
+
+dotnet test "./TC.CloudGames.Api.csproj" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=/app/TestResults/coverage.xml
+
+
+
+dotnet tool install --global dotnet-sonarscanner
+dotnet sonarscanner begin /k:"tc-cloudgames-local" /d:sonar.host.url="http://localhost:9000"  /d:sonar.token="sqp_c3c48b658840cb4ba8ae948682f254550baf4845"
+dotnet build
+dotnet sonarscanner end /d:sonar.token="sqp_c3c48b658840cb4ba8ae948682f254550baf4845"

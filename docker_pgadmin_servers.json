@@ -10,6 +10,17 @@
       "Password": "postgres",
       "PassFile": "/pgadmin4/pgpass",
       "SSLMode": "prefer"
+    },
+    "2": {
+      "Name": "tc-cloudgames-sonarqube-db",
+      "Group": "Servers",
+      "Host": "tc-cloudgames-db",
+      "Port": 5432,
+      "MaintenanceDB": "sonarqube",
+      "Username": "postgres",
+      "Password": "postgres",
+      "PassFile": "/pgadmin4/pgpass",
+      "SSLMode": "prefer"
     }
   }
 }

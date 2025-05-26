@@ -10,8 +10,12 @@
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     <EfCoreVersion>9.0.5</EfCoreVersion>
     <ExtensionsVersion>9.0.5</ExtensionsVersion>
+    <!--<SonarProjectKey>tc-cloudgames-local</SonarProjectKey>
+    <SonarHostUrl>http://localhost:9000</SonarHostUrl>-->
+    <!--<SonarLoginToken>sqp_c3c48b658840cb4ba8ae948682f254550baf4845</SonarLoginToken>
+    <CoverageOutput>$(MSBuildProjectDirectory)\TestResults\coverage.xml</CoverageOutput>-->
   </PropertyGroup>
-  
+
   <ItemGroup>
     <!-- Entity Framework Core packages -->
     <PackageReference Update="Microsoft.EntityFrameworkCore" Version="$(EfCoreVersion)" />
@@ -22,7 +26,7 @@
     <PackageReference Update="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(EfCoreVersion)" />
     <PackageReference Update="EFCore.NamingConventions" Version="$(EfCoreVersion)" />
     <PackageReference Update="Z.EntityFramework.Plus.EFCore" Version="$(EfCoreVersion)" />
-    
+
     <!-- Microsoft Extensions packages -->
     <PackageReference Update="Microsoft.Extensions.Caching.Memory" Version="$(ExtensionsVersion)" />
     <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="$(ExtensionsVersion)" />
@@ -36,4 +40,19 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <!--<Target Name="RunCodeCoverageAndSonar" AfterTargets="Test">
+    --><!-- Start SonarQube Analysis --><!--
+    <Exec Command="dotnet sonarscanner begin /k:$(SonarProjectKey) /d:sonar.host.url=$(SonarHostUrl) /d:sonar.login=$(SonarLoginToken)" />
+
+    --><!-- Run Build --><!--
+    <Exec Command="dotnet build $(MSBuildProjectDirectory)/TC.CloudGames.sln" />
+
+    --><!-- Run Tests and Collect Code Coverage --><!--
+    <Exec Command="dotnet test $(MSBuildProjectDirectory)/TC.CloudGames.sln /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(CoverageOutput)" />
+
+    --><!-- End SonarQube Analysis --><!--
+    <Exec Command="dotnet sonarscanner end /d:sonar.login=$(SonarLoginToken)" />
+  </Target>-->
+
 </Project>
