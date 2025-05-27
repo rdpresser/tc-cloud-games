@@ -367,3 +367,4 @@ FodyWeavers.xsd
 
 .containers/
 /.gitattributes
+.sonarqube

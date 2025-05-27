@@ -1,4 +1,5 @@
 ﻿using TC.CloudGames.Api.Endpoints.Game;
+using TC.CloudGames.Api.Tests.Abstractions;
 using TC.CloudGames.Application.Games.CreateGame;
 using TC.CloudGames.Domain.Game.Abstractions;
 

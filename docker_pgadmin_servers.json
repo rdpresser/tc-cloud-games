@@ -9,7 +9,11 @@
       "Username": "postgres",
       "Password": "postgres",
       "PassFile": "/pgadmin4/pgpass",
-      "SSLMode": "prefer"
+      "SSLMode": "prefer",
+      "Databases": {
+        "tc_cloud_games": {},
+        "sonarqube": {}
+      }
     }
   }
 }

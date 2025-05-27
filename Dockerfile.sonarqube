@@ -1,0 +1,17 @@
+#FROM python:3.12-alpine
+#
+## Install required dependencies
+#RUN apk add --no-cache curl jq icu-libs bash ca-certificates libc6-compat \
+#    && mkdir -p /usr/share/dotnet \
+#    && curl -L -o dotnet-sdk.tar.gz https://sourceforge.net/projects/dotnet-sdk.mirror/files/v9.0.200/dotnet-sdk-9.0.200-linux-x64.tar.gz/download \
+#    && tar -xzf dotnet-sdk.tar.gz -C /usr/share/dotnet \
+#    && rm dotnet-sdk.tar.gz \
+#    && export DOTNET_ROOT=/usr/share/dotnet \
+#    && export PATH=$DOTNET_ROOT:$PATH \
+#    && dotnet tool install --global dotnet-sonarscanner \
+#    && dotnet tool install --global dotnet-reportgenerator-globaltool \
+#    && python3 -m pip install --upgrade pip \
+#    && pip install requests
+#
+#WORKDIR /scripts
+#CMD ["python3", "/scripts/setup_sonar_token.py"]

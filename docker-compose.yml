@@ -16,7 +16,14 @@ services:
       - tc-cloudgames-db
       - tc-cloudgames-redis
       - tc-cloudgames-seq
-
+      - tc-cloudgames-sonarqube
+    command: ["dotnet", "TC.CloudGames.Api.dll"]
+    volumes:
+      - ./scripts/:/scripts
+      - sonar_token_data:/token_data
+    environment:
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+      
   tc-cloudgames-db:
     image: postgres:latest
     container_name: TC.CloudGames.Db
@@ -25,9 +32,90 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./.containers/database:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "54320:5432"
+    networks:
+      - my-network
+
+  # for future versions to automate the sonar setup project
+  # tc-cloudgames-sonarqube-setup:
+  #   build:
+  #     context: ./
+  #     dockerfile: Dockerfile.sonarqube  
+  #   container_name: TC.CloudGames.SonarQube.Setup
+  #   depends_on:
+  #     - tc-cloudgames-sonarqube
+  #   volumes:
+  #     - ./scripts/:/scripts
+  #     - sonar_token_data:/token_data
+  #   networks:
+  #     - my-network
+
+  # tc-cloudgames-sonarqube-setup:
+  #   image: python:3.12-alpine 
+  #   container_name: TC.CloudGames.SonarQube.Setup
+  #   depends_on:
+  #     - tc-cloudgames-sonarqube
+  #   volumes:
+  #     - ./scripts/:/scripts
+  #     - sonar_token_data:/token_data
+  #   networks:
+  #     - my-network
+  #   entrypoint: >
+  #     sh -c "
+  #     set -x;
+      
+  #     echo 'Current Directory ...' && pwd && \
+      
+  #     echo 'Checking if code_coverage.sh exists...' && ls -l /scripts/code_coverage.sh && cat -A /scripts/code_coverage.sh && \
+      
+  #     echo 'Updating package lists and installing dependencies...' && apk add --no-cache curl jq dotnet-sdk-9 dotnet-runtime dotnet-aspnetcore && \
+      
+  #     echo 'Installing .NET global tools...' && dotnet tool install --global dotnet-sonarscanner && \
+  #     dotnet tool install --global dotnet-reportgenerator-globaltool && \
+      
+  #     echo 'Upgrading pip...' && python3 -m pip install --upgrade pip && \
+      
+  #     echo 'Installing Python dependencies...' && pip install requests && \
+      
+  #     echo 'Setting executable permissions for code_coverage.sh...' && chmod +x /scripts/code_coverage.sh && \
+      
+  #     echo 'Running setup_sonar_token.py ...' && python3 /scripts/setup_sonar_token.py
+  #     "   
+
+  tc-cloudgames-sonarqube-db-init:
+    image: postgres:latest
+    container_name: TC.CloudGames.SonarQube.DbInit
+    depends_on:
+      - tc-cloudgames-db
+    environment:
+      - PGPASSWORD=postgres
+    entrypoint: >
+      sh -c "
+      echo 'Waiting for PostgreSQL to be ready...';
+      until pg_isready -h tc-cloudgames-db -U postgres; do sleep 2; done;
+      echo 'Initializing SonarQube database...';
+      psql -U postgres -h tc-cloudgames-db -tc 'SELECT 1 FROM pg_database WHERE datname = ''sonarqube'';' | grep -q 1 || psql -U postgres -h tc-cloudgames-db -c 'CREATE DATABASE sonarqube;'"
+    networks:
+      - my-network
+
+  tc-cloudgames-sonarqube:
+    image: sonarqube:latest
+    container_name: TC.CloudGames.SonarQube
+    depends_on:
+      - tc-cloudgames-db
+      - tc-cloudgames-sonarqube-db-init
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://tc-cloudgames-db:5432/sonarqube
+      - SONAR_JDBC_USERNAME=postgres
+      - SONAR_JDBC_PASSWORD=postgres
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    ports:
+      - "9000:9000"
     networks:
       - my-network
 
@@ -51,24 +139,35 @@ services:
     networks:
       - my-network
     volumes:
-      - ./.containers/redis:/data
+      - redis_data:/data
     command: redis-server --appendonly yes --appendfilename appendonly.aof --dir /data
 
   tc-cloudgames-DbManagement:
     image: dpage/pgadmin4:latest
     container_name: TC.CloudGames.PgAdmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
     ports:
-      - 15432:80
+      - "15432:80"
     networks:
       - my-network
     volumes:
-      - ./.containers/pgadmin:/var/lib/pgadmin
+      - pgadmin_data:/var/lib/pgadmin
       - ./docker_pgadmin_servers.json:/pgadmin4/servers.json
     depends_on:
       - tc-cloudgames-db
+
 networks:
   my-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  pgadmin_data:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  sonar_token_data:
+    driver: local

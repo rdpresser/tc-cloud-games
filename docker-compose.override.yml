@@ -6,6 +6,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
       - DB_HOST=tc-cloudgames-db
       - DB_PORT=5432
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
@@ -23,14 +24,20 @@ services:
       - ${USERPROFILE:-$HOME}/.aspnet/https:/https:ro
     entrypoint: >
       sh -c "
-        CERT_PATH_LINUX=$HOME/.aspnet/https/aspnetapp.pfx;
-        CERT_PATH_WINDOWS=$USERPROFILE/.aspnet/https/aspnetapp.pfx;
+      CERT_PATH_LINUX=/home/app/.aspnet/https/aspnetapp.pfx;
+      CERT_PATH_WINDOWS=/root/.aspnet/https/aspnetapp.pfx;
       
-        if [ ! -f /https/aspnetapp.pfx ]; then  
-          if [ -f $CERT_PATH_LINUX ]; then  
-            cp $CERT_PATH_LINUX /https/aspnetapp.pfx;  
-          elif [ -f $CERT_PATH_WINDOWS ]; then  
-            cp $CERT_PATH_WINDOWS /https/aspnetapp.pfx;  
-          fi;  
-        fi &&
-        dotnet TC.CloudGames.Api.dll"
+      echo 'Checking for SSL certificate...';
+      if [ ! -f /https/aspnetapp.pfx ]; then
+        if [ -f $CERT_PATH_LINUX ]; then
+          cp $CERT_PATH_LINUX /https/aspnetapp.pfx;
+          echo 'SSL certificate copied from Linux path.';
+        elif [ -f $CERT_PATH_WINDOWS ]; then
+          cp $CERT_PATH_WINDOWS /https/aspnetapp.pfx;
+          echo 'SSL certificate copied from Windows path.';
+        else
+          echo 'WARNING: No SSL certificate found!';
+        fi;
+      fi;
+      
+      dotnet run --project src/TC.CloudGames.Api/TC.CloudGames.Api.csproj"

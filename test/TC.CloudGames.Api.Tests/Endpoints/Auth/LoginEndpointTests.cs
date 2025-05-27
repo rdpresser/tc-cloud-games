@@ -1,10 +1,11 @@
 ﻿using TC.CloudGames.Api.Endpoints.Auth;
+using TC.CloudGames.Api.Tests.Abstractions;
 using TC.CloudGames.Application.Users.Login;
 using TC.CloudGames.Domain.User.Abstractions;
 
 namespace TC.CloudGames.Api.Tests.Endpoints.Auth
 {
-    public class LoginEndpointTests(App App) : TestBase<App>
+    public class LoginEndpointTests : TestBase<App>
     {
         [Fact]
         public async Task Login_ValidCredentials_ReturnsSuccess()
@@ -111,35 +112,5 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Auth
             result.Errors.ToArray()[0].ShouldBeOfType<string>();
             result.Errors.ToArray()[0].ShouldBe(UserDomainErrors.InvalidCredentials.ErrorMessage);
         }
-
-        /*
-         * Save the code below when creating integration testing, because this code calls the full integration testing
-         */
-        //[Fact]
-        //public async Task Login_ValidCredentials_ReturnsSuccess_2()
-        //{
-        //    // Arrange
-        //    var loginRes = new LoginUserResponse("<jwt-toke>", "user@user.com");
-        //    var loginReq = new LoginUserCommand(Email: "user@user.com", Password: "User@123");
-
-        //    // Act
-        //    var (rsp, res) = await App.Client
-        //        .POSTAsync<LoginEndpoint, LoginUserCommand, LoginUserResponse>(loginReq);
-
-        //    // Assert
-        //    rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
-        //    res.Email.ShouldBe(loginRes.Email);
-        //    res.JwtToken.ShouldBe(loginRes.JwtToken);
-        //}
-
-        //[Fact]
-        //public async Task Login_InvalidCredentials_ReturnsFailure()
-        //{
-        //    var (rsp, res) = await App.Client.POSTAsync<LoginEndpoint, LoginUserCommand, LoginUserResponse>(
-        //                         new(Email: "invaliduser", Password: "wrongpassword"));
-
-        //    rsp.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
-        //    res.ShouldBeNull();
-        //}
     }
 }

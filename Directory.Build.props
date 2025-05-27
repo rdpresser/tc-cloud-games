@@ -11,7 +11,7 @@
     <EfCoreVersion>9.0.5</EfCoreVersion>
     <ExtensionsVersion>9.0.5</ExtensionsVersion>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <!-- Entity Framework Core packages -->
     <PackageReference Update="Microsoft.EntityFrameworkCore" Version="$(EfCoreVersion)" />
@@ -22,7 +22,7 @@
     <PackageReference Update="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(EfCoreVersion)" />
     <PackageReference Update="EFCore.NamingConventions" Version="$(EfCoreVersion)" />
     <PackageReference Update="Z.EntityFramework.Plus.EFCore" Version="$(EfCoreVersion)" />
-    
+
     <!-- Microsoft Extensions packages -->
     <PackageReference Update="Microsoft.Extensions.Caching.Memory" Version="$(ExtensionsVersion)" />
     <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="$(ExtensionsVersion)" />
@@ -36,4 +36,5 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
 </Project>
