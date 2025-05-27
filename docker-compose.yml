@@ -18,6 +18,9 @@ services:
       - tc-cloudgames-seq
       - tc-cloudgames-sonarqube
     command: ["dotnet", "TC.CloudGames.Api.dll"]
+    volumes:
+      - ./scripts/:/scripts
+      - sonar_token_data:/token_data
     environment:
       - DOTNET_USE_POLLING_FILE_WATCHER=1
       
@@ -34,6 +37,54 @@ services:
       - "54320:5432"
     networks:
       - my-network
+
+  # for future versions to automate the sonar setup project
+  # tc-cloudgames-sonarqube-setup:
+  #   build:
+  #     context: ./
+  #     dockerfile: Dockerfile.sonarqube  
+  #   container_name: TC.CloudGames.SonarQube.Setup
+  #   depends_on:
+  #     - tc-cloudgames-sonarqube
+  #   volumes:
+  #     - ./scripts/:/scripts
+  #     - sonar_token_data:/token_data
+  #   networks:
+  #     - my-network
+
+  # tc-cloudgames-sonarqube-setup:
+  #   image: python:3.12-alpine 
+  #   container_name: TC.CloudGames.SonarQube.Setup
+  #   depends_on:
+  #     - tc-cloudgames-sonarqube
+  #   volumes:
+  #     - ./scripts/:/scripts
+  #     - sonar_token_data:/token_data
+  #   networks:
+  #     - my-network
+  #   entrypoint: >
+  #     sh -c "
+  #     set -x;
+      
+  #     echo 'Current Directory ...' && pwd && \
+      
+  #     echo 'Checking if code_coverage.sh exists...' && ls -l /scripts/code_coverage.sh && cat -A /scripts/code_coverage.sh && \
+      
+  #     echo 'Updating package lists and installing dependencies...' && apk add --no-cache curl jq dotnet-sdk-9 dotnet-runtime dotnet-aspnetcore && \
+      
+  #     echo 'Installing .NET global tools...' && dotnet tool install --global dotnet-sonarscanner && \
+  #     dotnet tool install --global dotnet-reportgenerator-globaltool && \
+      
+  #     echo 'Upgrading pip...' && python3 -m pip install --upgrade pip && \
+      
+  #     echo 'Installing Python dependencies...' && pip install requests && \
+      
+  #     echo 'Setting executable permissions for code_coverage.sh...' && chmod +x /scripts/code_coverage.sh && \
+      
+  #     echo 'Running setup_sonar_token.py ...' && python3 /scripts/setup_sonar_token.py
+  #     "
+  
+  
 
   tc-cloudgames-sonarqube-db-init:
     image: postgres:latest
@@ -120,3 +171,5 @@ volumes:
   sonarqube_data:
   sonarqube_logs:
   sonarqube_extensions:
+  sonar_token_data:
+    driver: local

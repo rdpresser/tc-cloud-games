@@ -52,6 +52,8 @@ dotnet test "./TC.CloudGames.Api.csproj" /p:CollectCoverage=true /p:CoverletOutp
 
 
 dotnet tool install --global dotnet-sonarscanner
+dotnet tool install -g dotnet-reportgenerator-globaltool
+
 dotnet sonarscanner begin /k:"tc-cloudgames-local" /d:sonar.host.url="http://localhost:9000"  /d:sonar.token="sqp_c3c48b658840cb4ba8ae948682f254550baf4845"
 dotnet build
 dotnet sonarscanner end /d:sonar.token="sqp_c3c48b658840cb4ba8ae948682f254550baf4845"
@@ -127,7 +129,7 @@ dotnet sonarscanner end `
 dotnet sonarscanner begin `
   /k:"tc-cloudgames-local" `
   /d:sonar.host.url="http://localhost:9000" `
-  /d:sonar.login="sqp_c3c48b658840cb4ba8ae948682f254550baf4845"
+  /d:sonar.login="sqp_6c39a1e2c3660f81957ba7e5bf04dcdcd1bb76c0"
 
 dotnet build ".\src\TC.CloudGames.Api\TC.CloudGames.Api.csproj"
 
@@ -143,4 +145,4 @@ reportgenerator `
   -reporttypes:Cobertura
 
 dotnet sonarscanner end `
-  /d:sonar.login="sqp_c3c48b658840cb4ba8ae948682f254550baf4845"
+  /d:sonar.login="sqp_6c39a1e2c3660f81957ba7e5bf04dcdcd1bb76c0"

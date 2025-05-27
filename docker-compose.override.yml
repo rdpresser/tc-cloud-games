@@ -41,4 +41,3 @@ services:
       fi;
       
       dotnet run --project src/TC.CloudGames.Api/TC.CloudGames.Api.csproj"
-

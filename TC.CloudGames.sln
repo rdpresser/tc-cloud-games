@@ -62,6 +62,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Integration.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Architecture.Tests", "test\TC.CloudGames.Architecture.Tests\TC.CloudGames.Architecture.Tests.csproj", "{0BA9E97A-F7E7-E7F6-A68C-FD4DF32B1AA6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{88030581-FE52-48D2-8A3D-2B43555E2234}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\code_coverage.bat = scripts\code_coverage.bat
+		scripts\code_coverage.sh = scripts\code_coverage.sh
+		scripts\setup-devcert.bat = scripts\setup-devcert.bat
+		scripts\setup-devcert.sh = scripts\setup-devcert.sh
+		scripts\setup_sonar_token.py = scripts\setup_sonar_token.py
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{A9FC732A-88B8-49D0-B09F-0FDFD232EEE5}"
+	ProjectSection(SolutionItems) = preProject
+		images\001_Docker_Compose_Startup_Project.png = images\001_Docker_Compose_Startup_Project.png
+		images\002_ER_Diagram.png = images\002_ER_Diagram.png
+		images\003_pgAdmin_login_screen.png = images\003_pgAdmin_login_screen.png
+		images\004_database_server_login.png = images\004_database_server_login.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +160,8 @@ Global
 		{04129191-BF54-4E04-984E-D85A171ED6BB} = {4BE74EE1-B5C8-4AF3-8024-5F60C13EC1BD}
 		{58C92CCD-B95B-4A47-88DC-7C4C22885018} = {0A426525-9ABE-45D4-A67A-80635BB57C71}
 		{0BA9E97A-F7E7-E7F6-A68C-FD4DF32B1AA6} = {8C5BAD6D-B133-4B38-8C22-1C13F57CB033}
+		{88030581-FE52-48D2-8A3D-2B43555E2234} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
+		{A9FC732A-88B8-49D0-B09F-0FDFD232EEE5} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A61EC7C9-970A-4856-9FA0-A09EE45536BB}
