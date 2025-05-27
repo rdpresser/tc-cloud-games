@@ -1,42 +1,51 @@
 @echo off
 setlocal
 
-:: Define certificate variables
+:: Configura variáveis
 set CERT_PASSWORD=SecurePassword123!
 set CERT_DIR=%USERPROFILE%\.aspnet\https
 set CERT_FILE=%CERT_DIR%\aspnetapp.pfx
 
-echo Setting up ASP.NET Core development certificate for HTTPS...
+echo ===========================================
+echo == ASP.NET Core HTTPS Certificate Script ==
+echo ===========================================
 
-:: Create the directory if it doesn't exist
+:: Cria diretório se não existir
 if not exist "%CERT_DIR%" (
-  echo Creating certificate directory: %CERT_DIR%
-  mkdir "%CERT_DIR%"
+    echo Creating certificate directory at: %CERT_DIR%
+    mkdir "%CERT_DIR%"
 )
 
-:: Check if certificate already exists
+:: Se existir um arquivo com o nome, remove pasta que foi criada erroneamente
+if exist "%CERT_FILE%\" (
+    echo Warning: A folder named aspnetapp.pfx exists. Removing...
+    rmdir /S /Q "%CERT_FILE%"
+)
+
+:: Verifica se o certificado já existe
 if exist "%CERT_FILE%" (
-  echo Certificate already exists at %CERT_FILE%
-  echo To regenerate, first run 'dotnet dev-certs https --clean' and then run this script again.
+    echo Certificate already exists at %CERT_FILE%
+    echo If you want to regenerate it, run 'dotnet dev-certs https --clean' and then this script again.
 ) else (
-  :: Clean any existing certificates
-  echo Cleaning existing development certificates...
-  dotnet dev-certs https --clean
-  
-  :: Create and trust a new certificate
-  echo Creating and trusting a new development certificate...
-  dotnet dev-certs https --trust
-  
-  :: Export the certificate
-  echo Exporting certificate to %CERT_FILE% with password...
-  dotnet dev-certs https -ep "%CERT_FILE%" -p "%CERT_PASSWORD%"
-  
-  echo Certificate created and exported successfully.
+    echo Cleaning existing development certificates...
+    dotnet dev-certs https --clean
+
+    echo Creating and trusting a new development certificate...
+    dotnet dev-certs https --trust
+
+    echo Exporting certificate to %CERT_FILE% with password...
+    dotnet dev-certs https -ep "%CERT_FILE%" -p "%CERT_PASSWORD%"
+
+    if exist "%CERT_FILE%" (
+        echo Certificate created successfully at %CERT_FILE%
+    ) else (
+        echo ERROR: Failed to create the certificate.
+    )
 )
 
+echo ===========================================
 echo Dev certificate setup complete!
-echo HTTPS should now work in Docker with the ASP.NET Core application.
-echo Use 'docker compose up' to start your application.
+echo ===========================================
 
 endlocal
-
+pause
