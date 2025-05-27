@@ -8,14 +8,14 @@ public class LoginUserCommandTests
     public async Task LoginUserCommand_ShouldReturnSuccess_WhenValidCredentials()
     {
         // Arrange
-        var email = "teste@exemplo.com";
-        var senha = "senha123";
+        const string email = "test@example.com";
+        const string password = "password123";
         
         // Act
-        var command = new LoginUserCommand(email, senha);
+        var command = new LoginUserCommand(email, password);
         
         //Assert
         Assert.Equal(email, command.Email);
-        Assert.Equal(senha, command.Password);
+        Assert.Equal(password, command.Password);
     }
 }

@@ -1,10 +1,8 @@
 ﻿using Bogus;
 using FakeItEasy;
-using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Application.Games.CreateGame;
 using TC.CloudGames.Domain.Game;
-using TC.CloudGames.Domain.Game.Abstractions;
 using DeveloperInfo = TC.CloudGames.Application.Games.CreateGame.DeveloperInfo;
 using GameDetails = TC.CloudGames.Application.Games.CreateGame.GameDetails;
 using Playtime = TC.CloudGames.Application.Games.CreateGame.Playtime;
@@ -17,7 +15,6 @@ namespace TC.CloudGames.Application.Tests.Games;
 
 public class CreateGameTests
 {
-
     private readonly Faker _faker;
     private readonly List<string> _genres;
     private readonly List<string> _platforms;

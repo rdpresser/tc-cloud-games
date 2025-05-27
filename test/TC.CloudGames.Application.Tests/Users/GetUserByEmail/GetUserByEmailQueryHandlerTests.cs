@@ -1,7 +1,7 @@
 ﻿using Ardalis.Result;
+using Bogus;
 using FakeItEasy;
 using FastEndpoints;
-using NSubstitute;
 using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
@@ -12,6 +12,13 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
 {
     public class GetUserByEmailQueryHandlerTests
     {
+        private readonly Faker _faker;
+
+        public GetUserByEmailQueryHandlerTests()
+        {
+            _faker = new Faker();
+        }
+        
         [Fact]
         public async Task ExecuteAsync_ShouldReturnUser_WhenUserExistsAndAuthorized()
         {
@@ -21,13 +28,13 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
             var userContext = A.Fake<IUserContext>();
             var userRepository = A.Fake<IUserPgRepository>();
 
-            var email = "test@example.com";
+            var email = _faker.Internet.Email();
             var query = new GetUserByEmailQuery(email);
             var userResponse = new UserByEmailResponse
             {
                 Email = email,
-                FirstName = "Test",
-                LastName = "User",
+                FirstName = _faker.Name.FirstName(),
+                LastName = _faker.Name.LastName(),
                 Role = "User"
             };
 
@@ -54,7 +61,6 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
             Factory.RegisterTestServices(_ => { });
 
             var userContext = A.Fake<IUserContext>();
-            var userRepository = A.Fake<IUserPgRepository>();
 
             var email = "other@example.com";
             var query = new GetUserByEmailQuery(email);
@@ -89,15 +95,14 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
             Factory.RegisterTestServices(_ => { });
 
             var userContext = A.Fake<IUserContext>();
-            var userRepository = A.Fake<IUserPgRepository>();
 
-            var email = "test@example.com";
+            var email = _faker.Internet.Email();
             var query = new GetUserByEmailQuery(email);
             var userResponse = new UserByEmailResponse
             {
                 Email = email,
-                FirstName = "Test",
-                LastName = "User",
+                FirstName = _faker.Name.FirstName(),
+                LastName = _faker.Name.LastName(),
                 Role = "User"
             };
 

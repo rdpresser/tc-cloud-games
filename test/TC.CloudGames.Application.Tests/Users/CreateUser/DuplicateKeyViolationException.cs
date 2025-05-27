@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TC.CloudGames.Domain.Exceptions;
+﻿using TC.CloudGames.Domain.Exceptions;
 
 namespace TC.CloudGames.Application.Tests.Users.CreateUser
 {

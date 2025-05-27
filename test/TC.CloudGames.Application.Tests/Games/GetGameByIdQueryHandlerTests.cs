@@ -8,7 +8,6 @@ namespace TC.CloudGames.Application.Tests.Games
 {
     public class GetGameByIdQueryHandlerTests
     {
-
         [Fact]
         public async Task ExecuteAsync_ReturnsGame_WhenGameExists()
         {

@@ -1,18 +1,25 @@
-﻿using Shouldly;
+﻿using Bogus;
+using Shouldly;
 using TC.CloudGames.Application.Users.Login;
 
 namespace TC.CloudGames.Application.Tests.Users.Login;
 
 public class LoginUserCommandValidatorTests
 {
+    private readonly Faker _faker;
     private readonly LoginUserCommandValidator _validator = new();
 
+    public LoginUserCommandValidatorTests()
+    {
+        _faker = new Faker();
+    }
+    
     [Fact]
     public void Should_Return_Error_When_Email_Is_Empty()
     {
         // Arrange
         const string email = "";
-        const string password = "J35!8G0+eP8z";
+        var password = _faker.Internet.Password() + "!";
         var command = new LoginUserCommand(email, password);
         
         // Act
@@ -26,7 +33,7 @@ public class LoginUserCommandValidatorTests
     public void Should_Return_Error_When_Password_Is_Invalid()
     {
         // Arrange
-        const string email = "test@email.com";
+        var email = _faker.Internet.Email();
         const string password = "abc";
         var command = new LoginUserCommand(email, password);
         

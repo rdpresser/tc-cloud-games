@@ -1,11 +1,6 @@
 ﻿using Bogus;
-using Bogus.DataSets;
-using System.Xml.Linq;
 using TC.CloudGames.Application.Games.CreateGame;
-using TC.CloudGames.Application.Games.GetGameById;
 using TC.CloudGames.Domain.Game;
-using TC.CloudGames.Domain.Game.Abstractions;
-using TC.CloudGames.Domain.Platform;
 using DeveloperInfo = TC.CloudGames.Application.Games.CreateGame.DeveloperInfo;
 using DomainGame = TC.CloudGames.Domain.Game.Game;
 using DomainGameDetails = TC.CloudGames.Domain.Game.GameDetails;
@@ -127,7 +122,7 @@ namespace TC.CloudGames.Application.Tests.Games
                 Playtime: playtime,
                 GameDetails: new GameDetails(
                     Genre: _faker.PickRandom(_genres),
-                    Platform: _faker.PickRandom(_platforms, 3).ToArray(),
+                    Platform: _platforms.ToArray(),
                     Tags: _faker.PickRandom(_gameTags),
                     GameMode: _faker.PickRandom(_gameModes),
                     DistributionFormat: _faker.PickRandom(_distributionFormats),

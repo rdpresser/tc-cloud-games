@@ -1,4 +1,5 @@
-﻿using FakeItEasy;
+﻿using Bogus;
+using FakeItEasy;
 using FluentValidation.TestHelper;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Users.CreateUser;
@@ -7,11 +8,13 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
 {
     public class CreateUserCommandValidatorTests
     {
+        private readonly Faker _faker;
         private readonly IUserPgRepository _userPgRepository;
         private readonly CreateUserCommandValidator _validator;
 
         public CreateUserCommandValidatorTests()
         {
+            _faker = new Faker();
             _userPgRepository = A.Fake<IUserPgRepository>();
             _validator = new CreateUserCommandValidator(_userPgRepository);
         }
@@ -21,9 +24,9 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
         {
             var command = new CreateUserCommand(
                 FirstName: null,
-                LastName: "User",
-                Email: "validuser@email.com",
-                Password: "Valid@1234",
+                LastName: _faker.Name.LastName(),
+                Email: _faker.Internet.Email(),
+                Password: _faker.Internet.Password(),
                 Role: "User"
             );
 
@@ -35,10 +38,10 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
         public async Task Should_Have_Error_When_LastName_Is_Empty()
         {
             var command = new CreateUserCommand(
-                FirstName: "John",
+                FirstName: _faker.Name.FirstName(),
                 LastName: null,
-                Email: "validuser@email.com",
-                Password: "Valid@1234",
+                Email: _faker.Internet.Email(),
+                Password: _faker.Internet.Password(),
                 Role: "User"
             );
 
@@ -50,10 +53,10 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
         public async Task Should_Have_Error_When_Email_Is_Empty()
         {
             var command = new CreateUserCommand(
-                FirstName: "John",
-                LastName: "User",
+                FirstName: _faker.Name.FirstName(),
+                LastName: _faker.Name.LastName(),
                 Email: null,
-                Password: "Valid@1234",
+                Password: _faker.Internet.Password(),
                 Role: "User"
             );
 
@@ -65,10 +68,10 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
         public async Task Should_Have_Error_When_Email_Already_Exists()
         {
             var command = new CreateUserCommand(
-                FirstName: "John",
-                LastName: "User",
-                Email: "validuser@email.com",
-                Password: "Valid@1234",
+                FirstName: _faker.Name.FirstName(),
+                LastName: _faker.Name.LastName(),
+                Email: _faker.Internet.Email(),
+                Password: _faker.Internet.Password(),
                 Role: "User"
             );
 
@@ -84,10 +87,10 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
         public async Task Should_Have_Error_When_Role_Is_Empty()
         {
             var command = new CreateUserCommand(
-                FirstName: "John",
-                LastName: "User",
-                Email: "validuser@email.com",
-                Password: "Valid@1234",
+                FirstName: _faker.Name.FirstName(),
+                LastName: _faker.Name.LastName(),
+                Email: _faker.Internet.Email(),
+                Password: _faker.Internet.Password(),
                 Role: null
             );
 
@@ -99,9 +102,9 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
         public async Task Should_Have_Error_When_Password_Is_Empty()
         {
             var command = new CreateUserCommand(
-                FirstName: "John",
-                LastName: "User",
-                Email: "validuser@email.com",
+                FirstName: _faker.Name.FirstName(),
+                LastName: _faker.Name.LastName(),
+                Email: _faker.Internet.Email(),
                 Password: null,
                 Role: "User"
             );
@@ -114,10 +117,10 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
         public async Task Should_Not_Have_Error_When_Command_Is_Valid()
         {
             var command = new CreateUserCommand(
-                FirstName: "John",
-                LastName: "User",
-                Email: "validuser@email.com",
-                Password: "Valid@1234",
+                FirstName: _faker.Name.FirstName(),
+                LastName: _faker.Name.LastName(),
+                Email: _faker.Internet.Email(),
+                Password: _faker.Internet.Password() + "!",
                 Role: "User"
             );
 

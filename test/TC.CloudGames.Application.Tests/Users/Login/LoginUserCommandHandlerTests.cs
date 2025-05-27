@@ -2,6 +2,7 @@
 using FakeItEasy;
 using FastEndpoints;
 using System.Reflection.Metadata;
+using Bogus;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Application.Users.Login;
@@ -13,14 +14,24 @@ namespace TC.CloudGames.Application.Tests.Users.Login;
 
 public class LoginUserCommandHandlerTests
 {
+    private readonly Faker _faker;
+
+    public LoginUserCommandHandlerTests()
+    {
+        _faker = new Faker();
+    }
+    
     [Fact]
     public async Task LoginUserCommandHandler_LoginUser_Ok()
     {
         // Arrange
         Factory.RegisterTestServices(_ => {});
         
-        var loginReq = new LoginUserCommand(Email: "teste@exemplo.com", Password: "senha123");
-        var loginRes = new LoginUserResponse("<jwt-token>", "teste@exemplo.com");
+        var email = _faker.Internet.Email();
+        var password = _faker.Internet.Password() + "!";
+        
+        var loginReq = new LoginUserCommand(Email: email, Password: password);
+        var loginRes = new LoginUserResponse("<jwt-token>", email);
         
         var fakeHandler = A.Fake<CommandHandler<LoginUserCommand, LoginUserResponse, Domain.User.User, IUserEfRepository>>();
         A.CallTo(() => fakeHandler.ExecuteAsync(A<LoginUserCommand>.Ignored, A<CancellationToken>.Ignored))
@@ -44,8 +55,11 @@ public class LoginUserCommandHandlerTests
         var userRepository = A.Fake<IUserEfRepository>();
         var tokenProvider = A.Fake<ITokenProvider>();
         var handler = new LoginUserCommandHandler(unitOfWork, userRepository, tokenProvider);
+        
+        var email = _faker.Internet.Email();
+        var password ="password";
 
-        var command = new LoginUserCommand("test@email.com", "password");
+        var command = new LoginUserCommand(email, password);
         A.CallTo(() => userRepository.GetByEmailWithPasswordAsync(command.Email, command.Password, A<CancellationToken>._))
             .Returns(Task.FromResult<User?>(null));
 

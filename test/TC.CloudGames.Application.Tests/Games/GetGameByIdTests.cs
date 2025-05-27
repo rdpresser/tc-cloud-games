@@ -1,38 +1,82 @@
 ﻿using Ardalis.Result;
+using Bogus;
 using FakeItEasy;
 using FastEndpoints;
 using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Application.Games.GetGameById;
+using TC.CloudGames.Domain.Game;
+using DeveloperInfo = TC.CloudGames.Application.Games.GetGameById.DeveloperInfo;
+using GameDetails = TC.CloudGames.Domain.Game.GameDetails;
+using Playtime = TC.CloudGames.Application.Games.GetGameById.Playtime;
+using Price = TC.CloudGames.Application.Games.GetGameById.Price;
 
 namespace TC.CloudGames.Application.Tests.Games;
 
 public class GetGameByIdTests
 {
+    private readonly Faker _faker;
+    private readonly List<string> _ageRatings;
+
+    public GetGameByIdTests()
+    {
+        _faker = new Faker();
+        
+        _ageRatings = [.. AgeRating.ValidRatings];
+    }
+    
     [Fact]
     public async Task GetGameById_ShouldReturnGame_WhenGameExists()
     {
         // Arrange
         Factory.RegisterTestServices(_ => {});
         
+        string[] AvailableLanguagesList = ["English", "Spanish", "French", "German", "Japanese"];
+        
+        var name = _faker.Commerce.ProductName();
+        var releaseDate = DateOnly.FromDateTime(DateTime.Now);
+        var ageRating = _faker.PickRandom(_ageRatings.ToArray());
+        var description = _faker.Lorem.Paragraph();
+        var developerInfo = new DeveloperInfo(_faker.Company.CompanyName(), _faker.Company.CompanyName());
+        var diskSize = _faker.Random.Decimal(1, 100);
+        var price = _faker.Random.Decimal(10, 300);
+        var playtime = new Playtime(_faker.Random.Int(1, 10), _faker.Random.Int(10, 100));
+        
         var gameId = Guid.NewGuid();
         var getGameReq = new GetGameByIdQuery(Id: gameId);
         var expectedGame = GameByIdResponse.Create(builder =>
         {
             builder.Id = gameId;
-            builder.Name = "Test Game";
-            builder.ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow);
-            builder.AgeRating = "PG-13";
-            builder.Description = "Test Description";
-            builder.DiskSize = 50.0m;
-            builder.Price = 29.99m;
-            builder.Rating = 4.5m;
-            builder.OfficialLink = "https://example.com/game";
-            builder.DeveloperInfo = new("Test Developer", null);
-            builder.GameDetails = new("Test Genre", ["PC"], null, "Test Platform", "Test Language", null, false);
-            builder.SystemRequirements = new("Test OS", null);
+            builder.Name = name;
+            builder.ReleaseDate = releaseDate;
+            builder.AgeRating = ageRating;
+            builder.Description = description;
+            builder.DiskSize = diskSize;
+            builder.Price = price;
+            builder.Rating = _faker.Random.Decimal(0, 10);
+            builder.OfficialLink = _faker.Internet.Url();
+            builder.DeveloperInfo = developerInfo;
+            builder.GameDetails = new(
+                genre: _faker.Commerce.Categories(1)[0],
+                platform:
+                [
+                    .. _faker.PickRandom(GameDetails.ValidPlatforms,
+                        _faker.Random.Int(1, GameDetails.ValidPlatforms.Count))
+                ],
+                tags: string.Join(", ", _faker.Lorem.Words(5)),
+                gameMode: _faker.PickRandom(GameDetails.ValidGameModes.ToArray()),
+                distributionFormat: _faker.PickRandom(GameDetails.ValidDistributionFormats.ToArray()),
+                availableLanguages: string.Join(", ",
+                    _faker.Random.ListItems(AvailableLanguagesList,
+                        _faker.Random.Int(1, AvailableLanguagesList.Length))),
+                supportsDlcs: _faker.Random.Bool()
+            );
+            builder.SystemRequirements = new(
+                minimum: _faker.Lorem.Sentence(),
+                recommended: _faker.Lorem.Sentence()
+            );
             builder.Playtime = new(null, null);
             builder.GameStatus = "Available";
-            builder.OfficialLink = "https://example.com/game";
+            builder.OfficialLink = _faker.Internet.Url();
         });
         
         var fakeHandler = A.Fake<QueryHandler<GetGameByIdQuery, GameByIdResponse>>();

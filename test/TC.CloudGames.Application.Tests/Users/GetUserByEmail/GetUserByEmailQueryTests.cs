@@ -1,30 +1,34 @@
-﻿using Ardalis.Result;
+﻿using Bogus;
 using FakeItEasy;
 using FastEndpoints;
 using TC.CloudGames.Application.Abstractions.Data;
-using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Application.Users.GetUserByEmail;
 
 namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
 {
     public class GetUserByEmailQueryTests
     {
+        private readonly Faker _faker;
+
+        public GetUserByEmailQueryTests()
+        {
+            _faker = new Faker();
+        }
+        
         [Fact]
         public async Task Handle_ShouldReturnUserByEmailResponse_WhenUserExists()
         {
             // Arrange
             Factory.RegisterTestServices(_ => { });
 
-            var email = "test@example.com";
+            var email = _faker.Internet.Email();
             var expectedResponse = new UserByEmailResponse
             {
                 Email = email,
-                FirstName = "Test",
-                LastName = "User",
+                FirstName = _faker.Name.FirstName(),
+                LastName = _faker.Name.LastName(),
                 Role = "User"
             };
-
-            var query = new GetUserByEmailQuery(email);
 
             var userRepository = A.Fake<IUserPgRepository>();
             A.CallTo(() => userRepository.GetByEmailAsync(email, A<CancellationToken>._))

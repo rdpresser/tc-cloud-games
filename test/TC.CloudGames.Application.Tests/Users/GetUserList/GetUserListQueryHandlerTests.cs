@@ -1,6 +1,5 @@
 ﻿using FakeItEasy;
 using FastEndpoints;
-using System.Reflection.Metadata;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Users.GetUserList;
 
@@ -8,15 +7,6 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserList
 {
     public class GetUserListQueryHandlerTests
     {
-        //private readonly IUserPgRepository _userRepository;
-        //private readonly GetUserListQueryHandler _handler;
-
-        //public GetUserListQueryHandlerTests()
-        //{
-        //    _userRepository = A.Fake<IUserPgRepository>();
-        //    _handler = new GetUserListQueryHandler(_userRepository);
-        //}
-
         [Fact]
         public async Task ExecuteAsync_ShouldReturnEmptyList_WhenNoUsersFound()
         {

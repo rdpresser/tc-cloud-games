@@ -1,12 +1,10 @@
 ﻿using Bogus;
-using Bogus.DataSets;
 using FakeItEasy;
 using FastEndpoints;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Games.CreateGame;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Domain.Game.Abstractions;
-using TC.CloudGames.Domain.Platform;
 using DeveloperInfo = TC.CloudGames.Application.Games.CreateGame.DeveloperInfo;
 using DomainGame = TC.CloudGames.Domain.Game.Game;
 using DomainGameDetails = TC.CloudGames.Domain.Game.GameDetails;
@@ -16,10 +14,8 @@ using SystemRequirements = TC.CloudGames.Application.Games.CreateGame.SystemRequ
 
 namespace TC.CloudGames.Application.Tests.Games
 {
-
     public class CreateGameCommandHandlerTests
     {
-
         private readonly Faker _faker;
         private readonly List<string> _genres;
         private readonly List<string> _platforms;

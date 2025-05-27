@@ -1,4 +1,5 @@
-﻿using FakeItEasy;
+﻿using Bogus;
+using FakeItEasy;
 using FastEndpoints;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Users.CreateUser;
@@ -10,6 +11,13 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
     public class CreateUserCommandHandlerTests
     {
 
+        private readonly Faker _faker;
+
+        public CreateUserCommandHandlerTests()
+        {
+            _faker = new Faker();
+        }
+        
         [Fact]
         public async Task ExecuteAsync_ShouldReturnInvalid_WhenEntityCreationFails()
         {
@@ -20,10 +28,10 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
             var repositoryFake = A.Fake<IUserEfRepository>();
 
             var command = new CreateUserCommand(
-                FirstName: "Test",
-                LastName: "User",
-                Email: "email_invalido",
-                Password: "Test@1234",
+                FirstName: _faker.Name.FirstName(),
+                LastName: _faker.Name.LastName(),
+                Email: "invalid_email",
+                Password: _faker.Internet.Password() + "!",
                 Role: "User"
             );
 
@@ -47,8 +55,8 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
             var repositoryFake = A.Fake<IUserEfRepository>();
 
             var command = new CreateUserCommand(
-                FirstName: "Test",
-                LastName: "User",
+                FirstName: _faker.Name.FirstName(),
+                LastName: _faker.Name.LastName(),
                 Email: "duplicate@email.com",
                 Password: "Test@1234",
                 Role: "User"

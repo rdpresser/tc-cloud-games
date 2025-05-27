@@ -1,6 +1,6 @@
-﻿using FakeItEasy;
+﻿using Bogus;
+using FakeItEasy;
 using FastEndpoints;
-using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Users.GetUserById;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
@@ -9,6 +9,13 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserById
 {
     public class GetUserByIdQueryHandlerTests
     {
+        private readonly Faker _faker;
+
+        public GetUserByIdQueryHandlerTests()
+        {
+            _faker = new Faker();
+        }
+        
         [Fact]
         public async Task ExecuteAsync_ShouldReturnUser_WhenUserExistsAndAuthorized()
         {
@@ -24,9 +31,9 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserById
             var userResponse = new UserByIdResponse
             {
                 Id = userId,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@email.com",
+                FirstName = _faker.Name.FirstName(),
+                LastName = _faker.Name.LastName(),
+                Email = _faker.Internet.Email(),
                 Role = "Admin"
             };
 
