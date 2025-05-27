@@ -21,7 +21,7 @@ services:
       
       # Certificate configuration for both Windows and Linux  
       # Maps the certificate path dynamically based on OS  
-      - ${USERPROFILE:-$HOME}/.aspnet/https/aspnetapp.pfx:/https/aspnetapp.pfx:ro
+      - ${USERPROFILE:-$HOME}/.aspnet/https:/https:ro
     entrypoint: >
       sh -c "
       CERT_PATH_LINUX=/home/app/.aspnet/https/aspnetapp.pfx;
