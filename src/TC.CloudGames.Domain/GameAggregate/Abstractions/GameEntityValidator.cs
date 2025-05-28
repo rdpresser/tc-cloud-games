@@ -1,6 +1,6 @@
 ﻿using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
-namespace TC.CloudGames.Domain.Game.Abstractions
+namespace TC.CloudGames.Domain.GameAggregate.Abstractions
 {
     public class GameEntityValidator : BaseValidator<Game>
     {

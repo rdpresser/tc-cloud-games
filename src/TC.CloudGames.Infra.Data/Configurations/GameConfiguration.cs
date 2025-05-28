@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TC.CloudGames.Domain.Game;
+using TC.CloudGames.Domain.GameAggregate;
+using TC.CloudGames.Domain.GameAggregate.ValueObjects;
 
 namespace TC.CloudGames.Infra.Data.Configurations
 {

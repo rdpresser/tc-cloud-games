@@ -1,9 +1,11 @@
 ﻿using Bogus;
 using System.Diagnostics.CodeAnalysis;
-using TC.CloudGames.Domain.Game;
-using TC.CloudGames.Domain.Game.Abstractions;
-using TC.CloudGames.Domain.User;
-using TC.CloudGames.Domain.User.Abstractions;
+using TC.CloudGames.Domain.GameAggregate;
+using TC.CloudGames.Domain.GameAggregate.Abstractions;
+using TC.CloudGames.Domain.GameAggregate.ValueObjects;
+using TC.CloudGames.Domain.UserAggregate;
+using TC.CloudGames.Domain.UserAggregate.Abstractions;
+using TC.CloudGames.Domain.UserAggregate.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Api.Extensions;

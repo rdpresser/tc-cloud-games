@@ -2,6 +2,6 @@
 {
     public interface IEmailService
     {
-        Task SendAsync(Domain.User.Email recipient, string subject, string body);
+        Task SendAsync(Domain.UserAggregate.ValueObjects.Email recipient, string subject, string body);
     }
 }

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Immutable;
-using TC.CloudGames.Domain.Game.Abstractions;
+using TC.CloudGames.Domain.GameAggregate.Abstractions;
+using TC.CloudGames.Domain.GameAggregate.ValueObjects;
 
-namespace TC.CloudGames.Domain.Game
+namespace TC.CloudGames.Domain.GameAggregate
 {
     public sealed class Game : Entity
     {
@@ -240,21 +241,21 @@ namespace TC.CloudGames.Domain.Game
             public Result<Game> Build()
             {
                 // Create value objects from raw values
-                var ageRatingResult = Domain.Game.AgeRating.Create(builder => builder.Value = AgeRating);
-                var developerInfoResult = Domain.Game.DeveloperInfo.Create(builder =>
+                var ageRatingResult = ValueObjects.AgeRating.Create(builder => builder.Value = AgeRating);
+                var developerInfoResult = ValueObjects.DeveloperInfo.Create(builder =>
                 {
                     builder.Developer = DeveloperInfo.Developer;
                     builder.Publisher = DeveloperInfo.Publisher;
                 });
-                var diskSizeResult = Domain.Game.DiskSize.Create(builder => builder.SizeInGb = DiskSize);
-                var priceResult = Domain.Game.Price.Create(builder => builder.Amount = Price);
-                var playtimeResult = Domain.Game.Playtime.Create(builder =>
+                var diskSizeResult = ValueObjects.DiskSize.Create(builder => builder.SizeInGb = DiskSize);
+                var priceResult = ValueObjects.Price.Create(builder => builder.Amount = Price);
+                var playtimeResult = ValueObjects.Playtime.Create(builder =>
                 {
                     builder.Hours = !Playtime.HasValue || !Playtime.Value.Hours.HasValue ? default : Playtime.Value.Hours.Value;
                     builder.PlayerCount = !Playtime.HasValue || !Playtime.Value.PlayerCount.HasValue ? default : Playtime.Value.PlayerCount.Value;
                 });
 
-                var gameDetailsResult = Domain.Game.GameDetails.Create(builder =>
+                var gameDetailsResult = ValueObjects.GameDetails.Create(builder =>
                 {
                     builder.Genre = GameDetails.Genre;
                     builder.Platform = GameDetails.Platform;
@@ -265,12 +266,12 @@ namespace TC.CloudGames.Domain.Game
                     builder.SupportsDlcs = GameDetails.SupportsDlcs;
                 });
 
-                var systemRequirementsResult = Domain.Game.SystemRequirements.Create(builder =>
+                var systemRequirementsResult = ValueObjects.SystemRequirements.Create(builder =>
                 {
                     builder.Minimum = SystemRequirements.Minimum;
                     builder.Recommended = SystemRequirements.Recommended;
                 });
-                var ratingResult = Domain.Game.Rating.Create(builder => builder.Average = Rating);
+                var ratingResult = ValueObjects.Rating.Create(builder => builder.Average = Rating);
 
                 return BuildGame(
                     Name,

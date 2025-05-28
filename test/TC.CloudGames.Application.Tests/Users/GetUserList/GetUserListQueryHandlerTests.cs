@@ -37,7 +37,7 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserList
 
             var userRepository = A.Fake<IUserPgRepository>();
             var handler = new GetUserListQueryHandler(userRepository);
-            
+
             var query = new GetUserListQuery();
             var users = new List<UserListResponse>
             {
@@ -64,7 +64,7 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserList
 
             var userRepository = A.Fake<IUserPgRepository>();
             var handler = new GetUserListQueryHandler(userRepository);
-            
+
             var query = new GetUserListQuery();
             A.CallTo(() => userRepository.GetUserListAsync(query, A<CancellationToken>._))
                 .Returns(Task.FromResult<IReadOnlyList<UserListResponse>?>(null));

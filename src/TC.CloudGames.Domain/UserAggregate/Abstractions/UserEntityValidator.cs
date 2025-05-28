@@ -1,4 +1,4 @@
-﻿namespace TC.CloudGames.Domain.User.Abstractions
+﻿namespace TC.CloudGames.Domain.UserAggregate.Abstractions
 {
     public class UserEntityValidator : BaseValidator<User>
     {

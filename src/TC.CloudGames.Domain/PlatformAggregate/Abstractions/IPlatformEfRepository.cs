@@ -1,4 +1,4 @@
-﻿namespace TC.CloudGames.Domain.Platform;
+﻿namespace TC.CloudGames.Domain.PlatformAggregate.Abstractions;
 
 public interface IPlatformEfRepository : IEfRepository<Platform>
 {

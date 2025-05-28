@@ -3,7 +3,7 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
 using System.Diagnostics.CodeAnalysis;
-using TC.CloudGames.Domain.Game.Abstractions;
+using TC.CloudGames.Domain.GameAggregate.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 using TC.CloudGames.Infra.CrossCutting.IoC;
@@ -46,19 +46,6 @@ public static class ServiceCollectionExtensions
                 o.RemoveEmptyRequestSchema = true;
                 o.NewtonsoftSettings = s => { s.Converters.Add(new StringEnumConverter()); };
             });
-
-        return services;
-    }
-
-    // Middleware Configuration
-    public static IServiceCollection AddCustomMiddleware(this IServiceCollection services)
-    {
-        services.AddCommandMiddleware(c =>
-        {
-            c.Register(
-                typeof(CommandLogger<,>),
-                typeof(CommandValidator<,>));
-        });
 
         return services;
     }

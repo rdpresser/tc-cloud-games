@@ -1,5 +1,5 @@
-﻿using TC.CloudGames.Domain.Game;
-using TC.CloudGames.Domain.User;
+﻿using TC.CloudGames.Domain.GameAggregate;
+using TC.CloudGames.Domain.UserAggregate;
 
 namespace TC.CloudGames.Application.Abstractions.Data
 {

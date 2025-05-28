@@ -1,5 +1,7 @@
 ﻿using TC.CloudGames.Application.Games.CreateGame;
+using TC.CloudGames.Domain.GameAggregate.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
+using CreateGame = TC.CloudGames.Application.Games.CreateGame;
 
 namespace TC.CloudGames.Api.Endpoints.Game
 {
@@ -45,26 +47,26 @@ namespace TC.CloudGames.Api.Endpoints.Game
             return new CreateGameCommand(
                 Name: "Game Name",
                 ReleaseDate: DateOnly.FromDateTime(DateTime.UtcNow),
-                AgeRating: $"Choose one of valid age rate: {Domain.Game.AgeRating.ValidRatings.JoinWithQuotes()}",
+                AgeRating: $"Choose one of valid age rate: {AgeRating.ValidRatings.JoinWithQuotes()}",
                 Description: "Game Description",
-                DeveloperInfo: new DeveloperInfo("Developer Name", "Publisher Name"),
+                DeveloperInfo: new CreateGame.DeveloperInfo("Developer Name", "Publisher Name"),
                 DiskSize: 50.0m,
                 Price: 59.99m,
-                Playtime: new Playtime(10, 1),
-                GameDetails: new GameDetails
+                Playtime: new CreateGame.Playtime(10, 1),
+                GameDetails: new CreateGame.GameDetails
                 (
                     Genre: "Genre",
-                    Platform: [.. Domain.Game.GameDetails.ValidPlatforms],
+                    Platform: [.. Domain.GameAggregate.ValueObjects.GameDetails.ValidPlatforms],
                     Tags: "Tags",
-                    GameMode: $"Choose one of valid game modes: {Domain.Game.GameDetails.ValidGameModes.JoinWithQuotes()}",
-                    DistributionFormat: $"Choose one of valid distribution format: {Domain.Game.GameDetails.ValidDistributionFormats.JoinWithQuotes()}",
+                    GameMode: $"Choose one of valid game modes: {Domain.GameAggregate.ValueObjects.GameDetails.ValidGameModes.JoinWithQuotes()}",
+                    DistributionFormat: $"Choose one of valid distribution format: {Domain.GameAggregate.ValueObjects.GameDetails.ValidDistributionFormats.JoinWithQuotes()}",
                     AvailableLanguages: "Available Languages",
                     SupportsDlcs: true
                 ),
-                SystemRequirements: new SystemRequirements("Minimum Requirements", "Recommended Requirements"),
+                SystemRequirements: new CreateGame.SystemRequirements("Minimum Requirements", "Recommended Requirements"),
                 Rating: 4.5m,
                 OfficialLink: "https://example.com",
-                GameStatus: $"Choose one of valid game status: {Domain.Game.Game.ValidGameStatus.JoinWithQuotes()}"
+                GameStatus: $"Choose one of valid game status: {Domain.GameAggregate.Game.ValidGameStatus.JoinWithQuotes()}"
             );
         }
 
@@ -74,24 +76,24 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 Id: Guid.NewGuid(),
                 Name: "Game Name",
                 ReleaseDate: DateOnly.FromDateTime(DateTime.UtcNow),
-                AgeRating: Domain.Game.AgeRating.ValidRatings.First(),
+                AgeRating: AgeRating.ValidRatings.First(),
                 Description: "Game Description",
-                DeveloperInfo: new DeveloperInfo("Developer Name", "Publisher Name"),
+                DeveloperInfo: new CreateGame.DeveloperInfo("Developer Name", "Publisher Name"),
                 DiskSize: 50.0m,
                 Price: 59.99m,
-                Playtime: new Playtime(10, 1),
-                GameDetails: new GameDetails(
+                Playtime: new CreateGame.Playtime(10, 1),
+                GameDetails: new CreateGame.GameDetails(
                     Genre: "Genre",
-                    Platform: [.. Domain.Game.GameDetails.ValidPlatforms],
+                    Platform: [.. Domain.GameAggregate.ValueObjects.GameDetails.ValidPlatforms],
                     Tags: "Tags",
-                    GameMode: Domain.Game.GameDetails.ValidGameModes.First(),
-                    DistributionFormat: Domain.Game.GameDetails.ValidDistributionFormats.First(),
+                    GameMode: Domain.GameAggregate.ValueObjects.GameDetails.ValidGameModes.First(),
+                    DistributionFormat: Domain.GameAggregate.ValueObjects.GameDetails.ValidDistributionFormats.First(),
                     AvailableLanguages: "Available Languages",
                     SupportsDlcs: true),
-                SystemRequirements: new SystemRequirements("Minimum Requirements", "Recommended Requirements"),
+                SystemRequirements: new CreateGame.SystemRequirements("Minimum Requirements", "Recommended Requirements"),
                 Rating: 4.5m,
                 OfficialLink: "https://example.com",
-                GameStatus: Domain.Game.Game.ValidGameStatus.First()
+                GameStatus: Domain.GameAggregate.Game.ValidGameStatus.First()
             );
         }
     }

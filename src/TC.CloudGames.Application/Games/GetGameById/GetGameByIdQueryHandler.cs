@@ -1,5 +1,5 @@
 ﻿using TC.CloudGames.Application.Abstractions.Data;
-using TC.CloudGames.Domain.Game.Abstractions;
+using TC.CloudGames.Domain.GameAggregate.Abstractions;
 
 namespace TC.CloudGames.Application.Games.GetGameById
 {

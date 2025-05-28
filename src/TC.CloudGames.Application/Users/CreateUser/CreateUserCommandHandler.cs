@@ -1,7 +1,7 @@
 ﻿using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Domain.Exceptions;
-using TC.CloudGames.Domain.User;
-using TC.CloudGames.Domain.User.Abstractions;
+using TC.CloudGames.Domain.UserAggregate;
+using TC.CloudGames.Domain.UserAggregate.Abstractions;
 
 namespace TC.CloudGames.Application.Users.CreateUser;
 

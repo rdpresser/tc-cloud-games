@@ -66,23 +66,9 @@ namespace TC.CloudGames.Integration.Tests.Abstractions
 
             // Simulate a regular user login to get a JWT token
             await DoLogin(UserClient, email: "user@user.com", password: "User@123");
-            //UserClient = CreateClient();
-            //var loginUserReq = new LoginUserCommand(Email: "user@user.com", Password: "User@123");
-            //var result = await UserClient.PostAsJsonAsync("auth/login", loginUserReq).ConfigureAwait(false);
-            //result.EnsureSuccessStatusCode(); // Ensure the request was successful
-            //var loginResponse = await result.Content.ReadFromJsonAsync<LoginUserResponse>().ConfigureAwait(false);
-            //var jwtToken = loginResponse?.JwtToken ?? throw new InvalidOperationException("Login response did not contain a JWT token.");
-            //UserClient.DefaultRequestHeaders.Authorization = new("Bearer", jwtToken);
 
             // Simulate an admin user login to get a JWT token            
             await DoLogin(AdminClient, email: "admin@admin.com", password: "Admin@123");
-            //AdminClient = CreateClient();
-            //var adminLoginUserReq = new LoginUserCommand(Email: "admin@admin.com", Password: "Admin@123");
-            //var adminResult = await AdminClient.PostAsJsonAsync("auth/login", adminLoginUserReq).ConfigureAwait(false);
-            //adminResult.EnsureSuccessStatusCode(); // Ensure the request was successful
-            //var adminLoginResponse = await adminResult.Content.ReadFromJsonAsync<LoginUserResponse>().ConfigureAwait(false);
-            //var adminJwtToken = adminLoginResponse?.JwtToken ?? throw new InvalidOperationException("Admin login response did not contain a JWT token.");
-            //AdminClient.DefaultRequestHeaders.Authorization = new("Bearer", adminJwtToken);
         }
 
         public async Task<(HttpResponseMessage, LoginUserResponse)> DoLogin(HttpClient httpClient, string email, string password)
@@ -90,7 +76,9 @@ namespace TC.CloudGames.Integration.Tests.Abstractions
             httpClient = httpClient ?? CreateClient();
             var loginUserReq = new LoginUserCommand(Email: email, Password: password);
             var result = await httpClient.PostAsJsonAsync("auth/login", loginUserReq).ConfigureAwait(false);
+
             result.EnsureSuccessStatusCode(); // Ensure the request was successful
+
             var loginResponse = await result.Content.ReadFromJsonAsync<LoginUserResponse>().ConfigureAwait(false);
             var jwtToken = loginResponse?.JwtToken ?? throw new InvalidOperationException("Login response did not contain a JWT token.");
             httpClient.DefaultRequestHeaders.Authorization = new("Bearer", jwtToken);

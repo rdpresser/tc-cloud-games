@@ -4,7 +4,8 @@ using FakeItEasy;
 using FastEndpoints;
 using TC.CloudGames.Application.Abstractions.Messaging;
 using TC.CloudGames.Application.Games.GetGameList;
-using TC.CloudGames.Domain.Game;
+using TC.CloudGames.Domain.GameAggregate;
+using TC.CloudGames.Domain.GameAggregate.ValueObjects;
 
 namespace TC.CloudGames.Application.Tests.Games;
 
@@ -16,14 +17,14 @@ public class GetGameListTests
     {
         _faker = new Faker();
     }
-    
+
     [Fact]
     public async Task GetGameListTests_ShouldReturnGameList_WhenGameExists()
     {
         // Arrange
-        Factory.RegisterTestServices(_ => {});
+        Factory.RegisterTestServices(_ => { });
         string[] AvailableLanguagesList = ["English", "Spanish", "French", "German", "Japanese"];
-        
+
         var getGameReq = new GetGameListQuery(PageNumber: 1, PageSize: 20, SortBy: "FirstName", SortDirection: "ASC", Filter: "");
 
         var expectedGame = new List<GameListResponse>();
@@ -31,23 +32,23 @@ public class GetGameListTests
         for (int i = 0; i < 5; i++)
         {
             expectedGame.Add(new()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}",
-                    ReleaseDate = DateOnly.FromDateTime(_faker.Date.Past()),
-                    AgeRating = _faker.PickRandom(AgeRating.ValidRatings.ToArray()),
-                    Description = _faker.Lorem.Paragraph(),
-                    DeveloperInfo = new(
+            {
+                Id = Guid.NewGuid(),
+                Name = $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}",
+                ReleaseDate = DateOnly.FromDateTime(_faker.Date.Past()),
+                AgeRating = _faker.PickRandom(AgeRating.ValidRatings.ToArray()),
+                Description = _faker.Lorem.Paragraph(),
+                DeveloperInfo = new(
                         developer: _faker.Company.CompanyName(),
                         publisher: _faker.Company.CompanyName()
                     ),
-                    DiskSize = _faker.Random.Int(1, 150),
-                    Price = decimal.Parse(_faker.Commerce.Price(1.0m, 100.0m, 2)),
-                    Playtime = new(
+                DiskSize = _faker.Random.Int(1, 150),
+                Price = decimal.Parse(_faker.Commerce.Price(1.0m, 100.0m, 2)),
+                Playtime = new(
                         hours: _faker.Random.Int(1, 100),
                         playerCount: _faker.Random.Int(1, 2000)
                     ),
-                    GameDetails = new(
+                GameDetails = new(
                         genre: _faker.Commerce.Categories(1)[0],
                         platform: [.. _faker.PickRandom(GameDetails.ValidPlatforms, _faker.Random.Int(1, GameDetails.ValidPlatforms.Count))],
                         tags: string.Join(", ", _faker.Lorem.Words(5)),
@@ -56,20 +57,20 @@ public class GetGameListTests
                         availableLanguages: string.Join(", ", _faker.Random.ListItems(AvailableLanguagesList, _faker.Random.Int(1, AvailableLanguagesList.Length))),
                         supportsDlcs: _faker.Random.Bool()
                     ),
-                    SystemRequirements = new(
+                SystemRequirements = new(
                         minimum: _faker.Lorem.Sentence(),
                         recommended: _faker.Lorem.Sentence()
                     ),
-                    Rating = Math.Round(_faker.Random.Decimal(1, 10), 2),
-                    OfficialLink = _faker.Internet.Url(),
-                    GameStatus = _faker.PickRandom(Domain.Game.Game.ValidGameStatus.ToArray())
-                });
+                Rating = Math.Round(_faker.Random.Decimal(1, 10), 2),
+                OfficialLink = _faker.Internet.Url(),
+                GameStatus = _faker.PickRandom(Game.ValidGameStatus.ToArray())
+            });
         }
-        
+
         var fakeHandler = A.Fake<QueryHandler<GetGameListQuery, IReadOnlyList<GameListResponse>>>();
         A.CallTo(() => fakeHandler.ExecuteAsync(A<GetGameListQuery>.Ignored, A<CancellationToken>.Ignored))
             .Returns(Task.FromResult(Result<IReadOnlyList<GameListResponse>>.Success(expectedGame)));
-        
+
         // Act
         var result = await fakeHandler.ExecuteAsync(getGameReq, CancellationToken.None);
 

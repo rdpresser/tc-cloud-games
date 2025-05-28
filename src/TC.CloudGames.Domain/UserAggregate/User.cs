@@ -1,6 +1,7 @@
-﻿using TC.CloudGames.Domain.User.Abstractions;
+﻿using TC.CloudGames.Domain.UserAggregate.Abstractions;
+using TC.CloudGames.Domain.UserAggregate.ValueObjects;
 
-namespace TC.CloudGames.Domain.User;
+namespace TC.CloudGames.Domain.UserAggregate;
 
 public sealed class User : Entity
 {
@@ -58,9 +59,9 @@ public sealed class User : Entity
 
         public async Task<Result<User>> BuildAsync(IUserEfRepository userEfRepository)
         {
-            var emailResult = await Domain.User.Email.CreateAsync(builder => builder.Value = Email, userEfRepository).ConfigureAwait(false);
-            var passwordResult = Domain.User.Password.Create(builder => builder.Value = Password);
-            var roleResult = Domain.User.Role.Create(builder => builder.Value = Role);
+            var emailResult = await ValueObjects.Email.CreateAsync(builder => builder.Value = Email, userEfRepository).ConfigureAwait(false);
+            var passwordResult = ValueObjects.Password.Create(builder => builder.Value = Password);
+            var roleResult = ValueObjects.Role.Create(builder => builder.Value = Role);
 
             return BuildUser(
                 FirstName,
@@ -85,9 +86,9 @@ public sealed class User : Entity
             return BuildUser(
                 FirstName,
                 LastName,
-                EnsureResult(Email, nameof(Domain.User.Email)),
-                EnsureResult(Password, nameof(Domain.User.Password)),
-                EnsureResult(Role, nameof(Domain.User.Role))
+                EnsureResult(Email, nameof(ValueObjects.Email)),
+                EnsureResult(Password, nameof(ValueObjects.Password)),
+                EnsureResult(Role, nameof(ValueObjects.Role))
             );
         }
     }
@@ -122,9 +123,9 @@ public sealed class User : Entity
     {
         var valueObjectResults = new IResult[]
         {
-            EnsureResult(emailResult, nameof(Domain.User.Email)),
-            EnsureResult(passwordResult, nameof(Domain.User.Password)),
-            EnsureResult(roleResult , nameof(Domain.User.Role))
+            EnsureResult(emailResult, nameof(ValueObjects.Email)),
+            EnsureResult(passwordResult, nameof(ValueObjects.Password)),
+            EnsureResult(roleResult , nameof(ValueObjects.Role))
         };
 
         var errors = CollectValidationErrors(valueObjectResults).ToList();

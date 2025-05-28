@@ -1,7 +1,7 @@
 ﻿using TC.CloudGames.Api.Endpoints.Game;
 using TC.CloudGames.Api.Tests.Abstractions;
 using TC.CloudGames.Application.Games.CreateGame;
-using TC.CloudGames.Domain.Game.Abstractions;
+using TC.CloudGames.Domain.GameAggregate.Abstractions;
 
 namespace TC.CloudGames.Api.Tests.Endpoints.Game
 {
@@ -15,7 +15,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Game
             var createGameReq = BuildGameFixture.BuildCommand(App);
             var createGameRes = BuildGameFixture.BuildResponse(createGameReq);
 
-            var fakeHandler = A.Fake<IAppCommandHandler.CommandHandler<CreateGameCommand, CreateGameResponse, Domain.Game.Game, IGameEfRepository>>();
+            var fakeHandler = A.Fake<IAppCommandHandler.CommandHandler<CreateGameCommand, CreateGameResponse, Domain.GameAggregate.Game, IGameEfRepository>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<CreateGameCommand>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<CreateGameResponse>.Success(createGameRes)));
 
@@ -58,7 +58,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Game
                 }
             };
 
-            var fakeHandler = A.Fake<IAppCommandHandler.CommandHandler<CreateGameCommand, CreateGameResponse, Domain.Game.Game, IGameEfRepository>>();
+            var fakeHandler = A.Fake<IAppCommandHandler.CommandHandler<CreateGameCommand, CreateGameResponse, Domain.GameAggregate.Game, IGameEfRepository>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<CreateGameCommand>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<CreateGameResponse>.Invalid(listError)));
             fakeHandler.RegisterForTesting();
