@@ -78,6 +78,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{A9FC73
 		images\004_database_server_login.png = images\004_database_server_login.png
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.BDD.Tests", "test\TC.CloudGames.BDD.Tests\TC.CloudGames.BDD.Tests.csproj", "{637F966F-33F4-4422-BFEF-26E854D78A5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -132,6 +134,10 @@ Global
 		{0BA9E97A-F7E7-E7F6-A68C-FD4DF32B1AA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BA9E97A-F7E7-E7F6-A68C-FD4DF32B1AA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BA9E97A-F7E7-E7F6-A68C-FD4DF32B1AA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{637F966F-33F4-4422-BFEF-26E854D78A5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{637F966F-33F4-4422-BFEF-26E854D78A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{637F966F-33F4-4422-BFEF-26E854D78A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{637F966F-33F4-4422-BFEF-26E854D78A5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -161,6 +167,7 @@ Global
 		{0BA9E97A-F7E7-E7F6-A68C-FD4DF32B1AA6} = {8C5BAD6D-B133-4B38-8C22-1C13F57CB033}
 		{88030581-FE52-48D2-8A3D-2B43555E2234} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
 		{A9FC732A-88B8-49D0-B09F-0FDFD232EEE5} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
+		{637F966F-33F4-4422-BFEF-26E854D78A5A} = {04129191-BF54-4E04-984E-D85A171ED6BB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A61EC7C9-970A-4856-9FA0-A09EE45536BB}

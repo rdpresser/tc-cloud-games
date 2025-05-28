@@ -13,3 +13,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("TC.CloudGames.Api.Tests")]
 [assembly: InternalsVisibleTo("TC.CloudGames.Integration.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+[assembly: InternalsVisibleTo("TC.CloudGames.BDD.Tests")]
