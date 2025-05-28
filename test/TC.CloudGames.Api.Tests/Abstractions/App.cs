@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
 using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Domain.Game;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
+using TC.CloudGames.Infra.Data;
 using ZiggyCreatures.Caching.Fusion;
 using DomainGame = TC.CloudGames.Domain.Game.Game;
 using DomainGameDetails = TC.CloudGames.Domain.Game.GameDetails;
@@ -61,14 +63,23 @@ namespace TC.CloudGames.Api.Tests.Abstractions
         protected override void ConfigureApp(IWebHostBuilder a)
         {
             // Example: Use a different environment for testing
-            a.UseEnvironment("Development");
+            a.UseEnvironment("Testing");
             // You can also configure test-specific settings here
         }
 
         // Register or override services for testing
         protected override void ConfigureServices(IServiceCollection s)
         {
-            // Example: Replace a real service with a mock or test double
+            // Remove the existing ApplicationDbContext registration
+            var descriptor = s.SingleOrDefault(
+                d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+
+            if (descriptor != null)
+                s.Remove(descriptor);
+
+            // Register ApplicationDbContext with in-memory provider
+            s.AddDbContext<ApplicationDbContext>(options =>
+                options.UseInMemoryDatabase("TestDb"));
 
             s.AddFusionCache()
                 .WithDefaultEntryOptions(options =>
