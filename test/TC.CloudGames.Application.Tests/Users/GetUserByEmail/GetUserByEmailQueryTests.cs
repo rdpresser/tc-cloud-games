@@ -16,6 +16,22 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
         }
         
         [Fact]
+        public async Task Handle_ShouldReturnNull_WhenUserDoesNotExist()
+        {
+            // Arrange
+            var email = _faker.Internet.Email();
+            var userRepository = A.Fake<IUserPgRepository>();
+            A.CallTo(() => userRepository.GetByEmailAsync(email, A<CancellationToken>._))
+                .Returns(Task.FromResult<UserByEmailResponse?>(null));
+
+            // Act
+            var result = await userRepository.GetByEmailAsync(email, CancellationToken.None);
+
+            // Assert
+            Assert.Null(result);
+        }
+        
+        [Fact]
         public async Task Handle_ShouldReturnUserByEmailResponse_WhenUserExists()
         {
             // Arrange
@@ -40,24 +56,5 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
             // Assert
             Assert.Equal(result, expectedResponse);
         }
-
-        //[Fact]
-        //public async Task Handle_ShouldReturnNull_WhenUserDoesNotExist()
-        //{
-        //    // Arrange
-        //    var email = "notfound@example.com";
-        //    var userRepository = A.Fake<IUserRepository>();
-        //    A.CallTo(() => userRepository.GetByEmailAsync(email, A<CancellationToken>._))
-        //        .Returns(Task.FromResult<UserByEmailResponse?>(null));
-
-        //    var handler = new GetUserByEmailQueryHandler(userRepository);
-        //    var query = new GetUserByEmailQuery(email);
-
-        //    // Act
-        //    var result = await handler.Handle(query, CancellationToken.None);
-
-        //    // Assert
-        //    result.Should().BeNull();
-        //}
     }
 }

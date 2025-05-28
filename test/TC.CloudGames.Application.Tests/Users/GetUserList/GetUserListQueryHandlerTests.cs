@@ -29,43 +29,53 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserList
             Assert.Empty(result.Value);
         }
 
-        //[Fact]
-        //public async Task ExecuteAsync_ShouldReturnUserList_WhenUsersExist()
-        //{
-        //    // Arrange
-        //    var query = new GetUserListQuery();
-        //    var users = new List<UserListResponse>
-        //    {
-        //        new UserListResponse(/* fill with test data if needed */),
-        //        new UserListResponse(/* fill with test data if needed */)
-        //    };
-        //    A.CallTo(() => _userRepository.GetUserListAsync(query, A<CancellationToken>._))
-        //        .Returns(Task.FromResult<IReadOnlyList<UserListResponse>>(users));
+        [Fact]
+        public async Task ExecuteAsync_ShouldReturnUserList_WhenUsersExist()
+        {
+            // Arrange
+            Factory.RegisterTestServices(_ => { });
 
-        //    // Act
-        //    var result = await _handler.ExecuteAsync(query);
+            var userRepository = A.Fake<IUserPgRepository>();
+            var handler = new GetUserListQueryHandler(userRepository);
+            
+            var query = new GetUserListQuery();
+            var users = new List<UserListResponse>
+            {
+                new UserListResponse(/* fill with test data if needed */),
+                new UserListResponse(/* fill with test data if needed */)
+            };
+            A.CallTo(() => userRepository.GetUserListAsync(query, A<CancellationToken>._))
+                .Returns(Task.FromResult<IReadOnlyList<UserListResponse>>(users));
 
-        //    // Assert
-        //    result.IsSuccess.Should().BeTrue();
-        //    result.Value.Should().NotBeNull();
-        //    result.Value.Should().HaveCount(2);
-        //}
+            // Act
+            var result = await handler.ExecuteAsync(query);
 
-        //[Fact]
-        //public async Task ExecuteAsync_ShouldReturnEmptyList_WhenRepositoryReturnsNull()
-        //{
-        //    // Arrange
-        //    var query = new GetUserListQuery();
-        //    A.CallTo(() => _userRepository.GetUserListAsync(query, A<CancellationToken>._))
-        //        .Returns(Task.FromResult<IReadOnlyList<UserListResponse>?>(null));
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            Assert.Equal(2, result.Value.Count);
+        }
 
-        //    // Act
-        //    var result = await _handler.ExecuteAsync(query);
+        [Fact]
+        public async Task ExecuteAsync_ShouldReturnEmptyList_WhenRepositoryReturnsNull()
+        {
+            // Arrange
+            Factory.RegisterTestServices(_ => { });
 
-        //    // Assert
-        //    result.IsSuccess.Should().BeTrue();
-        //    result.Value.Should().NotBeNull();
-        //    result.Value.Should().BeEmpty();
-        //}
+            var userRepository = A.Fake<IUserPgRepository>();
+            var handler = new GetUserListQueryHandler(userRepository);
+            
+            var query = new GetUserListQuery();
+            A.CallTo(() => userRepository.GetUserListAsync(query, A<CancellationToken>._))
+                .Returns(Task.FromResult<IReadOnlyList<UserListResponse>?>(null));
+
+            // Act
+            var result = await handler.ExecuteAsync(query);
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            Assert.Empty(result.Value);
+        }
     }
 }

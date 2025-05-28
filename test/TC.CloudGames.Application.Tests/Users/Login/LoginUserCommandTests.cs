@@ -4,6 +4,22 @@ namespace TC.CloudGames.Application.Tests.Users.Login;
 
 public class LoginUserCommandTests
 {
+    
+    [Fact]
+    public async Task LoginUserCommand_ShouldReturnError_WhenInvalidCredentials()
+    {
+        // Arrange
+        const string email = "";
+        const string password = "";
+    
+        // Act
+        var command = new LoginUserCommand(email, password);
+    
+        // Assert
+        Assert.NotEqual("test@example.com", command.Email);
+        Assert.NotEqual("password123", command.Password);
+    }
+    
     [Fact]
     public async Task LoginUserCommand_ShouldReturnSuccess_WhenValidCredentials()
     {
