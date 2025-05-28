@@ -18,7 +18,7 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
         {
             _faker = new Faker();
         }
-        
+
         [Fact]
         public async Task ExecuteAsync_ShouldReturnUser_WhenUserExistsAndAuthorized()
         {

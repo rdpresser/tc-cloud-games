@@ -14,7 +14,7 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
         {
             _faker = new Faker();
         }
-        
+
         [Fact]
         public async Task Handle_ShouldReturnNull_WhenUserDoesNotExist()
         {
@@ -30,7 +30,7 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
             // Assert
             Assert.Null(result);
         }
-        
+
         [Fact]
         public async Task Handle_ShouldReturnUserByEmailResponse_WhenUserExists()
         {

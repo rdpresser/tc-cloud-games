@@ -1,4 +1,5 @@
 ﻿using TC.CloudGames.Application.Games.GetGameById;
+using TC.CloudGames.Domain.GameAggregate.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -64,7 +65,7 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 Id = Guid.NewGuid(),
                 Name = "Game Name",
                 ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow),
-                AgeRating = Domain.Game.AgeRating.ValidRatings.First(),
+                AgeRating = AgeRating.ValidRatings.First(),
                 Description = "Game Description",
                 DeveloperInfo = new(developer: "Developer Name", publisher: "Publisher Name"),
                 DiskSize = 50.0m,
@@ -72,10 +73,10 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 Playtime = new(10, 1),
                 GameDetails = new(
                     genre: "Genre",
-                    platform: [.. Domain.Game.GameDetails.ValidPlatforms],
+                    platform: [.. Domain.GameAggregate.ValueObjects.GameDetails.ValidPlatforms],
                     tags: "Tags",
-                    gameMode: Domain.Game.GameDetails.ValidGameModes.First(),
-                    distributionFormat: Domain.Game.GameDetails.ValidDistributionFormats.First(),
+                    gameMode: Domain.GameAggregate.ValueObjects.GameDetails.ValidGameModes.First(),
+                    distributionFormat: Domain.GameAggregate.ValueObjects.GameDetails.ValidDistributionFormats.First(),
                     availableLanguages: "Available Languages",
                     supportsDlcs: true
                 ),
@@ -86,7 +87,7 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 ),
                 Rating = 4.5m,
                 OfficialLink = "https://example.com",
-                GameStatus = Domain.Game.Game.ValidGameStatus.First()
+                GameStatus = Domain.GameAggregate.Game.ValidGameStatus.First()
             };
         }
     }

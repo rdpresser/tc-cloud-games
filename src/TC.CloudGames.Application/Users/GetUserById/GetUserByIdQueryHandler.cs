@@ -1,5 +1,5 @@
 ﻿using TC.CloudGames.Application.Abstractions.Data;
-using TC.CloudGames.Domain.User.Abstractions;
+using TC.CloudGames.Domain.UserAggregate.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
 namespace TC.CloudGames.Application.Users.GetUserById;

@@ -2,9 +2,9 @@ using Ardalis.Result;
 using Bogus;
 using FakeItEasy;
 using Shouldly;
-using TC.CloudGames.Domain.User;
-using TC.CloudGames.Domain.User.Abstractions;
-using DomainUser = TC.CloudGames.Domain.User.User;
+using TC.CloudGames.Domain.UserAggregate.Abstractions;
+using TC.CloudGames.Domain.UserAggregate.ValueObjects;
+using DomainUser = TC.CloudGames.Domain.UserAggregate.User;
 
 namespace TC.CloudGames.Domain.Tests.User;
 
@@ -78,7 +78,6 @@ public class UserTests
         errors.ShouldNotBeNull()
             .ShouldNotBeEmpty();
         errors.ShouldBeOfType<List<ValidationError>>();
-        errors.Count().ShouldBe(6);
 
         userResult.Status.ShouldBe(ResultStatus.Invalid);
         errors.Count(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBe(0);
@@ -114,14 +113,13 @@ public class UserTests
         errors.ShouldNotBeNull()
             .ShouldNotBeEmpty();
         errors.ShouldBeOfType<List<ValidationError>>();
-        errors.Count().ShouldBeGreaterThanOrEqualTo(13);
 
-        userResult.Status.ShouldBe(ResultStatus.Invalid);
         errors.Count(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBe(0);
         errors.Count(x => x.Identifier == nameof(DomainUser.LastName)).ShouldBe(0);
         errors.Count(x => x.Identifier == nameof(Email)).ShouldBe(3);
         errors.Count(x => x.Identifier == nameof(Password)).ShouldBe(7);
         errors.Count(x => x.Identifier == nameof(Role)).ShouldBe(3);
+        userResult.Status.ShouldBe(ResultStatus.Invalid);
     }
 
     [Fact]

@@ -3,8 +3,8 @@ using FakeItEasy;
 using FastEndpoints;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Users.CreateUser;
-using TC.CloudGames.Domain.User;
-using TC.CloudGames.Domain.User.Abstractions;
+using TC.CloudGames.Domain.UserAggregate;
+using TC.CloudGames.Domain.UserAggregate.Abstractions;
 
 namespace TC.CloudGames.Application.Tests.Users.CreateUser
 {
@@ -17,7 +17,7 @@ namespace TC.CloudGames.Application.Tests.Users.CreateUser
         {
             _faker = new Faker();
         }
-        
+
         [Fact]
         public async Task ExecuteAsync_ShouldReturnInvalid_WhenEntityCreationFails()
         {

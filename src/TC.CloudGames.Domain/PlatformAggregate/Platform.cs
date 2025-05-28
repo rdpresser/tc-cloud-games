@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace TC.CloudGames.Domain.Platform
+namespace TC.CloudGames.Domain.PlatformAggregate
 {
     /// <summary>
     /// This class will be used in a future version and have its own repository and domain tables

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace TC.CloudGames.Domain.User.Abstractions
+namespace TC.CloudGames.Domain.UserAggregate.Abstractions
 {
     [ExcludeFromCodeCoverage]
     public static class UserDomainErrors

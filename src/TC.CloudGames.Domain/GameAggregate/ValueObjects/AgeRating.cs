@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
-namespace TC.CloudGames.Domain.Game
+namespace TC.CloudGames.Domain.GameAggregate.ValueObjects
 {
     public sealed record AgeRating
     {

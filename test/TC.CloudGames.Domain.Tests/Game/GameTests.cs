@@ -1,9 +1,9 @@
 ﻿using Ardalis.Result;
 using Bogus;
 using Shouldly;
-using TC.CloudGames.Domain.Game;
-using DomainGame = TC.CloudGames.Domain.Game.Game;
-using DomainGameDetails = TC.CloudGames.Domain.Game.GameDetails;
+using TC.CloudGames.Domain.GameAggregate.ValueObjects;
+using DomainGame = TC.CloudGames.Domain.GameAggregate.Game;
+using DomainGameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
 
 namespace TC.CloudGames.Domain.Tests.Game;
 

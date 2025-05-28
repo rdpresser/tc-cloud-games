@@ -3,7 +3,8 @@ using FakeItEasy;
 using FastEndpoints;
 using TC.CloudGames.Application.Abstractions.Data;
 using TC.CloudGames.Application.Games.GetGameList;
-using TC.CloudGames.Domain.Game;
+using TC.CloudGames.Domain.GameAggregate;
+using TC.CloudGames.Domain.GameAggregate.ValueObjects;
 
 namespace TC.CloudGames.Application.Tests.Games
 {
@@ -88,7 +89,7 @@ namespace TC.CloudGames.Application.Tests.Games
                         ),
                     Rating = Math.Round(_faker.Random.Decimal(1, 10), 2),
                     OfficialLink = _faker.Internet.Url(),
-                    GameStatus = _faker.PickRandom(Domain.Game.Game.ValidGameStatus.ToArray())
+                    GameStatus = _faker.PickRandom(Game.ValidGameStatus.ToArray())
                 });
             }
 

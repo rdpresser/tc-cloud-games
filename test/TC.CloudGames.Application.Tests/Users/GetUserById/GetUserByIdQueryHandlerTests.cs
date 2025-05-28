@@ -16,13 +16,13 @@ namespace TC.CloudGames.Application.Tests.Users.GetUserById
         {
             _faker = new Faker();
         }
-        
+
         [Fact]
         public async Task ExecuteAsync_ShouldReturnUser_WhenUserIsSelf()
         {
             // Arrange
             Factory.RegisterTestServices(_ => { });
-            
+
             var userRepository = A.Fake<IUserPgRepository>();
             var userContext = A.Fake<IUserContext>();
             var handler = new GetUserByIdQueryHandler(userRepository, userContext);

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
-namespace TC.CloudGames.Domain.User
+namespace TC.CloudGames.Domain.UserAggregate.ValueObjects
 {
     public sealed record Role
     {

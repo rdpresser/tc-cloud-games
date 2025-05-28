@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace TC.CloudGames.Domain.Game
+namespace TC.CloudGames.Domain.GameAggregate.ValueObjects
 {
     /// <summary>
     /// This class will be used in a future version and have its own repository and domain tables

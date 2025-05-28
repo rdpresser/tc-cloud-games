@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
-namespace TC.CloudGames.Domain.Game
+namespace TC.CloudGames.Domain.GameAggregate.ValueObjects
 {
     public sealed record GameDetails
     {

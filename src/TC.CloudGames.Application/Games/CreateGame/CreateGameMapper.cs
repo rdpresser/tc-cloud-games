@@ -1,4 +1,4 @@
-﻿using TC.CloudGames.Domain.Game;
+﻿using TC.CloudGames.Domain.GameAggregate;
 
 namespace TC.CloudGames.Application.Games.CreateGame
 {

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace TC.CloudGames.Domain.User
+namespace TC.CloudGames.Domain.UserAggregate.ValueObjects
 {
     public sealed record Password
     {

@@ -1,4 +1,4 @@
-﻿namespace TC.CloudGames.Domain.Game
+﻿namespace TC.CloudGames.Domain.GameAggregate.ValueObjects
 {
     public sealed record Playtime
     {

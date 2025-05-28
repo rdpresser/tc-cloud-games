@@ -13,7 +13,7 @@ public class LoginUserCommandValidatorTests
     {
         _faker = new Faker();
     }
-    
+
     [Fact]
     public void Should_Return_Error_When_Email_Is_Empty()
     {
@@ -21,14 +21,14 @@ public class LoginUserCommandValidatorTests
         const string email = "";
         var password = _faker.Internet.Password() + "!";
         var command = new LoginUserCommand(email, password);
-        
+
         // Act
         var result = _validator.Validate(command);
-        
+
         // Assert
         result.Errors.ShouldContain(e => e.PropertyName == nameof(LoginUserCommand.Email));
     }
-    
+
     [Fact]
     public void Should_Return_Error_When_Password_Is_Invalid()
     {
@@ -36,14 +36,14 @@ public class LoginUserCommandValidatorTests
         var email = _faker.Internet.Email();
         const string password = "abc";
         var command = new LoginUserCommand(email, password);
-        
+
         // Act
         var result = _validator.Validate(command);
-        
+
         // Assert
         result.Errors.ShouldContain(e => e.PropertyName == nameof(LoginUserCommand.Password));
     }
-    
+
     [Fact]
     public void Should_Pass_When_Data_Is_Valid()
     {
@@ -51,10 +51,10 @@ public class LoginUserCommandValidatorTests
         const string email = "test@email.com";
         const string password = "J35!8G0+eP8z";
         var command = new LoginUserCommand(email, password);
-        
+
         // Act
         var result = _validator.Validate(command);
-        
+
         // Assert
         result.Errors.Count.ShouldBe(0);
     }
