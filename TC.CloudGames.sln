@@ -35,12 +35,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Infra.CrossCu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Infra.CrossCutting.Commons", "src\TC.CloudGames.Infra.CrossCutting.Commons\TC.CloudGames.Infra.CrossCutting.Commons.csproj", "{AD5B37BE-46D6-6868-6947-50579E86992D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Domain.Tests", "test\TC.CloudGames.Domain.Tests\TC.CloudGames.Domain.Tests.csproj", "{96417C62-3D54-45C6-A5E3-666C0DB50A76}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Application.Tests", "test\TC.CloudGames.Application.Tests\TC.CloudGames.Application.Tests.csproj", "{0B47564C-096F-4F13-8099-459157D3AC2E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Api.Tests", "test\TC.CloudGames.Api.Tests\TC.CloudGames.Api.Tests.csproj", "{C2D3A485-5905-4B6E-95C3-1B25781912C9}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Architecture.Testing", "2 - Architecture.Testing", "{8C5BAD6D-B133-4B38-8C22-1C13F57CB033}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Unit.Testing", "1 - Unit.Testing", "{75F75AB9-EB63-43FA-96F1-4A32A1852CF5}"
@@ -53,7 +47,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		global.json = global.json
-		sonar_commands.txt = sonar_commands.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Integration.Tests", "test\TC.CloudGames.Integration.Tests\TC.CloudGames.Integration.Tests.csproj", "{58C92CCD-B95B-4A47-88DC-7C4C22885018}"
@@ -63,11 +56,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{88030581-FE52-48D2-8A3D-2B43555E2234}"
 	ProjectSection(SolutionItems) = preProject
 		scripts\code_analysis.bat = scripts\code_analysis.bat
-		scripts\code_coverage.bat = scripts\code_coverage.bat
-		scripts\code_coverage.sh = scripts\code_coverage.sh
 		scripts\setup-devcert.bat = scripts\setup-devcert.bat
 		scripts\setup-devcert.sh = scripts\setup-devcert.sh
-		scripts\setup_sonar_token.py = scripts\setup_sonar_token.py
+		token_data\sonar-token.txt = token_data\sonar-token.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{A9FC732A-88B8-49D0-B09F-0FDFD232EEE5}"
@@ -77,6 +68,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{A9FC73
 		images\003_pgAdmin_login_screen.png = images\003_pgAdmin_login_screen.png
 		images\004_database_server_login.png = images\004_database_server_login.png
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.BDD.Tests", "test\TC.CloudGames.BDD.Tests\TC.CloudGames.BDD.Tests.csproj", "{637F966F-33F4-4422-BFEF-26E854D78A5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Unit.Tests", "test\TC.CloudGames.Unit.Tests\TC.CloudGames.Unit.Tests.csproj", "{21A2451C-EA3D-4B51-ABB8-4FB7F37119DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -112,18 +107,6 @@ Global
 		{AD5B37BE-46D6-6868-6947-50579E86992D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD5B37BE-46D6-6868-6947-50579E86992D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD5B37BE-46D6-6868-6947-50579E86992D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{96417C62-3D54-45C6-A5E3-666C0DB50A76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{96417C62-3D54-45C6-A5E3-666C0DB50A76}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{96417C62-3D54-45C6-A5E3-666C0DB50A76}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{96417C62-3D54-45C6-A5E3-666C0DB50A76}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B47564C-096F-4F13-8099-459157D3AC2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B47564C-096F-4F13-8099-459157D3AC2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B47564C-096F-4F13-8099-459157D3AC2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B47564C-096F-4F13-8099-459157D3AC2E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C2D3A485-5905-4B6E-95C3-1B25781912C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C2D3A485-5905-4B6E-95C3-1B25781912C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C2D3A485-5905-4B6E-95C3-1B25781912C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C2D3A485-5905-4B6E-95C3-1B25781912C9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{58C92CCD-B95B-4A47-88DC-7C4C22885018}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{58C92CCD-B95B-4A47-88DC-7C4C22885018}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58C92CCD-B95B-4A47-88DC-7C4C22885018}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -132,6 +115,14 @@ Global
 		{0BA9E97A-F7E7-E7F6-A68C-FD4DF32B1AA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BA9E97A-F7E7-E7F6-A68C-FD4DF32B1AA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BA9E97A-F7E7-E7F6-A68C-FD4DF32B1AA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{637F966F-33F4-4422-BFEF-26E854D78A5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{637F966F-33F4-4422-BFEF-26E854D78A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{637F966F-33F4-4422-BFEF-26E854D78A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{637F966F-33F4-4422-BFEF-26E854D78A5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21A2451C-EA3D-4B51-ABB8-4FB7F37119DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21A2451C-EA3D-4B51-ABB8-4FB7F37119DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21A2451C-EA3D-4B51-ABB8-4FB7F37119DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21A2451C-EA3D-4B51-ABB8-4FB7F37119DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -150,9 +141,6 @@ Global
 		{3FB669D0-B1A9-4624-B43B-BB8C4F794DBC} = {B8321130-6175-47D7-BC59-E2CC0ADEE6DF}
 		{A57A0494-52D9-AE21-52E2-C73D531B4A48} = {122B4804-D1D8-420B-93EC-72978373369D}
 		{AD5B37BE-46D6-6868-6947-50579E86992D} = {122B4804-D1D8-420B-93EC-72978373369D}
-		{96417C62-3D54-45C6-A5E3-666C0DB50A76} = {75F75AB9-EB63-43FA-96F1-4A32A1852CF5}
-		{0B47564C-096F-4F13-8099-459157D3AC2E} = {75F75AB9-EB63-43FA-96F1-4A32A1852CF5}
-		{C2D3A485-5905-4B6E-95C3-1B25781912C9} = {75F75AB9-EB63-43FA-96F1-4A32A1852CF5}
 		{8C5BAD6D-B133-4B38-8C22-1C13F57CB033} = {4BE74EE1-B5C8-4AF3-8024-5F60C13EC1BD}
 		{75F75AB9-EB63-43FA-96F1-4A32A1852CF5} = {4BE74EE1-B5C8-4AF3-8024-5F60C13EC1BD}
 		{0A426525-9ABE-45D4-A67A-80635BB57C71} = {4BE74EE1-B5C8-4AF3-8024-5F60C13EC1BD}
@@ -161,6 +149,8 @@ Global
 		{0BA9E97A-F7E7-E7F6-A68C-FD4DF32B1AA6} = {8C5BAD6D-B133-4B38-8C22-1C13F57CB033}
 		{88030581-FE52-48D2-8A3D-2B43555E2234} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
 		{A9FC732A-88B8-49D0-B09F-0FDFD232EEE5} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
+		{637F966F-33F4-4422-BFEF-26E854D78A5A} = {04129191-BF54-4E04-984E-D85A171ED6BB}
+		{21A2451C-EA3D-4B51-ABB8-4FB7F37119DB} = {75F75AB9-EB63-43FA-96F1-4A32A1852CF5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A61EC7C9-970A-4856-9FA0-A09EE45536BB}
