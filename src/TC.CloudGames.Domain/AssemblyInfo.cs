@@ -5,4 +5,4 @@ global using FluentValidation.Results;
 global using TC.CloudGames.Domain.Abstractions;
 
 using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo("TC.CloudGames.Domain.Tests")]
+[assembly: InternalsVisibleTo("TC.CloudGames.Unit.Tests")]
