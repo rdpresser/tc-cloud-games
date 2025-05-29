@@ -4,16 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
 using TC.CloudGames.Application.Abstractions;
-using TC.CloudGames.Domain.GameAggregate.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.Data;
 using ZiggyCreatures.Caching.Fusion;
 using DomainGame = TC.CloudGames.Domain.GameAggregate.Game;
 using DomainGameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
 
-namespace TC.CloudGames.Api.Tests.Abstractions
+namespace TC.CloudGames.Unit.Tests.Api.Abstractions
 {
-    public class App : AppFixture<Program>
+    public class App : AppFixture<CloudGames.Api.Program>
     {
         internal readonly List<string> Genres;
         internal readonly List<string> Platforms;

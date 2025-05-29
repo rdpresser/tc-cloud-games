@@ -1,9 +1,9 @@
 ﻿using TC.CloudGames.Api.Endpoints.Auth;
-using TC.CloudGames.Api.Tests.Abstractions;
 using TC.CloudGames.Application.Users.CreateUser;
 using TC.CloudGames.Domain.UserAggregate.Abstractions;
+using TC.CloudGames.Unit.Tests.Api.Abstractions;
 
-namespace TC.CloudGames.Api.Tests.Endpoints.Auth
+namespace TC.CloudGames.Unit.Tests.Api.Endpoints.Auth
 {
     public class CreateUserEndpointTests : TestBase<App>
     {
@@ -30,7 +30,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Auth
                 Role: createUserReq.Role
             );
 
-            var fakeHandler = A.Fake<IAppCommandHandler.CommandHandler<CreateUserCommand, CreateUserResponse, Domain.UserAggregate.User, IUserEfRepository>>();
+            var fakeHandler = A.Fake<CommandHandler<CreateUserCommand, CreateUserResponse, CloudGames.Domain.UserAggregate.User, IUserEfRepository>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<CreateUserCommand>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<CreateUserResponse>.Success(createUserRes)));
 
@@ -88,7 +88,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Auth
                 }
             };
 
-            var fakeHandler = A.Fake<IAppCommandHandler.CommandHandler<CreateUserCommand, CreateUserResponse, Domain.UserAggregate.User, IUserEfRepository>>();
+            var fakeHandler = A.Fake<CommandHandler<CreateUserCommand, CreateUserResponse, CloudGames.Domain.UserAggregate.User, IUserEfRepository>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<CreateUserCommand>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<CreateUserResponse>.Invalid(listError)));
             fakeHandler.RegisterForTesting();

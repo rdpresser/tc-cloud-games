@@ -1,11 +1,11 @@
-﻿using DomainDeveloperInfo = TC.CloudGames.Domain.GameAggregate.ValueObjects.DeveloperInfo;
+﻿using DeveloperInfo = TC.CloudGames.Domain.GameAggregate.ValueObjects.DeveloperInfo;
 using DomainGame = TC.CloudGames.Domain.GameAggregate.Game;
-using DomainGameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
-using DomainPlaytime = TC.CloudGames.Domain.GameAggregate.ValueObjects.Playtime;
-using DomainPrice = TC.CloudGames.Domain.GameAggregate.ValueObjects.Price;
-using DomainSystemRequirements = TC.CloudGames.Domain.GameAggregate.ValueObjects.SystemRequirements;
+using GameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
+using Playtime = TC.CloudGames.Domain.GameAggregate.ValueObjects.Playtime;
+using Price = TC.CloudGames.Domain.GameAggregate.ValueObjects.Price;
+using SystemRequirements = TC.CloudGames.Domain.GameAggregate.ValueObjects.SystemRequirements;
 
-namespace TC.CloudGames.Domain.Tests.Game;
+namespace TC.CloudGames.Unit.Tests.Domain.Game;
 
 public class GameTests
 {
@@ -28,7 +28,7 @@ public class GameTests
             "Visual Novel", "Beat 'em up", "Battle Royale", "Musical", "Party Game", "Metroidvania", "Idle/Incremental",
             "Tower Defense", "MOBA", "Sandbox", "Tycoon" ];
 
-        _platforms = [.. DomainGameDetails.ValidPlatforms];
+        _platforms = [.. GameDetails.ValidPlatforms];
 
         _gameTags = [ "Indie", "Multiplayer", "Singleplayer", "Co-op", "PvP", "PvE", "Online Co-op",
             "Local Multiplayer", "Story Rich", "Difficult", "Casual", "Anime", "Pixel Graphics", "Retro", "Funny", "Atmospheric",
@@ -38,9 +38,9 @@ public class GameTests
             "Realistic", "Female Protagonist", "Controller Support", "VR Support", "Moddable", "Replay Value", "Open World",
             "Procedural Generation", "Sandbox", "Nonlinear", "Mystery", "Psychological", "Dark", "Gore", "Violent" ];
 
-        _gameModes = [.. DomainGameDetails.ValidGameModes];
+        _gameModes = [.. GameDetails.ValidGameModes];
 
-        _distributionFormats = [.. DomainGameDetails.ValidDistributionFormats];
+        _distributionFormats = [.. GameDetails.ValidDistributionFormats];
 
         _languages = ["PT-BR", "EN-US", "ES-ES", "FR-FR", "ZH-CN", "JA-JP", "RU-RU", "KO-KR"];
 
@@ -99,19 +99,19 @@ public class GameTests
         });
 
         // Platform validation errors
-        errors.Count(x => x.Identifier == nameof(DomainGameDetails.Platform)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails.Platform)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainGameDetails.Platform) && x.ErrorCode == $"{nameof(DomainGameDetails.Platform)}.ValidPlatform");
+        errors.ShouldContain(x => x.Identifier == nameof(GameDetails.Platform) && x.ErrorCode == $"{nameof(GameDetails.Platform)}.ValidPlatform");
 
         // GameMode validation errors
-        errors.Count(x => x.Identifier == nameof(DomainGameDetails.GameMode)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails.GameMode)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainGameDetails.GameMode) && x.ErrorCode == $"{nameof(DomainGameDetails.GameMode)}.ValidGameMode");
+        errors.ShouldContain(x => x.Identifier == nameof(GameDetails.GameMode) && x.ErrorCode == $"{nameof(GameDetails.GameMode)}.ValidGameMode");
 
         // DistributionFormat validation errors
-        errors.Count(x => x.Identifier == nameof(DomainGameDetails.DistributionFormat)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails.DistributionFormat)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainGameDetails.DistributionFormat) && x.ErrorCode == $"{nameof(DomainGameDetails.DistributionFormat)}.ValidDistributionFormat");
+        errors.ShouldContain(x => x.Identifier == nameof(GameDetails.DistributionFormat) && x.ErrorCode == $"{nameof(GameDetails.DistributionFormat)}.ValidDistributionFormat");
 
         // Rating validation errors
         errors.Count(x => x.Identifier == nameof(DomainGame.Rating)).ShouldBe(1);
@@ -119,9 +119,9 @@ public class GameTests
         errors.ShouldContain(x => x.Identifier == nameof(DomainGame.Rating) && x.ErrorCode == $"{nameof(DomainGame.Rating)}.GreaterThanOrEqualToZero");
 
         // GameDetails validation errors
-        errors.Count(x => x.Identifier == nameof(DomainGame.GameDetails)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainGame.GameDetails) && x.ErrorCode == $"{nameof(DomainGame.GameDetails)}.Required");
+        errors.ShouldContain(x => x.Identifier == nameof(GameDetails) && x.ErrorCode == $"{nameof(GameDetails)}.Required");
 
         // GameStatus validation errors
         errors.Count(x => x.Identifier == nameof(DomainGame.GameStatus)).ShouldBe(1);
@@ -260,19 +260,19 @@ public class GameTests
         });
 
         //Developer validation errors
-        errors.Count(x => x.Identifier == nameof(DomainDeveloperInfo.Developer)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(DeveloperInfo.Developer)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainDeveloperInfo.Developer) && x.ErrorCode == $"{nameof(DomainDeveloperInfo.Developer)}.Required");
+        errors.ShouldContain(x => x.Identifier == nameof(DeveloperInfo.Developer) && x.ErrorCode == $"{nameof(DeveloperInfo.Developer)}.Required");
 
         //DeveloperInfo validation errors
-        errors.Count(x => x.Identifier == nameof(GameAggregate.ValueObjects.DeveloperInfo)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(DeveloperInfo)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(GameAggregate.ValueObjects.DeveloperInfo) && x.ErrorCode == $"{nameof(GameAggregate.ValueObjects.DeveloperInfo)}.Required");
+        errors.ShouldContain(x => x.Identifier == nameof(DeveloperInfo) && x.ErrorCode == $"{nameof(DeveloperInfo)}.Required");
 
         //GameDetails validation errors
-        errors.Count(x => x.Identifier == nameof(DomainGame.GameDetails)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainGame.GameDetails) && x.ErrorCode == $"{nameof(DomainGame.GameDetails)}.Required");
+        errors.ShouldContain(x => x.Identifier == nameof(GameDetails) && x.ErrorCode == $"{nameof(GameDetails)}.Required");
 
         //DiskSize validation errors
         errors.Count(x => x.Identifier == nameof(DomainGame.DiskSize)).ShouldBe(3);
@@ -294,47 +294,47 @@ public class GameTests
         });
 
         //Platform validation errors
-        errors.Count(x => x.Identifier == nameof(DomainGameDetails.Platform)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails.Platform)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(errors => errors.Identifier == nameof(DomainGameDetails.Platform) && errors.ErrorCode == $"{nameof(DomainGameDetails.Platform)}.Required");
+        errors.ShouldContain(errors => errors.Identifier == nameof(GameDetails.Platform) && errors.ErrorCode == $"{nameof(GameDetails.Platform)}.Required");
 
         //GameMode validation errors
-        errors.Count(x => x.Identifier == nameof(DomainGameDetails.GameMode)).ShouldBe(2);
+        errors.Count(x => x.Identifier == nameof(GameDetails.GameMode)).ShouldBe(2);
         errorCount -= 2;
         errors.ShouldSatisfyAllConditions(errors =>
         {
-            errors.Any(x => x.Identifier == nameof(DomainGameDetails.GameMode) && x.ErrorCode == $"{nameof(DomainGameDetails.GameMode)}.Required").ShouldBeTrue();
-            errors.Any(x => x.Identifier == nameof(DomainGameDetails.GameMode) && x.ErrorCode == $"{nameof(DomainGameDetails.GameMode)}.ValidGameMode").ShouldBeTrue();
+            errors.Any(x => x.Identifier == nameof(GameDetails.GameMode) && x.ErrorCode == $"{nameof(GameDetails.GameMode)}.Required").ShouldBeTrue();
+            errors.Any(x => x.Identifier == nameof(GameDetails.GameMode) && x.ErrorCode == $"{nameof(GameDetails.GameMode)}.ValidGameMode").ShouldBeTrue();
         });
 
         //DistributionFormat validation errors
-        errors.Count(x => x.Identifier == nameof(DomainGameDetails.DistributionFormat)).ShouldBe(2);
+        errors.Count(x => x.Identifier == nameof(GameDetails.DistributionFormat)).ShouldBe(2);
         errorCount -= 2;
         errors.ShouldSatisfyAllConditions(errors =>
         {
-            errors.Any(x => x.Identifier == nameof(DomainGameDetails.DistributionFormat) && x.ErrorCode == $"{nameof(DomainGameDetails.DistributionFormat)}.Required").ShouldBeTrue();
-            errors.Any(x => x.Identifier == nameof(DomainGameDetails.DistributionFormat) && x.ErrorCode == $"{nameof(DomainGameDetails.DistributionFormat)}.ValidDistributionFormat").ShouldBeTrue();
+            errors.Any(x => x.Identifier == nameof(GameDetails.DistributionFormat) && x.ErrorCode == $"{nameof(GameDetails.DistributionFormat)}.Required").ShouldBeTrue();
+            errors.Any(x => x.Identifier == nameof(GameDetails.DistributionFormat) && x.ErrorCode == $"{nameof(GameDetails.DistributionFormat)}.ValidDistributionFormat").ShouldBeTrue();
         });
 
         //Playtime Hours validation errors
-        errors.Count(x => x.Identifier == nameof(DomainPlaytime.Hours)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(Playtime.Hours)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(errors => errors.Identifier == nameof(DomainPlaytime.Hours) && errors.ErrorCode == $"{nameof(DomainPlaytime.Hours)}.GreaterThanOrEqualToZero");
+        errors.ShouldContain(errors => errors.Identifier == nameof(Playtime.Hours) && errors.ErrorCode == $"{nameof(Playtime.Hours)}.GreaterThanOrEqualToZero");
 
         //Playtime PlayerCount validation errors
-        errors.Count(x => x.Identifier == nameof(DomainPlaytime.PlayerCount)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(Playtime.PlayerCount)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(errors => errors.Identifier == nameof(DomainPlaytime.PlayerCount) && errors.ErrorCode == $"{nameof(DomainPlaytime.PlayerCount)}.GreaterThanOrEqualToOne");
+        errors.ShouldContain(errors => errors.Identifier == nameof(Playtime.PlayerCount) && errors.ErrorCode == $"{nameof(Playtime.PlayerCount)}.GreaterThanOrEqualToOne");
 
         //SystemRequirements Minimum validation errors
-        errors.Count(x => x.Identifier == nameof(DomainSystemRequirements.Minimum)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(SystemRequirements.Minimum)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainSystemRequirements.Minimum) && x.ErrorCode == $"{nameof(DomainSystemRequirements.Minimum)}.Required");
+        errors.ShouldContain(x => x.Identifier == nameof(SystemRequirements.Minimum) && x.ErrorCode == $"{nameof(SystemRequirements.Minimum)}.Required");
 
         //SystemRequirements validation errors
-        errors.Count(x => x.Identifier == nameof(GameAggregate.ValueObjects.SystemRequirements)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(SystemRequirements)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(GameAggregate.ValueObjects.SystemRequirements) && x.ErrorCode == $"{nameof(GameAggregate.ValueObjects.SystemRequirements)}.Required");
+        errors.ShouldContain(x => x.Identifier == nameof(SystemRequirements) && x.ErrorCode == $"{nameof(SystemRequirements)}.Required");
 
         //Rating validation erros
         errors.Count(x => x.Identifier == nameof(DomainGame.Rating)).ShouldBe(1);
@@ -363,14 +363,14 @@ public class GameTests
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
         var ageRating = AgeRating.Create(builder => builder.Value = _faker.PickRandom(_ageRatings.ToArray()));
         var description = _faker.Lorem.Paragraph();
-        var developerInfo = DomainDeveloperInfo.Create(builder =>
+        var developerInfo = DeveloperInfo.Create(builder =>
         {
             builder.Developer = _faker.Company.CompanyName();
             builder.Publisher = _faker.Company.CompanyName();
         });
         var diskSize = DiskSize.Create(builder => builder.SizeInGb = _faker.Random.Decimal(1, 100));
-        var price = DomainPrice.Create(builder => builder.Amount = _faker.Random.Decimal(10, 300));
-        var playtime = DomainPlaytime.Create(builder =>
+        var price = Price.Create(builder => builder.Amount = _faker.Random.Decimal(10, 300));
+        var playtime = Playtime.Create(builder =>
         {
             builder.Hours = _faker.Random.Int(1, 10);
             builder.PlayerCount = _faker.Random.Int(10, 100);
@@ -387,7 +387,7 @@ public class GameTests
             builder.DiskSize = diskSize;
             builder.Price = price;
             builder.Playtime = playtime;
-            builder.GameDetails = DomainGameDetails.Create(builder =>
+            builder.GameDetails = GameDetails.Create(builder =>
             {
                 builder.Genre = _faker.PickRandom(_genres);
                 builder.Platform = [.. _faker.PickRandom(_platforms, 3)];
@@ -397,7 +397,7 @@ public class GameTests
                 builder.AvailableLanguages = _faker.PickRandom(_languages);
                 builder.SupportsDlcs = true;
             });
-            builder.SystemRequirements = DomainSystemRequirements.Create(builder =>
+            builder.SystemRequirements = SystemRequirements.Create(builder =>
             {
                 builder.Minimum = _faker.Lorem.Paragraph();
                 builder.Recommended = _faker.Lorem.Paragraph();
@@ -422,12 +422,12 @@ public class GameTests
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
         var ageRating = AgeRating.Create(builder => { });
         var description = _faker.Lorem.Paragraph();
-        var developerInfo = DomainDeveloperInfo.Create(builder => { });
+        var developerInfo = DeveloperInfo.Create(builder => { });
         var diskSize = DiskSize.Create(builder => { });
-        var price = DomainPrice.Create(builder => { builder.Amount = -1; });
-        var playtime = DomainPlaytime.Create(builder => { builder.Hours = -1; builder.PlayerCount = -1; });
-        var gameDetails = DomainGameDetails.Create(builder => { });
-        var systemRequirements = DomainSystemRequirements.Create(builder => { });
+        var price = Price.Create(builder => { builder.Amount = -1; });
+        var playtime = Playtime.Create(builder => { builder.Hours = -1; builder.PlayerCount = -1; });
+        var gameDetails = GameDetails.Create(builder => { });
+        var systemRequirements = SystemRequirements.Create(builder => { });
         var rating = Rating.Create(builder => builder.Average = -1);
 
         // Act
@@ -461,12 +461,12 @@ public class GameTests
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
         var ageRating = AgeRating.Create(builder => { });
         var description = _faker.Lorem.Paragraph();
-        var developerInfo = DomainDeveloperInfo.Create(builder => { });
+        var developerInfo = DeveloperInfo.Create(builder => { });
         var diskSize = DiskSize.Create(builder => { });
-        var price = DomainPrice.Create(builder => { builder.Amount = -1; });
-        var playtime = DomainPlaytime.Create(builder => { builder.Hours = -1; builder.PlayerCount = -1; });
-        var gameDetails = DomainGameDetails.Create(builder => { });
-        var systemRequirements = DomainSystemRequirements.Create(builder => { });
+        var price = Price.Create(builder => { builder.Amount = -1; });
+        var playtime = Playtime.Create(builder => { builder.Hours = -1; builder.PlayerCount = -1; });
+        var gameDetails = GameDetails.Create(builder => { });
+        var systemRequirements = SystemRequirements.Create(builder => { });
         var rating = Rating.Create(builder => builder.Average = -1);
 
         // Act
@@ -500,14 +500,14 @@ public class GameTests
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
         var ageRating = AgeRating.Create(builder => builder.Value = _faker.PickRandom(_ageRatings.ToArray()));
         var description = _faker.Lorem.Paragraph();
-        var developerInfo = DomainDeveloperInfo.Create(builder =>
+        var developerInfo = DeveloperInfo.Create(builder =>
         {
             builder.Developer = _faker.Company.CompanyName();
             builder.Publisher = _faker.Company.CompanyName();
         });
         var diskSize = DiskSize.Create(builder => builder.SizeInGb = _faker.Random.Decimal(1, 100));
-        var price = DomainPrice.Create(builder => builder.Amount = _faker.Random.Decimal(10, 300));
-        var playtime = DomainPlaytime.Create(builder =>
+        var price = Price.Create(builder => builder.Amount = _faker.Random.Decimal(10, 300));
+        var playtime = Playtime.Create(builder =>
         {
             builder.Hours = _faker.Random.Int(1, 10);
             builder.PlayerCount = _faker.Random.Int(10, 100);
@@ -524,7 +524,7 @@ public class GameTests
             builder.DiskSize = diskSize;
             builder.Price = price;
             builder.Playtime = playtime;
-            builder.GameDetails = DomainGameDetails.Create(builder =>
+            builder.GameDetails = GameDetails.Create(builder =>
             {
                 builder.Genre = _faker.PickRandom(_genres);
                 builder.Platform = [.. _faker.PickRandom(_platforms, 3)];
@@ -534,7 +534,7 @@ public class GameTests
                 builder.AvailableLanguages = _faker.PickRandom(_languages);
                 builder.SupportsDlcs = true;
             });
-            builder.SystemRequirements = DomainSystemRequirements.Create(builder =>
+            builder.SystemRequirements = SystemRequirements.Create(builder =>
             {
                 builder.Minimum = _faker.Lorem.Paragraph();
                 builder.Recommended = _faker.Lorem.Paragraph();
@@ -778,54 +778,54 @@ public class GameTests
         errors.ShouldContain(x => x.Identifier == nameof(DomainGame.Description) && x.ErrorCode == $"{nameof(DomainGame.Description)}.MaximumLength");
 
         // DeveloperInfo max length
-        errors.Count(x => x.Identifier == nameof(GameAggregate.ValueObjects.DeveloperInfo)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(DeveloperInfo)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(GameAggregate.ValueObjects.DeveloperInfo) && x.ErrorCode == $"{nameof(GameAggregate.ValueObjects.DeveloperInfo)}.Required");
+        errors.ShouldContain(x => x.Identifier == nameof(DeveloperInfo) && x.ErrorCode == $"{nameof(DeveloperInfo)}.Required");
 
         // DeveloperInfo.Developer max length
-        errors.Count(x => x.Identifier == nameof(DomainDeveloperInfo.Developer)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(DeveloperInfo.Developer)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainDeveloperInfo.Developer) && x.ErrorCode == $"{nameof(DomainDeveloperInfo.Developer)}.MaximumLength");
+        errors.ShouldContain(x => x.Identifier == nameof(DeveloperInfo.Developer) && x.ErrorCode == $"{nameof(DeveloperInfo.Developer)}.MaximumLength");
 
         // DeveloperInfo.Publisher max length
-        errors.Count(x => x.Identifier == nameof(DomainDeveloperInfo.Publisher)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(DeveloperInfo.Publisher)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainDeveloperInfo.Publisher) && x.ErrorCode == $"{nameof(DomainDeveloperInfo.Publisher)}.MaximumLength");
+        errors.ShouldContain(x => x.Identifier == nameof(DeveloperInfo.Publisher) && x.ErrorCode == $"{nameof(DeveloperInfo.Publisher)}.MaximumLength");
 
         // GameDetails max length
-        errors.Count(x => x.Identifier == nameof(GameAggregate.ValueObjects.GameDetails)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(GameAggregate.ValueObjects.GameDetails) && x.ErrorCode == $"{nameof(GameAggregate.ValueObjects.GameDetails)}.Required");
+        errors.ShouldContain(x => x.Identifier == nameof(GameDetails) && x.ErrorCode == $"{nameof(GameDetails)}.Required");
 
         // GameDetails.Genre max length
-        errors.Count(x => x.Identifier == nameof(DomainGameDetails.Genre)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails.Genre)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainGameDetails.Genre) && x.ErrorCode == $"{nameof(DomainGameDetails.Genre)}.MaximumLength");
+        errors.ShouldContain(x => x.Identifier == nameof(GameDetails.Genre) && x.ErrorCode == $"{nameof(GameDetails.Genre)}.MaximumLength");
 
         // GameDetails.Tags max length
-        errors.Count(x => x.Identifier == nameof(DomainGameDetails.Tags)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails.Tags)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainGameDetails.Tags) && x.ErrorCode == $"{nameof(DomainGameDetails.Tags)}.MaximumLength");
+        errors.ShouldContain(x => x.Identifier == nameof(GameDetails.Tags) && x.ErrorCode == $"{nameof(GameDetails.Tags)}.MaximumLength");
 
         // GameDetails.AvailableLanguages max length
-        errors.Count(x => x.Identifier == nameof(DomainGameDetails.AvailableLanguages)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(GameDetails.AvailableLanguages)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainGameDetails.AvailableLanguages) && x.ErrorCode == $"{nameof(DomainGameDetails.AvailableLanguages)}.MaximumLength");
+        errors.ShouldContain(x => x.Identifier == nameof(GameDetails.AvailableLanguages) && x.ErrorCode == $"{nameof(GameDetails.AvailableLanguages)}.MaximumLength");
 
         // SystemRequirements max length
-        errors.Count(x => x.Identifier == nameof(GameAggregate.ValueObjects.SystemRequirements)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(SystemRequirements)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(GameAggregate.ValueObjects.SystemRequirements) && x.ErrorCode == $"{nameof(GameAggregate.ValueObjects.SystemRequirements)}.Required");
+        errors.ShouldContain(x => x.Identifier == nameof(SystemRequirements) && x.ErrorCode == $"{nameof(SystemRequirements)}.Required");
 
         // SystemRequirements.Minimum max length
-        errors.Count(x => x.Identifier == nameof(DomainSystemRequirements.Minimum)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(SystemRequirements.Minimum)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainSystemRequirements.Minimum) && x.ErrorCode == $"{nameof(DomainSystemRequirements.Minimum)}.MaximumLength");
+        errors.ShouldContain(x => x.Identifier == nameof(SystemRequirements.Minimum) && x.ErrorCode == $"{nameof(SystemRequirements.Minimum)}.MaximumLength");
 
         // SystemRequirements.Recommended max length
-        errors.Count(x => x.Identifier == nameof(DomainSystemRequirements.Recommended)).ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(SystemRequirements.Recommended)).ShouldBe(1);
         errorCount -= 1;
-        errors.ShouldContain(x => x.Identifier == nameof(DomainSystemRequirements.Recommended) && x.ErrorCode == $"{nameof(DomainSystemRequirements.Recommended)}.MaximumLength");
+        errors.ShouldContain(x => x.Identifier == nameof(SystemRequirements.Recommended) && x.ErrorCode == $"{nameof(SystemRequirements.Recommended)}.MaximumLength");
 
         // OfficialLink max length
         errors.Count(x => x.Identifier == nameof(DomainGame.OfficialLink)).ShouldBe(1);

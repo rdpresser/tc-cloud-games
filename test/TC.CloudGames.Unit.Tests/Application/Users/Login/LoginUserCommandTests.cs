@@ -1,6 +1,6 @@
 ﻿using TC.CloudGames.Application.Users.Login;
 
-namespace TC.CloudGames.Application.Tests.Users.Login;
+namespace TC.CloudGames.Unit.Tests.Application.Users.Login;
 
 public class LoginUserCommandTests
 {

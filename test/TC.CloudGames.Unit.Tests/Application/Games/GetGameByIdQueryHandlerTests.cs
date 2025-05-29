@@ -1,6 +1,6 @@
 ﻿using TC.CloudGames.Application.Games.GetGameById;
 
-namespace TC.CloudGames.Application.Tests.Games
+namespace TC.CloudGames.Unit.Tests.Application.Games
 {
     public class GetGameByIdQueryHandlerTests
     {

@@ -1,7 +1,7 @@
 ﻿using TC.CloudGames.Api.Extensions;
-using TC.CloudGames.Api.Tests.Abstractions;
+using TC.CloudGames.Unit.Tests.Api.Abstractions;
 
-namespace TC.CloudGames.Api.Tests.Extensions
+namespace TC.CloudGames.Unit.Tests.Api.Extensions
 {
     public class PasswordGeneratorTests : TestBase<App>
     {

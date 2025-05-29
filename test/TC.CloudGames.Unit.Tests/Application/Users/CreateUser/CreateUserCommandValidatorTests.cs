@@ -1,7 +1,7 @@
 ﻿using FluentValidation.TestHelper;
 using TC.CloudGames.Application.Users.CreateUser;
 
-namespace TC.CloudGames.Application.Tests.Users.CreateUser
+namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
 {
     public class CreateUserCommandValidatorTests
     {

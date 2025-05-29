@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using TC.CloudGames.Api.Endpoints.Game;
-using TC.CloudGames.Api.Tests.Abstractions;
 using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Games.GetGameById;
+using TC.CloudGames.Unit.Tests.Api.Abstractions;
 
-namespace TC.CloudGames.Api.Tests.Endpoints.Game
+namespace TC.CloudGames.Unit.Tests.Api.Endpoints.Game
 {
     public class GetGameByIdEndpointTests(App App) : TestBase<App>
     {
@@ -37,7 +37,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Game
                 builder.OfficialLink = "https://example.com/game";
             });
 
-            var fakeHandler = A.Fake<IAppCommandHandler.QueryHandler<GetGameByIdQuery, GameByIdResponse>>();
+            var fakeHandler = A.Fake<QueryHandler<GetGameByIdQuery, GameByIdResponse>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<GetGameByIdQuery>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<GameByIdResponse>.Success(getGameRes)));
 
@@ -84,7 +84,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Game
                 }
             };
 
-            var fakeHandler = A.Fake<IAppCommandHandler.QueryHandler<GetGameByIdQuery, GameByIdResponse>>();
+            var fakeHandler = A.Fake<QueryHandler<GetGameByIdQuery, GameByIdResponse>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<GetGameByIdQuery>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<GameByIdResponse>.NotFound([.. listError.Select(x => x.ErrorMessage)])));
 
@@ -132,7 +132,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Game
                 }
             };
 
-            var fakeHandler = A.Fake<IAppCommandHandler.QueryHandler<GetGameByIdQuery, GameByIdResponse>>();
+            var fakeHandler = A.Fake<QueryHandler<GetGameByIdQuery, GameByIdResponse>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<GetGameByIdQuery>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<GameByIdResponse>.Unauthorized([.. listError.Select(x => x.ErrorMessage)])));
 
@@ -181,7 +181,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Game
                 }
             };
 
-            var fakeHandler = A.Fake<IAppCommandHandler.QueryHandler<GetGameByIdQuery, GameByIdResponse>>();
+            var fakeHandler = A.Fake<QueryHandler<GetGameByIdQuery, GameByIdResponse>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<GetGameByIdQuery>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<GameByIdResponse>.Forbidden([.. listError.Select(x => x.ErrorMessage)])));
 

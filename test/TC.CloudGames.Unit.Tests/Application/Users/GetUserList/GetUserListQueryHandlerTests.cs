@@ -1,6 +1,6 @@
 ﻿using TC.CloudGames.Application.Users.GetUserList;
 
-namespace TC.CloudGames.Application.Tests.Users.GetUserList
+namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserList
 {
     public class GetUserListQueryHandlerTests
     {

@@ -4,7 +4,7 @@ using GameDetails = TC.CloudGames.Application.Games.CreateGame.GameDetails;
 using Playtime = TC.CloudGames.Application.Games.CreateGame.Playtime;
 using SystemRequirements = TC.CloudGames.Application.Games.CreateGame.SystemRequirements;
 
-namespace TC.CloudGames.Application.Tests.Games
+namespace TC.CloudGames.Unit.Tests.Application.Games
 {
     public class CreateGameCommandValidatorTests
     {

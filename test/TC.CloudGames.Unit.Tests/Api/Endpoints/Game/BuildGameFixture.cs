@@ -1,6 +1,6 @@
-using TC.CloudGames.Api.Tests.Abstractions;
+using TC.CloudGames.Unit.Tests.Api.Abstractions;
 
-namespace TC.CloudGames.Api.Tests.Endpoints.Game;
+namespace TC.CloudGames.Unit.Tests.Api.Endpoints.Game;
 
 public class BuildGameFixture
 {

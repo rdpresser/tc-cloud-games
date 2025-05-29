@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using TC.CloudGames.Api.Endpoints.Game;
-using TC.CloudGames.Api.Tests.Abstractions;
 using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Games.GetGameList;
+using TC.CloudGames.Unit.Tests.Api.Abstractions;
 using DomainGameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
 
-namespace TC.CloudGames.Api.Tests.Endpoints.Game
+namespace TC.CloudGames.Unit.Tests.Api.Endpoints.Game
 {
     public class GetGameListEndpointTests(App App) : TestBase<App>
     {
@@ -56,11 +56,11 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Game
                     ),
                     Rating = Math.Round(App.Fake.Random.Decimal(1, 10), 2),
                     OfficialLink = App.Fake.Internet.Url(),
-                    GameStatus = App.Fake.PickRandom(Domain.GameAggregate.Game.ValidGameStatus.ToArray())
+                    GameStatus = App.Fake.PickRandom(CloudGames.Domain.GameAggregate.Game.ValidGameStatus.ToArray())
                 });
             }
 
-            var fakeHandler = A.Fake<IAppCommandHandler.QueryHandler<GetGameListQuery, IReadOnlyList<GameListResponse>>>();
+            var fakeHandler = A.Fake<QueryHandler<GetGameListQuery, IReadOnlyList<GameListResponse>>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<GetGameListQuery>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<IReadOnlyList<GameListResponse>>.Success(getGameRes)));
 

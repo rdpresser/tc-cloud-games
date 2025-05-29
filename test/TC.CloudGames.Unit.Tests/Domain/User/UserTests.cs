@@ -1,12 +1,8 @@
-using Ardalis.Result;
-using Bogus;
-using FakeItEasy;
-using Shouldly;
 using TC.CloudGames.Domain.UserAggregate.Abstractions;
 using TC.CloudGames.Domain.UserAggregate.ValueObjects;
 using DomainUser = TC.CloudGames.Domain.UserAggregate.User;
 
-namespace TC.CloudGames.Domain.Tests.User;
+namespace TC.CloudGames.Unit.Tests.Domain.User;
 
 public class UserTests
 {

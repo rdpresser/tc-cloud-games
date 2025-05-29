@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   tc-cloudgames-api:
     image: ${DOCKER_REGISTRY-}tccloudgamesapi
@@ -82,7 +80,7 @@ services:
   #     echo 'Setting executable permissions for code_coverage.sh...' && chmod +x /scripts/code_coverage.sh && \
       
   #     echo 'Running setup_sonar_token.py ...' && python3 /scripts/setup_sonar_token.py
-  #     "   
+  #     "
 
   tc-cloudgames-sonarqube-db-init:
     image: postgres:latest

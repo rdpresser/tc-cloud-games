@@ -4,7 +4,7 @@ using DomainGameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDe
 using Playtime = TC.CloudGames.Application.Games.GetGameById.Playtime;
 using Price = TC.CloudGames.Application.Games.GetGameById.Price;
 
-namespace TC.CloudGames.Application.Tests.Games;
+namespace TC.CloudGames.Unit.Tests.Application.Games;
 
 public class GetGameByIdTests
 {

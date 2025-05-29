@@ -1,6 +1,6 @@
 ﻿using TC.CloudGames.Application.Users.GetUserByEmail;
 
-namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
+namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserByEmail
 {
     public class GetUserByEmailQueryTests
     {

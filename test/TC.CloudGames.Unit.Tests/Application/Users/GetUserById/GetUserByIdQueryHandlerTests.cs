@@ -2,7 +2,7 @@
 using TC.CloudGames.Application.Users.GetUserById;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
-namespace TC.CloudGames.Application.Tests.Users.GetUserById
+namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserById
 {
     public class GetUserByIdQueryHandlerTests
     {

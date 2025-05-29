@@ -2,7 +2,7 @@
 using TC.CloudGames.Application.Users.GetUserByEmail;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
-namespace TC.CloudGames.Application.Tests.Users.GetUserByEmail
+namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserByEmail
 {
     public class GetUserByEmailQueryHandlerTests
     {

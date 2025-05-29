@@ -3,7 +3,7 @@ using TC.CloudGames.Domain.UserAggregate;
 using TC.CloudGames.Domain.UserAggregate.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
-namespace TC.CloudGames.Application.Tests.Users.Login;
+namespace TC.CloudGames.Unit.Tests.Application.Users.Login;
 
 public class LoginUserCommandHandlerTests
 {

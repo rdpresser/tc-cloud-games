@@ -5,7 +5,7 @@ using Playtime = TC.CloudGames.Application.Games.CreateGame.Playtime;
 using Price = TC.CloudGames.Application.Games.CreateGame.Price;
 using SystemRequirements = TC.CloudGames.Application.Games.CreateGame.SystemRequirements;
 
-namespace TC.CloudGames.Application.Tests.Games;
+namespace TC.CloudGames.Unit.Tests.Application.Games;
 
 public class CreateGameTests
 {

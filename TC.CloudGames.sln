@@ -58,6 +58,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{8803
 		scripts\code_analysis.bat = scripts\code_analysis.bat
 		scripts\setup-devcert.bat = scripts\setup-devcert.bat
 		scripts\setup-devcert.sh = scripts\setup-devcert.sh
+		token_data\sonar-token.txt = token_data\sonar-token.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{A9FC732A-88B8-49D0-B09F-0FDFD232EEE5}"

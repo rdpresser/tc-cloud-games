@@ -2,7 +2,7 @@
 using TC.CloudGames.Domain.UserAggregate;
 using TC.CloudGames.Domain.UserAggregate.Abstractions;
 
-namespace TC.CloudGames.Application.Tests.Users.CreateUser
+namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
 {
     public class CreateUserCommandHandlerTests
     {

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using TC.CloudGames.Api.Endpoints.User;
-using TC.CloudGames.Api.Tests.Abstractions;
 using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Users.GetUserList;
+using TC.CloudGames.Unit.Tests.Api.Abstractions;
 
-namespace TC.CloudGames.Api.Tests.Endpoints.User
+namespace TC.CloudGames.Unit.Tests.Api.Endpoints.User
 {
     public class GetUserListEndpointTests(App App) : TestBase<App>
     {
@@ -39,7 +39,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.User
                 }
             };
 
-            var fakeHandler = A.Fake<IAppCommandHandler.QueryHandler<GetUserListQuery, IReadOnlyList<UserListResponse>>>();
+            var fakeHandler = A.Fake<QueryHandler<GetUserListQuery, IReadOnlyList<UserListResponse>>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<GetUserListQuery>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<IReadOnlyList<UserListResponse>>.Success(getUserRes)));
 

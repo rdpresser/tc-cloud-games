@@ -1,6 +1,6 @@
 ﻿using TC.CloudGames.Domain.Exceptions;
 
-namespace TC.CloudGames.Application.Tests.Users.CreateUser
+namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
 {
     public class DuplicateKeyViolationException : Exception, IDuplicateKeyViolation
     {

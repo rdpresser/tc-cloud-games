@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
-namespace TC.CloudGames.Api.Tests.Abstractions
+namespace TC.CloudGames.Unit.Tests.Api.Abstractions
 {
     [ExcludeFromCodeCoverage]
     internal static class Mapper

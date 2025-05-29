@@ -1,9 +1,9 @@
 ﻿using TC.CloudGames.Api.Endpoints.Auth;
-using TC.CloudGames.Api.Tests.Abstractions;
 using TC.CloudGames.Application.Users.Login;
 using TC.CloudGames.Domain.UserAggregate.Abstractions;
+using TC.CloudGames.Unit.Tests.Api.Abstractions;
 
-namespace TC.CloudGames.Api.Tests.Endpoints.Auth
+namespace TC.CloudGames.Unit.Tests.Api.Endpoints.Auth
 {
     public class LoginEndpointTests : TestBase<App>
     {
@@ -15,7 +15,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Auth
             var loginReq = new LoginUserCommand(Email: "user@user.com", Password: "User@123");
             var loginRes = new LoginUserResponse("<jwt-token>", "user@user.com");
 
-            var fakeHandler = A.Fake<IAppCommandHandler.CommandHandler<LoginUserCommand, LoginUserResponse, Domain.UserAggregate.User, IUserEfRepository>>();
+            var fakeHandler = A.Fake<CommandHandler<LoginUserCommand, LoginUserResponse, CloudGames.Domain.UserAggregate.User, IUserEfRepository>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<LoginUserCommand>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<LoginUserResponse>.Success(loginRes)));
 
@@ -51,7 +51,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Auth
                 Severity = ValidationSeverity.Error
             };
 
-            var fakeHandler = A.Fake<IAppCommandHandler.CommandHandler<LoginUserCommand, LoginUserResponse, Domain.UserAggregate.User, IUserEfRepository>>();
+            var fakeHandler = A.Fake<CommandHandler<LoginUserCommand, LoginUserResponse, CloudGames.Domain.UserAggregate.User, IUserEfRepository>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<LoginUserCommand>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<LoginUserResponse>.Invalid(loginRes)));
 
@@ -91,7 +91,7 @@ namespace TC.CloudGames.Api.Tests.Endpoints.Auth
                 }
             };
 
-            var fakeHandler = A.Fake<IAppCommandHandler.CommandHandler<LoginUserCommand, LoginUserResponse, Domain.UserAggregate.User, IUserEfRepository>>();
+            var fakeHandler = A.Fake<CommandHandler<LoginUserCommand, LoginUserResponse, CloudGames.Domain.UserAggregate.User, IUserEfRepository>>();
             A.CallTo(() => fakeHandler.ExecuteAsync(A<LoginUserCommand>.Ignored, A<CancellationToken>.Ignored))
                 .Returns(Task.FromResult(Result<LoginUserResponse>.NotFound([.. listError.Select(x => x.ErrorMessage)])));
 
