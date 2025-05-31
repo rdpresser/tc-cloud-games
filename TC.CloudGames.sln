@@ -73,6 +73,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.BDD.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.CloudGames.Unit.Tests", "test\TC.CloudGames.Unit.Tests\TC.CloudGames.Unit.Tests.csproj", "{21A2451C-EA3D-4B51-ABB8-4FB7F37119DB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{15D2659A-6930-4A4A-9F63-34E0376D51D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fase_01", "fase_01", "{9B5B9C3A-9DFA-4DB1-8131-1311EFC7FE40}"
+	ProjectSection(SolutionItems) = preProject
+		doc\fase_01\FIAP_TC_Fase_01.docx = doc\fase_01\FIAP_TC_Fase_01.docx
+		doc\fase_01\FIAP_TC_Fase_01.pdf = doc\fase_01\FIAP_TC_Fase_01.pdf
+		doc\fase_01\Funcionalidades obrigatórias.docx = doc\fase_01\Funcionalidades obrigatórias.docx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +160,8 @@ Global
 		{A9FC732A-88B8-49D0-B09F-0FDFD232EEE5} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
 		{637F966F-33F4-4422-BFEF-26E854D78A5A} = {04129191-BF54-4E04-984E-D85A171ED6BB}
 		{21A2451C-EA3D-4B51-ABB8-4FB7F37119DB} = {75F75AB9-EB63-43FA-96F1-4A32A1852CF5}
+		{15D2659A-6930-4A4A-9F63-34E0376D51D0} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
+		{9B5B9C3A-9DFA-4DB1-8131-1311EFC7FE40} = {15D2659A-6930-4A4A-9F63-34E0376D51D0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A61EC7C9-970A-4856-9FA0-A09EE45536BB}
