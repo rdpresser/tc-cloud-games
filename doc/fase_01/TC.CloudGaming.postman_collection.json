@@ -1,0 +1,479 @@
+{
+	"info": {
+		"_postman_id": "8aaaf4ef-2160-411e-9100-2497759a6429",
+		"name": "TC.CloudGaming",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24048"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "1. Admin User Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Extrai o token da resposta\r",
+									"const responseJson = pm.response.json();\r",
+									"const newToken = responseJson.jwtToken; // Ajuste 'token' para o nome correto do campo no seu JSON\r",
+									"\r",
+									"// Verifica se o token foi extraído com sucesso\r",
+									"if (newToken) {\r",
+									"    // Atualiza a variável de ambiente\r",
+									"    pm.environment.set(\"admin_token\", newToken);\r",
+									"    \r",
+									"    // OU para atualizar uma variável de coleção use:\r",
+									"    // pm.collectionVariables.set(\"token\", newToken);\r",
+									"    \r",
+									"    // OU para atualizar uma variável global use:\r",
+									"    // pm.globals.set(\"token\", newToken);\r",
+									"    \r",
+									"    console.log(\"Token atualizado com sucesso!\");\r",
+									"} else {\r",
+									"    console.error(\"Não foi possível extrair o token da resposta\");\r",
+									"}\r",
+									"\r",
+									"// Adiciona um teste para verificar se o token foi realmente atualizado\r",
+									"pm.test(\"Token foi atualizado na variável do ambiente\", function () {\r",
+									"    const updatedToken = pm.environment.get(\"admin_token\");\r",
+									"    pm.expect(updatedToken).to.eql(newToken);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@admin.com\",\r\n    \"password\": \"Admin@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/auth/login",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.1 Regular User Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Extrai o token da resposta\r",
+									"const responseJson = pm.response.json();\r",
+									"const newToken = responseJson.jwtToken; // Ajuste 'token' para o nome correto do campo no seu JSON\r",
+									"\r",
+									"// Verifica se o token foi extraído com sucesso\r",
+									"if (newToken) {\r",
+									"    // Atualiza a variável de ambiente\r",
+									"    pm.environment.set(\"admin_token\", newToken);\r",
+									"    \r",
+									"    // OU para atualizar uma variável de coleção use:\r",
+									"    // pm.collectionVariables.set(\"token\", newToken);\r",
+									"    \r",
+									"    // OU para atualizar uma variável global use:\r",
+									"    // pm.globals.set(\"token\", newToken);\r",
+									"    \r",
+									"    console.log(\"Token atualizado com sucesso!\");\r",
+									"} else {\r",
+									"    console.error(\"Não foi possível extrair o token da resposta\");\r",
+									"}\r",
+									"\r",
+									"// Adiciona um teste para verificar se o token foi realmente atualizado\r",
+									"pm.test(\"Token foi atualizado na variável do ambiente\", function () {\r",
+									"    const updatedToken = pm.environment.get(\"admin_token\");\r",
+									"    pm.expect(updatedToken).to.eql(newToken);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"user@user.com\",\r\n    \"password\": \"User@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/auth/login",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"John\",\r\n  \"lastName\": \"Smith\",\r\n  \"email\": \"john.smith@gmail.com\",\r\n  \"password\": \"John.Smith@123\",\r\n  \"role\": \"Admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/auth/register",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get User | by Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/api/user/b83e11e1-159b-4be0-8f4b-3995fd8971f1",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"b83e11e1-159b-4be0-8f4b-3995fd8971f1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User | by Email",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/api/user/by-email/admin@admin.com",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"by-email",
+								"admin@admin.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User List | With Filters",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-correlation-id",
+								"value": "cd7eacc2-ebfb-4b21-951e-8156d8e9d33d",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"\",\r\n    \"lastName\": \"\",\r\n    \"email\": \"\",\r\n    \"role\": \"\",\r\n    \"password\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/api/user/list?PageNumber=1&PageSize=10&SortBy=name&SortDirection=ASC&Filter=",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"list"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								},
+								{
+									"key": "SortBy",
+									"value": "name"
+								},
+								{
+									"key": "SortDirection",
+									"value": "ASC"
+								},
+								{
+									"key": "Filter",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Game",
+			"item": [
+				{
+					"name": "Get Game | by ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/api/game/84c3a8ba-5246-4786-a0d4-a2e9f23f3a83",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"84c3a8ba-5246-4786-a0d4-a2e9f23f3a83"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Game",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Game Name\",\r\n  \"releaseDate\": \"2025-06-01\",\r\n  \"ageRating\": \"T\",\r\n  \"description\": \"Game Description\",\r\n  \"developerInfo\": {\r\n    \"developer\": \"Developer Name\",\r\n    \"publisher\": \"Publisher Name\"\r\n  },\r\n  \"diskSize\": 50,\r\n  \"price\": 59.99,\r\n  \"playtime\": {\r\n    \"hours\": 10,\r\n    \"playerCount\": 1\r\n  },\r\n  \"gameDetails\": {\r\n    \"genre\": \"Genre\",\r\n    \"platform\": [\r\n      \"Xbox One\",\r\n      \"Android\",\r\n      \"VR (HTC Vive)\",\r\n      \"Wii U\",\r\n      \"Stadia\",\r\n      \"iOS\",\r\n      \"PlayStation Vita\",\r\n      \"Nintendo Switch\",\r\n      \"PC\",\r\n      \"VR (Oculus Quest)\",\r\n      \"Browser\",\r\n      \"PlayStation 5\",\r\n      \"PlayStation 4\",\r\n      \"Xbox Series X|S\",\r\n      \"Linux\",\r\n      \"Steam Deck\",\r\n      \"VR (PlayStation VR)\",\r\n      \"Nintendo 3DS\",\r\n      \"macOS\"\r\n    ],\r\n    \"tags\": \"Tags\",\r\n    \"gameMode\": \"Casual\",\r\n    \"distributionFormat\": \"Physical\",\r\n    \"availableLanguages\": \"EN-US\",\r\n    \"supportsDlcs\": true\r\n  },\r\n  \"systemRequirements\": {\r\n    \"minimum\": \"Minimum Requirements\",\r\n    \"recommended\": \"Recommended Requirements\"\r\n  },\r\n  \"rating\": 4.5,\r\n  \"officialLink\": \"https://example.com\",\r\n  \"gameStatus\": \"In Development\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/api/game",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"api",
+								"game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Game List | With Filters",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-correlation-id",
+								"value": "cd7eacc2-ebfb-4b21-951e-8156d8e9d33d",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"\",\r\n    \"lastName\": \"\",\r\n    \"email\": \"\",\r\n    \"role\": \"\",\r\n    \"password\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/api/game/list?PageNumber=1&PageSize=10&SortBy=name&SortDirection=ASC&Filter=",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"list"
+							],
+							"query": [
+								{
+									"key": "PageNumber",
+									"value": "1"
+								},
+								{
+									"key": "PageSize",
+									"value": "10"
+								},
+								{
+									"key": "SortBy",
+									"value": "name"
+								},
+								{
+									"key": "SortDirection",
+									"value": "ASC"
+								},
+								{
+									"key": "Filter",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
