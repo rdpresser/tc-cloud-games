@@ -21,7 +21,7 @@ The primary goal of this project is to provide a robust backend system that supp
    - Event Storming: [Miro Event Storming Diagram](https://miro.com/app/board/uXjVI4H0GgA=/)
    - Notion: [Group information & more docs](https://checkered-cod-bac.notion.site/Tech-Challenge-Net-1dfc8c4bf938806da273ca6a401f147d)
    - SonarQube: [Group Name & SonarQube info](doc/fase_01/FIAP_TC_Fase_01.pdf)
-   - Youtube: [Tech Challenge video Phase 01]()
+   - Youtube: [Tech Challenge video Phase 01](https://www.youtube.com/watch?v=9zyK9rb1lTs)
    - Postman Collection: [Import Collection file](doc/fase_01/TC.CloudGaming.postman_collection.json)
 ---
 
