@@ -22,7 +22,7 @@ jobs:
         run: dotnet restore TC.CloudGames.Unit.Tests.csproj
 
       - name: Build
-        run: dotnet build TC.CloudGames.Unit.Tests.csproj --no-restore --configuration Release
+        run: dotnet build test/TC.CloudGames.Unit.Tests.csproj --no-restore --configuration Release
 
       - name: Run tests
-        run: dotnet test TC.CloudGames.Unit.Tests.csproj --no-build --configuration Release --collect:"XPlat Code Coverage"
+        run: dotnet test test/TC.CloudGames.Unit.Tests.csproj --no-build --configuration Release --collect:"XPlat Code Coverage"
