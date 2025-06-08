@@ -18,14 +18,8 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Echo message before restoring dependencies
-        run: echo "Restoring dependencies..."
-
       - name: Restore dependencies
         run: dotnet restore TC.CloudGames.sln
-
-      - name: Echo message after restoring dependencies
-        run: echo "Dependencies restored."
 
       - name: Build
         run: dotnet build TC.CloudGames.sln --no-restore --configuration Release
@@ -46,23 +40,12 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Echo message before restoring dependencies for tests
-        run: echo "Restoring dependencies for tests..."
-
       - name: Restore dependencies
         run: dotnet restore test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj
-
-      - name: Echo message after restoring dependencies for tests
-        run: echo "Dependencies restored for tests."
 
       - name: Build
         run: dotnet build test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --no-restore --configuration Release
 
-      - name: Echo message before running tests
-        run: echo "Running tests..."
-
       - name: Run tests
         run: dotnet test test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --no-build --configuration Release --collect:"XPlat Code Coverage"
 
-      - name: Echo message after running tests
-        run: echo "Tests completed."
