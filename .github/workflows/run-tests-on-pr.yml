@@ -19,7 +19,7 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore TC.CloudGames.Unit.Tests.csproj
+        run: dotnet restore test/TC.CloudGames.Unit.Tests.csproj
 
       - name: Build
         run: dotnet build test/TC.CloudGames.Unit.Tests.csproj --no-restore --configuration Release
