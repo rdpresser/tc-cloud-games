@@ -1,4 +1,4 @@
-name: Run Unit Tests on PR
+name: TC CloudGames - Build and Test PR
 
 on:
   pull_request:
