@@ -19,10 +19,10 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore test/TC.CloudGames.Unit.Tests.csproj
+        run: dotnet restore test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj
 
       - name: Build
-        run: dotnet build test/TC.CloudGames.Unit.Tests.csproj --no-restore --configuration Release
+        run: dotnet build test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --no-restore --configuration Release
 
       - name: Run tests
-        run: dotnet test test/TC.CloudGames.Unit.Tests.csproj --no-build --configuration Release --collect:"XPlat Code Coverage"
+        run: dotnet test test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --no-build --configuration Release --collect:"XPlat Code Coverage"
