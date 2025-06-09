@@ -8,10 +8,13 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         private readonly Faker _faker;
         private readonly IUserPgRepository _userPgRepository;
         private readonly CreateUserCommandValidator _validator;
+        private readonly char[] _specialChars;
 
         public CreateUserCommandValidatorTests()
         {
             _faker = new Faker();
+            _specialChars = "!@#$%^&*()_+-=[]{}|;:,.<>?".ToCharArray();
+            
             _userPgRepository = A.Fake<IUserPgRepository>();
             _validator = new CreateUserCommandValidator(_userPgRepository);
         }
@@ -113,11 +116,14 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         [Fact]
         public async Task Should_Not_Have_Error_When_Command_Is_Valid()
         {
+            var password = _faker.Internet.Password() + _faker.Random.Number(0, 9) +
+                           _faker.PickRandom(_specialChars, 1).First();
+
             var command = new CreateUserCommand(
                 FirstName: _faker.Name.FirstName(),
                 LastName: _faker.Name.LastName(),
                 Email: _faker.Internet.Email(),
-                Password: _faker.Internet.Password() + "!",
+                Password: password,
                 Role: "User"
             );
 
