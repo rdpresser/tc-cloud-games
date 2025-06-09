@@ -183,8 +183,8 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         .DependentRules(() =>
                         {
                             RuleFor(x => x.GameDetails.Platform)
-                                .Must(platform => Domain.GameAggregate.ValueObjects.GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
-                                    .WithMessage($"Invalid platform specified. Valid platforms are: {Domain.GameAggregate.ValueObjects.GameDetails.ValidPlatforms.JoinWithQuotes()}.")
+                                .Must(platform => platform is { Length: > 0 })
+                                    .WithMessage("At least one platform must be specified.")
                                     .WithErrorCode($"{nameof(GameDetails.Platform)}.ValidPlatform");
                         });
 
