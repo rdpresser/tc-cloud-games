@@ -87,7 +87,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Games
 
             // Assert
             Assert.False(result.IsValid);
-            Assert.Contains(result.Errors, e => e.PropertyName == "Name");
+            Assert.True(result.Errors.Any(e => e.PropertyName == "Name"));
         }
 
         [Fact]
