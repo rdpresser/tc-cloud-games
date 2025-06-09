@@ -9,11 +9,14 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         private readonly IUserPgRepository _userPgRepository;
         private readonly CreateUserCommandValidator _validator;
         private readonly char[] _specialChars;
+        private readonly string _password;
 
         public CreateUserCommandValidatorTests()
         {
             _faker = new Faker();
             _specialChars = "!@#$%^&*()_+-=[]{}|;:,.<>?".ToCharArray();
+            _password = _faker.Internet.Password() + _faker.Random.Number(0, 9) 
+                                                   + _faker.PickRandom(_specialChars, 1).First();
             
             _userPgRepository = A.Fake<IUserPgRepository>();
             _validator = new CreateUserCommandValidator(_userPgRepository);
@@ -26,7 +29,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
                 FirstName: null,
                 LastName: _faker.Name.LastName(),
                 Email: _faker.Internet.Email(),
-                Password: _faker.Internet.Password(),
+                Password: _password,
                 Role: "User"
             );
 
@@ -41,7 +44,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
                 FirstName: _faker.Name.FirstName(),
                 LastName: null,
                 Email: _faker.Internet.Email(),
-                Password: _faker.Internet.Password(),
+                Password: _password,
                 Role: "User"
             );
 
@@ -56,7 +59,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
                 FirstName: _faker.Name.FirstName(),
                 LastName: _faker.Name.LastName(),
                 Email: null,
-                Password: _faker.Internet.Password(),
+                Password: _password,
                 Role: "User"
             );
 
@@ -71,7 +74,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
                 FirstName: _faker.Name.FirstName(),
                 LastName: _faker.Name.LastName(),
                 Email: _faker.Internet.Email(),
-                Password: _faker.Internet.Password(),
+                Password: _password,
                 Role: "User"
             );
 
@@ -90,7 +93,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
                 FirstName: _faker.Name.FirstName(),
                 LastName: _faker.Name.LastName(),
                 Email: _faker.Internet.Email(),
-                Password: _faker.Internet.Password(),
+                Password: _password,
                 Role: null
             );
 
@@ -116,14 +119,11 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         [Fact]
         public async Task Should_Not_Have_Error_When_Command_Is_Valid()
         {
-            var password = _faker.Internet.Password() + _faker.Random.Number(0, 9) +
-                           _faker.PickRandom(_specialChars, 1).First();
-
             var command = new CreateUserCommand(
                 FirstName: _faker.Name.FirstName(),
                 LastName: _faker.Name.LastName(),
                 Email: _faker.Internet.Email(),
-                Password: password,
+                Password: _password,
                 Role: "User"
             );
 
