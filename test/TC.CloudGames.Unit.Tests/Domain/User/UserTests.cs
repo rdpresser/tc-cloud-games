@@ -232,7 +232,7 @@ public class UserTests
     public async Task Create_User_Should_Return_Invalid_When_String_Fields_Exceeds_Max_Length()
     {
         // Arrange
-        var firstName = _faker.Name.FirstName().PadRight(201, 'a'); // 201 characters
+        var firstName = new string('a', 201); // 201 characters
         var lastName = _faker.Name.LastName().PadRight(201, 'a'); // 201 characters
         var email = _faker.Internet.Email().PadRight(201, 'a'); // 201 characters
         var password = _faker.Internet.Password(201); // 201 characters
