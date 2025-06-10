@@ -9,7 +9,7 @@ jobs:
 
   build-app:
     name: Build Application
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -36,7 +36,7 @@ jobs:
 
   test-unit:
     name: Run Unit Tests
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     needs: build-app
     steps:
       - uses: actions/checkout@v4
