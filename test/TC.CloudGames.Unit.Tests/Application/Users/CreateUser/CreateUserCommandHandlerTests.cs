@@ -52,7 +52,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
 
             var command = new CreateUserCommand(
                 FirstName: _faker.Name.FirstName(),
-                LastName: _faker.Name.LastName(),
+                LastName: "Silva",
                 Email: "duplicate@email.com",
                 Password: "Test@1234",
                 Role: "User"

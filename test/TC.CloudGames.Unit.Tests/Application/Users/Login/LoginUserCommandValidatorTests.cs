@@ -5,11 +5,18 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.Login;
 public class LoginUserCommandValidatorTests
 {
     private readonly Faker _faker;
-    private readonly LoginUserCommandValidator _validator = new();
+    private readonly LoginUserCommandValidator _validator;
+    private readonly char[] _specialChars;
+    private readonly string _password;
 
     public LoginUserCommandValidatorTests()
     {
         _faker = new Faker();
+        _specialChars = "!@#$%^&*()_+-=[]{}|;:,.<>?".ToCharArray();
+        _password = _faker.Internet.Password() + _faker.Random.Number(0, 9) 
+                                               + _faker.PickRandom(_specialChars, 1).First();
+        
+        _validator = new LoginUserCommandValidator();
     }
 
     [Fact]
@@ -17,7 +24,7 @@ public class LoginUserCommandValidatorTests
     {
         // Arrange
         const string email = "";
-        var password = _faker.Internet.Password() + "!";
+        var password = _password;
         var command = new LoginUserCommand(email, password);
 
         // Act
@@ -47,8 +54,7 @@ public class LoginUserCommandValidatorTests
     {
         // Arrange
         const string email = "test@email.com";
-        const string password = "J35!8G0+eP8z";
-        var command = new LoginUserCommand(email, password);
+        var command = new LoginUserCommand(email, _password);
 
         // Act
         var result = _validator.Validate(command);
