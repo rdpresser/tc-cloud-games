@@ -22,7 +22,7 @@ jobs:
         run: dotnet restore TC.CloudGames.sln
 
       - name: Build
-        run: dotnet build TC.CloudGames.sln --no-restore --configuration Release
+        run: dotnet build TC.CloudGames.sln --configuration Release
 
 
   test-unit:
@@ -31,9 +31,6 @@ jobs:
     needs: build-app
     steps:
       - uses: actions/checkout@v4
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -44,7 +41,7 @@ jobs:
         run: dotnet restore test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj
 
       - name: Build
-        run: dotnet build test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --no-restore --configuration Release
+        run: dotnet build test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --configuration Release
 
       - name: Run tests
         run: dotnet test test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --no-build --configuration Release --collect:"XPlat Code Coverage"
