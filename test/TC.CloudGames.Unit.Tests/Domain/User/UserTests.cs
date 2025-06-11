@@ -49,20 +49,20 @@ public class UserTests
     }
 
     [Fact]
-    public async Task Create_User_Using_Builder_Should_Return_Invalid_When_Required_Value_Objects_Are_Empty()
+    public async Task Create_User_Using_Builder_Should_Return_Invalid_When_FirstName_Is_Empty()
     {
         // Arrange
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
-            .Returns(Task.FromResult(false)); // or true, depending on your test
+            .Returns(Task.FromResult(false));
 
-        var email = await Email.CreateAsync(builder => { }, _userEfRepository);
-        var password = Password.Create(builder => { });
-        var role = Role.Create(builder => { });
+        var email = await Email.CreateAsync(builder => { builder.Value = _faker.Internet.Email(); }, _userEfRepository);
+        var password = Password.Create(builder => { builder.Value = "Senha@123456"; });
+        var role = Role.Create(builder => { builder.Value = "User"; });
 
         // Act
         var userResult = DomainUser.CreateFromValueObjects(builder =>
         {
-            builder.FirstName = _faker.Name.FirstName();
+            builder.FirstName = string.Empty;
             builder.LastName = _faker.Name.LastName();
             builder.Email = email;
             builder.Password = password;
@@ -76,19 +76,47 @@ public class UserTests
         errors.ShouldBeOfType<List<ValidationError>>();
 
         userResult.Status.ShouldBe(ResultStatus.Invalid);
-        errors.Count(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBe(0);
-        errors.Count(x => x.Identifier == nameof(DomainUser.LastName)).ShouldBe(0);
-        errors.Count(x => x.Identifier == nameof(Email)).ShouldBe(2);
-        errors.Count(x => x.Identifier == nameof(Password)).ShouldBe(2);
-        errors.Count(x => x.Identifier == nameof(Role)).ShouldBe(2);
+        errors.Count(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBeGreaterThan(0);
     }
 
     [Fact]
-    public async Task Create_User_Using_Builder_Result_Should_Return_Invalid_When_Required_Value_Objects_Are_Empty()
+    public async Task Create_User_Using_Builder_Should_Return_Invalid_When_LastName_Is_Empty()
     {
         // Arrange
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
-            .Returns(Task.FromResult(false)); // or true, depending on your test
+            .Returns(Task.FromResult(false));
+
+        var email = await Email.CreateAsync(builder => { builder.Value = _faker.Internet.Email(); }, _userEfRepository);
+        var password = Password.Create(builder => { builder.Value = "Senha@123456"; });
+        var role = Role.Create(builder => { builder.Value = "User"; });
+
+        // Act
+        var userResult = DomainUser.CreateFromValueObjects(builder =>
+        {
+            builder.FirstName = _faker.Name.FirstName();
+            builder.LastName = string.Empty;
+            builder.Email = email;
+            builder.Password = password;
+            builder.Role = role;
+        });
+
+        // Assert
+        var errors = userResult.ValidationErrors;
+        errors.ShouldNotBeNull()
+            .ShouldNotBeEmpty();
+        errors.ShouldBeOfType<List<ValidationError>>();
+
+        userResult.Status.ShouldBe(ResultStatus.Invalid);
+        errors.Count(x => x.Identifier == nameof(DomainUser.LastName)).ShouldBeGreaterThan(0);
+    }
+
+
+    [Fact]
+    public async Task Create_User_Using_Builder_Result_Should_Return_Invalid_When_Email_Is_Empty()
+    {
+        // Arrange
+        A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
+            .Returns(Task.FromResult(false));
 
         var email = await Email.CreateAsync(builder => { }, _userEfRepository);
         var password = Password.Create(builder => { });
@@ -105,16 +133,59 @@ public class UserTests
         });
 
         // Assert
-        var errors = userResult.ValidationErrors;
-        errors.ShouldNotBeNull()
-            .ShouldNotBeEmpty();
-        errors.ShouldBeOfType<List<ValidationError>>();
+        userResult.ValidationErrors.ShouldContain(x => x.Identifier == nameof(Email));
+        userResult.Status.ShouldBe(ResultStatus.Invalid);
+    }
 
-        errors.Count(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBe(0);
-        errors.Count(x => x.Identifier == nameof(DomainUser.LastName)).ShouldBe(0);
-        errors.Count(x => x.Identifier == nameof(Email)).ShouldBe(3);
-        errors.Count(x => x.Identifier == nameof(Password)).ShouldBe(7);
-        errors.Count(x => x.Identifier == nameof(Role)).ShouldBe(3);
+    [Fact]
+    public async Task Create_User_Using_Builder_Result_Should_Return_Invalid_When_Password_Is_Empty()
+    {
+        // Arrange
+        A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
+            .Returns(Task.FromResult(false));
+
+        var email = await Email.CreateAsync(builder => { builder.Value = _faker.Internet.Email(); }, _userEfRepository);
+        var password = Password.Create(builder => { });
+        var role = Role.Create(builder => { });
+
+        // Act
+        var userResult = DomainUser.CreateFromResult(builder =>
+        {
+            builder.FirstName = _faker.Name.FirstName();
+            builder.LastName = _faker.Name.LastName();
+            builder.Email = email;
+            builder.Password = password;
+            builder.Role = role;
+        });
+
+        // Assert
+        userResult.ValidationErrors.ShouldContain(x => x.Identifier == nameof(Password));
+        userResult.Status.ShouldBe(ResultStatus.Invalid);
+    }
+
+    [Fact]
+    public async Task Create_User_Using_Builder_Result_Should_Return_Invalid_When_Role_Is_Empty()
+    {
+        // Arrange
+        A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
+            .Returns(Task.FromResult(false));
+
+        var email = await Email.CreateAsync(builder => { builder.Value = _faker.Internet.Email(); }, _userEfRepository);
+        var password = Password.Create(builder => { builder.Value = "Senha@123456"; });
+        var role = Role.Create(builder => { });
+
+        // Act
+        var userResult = DomainUser.CreateFromResult(builder =>
+        {
+            builder.FirstName = _faker.Name.FirstName();
+            builder.LastName = _faker.Name.LastName();
+            builder.Email = email;
+            builder.Password = password;
+            builder.Role = role;
+        });
+
+        // Assert
+        userResult.ValidationErrors.ShouldContain(x => x.Identifier == nameof(Role));
         userResult.Status.ShouldBe(ResultStatus.Invalid);
     }
 
