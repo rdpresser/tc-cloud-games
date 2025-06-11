@@ -201,6 +201,11 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_Required_Fields_Are_Empty_Or_Default_Values()
     {
+        
+        // Força a cultura para evitar diferenças entre ambientes
+        System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("pt-BR");
+        System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = new System.Globalization.CultureInfo("pt-BR");
+        
         // Arrange - Act
         var result = DomainGame.Create(builder =>
         {
@@ -229,6 +234,10 @@ public class GameTests
         var errors = result.ValidationErrors;
         int errorCount = 26;
 
+        // Log dos erros para facilitar debug em ambiente CI
+        foreach (var error in errors)
+            Console.WriteLine($"{error.Identifier}: {error.ErrorCode} - {error.ErrorMessage}");
+        
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
