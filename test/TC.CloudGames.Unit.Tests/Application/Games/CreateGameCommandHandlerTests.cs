@@ -1,5 +1,8 @@
-﻿using DeveloperInfo = TC.CloudGames.Application.Games.CreateGame.DeveloperInfo;
-using DomainGameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
+﻿using TC.CloudGames.Domain.Aggregates.Game;
+using TC.CloudGames.Domain.Aggregates.Game.Abstractions;
+using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
+using DeveloperInfo = TC.CloudGames.Application.Games.CreateGame.DeveloperInfo;
+using DomainGameDetails = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.GameDetails;
 using GameDetails = TC.CloudGames.Application.Games.CreateGame.GameDetails;
 using Playtime = TC.CloudGames.Application.Games.CreateGame.Playtime;
 using SystemRequirements = TC.CloudGames.Application.Games.CreateGame.SystemRequirements;

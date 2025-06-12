@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TC.CloudGames.Domain.UserAggregate;
-using TC.CloudGames.Domain.UserAggregate.Abstractions;
-using TC.CloudGames.Domain.UserAggregate.ValueObjects;
+using TC.CloudGames.Domain.Aggregates.User;
+using TC.CloudGames.Domain.Aggregates.User.Abstractions;
+using TC.CloudGames.Domain.Aggregates.User.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 

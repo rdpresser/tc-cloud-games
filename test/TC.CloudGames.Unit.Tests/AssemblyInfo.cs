@@ -8,7 +8,4 @@ global using Shouldly;
 global using TC.CloudGames.Application.Abstractions.Data;
 global using TC.CloudGames.Application.Abstractions.Messaging;
 global using TC.CloudGames.Application.Games.CreateGame;
-global using TC.CloudGames.Domain.GameAggregate;
-global using TC.CloudGames.Domain.GameAggregate.Abstractions;
-global using TC.CloudGames.Domain.GameAggregate.ValueObjects;
 global using IAppCommandHandler = TC.CloudGames.Application.Abstractions.Messaging;

@@ -1,5 +1,5 @@
-﻿using TC.CloudGames.Domain.GameAggregate;
-using TC.CloudGames.Domain.GameAggregate.ValueObjects;
+﻿using TC.CloudGames.Domain.Aggregates.Game;
+using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Application.Games.CreateGame
@@ -183,8 +183,8 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         .DependentRules(() =>
                         {
                             RuleFor(x => x.GameDetails.Platform)
-                                .Must(platform => Domain.GameAggregate.ValueObjects.GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
-                                    .WithMessage($"Invalid platform specified. Valid platforms are: {Domain.GameAggregate.ValueObjects.GameDetails.ValidPlatforms.JoinWithQuotes()}.")
+                                .Must(platform => Domain.Aggregates.Game.ValueObjects.GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
+                                    .WithMessage($"Invalid platform specified. Valid platforms are: {Domain.Aggregates.Game.ValueObjects.GameDetails.ValidPlatforms.JoinWithQuotes()}.")
                                     .WithErrorCode($"{nameof(GameDetails.Platform)}.ValidPlatform");
                         });
 
@@ -203,8 +203,8 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         .DependentRules(() =>
                         {
                             RuleFor(x => x.GameDetails.GameMode)
-                                .Must(mode => Domain.GameAggregate.ValueObjects.GameDetails.ValidGameModes.Contains(mode))
-                                    .WithMessage($"Invalid game mode specified. Valid game modes are: {Domain.GameAggregate.ValueObjects.GameDetails.ValidGameModes.JoinWithQuotes()}.")
+                                .Must(mode => Domain.Aggregates.Game.ValueObjects.GameDetails.ValidGameModes.Contains(mode))
+                                    .WithMessage($"Invalid game mode specified. Valid game modes are: {Domain.Aggregates.Game.ValueObjects.GameDetails.ValidGameModes.JoinWithQuotes()}.")
                                     .WithErrorCode($"{nameof(GameDetails.GameMode)}.ValidGameMode");
                         });
 
@@ -215,8 +215,8 @@ namespace TC.CloudGames.Application.Games.CreateGame
                         .DependentRules(() =>
                         {
                             RuleFor(x => x.GameDetails.DistributionFormat)
-                                .Must(format => Domain.GameAggregate.ValueObjects.GameDetails.ValidDistributionFormats.Contains(format))
-                                    .WithMessage($"Invalid distribution format specified. Valid formats are: {Domain.GameAggregate.ValueObjects.GameDetails.ValidDistributionFormats.JoinWithQuotes()}.")
+                                .Must(format => Domain.Aggregates.Game.ValueObjects.GameDetails.ValidDistributionFormats.Contains(format))
+                                    .WithMessage($"Invalid distribution format specified. Valid formats are: {Domain.Aggregates.Game.ValueObjects.GameDetails.ValidDistributionFormats.JoinWithQuotes()}.")
                                     .WithErrorCode($"{nameof(GameDetails.DistributionFormat)}.ValidDistributionFormat");
                         });
 

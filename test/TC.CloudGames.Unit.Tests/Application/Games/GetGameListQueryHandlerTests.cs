@@ -1,5 +1,7 @@
 ﻿using TC.CloudGames.Application.Games.GetGameList;
-using DomainGameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
+using TC.CloudGames.Domain.Aggregates.Game;
+using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
+using DomainGameDetails = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.GameDetails;
 
 namespace TC.CloudGames.Unit.Tests.Application.Games
 {

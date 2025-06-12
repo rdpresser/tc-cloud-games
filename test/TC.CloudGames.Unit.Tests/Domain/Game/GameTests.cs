@@ -1,9 +1,10 @@
-﻿using DeveloperInfo = TC.CloudGames.Domain.GameAggregate.ValueObjects.DeveloperInfo;
-using DomainGame = TC.CloudGames.Domain.GameAggregate.Game;
-using GameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
-using Playtime = TC.CloudGames.Domain.GameAggregate.ValueObjects.Playtime;
-using Price = TC.CloudGames.Domain.GameAggregate.ValueObjects.Price;
-using SystemRequirements = TC.CloudGames.Domain.GameAggregate.ValueObjects.SystemRequirements;
+﻿using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
+using DeveloperInfo = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.DeveloperInfo;
+using DomainGame = TC.CloudGames.Domain.Aggregates.Game.Game;
+using GameDetails = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.GameDetails;
+using Playtime = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.Playtime;
+using Price = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.Price;
+using SystemRequirements = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.SystemRequirements;
 
 namespace TC.CloudGames.Unit.Tests.Domain.Game;
 

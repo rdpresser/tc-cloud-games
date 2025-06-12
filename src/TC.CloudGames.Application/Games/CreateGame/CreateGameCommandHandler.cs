@@ -1,6 +1,6 @@
 ﻿using TC.CloudGames.Application.Abstractions.Data;
-using TC.CloudGames.Domain.GameAggregate;
-using TC.CloudGames.Domain.GameAggregate.Abstractions;
+using TC.CloudGames.Domain.Aggregates.Game;
+using TC.CloudGames.Domain.Aggregates.Game.Abstractions;
 
 namespace TC.CloudGames.Application.Games.CreateGame;
 

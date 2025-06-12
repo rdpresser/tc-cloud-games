@@ -1,5 +1,5 @@
-﻿using TC.CloudGames.Domain.GameAggregate;
-using TC.CloudGames.Domain.GameAggregate.Abstractions;
+﻿using TC.CloudGames.Domain.Aggregates.Game;
+using TC.CloudGames.Domain.Aggregates.Game.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Infra.Data.Repositories.EfCore

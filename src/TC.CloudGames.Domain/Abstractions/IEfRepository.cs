@@ -1,4 +1,6 @@
-﻿namespace TC.CloudGames.Domain.Abstractions;
+﻿using TC.CloudGames.Domain.Entities;
+
+namespace TC.CloudGames.Domain.Abstractions;
 
 public interface IEfRepository<TEntity> where TEntity : Entity
 {

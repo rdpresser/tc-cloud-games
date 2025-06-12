@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Diagnostics.CodeAnalysis;
-using TC.CloudGames.Domain.Abstractions;
+using TC.CloudGames.Domain.Entities;
 
 namespace TC.CloudGames.Infra.Data.Configurations;
 

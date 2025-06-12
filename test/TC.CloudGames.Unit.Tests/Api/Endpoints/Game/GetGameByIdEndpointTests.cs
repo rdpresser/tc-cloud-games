@@ -2,6 +2,7 @@
 using TC.CloudGames.Api.Endpoints.Game;
 using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Games.GetGameById;
+using TC.CloudGames.Domain.Aggregates.Game.Abstractions;
 using TC.CloudGames.Unit.Tests.Api.Abstractions;
 
 namespace TC.CloudGames.Unit.Tests.Api.Endpoints.Game

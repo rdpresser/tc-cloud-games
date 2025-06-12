@@ -114,10 +114,10 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         public async Task Should_Not_Have_Error_When_Command_Is_Valid()
         {
             var command = new CreateUserCommand(
-                FirstName: _faker.Name.FirstName(),
-                LastName: _faker.Name.LastName(),
-                Email: _faker.Internet.Email(),
-                Password: _faker.Internet.Password() + "!",
+                FirstName: "FakeFirstName",
+                LastName: "FakeLastName",
+                Email: "email@email.com",
+                Password: "pwd@!3AaFake",
                 Role: "User"
             );
 

@@ -1,5 +1,5 @@
 ﻿using TC.CloudGames.Application.Games.CreateGame;
-using TC.CloudGames.Domain.GameAggregate.ValueObjects;
+using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 using CreateGame = TC.CloudGames.Application.Games.CreateGame;
 
@@ -56,17 +56,17 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 GameDetails: new CreateGame.GameDetails
                 (
                     Genre: "Genre",
-                    Platform: [.. Domain.GameAggregate.ValueObjects.GameDetails.ValidPlatforms],
+                    Platform: [.. Domain.Aggregates.Game.ValueObjects.GameDetails.ValidPlatforms],
                     Tags: "Tags",
-                    GameMode: $"Choose one of valid game modes: {Domain.GameAggregate.ValueObjects.GameDetails.ValidGameModes.JoinWithQuotes()}",
-                    DistributionFormat: $"Choose one of valid distribution format: {Domain.GameAggregate.ValueObjects.GameDetails.ValidDistributionFormats.JoinWithQuotes()}",
+                    GameMode: $"Choose one of valid game modes: {Domain.Aggregates.Game.ValueObjects.GameDetails.ValidGameModes.JoinWithQuotes()}",
+                    DistributionFormat: $"Choose one of valid distribution format: {Domain.Aggregates.Game.ValueObjects.GameDetails.ValidDistributionFormats.JoinWithQuotes()}",
                     AvailableLanguages: "Available Languages",
                     SupportsDlcs: true
                 ),
                 SystemRequirements: new CreateGame.SystemRequirements("Minimum Requirements", "Recommended Requirements"),
                 Rating: 4.5m,
                 OfficialLink: "https://example.com",
-                GameStatus: $"Choose one of valid game status: {Domain.GameAggregate.Game.ValidGameStatus.JoinWithQuotes()}"
+                GameStatus: $"Choose one of valid game status: {Domain.Aggregates.Game.Game.ValidGameStatus.JoinWithQuotes()}"
             );
         }
 
@@ -84,16 +84,16 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 Playtime: new CreateGame.Playtime(10, 1),
                 GameDetails: new CreateGame.GameDetails(
                     Genre: "Genre",
-                    Platform: [.. Domain.GameAggregate.ValueObjects.GameDetails.ValidPlatforms],
+                    Platform: [.. Domain.Aggregates.Game.ValueObjects.GameDetails.ValidPlatforms],
                     Tags: "Tags",
-                    GameMode: Domain.GameAggregate.ValueObjects.GameDetails.ValidGameModes.First(),
-                    DistributionFormat: Domain.GameAggregate.ValueObjects.GameDetails.ValidDistributionFormats.First(),
+                    GameMode: Domain.Aggregates.Game.ValueObjects.GameDetails.ValidGameModes.First(),
+                    DistributionFormat: Domain.Aggregates.Game.ValueObjects.GameDetails.ValidDistributionFormats.First(),
                     AvailableLanguages: "Available Languages",
                     SupportsDlcs: true),
                 SystemRequirements: new CreateGame.SystemRequirements("Minimum Requirements", "Recommended Requirements"),
                 Rating: 4.5m,
                 OfficialLink: "https://example.com",
-                GameStatus: Domain.GameAggregate.Game.ValidGameStatus.First()
+                GameStatus: Domain.Aggregates.Game.Game.ValidGameStatus.First()
             );
         }
     }

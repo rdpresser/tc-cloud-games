@@ -62,6 +62,7 @@ namespace TC.CloudGames.Api.Endpoints.User
 
             // Use the MatchAsync method from the base class
             await MatchResultAsync(response, ct).ConfigureAwait(false);
+
         }
     }
 }
