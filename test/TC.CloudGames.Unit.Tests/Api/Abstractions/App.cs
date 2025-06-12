@@ -4,11 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Security.Claims;
 using TC.CloudGames.Application.Abstractions;
+using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.Data;
 using ZiggyCreatures.Caching.Fusion;
-using DomainGame = TC.CloudGames.Domain.GameAggregate.Game;
-using DomainGameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
+using DomainGame = TC.CloudGames.Domain.Aggregates.Game.Game;
+using DomainGameDetails = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.GameDetails;
 
 namespace TC.CloudGames.Unit.Tests.Api.Abstractions
 {

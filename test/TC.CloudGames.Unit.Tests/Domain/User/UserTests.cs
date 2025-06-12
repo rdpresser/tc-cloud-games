@@ -1,6 +1,6 @@
-using TC.CloudGames.Domain.UserAggregate.Abstractions;
-using TC.CloudGames.Domain.UserAggregate.ValueObjects;
-using DomainUser = TC.CloudGames.Domain.UserAggregate.User;
+using TC.CloudGames.Domain.Aggregates.User.Abstractions;
+using TC.CloudGames.Domain.Aggregates.User.ValueObjects;
+using DomainUser = TC.CloudGames.Domain.Aggregates.User.User;
 
 namespace TC.CloudGames.Unit.Tests.Domain.User;
 

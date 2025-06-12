@@ -1,6 +1,6 @@
 ﻿using TC.CloudGames.Application.Users.Login;
-using TC.CloudGames.Domain.UserAggregate;
-using TC.CloudGames.Domain.UserAggregate.Abstractions;
+using TC.CloudGames.Domain.Aggregates.User;
+using TC.CloudGames.Domain.Aggregates.User.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
 namespace TC.CloudGames.Unit.Tests.Application.Users.Login;

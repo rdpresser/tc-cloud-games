@@ -1,5 +1,5 @@
 ﻿using TC.CloudGames.Application.Games.GetGameById;
-using TC.CloudGames.Domain.GameAggregate.ValueObjects;
+using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -73,10 +73,10 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 Playtime = new(10, 1),
                 GameDetails = new(
                     genre: "Genre",
-                    platform: [.. Domain.GameAggregate.ValueObjects.GameDetails.ValidPlatforms],
+                    platform: [.. Domain.Aggregates.Game.ValueObjects.GameDetails.ValidPlatforms],
                     tags: "Tags",
-                    gameMode: Domain.GameAggregate.ValueObjects.GameDetails.ValidGameModes.First(),
-                    distributionFormat: Domain.GameAggregate.ValueObjects.GameDetails.ValidDistributionFormats.First(),
+                    gameMode: Domain.Aggregates.Game.ValueObjects.GameDetails.ValidGameModes.First(),
+                    distributionFormat: Domain.Aggregates.Game.ValueObjects.GameDetails.ValidDistributionFormats.First(),
                     availableLanguages: "Available Languages",
                     supportsDlcs: true
                 ),
@@ -87,7 +87,7 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 ),
                 Rating = 4.5m,
                 OfficialLink = "https://example.com",
-                GameStatus = Domain.GameAggregate.Game.ValidGameStatus.First()
+                GameStatus = Domain.Aggregates.Game.Game.ValidGameStatus.First()
             };
         }
     }

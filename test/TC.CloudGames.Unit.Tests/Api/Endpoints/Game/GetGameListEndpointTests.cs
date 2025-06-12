@@ -2,8 +2,9 @@
 using TC.CloudGames.Api.Endpoints.Game;
 using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Games.GetGameList;
+using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
 using TC.CloudGames.Unit.Tests.Api.Abstractions;
-using DomainGameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
+using DomainGameDetails = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.GameDetails;
 
 namespace TC.CloudGames.Unit.Tests.Api.Endpoints.Game
 {
@@ -56,7 +57,7 @@ namespace TC.CloudGames.Unit.Tests.Api.Endpoints.Game
                     ),
                     Rating = Math.Round(App.Fake.Random.Decimal(1, 10), 2),
                     OfficialLink = App.Fake.Internet.Url(),
-                    GameStatus = App.Fake.PickRandom(CloudGames.Domain.GameAggregate.Game.ValidGameStatus.ToArray())
+                    GameStatus = App.Fake.PickRandom(CloudGames.Domain.Aggregates.Game.Game.ValidGameStatus.ToArray())
                 });
             }
 

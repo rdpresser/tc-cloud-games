@@ -1,6 +1,7 @@
 ﻿using TC.CloudGames.Application.Games.GetGameById;
+using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
 using DeveloperInfo = TC.CloudGames.Application.Games.GetGameById.DeveloperInfo;
-using DomainGameDetails = TC.CloudGames.Domain.GameAggregate.ValueObjects.GameDetails;
+using DomainGameDetails = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.GameDetails;
 using Playtime = TC.CloudGames.Application.Games.GetGameById.Playtime;
 using Price = TC.CloudGames.Application.Games.GetGameById.Price;
 

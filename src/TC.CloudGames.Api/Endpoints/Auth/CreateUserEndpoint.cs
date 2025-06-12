@@ -1,5 +1,5 @@
 ﻿using TC.CloudGames.Application.Users.CreateUser;
-using TC.CloudGames.Domain.UserAggregate.ValueObjects;
+using TC.CloudGames.Domain.Aggregates.User.ValueObjects;
 
 namespace TC.CloudGames.Api.Endpoints.Auth
 {

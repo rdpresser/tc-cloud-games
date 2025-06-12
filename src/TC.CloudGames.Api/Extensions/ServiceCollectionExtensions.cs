@@ -3,7 +3,7 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
 using System.Diagnostics.CodeAnalysis;
-using TC.CloudGames.Domain.GameAggregate.Abstractions;
+using TC.CloudGames.Domain.Aggregates.Game.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 using TC.CloudGames.Infra.CrossCutting.IoC;

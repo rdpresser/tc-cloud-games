@@ -1,5 +1,5 @@
 ﻿using TC.CloudGames.Application.Abstractions.Data;
-using TC.CloudGames.Domain.UserAggregate.ValueObjects;
+using TC.CloudGames.Domain.Aggregates.User.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Application.Users.CreateUser

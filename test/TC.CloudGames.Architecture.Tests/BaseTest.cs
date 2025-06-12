@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using TC.CloudGames.Api;
 using TC.CloudGames.Application.Abstractions.Messaging;
-using TC.CloudGames.Domain.UserAggregate;
+using TC.CloudGames.Domain.Aggregates.User;
 using TC.CloudGames.Infra.Data;
 
 namespace TC.CloudGames.Architecture.Tests

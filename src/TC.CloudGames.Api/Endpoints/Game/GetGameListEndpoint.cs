@@ -1,6 +1,6 @@
 ﻿using Bogus;
 using TC.CloudGames.Application.Games.GetGameList;
-using TC.CloudGames.Domain.GameAggregate.ValueObjects;
+using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -100,7 +100,7 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 ),
                 Rating = Math.Round(faker.Random.Decimal(1, 10), 2),
                 OfficialLink = faker.Internet.Url(),
-                GameStatus = faker.PickRandom(Domain.GameAggregate.Game.ValidGameStatus.ToArray())
+                GameStatus = faker.PickRandom(Domain.Aggregates.Game.Game.ValidGameStatus.ToArray())
             };
         }
     }

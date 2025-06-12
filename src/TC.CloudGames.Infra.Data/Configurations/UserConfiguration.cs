@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TC.CloudGames.Domain.UserAggregate;
-using TC.CloudGames.Domain.UserAggregate.ValueObjects;
+using TC.CloudGames.Domain.Aggregates.User;
+using TC.CloudGames.Domain.Aggregates.User.ValueObjects;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 
 namespace TC.CloudGames.Infra.Data.Configurations;

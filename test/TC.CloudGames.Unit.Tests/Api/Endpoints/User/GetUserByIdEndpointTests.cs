@@ -2,7 +2,7 @@
 using TC.CloudGames.Api.Endpoints.User;
 using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Users.GetUserById;
-using TC.CloudGames.Domain.UserAggregate.Abstractions;
+using TC.CloudGames.Domain.Aggregates.User.Abstractions;
 using TC.CloudGames.Unit.Tests.Api.Abstractions;
 
 namespace TC.CloudGames.Unit.Tests.Api.Endpoints.User

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Domain.Abstractions;
+using TC.CloudGames.Domain.Entities;
 using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 
 namespace TC.CloudGames.Infra.Data.Repositories.EfCore;

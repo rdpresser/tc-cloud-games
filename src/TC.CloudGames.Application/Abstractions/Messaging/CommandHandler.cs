@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using TC.CloudGames.Application.Abstractions.Data;
+using TC.CloudGames.Domain.Entities;
 using TC.CloudGames.Domain.Exceptions;
 
 namespace TC.CloudGames.Application.Abstractions.Messaging
