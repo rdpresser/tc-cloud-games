@@ -1,18 +1,12 @@
 ﻿using TC.CloudGames.Application.Users.CreateUser;
 using TC.CloudGames.Domain.Aggregates.User;
 using TC.CloudGames.Domain.Aggregates.User.Abstractions;
+using TC.CloudGames.Unit.Tests.Fakes;
 
 namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
 {
     public class CreateUserCommandHandlerTests
     {
-
-        private readonly Faker _faker;
-
-        public CreateUserCommandHandlerTests()
-        {
-            _faker = new Faker();
-        }
 
         [Fact]
         public async Task ExecuteAsync_ShouldReturnInvalid_WhenEntityCreationFails()
@@ -20,15 +14,17 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
             // Arrange
             Factory.RegisterTestServices(_ => { });
 
+            var userValid = FakeUserData.UserValid();
+
             var unitOfWorkFake = A.Fake<IUnitOfWork>();
             var repositoryFake = A.Fake<IUserEfRepository>();
 
             var command = new CreateUserCommand(
-                FirstName: _faker.Name.FirstName(),
-                LastName: _faker.Name.LastName(),
+                FirstName: userValid.FistName,
+                LastName: userValid.LastName,
                 Email: "invalid_email",
-                Password: _faker.Internet.Password() + "!",
-                Role: "User"
+                Password: userValid.Password,
+                Role: userValid.Role
             );
 
             var handler = new CreateUserCommandHandler(unitOfWorkFake, repositoryFake);
@@ -46,16 +42,18 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         {
             // Arrange
             Factory.RegisterTestServices(_ => { });
-
+            
+            var userValid = FakeUserData.UserValid();
+            
             var unitOfWorkFake = A.Fake<IUnitOfWork>();
             var repositoryFake = A.Fake<IUserEfRepository>();
 
             var command = new CreateUserCommand(
-                FirstName: _faker.Name.FirstName(),
-                LastName: _faker.Name.LastName(),
+                FirstName: userValid.FistName,
+                LastName: userValid.LastName,
                 Email: "duplicate@email.com",
-                Password: "Test@1234",
-                Role: "User"
+                Password: userValid.Password,
+                Role: userValid.Role
             );
 
             A.CallTo(() => repositoryFake.Add(A<User>.Ignored))
@@ -76,16 +74,18 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         {
             // Arrange
             Factory.RegisterTestServices(_ => { });
+            
+            var userValid = FakeUserData.UserValid();
 
             var unitOfWorkFake = A.Fake<IUnitOfWork>();
             var repositoryFake = A.Fake<IUserEfRepository>();
 
             var command = new CreateUserCommand(
-                FirstName: "Valid",
-                LastName: "User",
-                Email: "validuser@email.com",
-                Password: "Valid@1234",
-                Role: "User"
+                FirstName: userValid.FistName,
+                LastName: userValid.LastName,
+                Email: userValid.Email,
+                Password: userValid.Password,
+                Role: userValid.Role
             );
 
             User? createdUser = null;

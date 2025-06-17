@@ -20,6 +20,7 @@ public class GameTests
     private readonly List<string> _gameStatus;
     private readonly List<string> _ageRatings;
 
+    // Todo: Refactor this class to remove FAKER
     public GameTests()
     {
         _faker = new Faker();

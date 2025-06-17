@@ -1,34 +1,31 @@
 ﻿using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Users.GetUserByEmail;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
+using TC.CloudGames.Unit.Tests.Fakes;
 
 namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserByEmail
 {
     public class GetUserByEmailQueryHandlerTests
     {
-        private readonly Faker _faker;
-
-        public GetUserByEmailQueryHandlerTests()
-        {
-            _faker = new Faker();
-        }
 
         [Fact]
         public async Task ExecuteAsync_ShouldReturnUser_WhenUserExistsAndAuthorized()
         {
             // Arrange
             Factory.RegisterTestServices(_ => { });
+            
+            var userValid = FakeUserData.UserValid();
 
             var userContext = A.Fake<IUserContext>();
             var userRepository = A.Fake<IUserPgRepository>();
 
-            var email = _faker.Internet.Email();
+            var email = userValid.Email;
             var query = new GetUserByEmailQuery(email);
             var userResponse = new UserByEmailResponse
             {
                 Email = email,
-                FirstName = _faker.Name.FirstName(),
-                LastName = _faker.Name.LastName(),
+                FirstName = userValid.FistName,
+                LastName = userValid.LastName,
                 Role = "User"
             };
 
@@ -88,16 +85,18 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserByEmail
             // Arrange
             Factory.RegisterTestServices(_ => { });
 
+            var userValid = FakeUserData.UserValid();
+            
             var userContext = A.Fake<IUserContext>();
 
-            var email = _faker.Internet.Email();
+            var email = userValid.Email;
             var query = new GetUserByEmailQuery(email);
             var userResponse = new UserByEmailResponse
             {
                 Email = email,
-                FirstName = _faker.Name.FirstName(),
-                LastName = _faker.Name.LastName(),
-                Role = "User"
+                FirstName = userValid.FistName,
+                LastName = userValid.LastName,
+                Role = userValid.Role
             };
 
             A.CallTo(() => userContext.UserRole).Returns(AppConstants.UserRole);

@@ -1,17 +1,16 @@
 ﻿using FluentValidation.TestHelper;
 using TC.CloudGames.Application.Users.CreateUser;
+using TC.CloudGames.Unit.Tests.Fakes;
 
 namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
 {
     public class CreateUserCommandValidatorTests
     {
-        private readonly Faker _faker;
         private readonly IUserPgRepository _userPgRepository;
         private readonly CreateUserCommandValidator _validator;
 
         public CreateUserCommandValidatorTests()
         {
-            _faker = new Faker();
             _userPgRepository = A.Fake<IUserPgRepository>();
             _validator = new CreateUserCommandValidator(_userPgRepository);
         }
@@ -19,12 +18,14 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         [Fact]
         public async Task Should_Have_Error_When_FirstName_Is_Empty()
         {
+            var userValid = FakeUserData.UserValid();
+            
             var command = new CreateUserCommand(
                 FirstName: null,
-                LastName: _faker.Name.LastName(),
-                Email: _faker.Internet.Email(),
-                Password: _faker.Internet.Password(),
-                Role: "User"
+                LastName: userValid.LastName,
+                Email: userValid.Email,
+                Password: userValid.Password,
+                Role: userValid.Role
             );
 
             var result = await _validator.TestValidateAsync(command, null, TestContext.Current.CancellationToken);
@@ -34,12 +35,14 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         [Fact]
         public async Task Should_Have_Error_When_LastName_Is_Empty()
         {
+            var userValid = FakeUserData.UserValid();
+            
             var command = new CreateUserCommand(
-                FirstName: _faker.Name.FirstName(),
+                FirstName: userValid.FistName,
                 LastName: null,
-                Email: _faker.Internet.Email(),
-                Password: _faker.Internet.Password(),
-                Role: "User"
+                Email: userValid.Email,
+                Password: userValid.Password,
+                Role: userValid.Role
             );
 
             var result = await _validator.TestValidateAsync(command, null, TestContext.Current.CancellationToken);
@@ -49,12 +52,14 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         [Fact]
         public async Task Should_Have_Error_When_Email_Is_Empty()
         {
+            var userValid = FakeUserData.UserValid();
+            
             var command = new CreateUserCommand(
-                FirstName: _faker.Name.FirstName(),
-                LastName: _faker.Name.LastName(),
+                FirstName: userValid.FistName,
+                LastName: userValid.LastName,
                 Email: null,
-                Password: _faker.Internet.Password(),
-                Role: "User"
+                Password: userValid.Password,
+                Role: userValid.Role
             );
 
             var result = await _validator.TestValidateAsync(command, null, TestContext.Current.CancellationToken);
@@ -64,12 +69,14 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         [Fact]
         public async Task Should_Have_Error_When_Email_Already_Exists()
         {
+            var userValid = FakeUserData.UserValid();
+            
             var command = new CreateUserCommand(
-                FirstName: _faker.Name.FirstName(),
-                LastName: _faker.Name.LastName(),
-                Email: _faker.Internet.Email(),
-                Password: _faker.Internet.Password(),
-                Role: "User"
+                FirstName: userValid.FistName,
+                LastName: userValid.LastName,
+                Email: userValid.Email,
+                Password: userValid.Password,
+                Role: userValid.Role
             );
 
             A.CallTo(() => _userPgRepository.EmailExistsAsync(command.Email, A<CancellationToken>._))
@@ -83,11 +90,13 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         [Fact]
         public async Task Should_Have_Error_When_Role_Is_Empty()
         {
+            var userValid = FakeUserData.UserValid();
+            
             var command = new CreateUserCommand(
-                FirstName: _faker.Name.FirstName(),
-                LastName: _faker.Name.LastName(),
-                Email: _faker.Internet.Email(),
-                Password: _faker.Internet.Password(),
+                FirstName: userValid.FistName,
+                LastName: userValid.LastName,
+                Email: userValid.Email,
+                Password: userValid.Password,
                 Role: null
             );
 
@@ -98,12 +107,14 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         [Fact]
         public async Task Should_Have_Error_When_Password_Is_Empty()
         {
+            var userValid = FakeUserData.UserValid();
+            
             var command = new CreateUserCommand(
-                FirstName: _faker.Name.FirstName(),
-                LastName: _faker.Name.LastName(),
-                Email: _faker.Internet.Email(),
+                FirstName: userValid.FistName,
+                LastName: userValid.LastName,
+                Email: userValid.Email,
                 Password: null,
-                Role: "User"
+                Role: userValid.Role
             );
 
             var result = await _validator.TestValidateAsync(command, null, TestContext.Current.CancellationToken);
@@ -113,12 +124,14 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
         [Fact]
         public async Task Should_Not_Have_Error_When_Command_Is_Valid()
         {
+            var userValid = FakeUserData.UserValid();
+            
             var command = new CreateUserCommand(
-                FirstName: "FakeFirstName",
-                LastName: "FakeLastName",
-                Email: "email@email.com",
-                Password: "pwd@!3AaFake",
-                Role: "User"
+                FirstName: userValid.FistName,
+                LastName: userValid.LastName,
+                Email: userValid.Email,
+                Password: userValid.Password,
+                Role: userValid.Role
             );
 
             A.CallTo(() => _userPgRepository.EmailExistsAsync(command.Email, A<CancellationToken>._))

@@ -1,23 +1,20 @@
 ﻿using TC.CloudGames.Application.Users.Login;
+using TC.CloudGames.Unit.Tests.Fakes;
 
 namespace TC.CloudGames.Unit.Tests.Application.Users.Login;
 
 public class LoginUserCommandValidatorTests
 {
-    private readonly Faker _faker;
     private readonly LoginUserCommandValidator _validator = new();
-
-    public LoginUserCommandValidatorTests()
-    {
-        _faker = new Faker();
-    }
 
     [Fact]
     public void Should_Return_Error_When_Email_Is_Empty()
     {
         // Arrange
+        var userValid = FakeUserData.UserValid();
+        
         const string email = "";
-        var password = _faker.Internet.Password() + "!";
+        var password = userValid.Password;
         var command = new LoginUserCommand(email, password);
 
         // Act
@@ -31,7 +28,9 @@ public class LoginUserCommandValidatorTests
     public void Should_Return_Error_When_Password_Is_Invalid()
     {
         // Arrange
-        var email = _faker.Internet.Email();
+        var userValid = FakeUserData.UserValid();
+        
+        var email = userValid.Email;
         const string password = "abc";
         var command = new LoginUserCommand(email, password);
 
@@ -46,9 +45,9 @@ public class LoginUserCommandValidatorTests
     public void Should_Pass_When_Data_Is_Valid()
     {
         // Arrange
-        const string email = "test@email.com";
-        const string password = "J35!8G0+eP8z";
-        var command = new LoginUserCommand(email, password);
+        var userValid = FakeUserData.UserValid();
+
+        var command = new LoginUserCommand(userValid.Email, userValid.Password);
 
         // Act
         var result = _validator.Validate(command);

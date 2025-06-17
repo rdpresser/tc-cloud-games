@@ -1,21 +1,17 @@
 ﻿using TC.CloudGames.Application.Users.GetUserByEmail;
+using TC.CloudGames.Unit.Tests.Fakes;
 
 namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserByEmail
 {
     public class GetUserByEmailQueryTests
     {
-        private readonly Faker _faker;
-
-        public GetUserByEmailQueryTests()
-        {
-            _faker = new Faker();
-        }
-
         [Fact]
         public async Task Handle_ShouldReturnNull_WhenUserDoesNotExist()
         {
             // Arrange
-            var email = _faker.Internet.Email();
+            var userValid = FakeUserData.UserValid();
+            
+            var email = userValid.Email;
             var userRepository = A.Fake<IUserPgRepository>();
             A.CallTo(() => userRepository.GetByEmailAsync(email, A<CancellationToken>._))
                 .Returns(Task.FromResult<UserByEmailResponse?>(null));
@@ -33,13 +29,15 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserByEmail
             // Arrange
             Factory.RegisterTestServices(_ => { });
 
-            var email = _faker.Internet.Email();
+            var userValid = FakeUserData.UserValid();
+            
+            var email = userValid.Email;
             var expectedResponse = new UserByEmailResponse
             {
                 Email = email,
-                FirstName = _faker.Name.FirstName(),
-                LastName = _faker.Name.LastName(),
-                Role = "User"
+                FirstName = userValid.FistName,
+                LastName = userValid.LastName,
+                Role = userValid.Role
             };
 
             var userRepository = A.Fake<IUserPgRepository>();

@@ -1,24 +1,20 @@
 ﻿using TC.CloudGames.Application.Abstractions;
 using TC.CloudGames.Application.Users.GetUserById;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
+using TC.CloudGames.Unit.Tests.Fakes;
 
 namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserById
 {
     public class GetUserByIdQueryHandlerTests
     {
-        private readonly Faker _faker;
-
-        public GetUserByIdQueryHandlerTests()
-        {
-            _faker = new Faker();
-        }
-
         [Fact]
         public async Task ExecuteAsync_ShouldReturnUser_WhenUserIsSelf()
         {
             // Arrange
             Factory.RegisterTestServices(_ => { });
 
+            var userValid = FakeUserData.UserValid();
+                
             var userRepository = A.Fake<IUserPgRepository>();
             var userContext = A.Fake<IUserContext>();
             var handler = new GetUserByIdQueryHandler(userRepository, userContext);
@@ -28,9 +24,9 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserById
             var userResponse = new UserByIdResponse
             {
                 Id = userId,
-                FirstName = _faker.Name.FirstName(),
-                LastName = _faker.Name.LastName(),
-                Email = _faker.Internet.Email(),
+                FirstName = userValid.FistName,
+                LastName = userValid.LastName,
+                Email = userValid.Email,
                 Role = AppConstants.UserRole
             };
 
@@ -52,6 +48,8 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserById
             // Arrange
             Factory.RegisterTestServices(_ => { });
 
+            var userValid = FakeUserData.UserValid();
+            
             var userRepository = A.Fake<IUserPgRepository>();
             var userContext = A.Fake<IUserContext>();
             var handler = new GetUserByIdQueryHandler(userRepository, userContext);
@@ -61,9 +59,9 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserById
             var userResponse = new UserByIdResponse
             {
                 Id = userId,
-                FirstName = _faker.Name.FirstName(),
-                LastName = _faker.Name.LastName(),
-                Email = _faker.Internet.Email(),
+                FirstName = userValid.FistName,
+                LastName = userValid.LastName,
+                Email = userValid.Email,
                 Role = "Admin"
             };
 

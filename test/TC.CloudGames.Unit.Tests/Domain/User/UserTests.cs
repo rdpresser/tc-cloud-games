@@ -1,17 +1,16 @@
 using TC.CloudGames.Domain.Aggregates.User.Abstractions;
 using TC.CloudGames.Domain.Aggregates.User.ValueObjects;
+using TC.CloudGames.Unit.Tests.Fakes;
 using DomainUser = TC.CloudGames.Domain.Aggregates.User.User;
 
 namespace TC.CloudGames.Unit.Tests.Domain.User;
 
 public class UserTests
 {
-    private readonly Faker _faker;
     private readonly IUserEfRepository _userEfRepository;
 
     public UserTests()
     {
-        _faker = new Faker();
         _userEfRepository = A.Fake<IUserEfRepository>();
     }
 
@@ -22,11 +21,13 @@ public class UserTests
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
             .Returns(Task.FromResult(false)); // or true, depending on your test
 
+        var userValid = FakeUserData.UserValid();
+
         // Act
         var userResult = await DomainUser.CreateAsync(builder =>
         {
-            builder.FirstName = _faker.Name.FirstName();
-            builder.LastName = _faker.Name.LastName();
+            builder.FirstName = userValid.FistName;
+            builder.LastName = userValid.LastName;
             builder.Email = string.Empty;
             builder.Password = string.Empty;
             builder.Role = string.Empty;
@@ -55,6 +56,8 @@ public class UserTests
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
             .Returns(Task.FromResult(false)); // or true, depending on your test
 
+        var userValid = FakeUserData.UserValid();
+        
         var email = await Email.CreateAsync(builder => { }, _userEfRepository);
         var password = Password.Create(builder => { });
         var role = Role.Create(builder => { });
@@ -62,8 +65,8 @@ public class UserTests
         // Act
         var userResult = DomainUser.CreateFromValueObjects(builder =>
         {
-            builder.FirstName = _faker.Name.FirstName();
-            builder.LastName = _faker.Name.LastName();
+            builder.FirstName = userValid.FistName;
+            builder.LastName = userValid.LastName;
             builder.Email = email;
             builder.Password = password;
             builder.Role = role;
@@ -90,6 +93,8 @@ public class UserTests
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
             .Returns(Task.FromResult(false)); // or true, depending on your test
 
+        var userValid = FakeUserData.UserValid();
+        
         var email = await Email.CreateAsync(builder => { }, _userEfRepository);
         var password = Password.Create(builder => { });
         var role = Role.Create(builder => { });
@@ -97,8 +102,8 @@ public class UserTests
         // Act
         var userResult = DomainUser.CreateFromResult(builder =>
         {
-            builder.FirstName = _faker.Name.FirstName();
-            builder.LastName = _faker.Name.LastName();
+            builder.FirstName = userValid.FistName;
+            builder.LastName = userValid.LastName;
             builder.Email = email;
             builder.Password = password;
             builder.Role = role;
@@ -122,11 +127,7 @@ public class UserTests
     public async Task Create_User_Should_Return_Success_When_All_Fields_Are_Valid()
     {
         // Arrange
-        var firstName = _faker.Name.FirstName();
-        var lastName = _faker.Name.LastName();
-        var email = _faker.Internet.Email();
-        var password = "Senha@123456";
-        var role = "User";
+        var userValid = FakeUserData.UserValid();
 
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
             .Returns(Task.FromResult(false));
@@ -134,20 +135,20 @@ public class UserTests
         // Act
         var result = await DomainUser.CreateAsync(builder =>
         {
-            builder.FirstName = firstName;
-            builder.LastName = lastName;
-            builder.Email = email;
-            builder.Password = password;
-            builder.Role = role;
+            builder.FirstName = userValid.FistName;
+            builder.LastName = userValid.LastName;
+            builder.Email = userValid.Email;
+            builder.Password = userValid.Password;
+            builder.Role = userValid.Role;
         },
         _userEfRepository);
 
         // Assert
         result.Status.ShouldBe(ResultStatus.Ok);
         result.Value.ShouldNotBeNull();
-        result.Value.FirstName.ShouldBe(firstName);
-        result.Value.LastName.ShouldBe(lastName);
-        result.Value.Email.Value.ShouldBe(email);
+        result.Value.FirstName.ShouldBe(userValid.FistName);
+        result.Value.LastName.ShouldBe(userValid.LastName);
+        result.Value.Email.Value.ShouldBe(userValid.Email);
     }
 
     [Fact]
@@ -157,14 +158,16 @@ public class UserTests
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
             .Returns(Task.FromResult(true));
 
+        var userValid = FakeUserData.UserValid();
+        
         // Act
         var result = await DomainUser.CreateAsync(builder =>
          {
-             builder.FirstName = _faker.Name.FirstName();
-             builder.LastName = _faker.Name.LastName();
-             builder.Email = _faker.Internet.Email();
-             builder.Password = "Senha@123456";
-             builder.Role = "User";
+             builder.FirstName = userValid.FistName;
+             builder.LastName = userValid.LastName;
+             builder.Email = userValid.Email;
+             builder.Password = userValid.Password;
+             builder.Role = userValid.Role;
          },
         _userEfRepository);
 
@@ -184,14 +187,16 @@ public class UserTests
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
             .Returns(Task.FromResult(false));
 
+        var userValid = FakeUserData.UserValid();
+        
         // Act
         var result = await DomainUser.CreateAsync(builder =>
         {
-            builder.FirstName = _faker.Name.FirstName();
-            builder.LastName = _faker.Name.LastName();
-            builder.Email = _faker.Internet.Email();
+            builder.FirstName = userValid.FistName;
+            builder.LastName = userValid.LastName;
+            builder.Email = userValid.Email;
             builder.Password = invalidPassword;
-            builder.Role = "User";
+            builder.Role = userValid.Role;
         },
         _userEfRepository);
 
@@ -204,9 +209,7 @@ public class UserTests
     public async Task Create_User_Should_Return_Error_When_All_Child_Fields_Are_Valid_But_Root_Class_Not()
     {
         // Arrange
-        var email = _faker.Internet.Email();
-        var password = "Senha@123456";
-        var role = "User";
+        var userValid = FakeUserData.UserValid();
 
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
             .Returns(Task.FromResult(false));
@@ -216,9 +219,9 @@ public class UserTests
         {
             builder.FirstName = string.Empty;
             builder.LastName = string.Empty;
-            builder.Email = email;
-            builder.Password = password;
-            builder.Role = role;
+            builder.Email = userValid.Email;
+            builder.Password = userValid.Password;
+            builder.Role = userValid.Role;
         },
         _userEfRepository);
 
@@ -231,11 +234,11 @@ public class UserTests
     public async Task Create_User_Should_Return_Invalid_When_String_Fields_Exceeds_Max_Length()
     {
         // Arrange
-        var firstName = _faker.Name.FirstName().PadRight(201, 'a'); // 201 characters
-        var lastName = _faker.Name.LastName().PadRight(201, 'a'); // 201 characters
-        var email = _faker.Internet.Email().PadRight(201, 'a'); // 201 characters
-        var password = _faker.Internet.Password(201); // 201 characters
-        var role = _faker.Lorem.Word().PadRight(21, 'a'); // 21 characters
+        var firstName = new string('a', 201);
+        var lastName = new string('a', 201);
+        var email = new string('a', 201);
+        var password = new string('a', 201);
+        var role = new string('a', 201);
 
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
             .Returns(Task.FromResult(false));

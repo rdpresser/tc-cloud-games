@@ -2,17 +2,12 @@
 using TC.CloudGames.Domain.Aggregates.User;
 using TC.CloudGames.Domain.Aggregates.User.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
+using TC.CloudGames.Unit.Tests.Fakes;
 
 namespace TC.CloudGames.Unit.Tests.Application.Users.Login;
 
 public class LoginUserCommandHandlerTests
 {
-    private readonly Faker _faker;
-
-    public LoginUserCommandHandlerTests()
-    {
-        _faker = new Faker();
-    }
 
     [Fact]
     public async Task LoginUserCommandHandler_LoginUser_Ok()
@@ -20,8 +15,10 @@ public class LoginUserCommandHandlerTests
         // Arrange
         Factory.RegisterTestServices(_ => { });
 
-        var email = _faker.Internet.Email();
-        var password = _faker.Internet.Password() + "!";
+        var userValid = FakeUserData.UserValid();
+
+        var email = userValid.Email;
+        var password = userValid.Password;
 
         var loginReq = new LoginUserCommand(Email: email, Password: password);
         var loginRes = new LoginUserResponse("<jwt-token>", email);
@@ -43,13 +40,15 @@ public class LoginUserCommandHandlerTests
     {
         // Arrange
         Factory.RegisterTestServices(_ => { });
+        
+        var userValid = FakeUserData.UserValid();
 
         var unitOfWork = A.Fake<IUnitOfWork>();
         var userRepository = A.Fake<IUserEfRepository>();
         var tokenProvider = A.Fake<ITokenProvider>();
         var handler = new LoginUserCommandHandler(unitOfWork, userRepository, tokenProvider);
 
-        var email = _faker.Internet.Email();
+        var email = userValid.Email;
         var password = "password";
 
         var command = new LoginUserCommand(email, password);
