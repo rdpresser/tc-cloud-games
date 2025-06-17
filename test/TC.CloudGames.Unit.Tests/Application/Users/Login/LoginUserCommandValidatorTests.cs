@@ -21,7 +21,7 @@ public class LoginUserCommandValidatorTests
         var result = _validator.Validate(command);
 
         // Assert
-        result.Errors.ShouldContain(e => e.PropertyName == nameof(LoginUserCommand.Email));
+        result.Errors.ShouldContain(e => e.PropertyName == "Email");
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class LoginUserCommandValidatorTests
         var result = _validator.Validate(command);
 
         // Assert
-        result.Errors.ShouldContain(e => e.PropertyName == nameof(LoginUserCommand.Password));
+        result.Errors.ShouldContain(e => e.PropertyName == "Password");
     }
 
     [Fact]

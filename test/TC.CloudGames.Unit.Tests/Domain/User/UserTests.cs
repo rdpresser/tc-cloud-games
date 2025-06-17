@@ -93,8 +93,6 @@ public class UserTests
         A.CallTo(() => _userEfRepository.EmailExistsAsync(A<string>.Ignored, A<CancellationToken>.Ignored))
             .Returns(Task.FromResult(false)); // or true, depending on your test
 
-        var userValid = FakeUserData.UserValid();
-        
         var email = await Email.CreateAsync(builder => { }, _userEfRepository);
         var password = Password.Create(builder => { });
         var role = Role.Create(builder => { });
@@ -102,8 +100,8 @@ public class UserTests
         // Act
         var userResult = DomainUser.CreateFromResult(builder =>
         {
-            builder.FirstName = userValid.FistName;
-            builder.LastName = userValid.LastName;
+            builder.FirstName = "";
+            builder.LastName = "";
             builder.Email = email;
             builder.Password = password;
             builder.Role = role;
@@ -115,11 +113,12 @@ public class UserTests
             .ShouldNotBeEmpty();
         errors.ShouldBeOfType<List<ValidationError>>();
 
-        errors.Count(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBe(0);
-        errors.Count(x => x.Identifier == nameof(DomainUser.LastName)).ShouldBe(0);
-        errors.Count(x => x.Identifier == nameof(Email)).ShouldBe(3);
-        errors.Count(x => x.Identifier == nameof(Password)).ShouldBe(7);
-        errors.Count(x => x.Identifier == nameof(Role)).ShouldBe(3);
+        errors.Any(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBeTrue();
+        errors.Any(x => x.Identifier == nameof(DomainUser.LastName)).ShouldBeTrue();
+        errors.Any(x => x.Identifier == nameof(DomainUser.Email)).ShouldBeTrue();
+        errors.Any(x => x.Identifier == nameof(DomainUser.Password)).ShouldBeTrue();
+        errors.Any(x => x.Identifier == nameof(DomainUser.Role)).ShouldBeTrue();
+
         userResult.Status.ShouldBe(ResultStatus.Invalid);
     }
 

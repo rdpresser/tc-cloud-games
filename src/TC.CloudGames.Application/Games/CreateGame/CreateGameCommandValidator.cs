@@ -175,18 +175,19 @@ namespace TC.CloudGames.Application.Games.CreateGame
                                 .WithMessage("Genre must not exceed 50 characters.")
                                 .WithErrorCode($"{nameof(GameDetails.Genre)}.MaximumLength");
                     });
-
+                    
                     RuleFor(x => x.GameDetails.Platform)
                         .NotEmpty()
-                            .WithMessage("Platform is required.")
-                            .WithErrorCode($"{nameof(GameDetails.Platform)}.Required")
-                        .DependentRules(() =>
-                        {
-                            RuleFor(x => x.GameDetails.Platform)
-                                .Must(platform => Domain.Aggregates.Game.ValueObjects.GameDetails.ValidPlatforms.All(x => platform.Contains(x)))
-                                    .WithMessage($"Invalid platform specified. Valid platforms are: {Domain.Aggregates.Game.ValueObjects.GameDetails.ValidPlatforms.JoinWithQuotes()}.")
-                                    .WithErrorCode($"{nameof(GameDetails.Platform)}.ValidPlatform");
-                        });
+                        .WithMessage("At least one platform must be specified.")
+                        .WithErrorCode($"{nameof(GameDetails.Platform)}.Required");
+
+                    RuleForEach(x => x.GameDetails.Platform)
+                        .NotEmpty()
+                        .WithMessage("Platform name cannot be empty.")
+                        .WithErrorCode($"{nameof(GameDetails.Platform)}.ItemRequired")
+                        .Must(platform => Domain.Aggregates.Game.ValueObjects.GameDetails.ValidPlatforms.Contains(platform))
+                        .WithMessage( (command, platform) => $"Invalid platform specified: '{platform}'. Valid platforms are: {Domain.Aggregates.Game.ValueObjects.GameDetails.ValidPlatforms.JoinWithQuotes()}.")
+                        .WithErrorCode($"{nameof(GameDetails.Platform)}.ValidPlatform");
 
                     When(x => x.GameDetails.Tags != null, () =>
                     {
