@@ -1,4 +1,5 @@
 ﻿using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
+using TC.CloudGames.Unit.Tests.Fakes;
 using DeveloperInfo = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.DeveloperInfo;
 using DomainGame = TC.CloudGames.Domain.Aggregates.Game.Game;
 using GameDetails = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.GameDetails;
@@ -10,86 +11,38 @@ namespace TC.CloudGames.Unit.Tests.Domain.Game;
 
 public class GameTests
 {
-    private readonly List<string> _ageRatings;
-    private readonly List<string> _distributionFormats;
-    private readonly Faker _faker;
-    private readonly List<string> _gameModes;
-    private readonly List<string> _gameStatus;
-    private readonly List<string> _gameTags;
-    private readonly List<string> _genres;
-    private readonly List<string> _languages;
-    private readonly List<string> _platforms;
-
-    public GameTests()
-    {
-        _faker = new Faker();
-
-        _genres =
-        [
-            "Action", "Adventure", "RPG", "Strategy", "Simulation", "Racing", "Sport", "Puzzle",
-            "Fighter", "Platform", "FPS", "TPS", "Survival", "Horror", "Stealth", "Open World", "MMORPG", "Roguelike",
-            "Visual Novel", "Beat 'em up", "Battle Royale", "Musical", "Party Game", "Metroidvania", "Idle/Incremental",
-            "Tower Defense", "MOBA", "Sandbox", "Tycoon"
-        ];
-
-        _platforms = [.. GameDetails.ValidPlatforms];
-
-        _gameTags =
-        [
-            "Indie", "Multiplayer", "Singleplayer", "Co-op", "PvP", "PvE", "Online Co-op",
-            "Local Multiplayer", "Story Rich", "Difficult", "Casual", "Anime", "Pixel Graphics", "Retro", "Funny",
-            "Atmospheric",
-            "Horror", "Sci-fi", "Fantasy", "Cyberpunk", "Steampunk", "Post-apocalyptic", "Choices Matter", "Narration",
-            "Character Customization", "Exploration", "Loot", "Crafting", "Building", "Resource Management",
-            "Base Building",
-            "Turn-Based", "Real Time", "Fast-Paced", "Third Person", "First Person", "Top-Down", "Isometric",
-            "Stylized",
-            "Realistic", "Female Protagonist", "Controller Support", "VR Support", "Moddable", "Replay Value",
-            "Open World",
-            "Procedural Generation", "Sandbox", "Nonlinear", "Mystery", "Psychological", "Dark", "Gore", "Violent"
-        ];
-
-        _gameModes = [.. GameDetails.ValidGameModes];
-
-        _distributionFormats = [.. GameDetails.ValidDistributionFormats];
-
-        _languages = ["PT-BR", "EN-US", "ES-ES", "FR-FR", "ZH-CN", "JA-JP", "RU-RU", "KO-KR"];
-
-        _gameStatus = [.. DomainGame.ValidGameStatus];
-
-        _ageRatings = [.. AgeRating.ValidRatings];
-    }
-
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_AgeRating_Is_Invalid()
     {
         // Arrange
         var configure = new[] { "Invalid" };
+        
+        var gameValid = FakeGameData.GameValid();
 
         // Act
         var result = DomainGame.Create(builder =>
         {
-            builder.Name =
-                $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}";
-            builder.ReleaseDate = DateOnly.FromDateTime(_faker.Date.Past());
+            builder.Name = gameValid.Name;
+            builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
             builder.AgeRating = "Invalid";
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
-            builder.DiskSize = _faker.Random.Int(1, 150);
-            builder.Price = decimal.Parse(_faker.Commerce.Price(1.0m, 500.0m));
-            builder.Playtime = (_faker.Random.Int(1, 200), _faker.Random.Int(1, 2000));
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
+            builder.DiskSize = gameValid.DiskSize;
+            builder.Price = gameValid.Price;
+            builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
-                Genre: _faker.Lorem.Word(),
+                Genre: gameValid.Genre,
                 Platform: configure,
-                Tags: _faker.Lorem.Word(),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: "EN-US",
-                SupportsDlcs: _faker.Random.Bool());
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
+                SupportsDlcs: true
+                );
+            builder.SystemRequirements = (gameValid.SystemMinimalRequirements, gameValid.SystemRecommendRequirements);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -115,30 +68,31 @@ public class GameTests
         // Arrange
         var configure = new[] { "Invalid" };
 
+        var gameValid = FakeGameData.GameValid();
+        
         // Act
         var result = DomainGame.Create(builder =>
         {
-            builder.Name =
-                $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}";
-            builder.ReleaseDate = DateOnly.FromDateTime(_faker.Date.Past());
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
-            builder.DiskSize = _faker.Random.Int(1, 150);
-            builder.Price = decimal.Parse(_faker.Commerce.Price(1.0m, 500.0m));
-            builder.Playtime = (_faker.Random.Int(1, 200), _faker.Random.Int(1, 2000));
+            builder.Name = gameValid.Name;
+            builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
+            builder.DiskSize = gameValid.DiskSize;
+            builder.Price = gameValid.Price;
+            builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
-                Genre: _faker.Lorem.Word(),
+                Genre: gameValid.Genre,
                 Platform: configure,
-                Tags: _faker.Lorem.Word(),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                Tags: gameValid.Genre,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: "EN-US",
-                SupportsDlcs: _faker.Random.Bool());
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+                SupportsDlcs: true);
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -156,32 +110,33 @@ public class GameTests
     public void Create_Game_Should_Return_Invalid_When_GameMode_Is_Invalid()
     {
         // Arrange
-        var configure = _platforms.ToArray();
-
+        var gameValid = FakeGameData.GameValid();
+        var configure = gameValid.Platforms.ToArray();
+        
         // Act
         var result = DomainGame.Create(builder =>
         {
             builder.Name =
-                $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}";
-            builder.ReleaseDate = DateOnly.FromDateTime(_faker.Date.Past());
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
-            builder.DiskSize = _faker.Random.Int(1, 150);
-            builder.Price = decimal.Parse(_faker.Commerce.Price(1.0m, 500.0m));
-            builder.Playtime = (_faker.Random.Int(1, 200), _faker.Random.Int(1, 2000));
+                gameValid.Name;
+            builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
+            builder.DiskSize = gameValid.DiskSize;
+            builder.Price = gameValid.Price;
+            builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
-                Genre: _faker.Lorem.Word(),
+                Genre: gameValid.Genre,
                 Platform: configure,
-                Tags: _faker.Lorem.Word(),
+                Tags: gameValid.Genre,
                 GameMode: "Invalid",
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: "EN-US",
-                SupportsDlcs: _faker.Random.Bool());
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+                SupportsDlcs: true);
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -199,32 +154,33 @@ public class GameTests
     public void Create_Game_Should_Return_Invalid_When_DistributionFormat_Is_Invalid()
     {
         // Arrange
-        var configure = _platforms.ToArray();
-
+        var gameValid = FakeGameData.GameValid();
+        var configure = gameValid.Platforms.ToArray();
+        
         // Act
         var result = DomainGame.Create(builder =>
         {
             builder.Name =
-                $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}";
-            builder.ReleaseDate = DateOnly.FromDateTime(_faker.Date.Past());
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
-            builder.DiskSize = _faker.Random.Int(1, 150);
-            builder.Price = decimal.Parse(_faker.Commerce.Price(1.0m, 500.0m));
-            builder.Playtime = (_faker.Random.Int(1, 200), _faker.Random.Int(1, 2000));
+                gameValid.Name;
+            builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
+            builder.DiskSize = gameValid.DiskSize;
+            builder.Price = gameValid.Price;
+            builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
-                Genre: _faker.Lorem.Word(),
+                Genre: gameValid.Genre,
                 Platform: configure,
-                Tags: _faker.Lorem.Word(),
-                GameMode: _faker.PickRandom(_gameModes),
+                Tags: gameValid.Genre,
+                GameMode: gameValid.GameMode,
                 DistributionFormat: "Invalid",
                 AvailableLanguages: "EN-US",
-                SupportsDlcs: _faker.Random.Bool());
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+                SupportsDlcs: true);
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -242,32 +198,35 @@ public class GameTests
     public void Create_Game_Should_Return_Invalid_When_Rating_Is_Negative()
     {
         // Arrange
-        var configure = _platforms.ToArray();
+        var gameValid = FakeGameData.GameValid();
 
+        var configure = gameValid.Platforms.ToArray();
+
+        
         // Act
         var result = DomainGame.Create(builder =>
         {
             builder.Name =
-                $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}";
-            builder.ReleaseDate = DateOnly.FromDateTime(_faker.Date.Past());
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
-            builder.DiskSize = _faker.Random.Int(1, 150);
-            builder.Price = decimal.Parse(_faker.Commerce.Price(1.0m, 500.0m));
-            builder.Playtime = (_faker.Random.Int(1, 200), _faker.Random.Int(1, 2000));
+                gameValid.Name;
+            builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
+            builder.DiskSize = gameValid.DiskSize;
+            builder.Price = gameValid.Price;
+            builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
-                Genre: _faker.Lorem.Word(),
+                Genre: gameValid.Genre,
                 Platform: configure,
-                Tags: _faker.Lorem.Word(),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                Tags: gameValid.Genre,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: "EN-US",
-                SupportsDlcs: _faker.Random.Bool());
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+                SupportsDlcs: true);
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = -1;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -285,32 +244,35 @@ public class GameTests
     public void Create_Game_Should_Return_Invalid_When_GameDetails_Is_Invalid()
     {
         // Arrange
-        var configure = _platforms.ToArray();
+        var gameValid = FakeGameData.GameValid();
 
+        var configure = gameValid.Platforms.ToArray();
+
+        
         // Act
         var result = DomainGame.Create(builder =>
         {
             builder.Name =
-                $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}";
-            builder.ReleaseDate = DateOnly.FromDateTime(_faker.Date.Past());
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
-            builder.DiskSize = _faker.Random.Int(1, 150);
-            builder.Price = decimal.Parse(_faker.Commerce.Price(1.0m, 500.0m));
-            builder.Playtime = (_faker.Random.Int(1, 200), _faker.Random.Int(1, 2000));
+                gameValid.Name;
+            builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
+            builder.DiskSize = gameValid.DiskSize;
+            builder.Price = gameValid.Price;
+            builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
-                Genre: _faker.Lorem.Word(),
+                Genre: gameValid.Genre,
                 Platform: configure,
-                Tags: _faker.Lorem.Word(),
+                Tags: gameValid.Genre,
                 GameMode: "Invalid",
                 DistributionFormat: "Invalid",
                 AvailableLanguages: "EN-US",
-                SupportsDlcs: _faker.Random.Bool());
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+                SupportsDlcs: true);
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -327,31 +289,34 @@ public class GameTests
     public void Create_Game_Should_Return_Invalid_When_GameStatus_Is_Invalid()
     {
         // Arrange
-        var configure = _platforms.ToArray();
+        var gameValid = FakeGameData.GameValid();
 
+        var configure = gameValid.Platforms.ToArray();
+
+        
         // Act
         var result = DomainGame.Create(builder =>
         {
             builder.Name =
-                $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}";
-            builder.ReleaseDate = DateOnly.FromDateTime(_faker.Date.Past());
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
-            builder.DiskSize = _faker.Random.Int(1, 150);
-            builder.Price = decimal.Parse(_faker.Commerce.Price(1.0m, 500.0m));
-            builder.Playtime = (_faker.Random.Int(1, 200), _faker.Random.Int(1, 2000));
+                gameValid.Name;
+            builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
+            builder.DiskSize = gameValid.DiskSize;
+            builder.Price = gameValid.Price;
+            builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
-                Genre: _faker.Lorem.Word(),
+                Genre: gameValid.Genre,
                 Platform: configure,
-                Tags: _faker.Lorem.Word(),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                Tags: gameValid.Genre,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: "EN-US",
-                SupportsDlcs: _faker.Random.Bool());
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+                SupportsDlcs: true);
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
+            builder.OfficialLink = gameValid.URL;
             builder.GameStatus = "Invalid";
         });
 
@@ -370,32 +335,35 @@ public class GameTests
     public void Create_Game_Should_Return_Invalid_When_OfficialLink_Is_Invalid()
     {
         // Arrange
-        var configure = _platforms.ToArray();
+        var gameValid = FakeGameData.GameValid();
 
+        var configure = gameValid.Platforms.ToArray();
+        
+        
         // Act
         var result = DomainGame.Create(builder =>
         {
             builder.Name =
-                $"{_faker.Commerce.ProductAdjective()} {_faker.Commerce.ProductMaterial()} {_faker.Commerce.Product()}";
-            builder.ReleaseDate = DateOnly.FromDateTime(_faker.Date.Past());
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
-            builder.DiskSize = _faker.Random.Int(1, 150);
-            builder.Price = decimal.Parse(_faker.Commerce.Price(1.0m, 500.0m));
-            builder.Playtime = (_faker.Random.Int(1, 200), _faker.Random.Int(1, 2000));
+                gameValid.Name;
+            builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
+            builder.DiskSize = gameValid.DiskSize;
+            builder.Price = gameValid.Price;
+            builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
-                Genre: _faker.Lorem.Word(),
+                Genre: gameValid.Genre,
                 Platform: configure,
-                Tags: _faker.Lorem.Word(),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                Tags: gameValid.Genre,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: "EN-US",
-                SupportsDlcs: _faker.Random.Bool());
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+                SupportsDlcs: true);
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
             builder.OfficialLink = "Invalid_URL";
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -412,28 +380,30 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_Name_Is_Empty()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
             builder.Name = string.Empty;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 1).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -445,28 +415,30 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_ReleaseDate_Is_Default()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.MinValue;
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 1).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -486,28 +458,30 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_AgeRating_Is_Empty()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
             builder.AgeRating = string.Empty;
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 1).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -518,28 +492,30 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_Developer_Is_Empty()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (string.Empty, _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (string.Empty, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 1).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -552,28 +528,30 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_DiskSize_Is_Zero()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 0;
             builder.Price = 50;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 1).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -584,28 +562,30 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_Price_Is_Negative()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = -5;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 1).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -616,28 +596,30 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_Playtime_Is_Invalid()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (-1, 0);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 1).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -649,28 +631,30 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_GameDetails_Are_Empty()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
+                Genre: gameValid.Genre,
                 Platform: [],
-                Tags: _faker.PickRandom(_gameTags),
+                Tags: gameValid.Tags,
                 GameMode: string.Empty,
                 DistributionFormat: string.Empty,
-                AvailableLanguages: _faker.PickRandom(_languages),
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -683,28 +667,30 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_SystemRequirements_Minimum_Is_Empty()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 1).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (string.Empty, _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (string.Empty, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -715,28 +701,30 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_Rating_Is_Out_Of_Range()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 1).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 11;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -747,27 +735,29 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_GameStatus_Is_Empty()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 1).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
+            builder.OfficialLink = gameValid.URL;
             builder.GameStatus = string.Empty;
         });
 
@@ -780,22 +770,24 @@ public class GameTests
     [Fact]
     public void Create_Game_Using_Builder_Should_Return_Success_When_All_Fields_Are_Valid()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         // Arrange
-        var name = _faker.Commerce.ProductName();
+        var name = gameValid.Name;
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
-        var ageRating = AgeRating.Create(builder => builder.Value = _faker.PickRandom(_ageRatings.ToArray()));
-        var description = _faker.Lorem.Paragraph();
+        var ageRating = AgeRating.Create(builder => builder.Value = gameValid.AgeRating);
+        var description = gameValid.Description;
         var developerInfo = DeveloperInfo.Create(builder =>
         {
-            builder.Developer = _faker.Company.CompanyName();
-            builder.Publisher = _faker.Company.CompanyName();
+            builder.Developer = gameValid.PublisherName;
+            builder.Publisher = gameValid.PublisherName;
         });
-        var diskSize = DiskSize.Create(builder => builder.SizeInGb = _faker.Random.Decimal(1, 100));
-        var price = Price.Create(builder => builder.Amount = _faker.Random.Decimal(10, 300));
+        var diskSize = DiskSize.Create(builder => builder.SizeInGb = gameValid.DiskSize);
+        var price = Price.Create(builder => builder.Amount = gameValid.Price);
         var playtime = Playtime.Create(builder =>
         {
-            builder.Hours = _faker.Random.Int(1, 10);
-            builder.PlayerCount = _faker.Random.Int(10, 100);
+            builder.Hours = gameValid.PlayersTime;
+            builder.PlayerCount = gameValid.PlayersCount;
         });
 
         // Act
@@ -811,22 +803,22 @@ public class GameTests
             builder.Playtime = playtime;
             builder.GameDetails = GameDetails.Create(builder =>
             {
-                builder.Genre = _faker.PickRandom(_genres);
-                builder.Platform = [.. _faker.PickRandom(_platforms, 3)];
-                builder.Tags = _faker.PickRandom(_gameTags);
-                builder.GameMode = _faker.PickRandom(_gameModes);
-                builder.DistributionFormat = _faker.PickRandom(_distributionFormats);
-                builder.AvailableLanguages = _faker.PickRandom(_languages);
+                builder.Genre = gameValid.Genre;
+                builder.Platform = gameValid.Platforms.ToArray();
+                builder.Tags = gameValid.Tags;
+                builder.GameMode = gameValid.GameMode;
+                builder.DistributionFormat = gameValid.DistributionFormat;
+                builder.AvailableLanguages = gameValid.Language;
                 builder.SupportsDlcs = true;
             });
             builder.SystemRequirements = SystemRequirements.Create(builder =>
             {
-                builder.Minimum = _faker.Lorem.Paragraph();
-                builder.Recommended = _faker.Lorem.Paragraph();
+                builder.Minimum = gameValid.Description;
+                builder.Recommended = gameValid.Description;
             });
             builder.Rating = Rating.Create(builder => builder.Average = null);
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         // Assert
@@ -839,11 +831,13 @@ public class GameTests
     [Fact]
     public void Create_Game_Using_Builder_Should_Return_Failure_When_Value_Objects_Are_Invalid()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         // Arrange
-        var name = _faker.Commerce.ProductName();
+        var name = gameValid.Name;
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
         var ageRating = AgeRating.Create(builder => { });
-        var description = _faker.Lorem.Paragraph();
+        var description = gameValid.Description;
         var developerInfo = DeveloperInfo.Create(builder => { });
         var diskSize = DiskSize.Create(builder => { });
         var price = Price.Create(builder => { builder.Amount = -1; });
@@ -870,8 +864,8 @@ public class GameTests
             builder.GameDetails = gameDetails;
             builder.SystemRequirements = systemRequirements;
             builder.Rating = rating;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         // Assert
@@ -882,11 +876,13 @@ public class GameTests
     [Fact]
     public void Create_Game_Using_Builder_Result_Should_Return_Failure_When_Value_Objects_Are_Invalid()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         // Arrange
-        var name = _faker.Commerce.ProductName();
+        var name = gameValid.Name;
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
         var ageRating = AgeRating.Create(builder => { });
-        var description = _faker.Lorem.Paragraph();
+        var description = gameValid.Description;
         var developerInfo = DeveloperInfo.Create(builder => { });
         var diskSize = DiskSize.Create(builder => { });
         var price = Price.Create(builder => { builder.Amount = -1; });
@@ -913,8 +909,8 @@ public class GameTests
             builder.GameDetails = gameDetails;
             builder.SystemRequirements = systemRequirements;
             builder.Rating = rating;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         // Assert
@@ -925,22 +921,24 @@ public class GameTests
     [Fact]
     public void Create_Game_Using_Builder_Result_Should_Return_Success_When_All_Fields_Are_Valid()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         // Arrange
-        var name = _faker.Commerce.ProductName();
+        var name = gameValid.Name;
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
-        var ageRating = AgeRating.Create(builder => builder.Value = _faker.PickRandom(_ageRatings.ToArray()));
-        var description = _faker.Lorem.Paragraph();
+        var ageRating = AgeRating.Create(builder => builder.Value = gameValid.AgeRating);
+        var description = gameValid.Description;
         var developerInfo = DeveloperInfo.Create(builder =>
         {
-            builder.Developer = _faker.Company.CompanyName();
-            builder.Publisher = _faker.Company.CompanyName();
+            builder.Developer = gameValid.PublisherName;
+            builder.Publisher = gameValid.PublisherName;
         });
-        var diskSize = DiskSize.Create(builder => builder.SizeInGb = _faker.Random.Decimal(1, 100));
-        var price = Price.Create(builder => builder.Amount = _faker.Random.Decimal(10, 300));
+        var diskSize = DiskSize.Create(builder => builder.SizeInGb = gameValid.DiskSize);
+        var price = Price.Create(builder => builder.Amount = gameValid.Price);
         var playtime = Playtime.Create(builder =>
         {
-            builder.Hours = _faker.Random.Int(1, 10);
-            builder.PlayerCount = _faker.Random.Int(10, 100);
+            builder.Hours = gameValid.PlayersTime;
+            builder.PlayerCount = gameValid.PlayersCount;
         });
 
         // Act
@@ -956,22 +954,22 @@ public class GameTests
             builder.Playtime = playtime;
             builder.GameDetails = GameDetails.Create(builder =>
             {
-                builder.Genre = _faker.PickRandom(_genres);
-                builder.Platform = [.. _faker.PickRandom(_platforms, 3)];
-                builder.Tags = _faker.PickRandom(_gameTags);
-                builder.GameMode = _faker.PickRandom(_gameModes);
-                builder.DistributionFormat = _faker.PickRandom(_distributionFormats);
-                builder.AvailableLanguages = _faker.PickRandom(_languages);
+                builder.Genre = gameValid.Genre;
+                builder.Platform = gameValid.Platforms.ToArray();
+                builder.Tags = gameValid.Tags;
+                builder.GameMode = gameValid.GameMode;
+                builder.DistributionFormat = gameValid.DistributionFormat;
+                builder.AvailableLanguages = gameValid.Language;
                 builder.SupportsDlcs = true;
             });
             builder.SystemRequirements = SystemRequirements.Create(builder =>
             {
-                builder.Minimum = _faker.Lorem.Paragraph();
-                builder.Recommended = _faker.Lorem.Paragraph();
+                builder.Minimum = gameValid.Description;
+                builder.Recommended = gameValid.Description;
             });
             builder.Rating = Rating.Create(builder => builder.Average = null);
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         // Assert
@@ -984,15 +982,17 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Success_When_All_Fields_Are_Valid()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         // Arrange
-        var name = _faker.Commerce.ProductName();
+        var name = gameValid.Name;
         var releaseDate = DateOnly.FromDateTime(DateTime.Now);
-        var ageRating = _faker.PickRandom(_ageRatings.ToArray());
-        var description = _faker.Lorem.Paragraph();
-        var developerInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
-        var diskSize = _faker.Random.Decimal(1, 100);
-        var price = _faker.Random.Decimal(10, 300);
-        var playtime = (_faker.Random.Int(1, 10), _faker.Random.Int(10, 100));
+        var ageRating = gameValid.AgeRating;
+        var description = gameValid.Description;
+        var developerInfo = (gameValid.DeveloperName, gameValid.PublisherName);
+        var diskSize = gameValid.DiskSize;
+        var price = gameValid.Price;
+        var playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
 
         // Act
         var result = DomainGame.Create(builder =>
@@ -1006,17 +1006,17 @@ public class GameTests
             builder.Price = price;
             builder.Playtime = playtime;
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = null;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         // Assert
@@ -1030,28 +1030,30 @@ public class GameTests
     public void Create_Game_Should_Return_Invalid_When_Release_Date_Is_Default_Value()
     {
         // Arrange - Act
+        var gameValid = FakeGameData.GameValid();
+
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.MinValue;
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = (decimal)10.5;
             builder.Price = 50;
-            builder.Playtime = (_faker.Random.Int(1, 10), _faker.Random.Int(10, 100));
+            builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = null;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -1069,28 +1071,30 @@ public class GameTests
     public void Create_Game_Should_Return_Invalid_When_DiskSize_Is_Negative()
     {
         // Arrange - Act
+        var gameValid = FakeGameData.GameValid();
+        
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = -1;
             builder.Price = 50;
             builder.Playtime = (10, 2);
             builder.GameDetails = (
-                Genre: _faker.PickRandom("RPG", "Ação"),
-                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
                 Tags: "Indie",
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: "EN-US",
                 SupportsDlcs: true
             );
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
+            builder.OfficialLink = gameValid.URL;
             builder.GameStatus = "Available";
         });
 
@@ -1118,30 +1122,32 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_Name_Exceeds_Max_Length()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var name = new string('A', 201); // Max 200
         var result = DomainGame.Create(builder =>
         {
             builder.Name = name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (10, 2);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true
             );
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -1153,30 +1159,32 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_Description_Exceeds_Max_Length()
     {
+        var gameValid = FakeGameData.GameValid();
+
         var description = new string('A', 2001); // Max 2000
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
+            builder.AgeRating = gameValid.AgeRating;
             builder.Description = description;
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (10, 2);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true
             );
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -1189,30 +1197,32 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_DeveloperInfo_Exceeds_Max_Length()
     {
+        var gameValid = FakeGameData.GameValid();
+
         var dev = new string('D', 5001); // Max 5000
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
             builder.DeveloperInfo = (dev, dev);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (10, 2);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true
             );
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -1228,32 +1238,34 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_GameDetails_Fields_Exceed_Max_Length()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var genre = new string('D', 501); // Max 500
         var tags = new string('D', 501); // Max 500
         var availableLanguages = new string('A', 201); // Max 200
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (10, 2);
             builder.GameDetails = (
                 Genre: genre,
-                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
+                Platform: gameValid.Platforms.ToArray(),
                 Tags: tags,
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: availableLanguages,
                 SupportsDlcs: true
             );
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -1270,31 +1282,33 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_SystemRequirements_Fields_Exceed_Max_Length()
     {
+        var gameValid = FakeGameData.GameValid();
+        
         var min = new string('M', 2001); // Max 2000
         var rec = new string('R', 2001); // Max 2000
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (10, 2);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true
             );
             builder.SystemRequirements = (min, rec);
             builder.Rating = 5;
-            builder.OfficialLink = _faker.Internet.Url();
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.OfficialLink = gameValid.URL;
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
@@ -1310,30 +1324,32 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_OfficialLink_Exceeds_Max_Length()
     {
+        var gameValid = FakeGameData.GameValid();
+
         var officialLink = $"https://{new string('A', 201)}.com"; // Exceeds max
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = _faker.Commerce.ProductName();
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = _faker.PickRandom(_ageRatings.ToArray());
-            builder.Description = _faker.Lorem.Paragraph();
-            builder.DeveloperInfo = (_faker.Company.CompanyName(), _faker.Company.CompanyName());
+            builder.AgeRating = gameValid.AgeRating;
+            builder.Description = gameValid.Description;
+            builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (10, 2);
             builder.GameDetails = (
-                Genre: _faker.PickRandom(_genres),
-                Platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                Tags: _faker.PickRandom(_gameTags),
-                GameMode: _faker.PickRandom(_gameModes),
-                DistributionFormat: _faker.PickRandom(_distributionFormats),
-                AvailableLanguages: _faker.PickRandom(_languages),
+                Genre: gameValid.Genre,
+                Platform: gameValid.Platforms.ToArray(),
+                Tags: gameValid.Tags,
+                GameMode: gameValid.GameMode,
+                DistributionFormat: gameValid.DistributionFormat,
+                AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true
             );
-            builder.SystemRequirements = (_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph());
+            builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
             builder.OfficialLink = officialLink;
-            builder.GameStatus = _faker.PickRandom(_gameStatus);
+            builder.GameStatus = gameValid.GameStatus;
         });
 
         var errors = result.ValidationErrors;
