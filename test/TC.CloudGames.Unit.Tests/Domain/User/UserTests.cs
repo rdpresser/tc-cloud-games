@@ -113,11 +113,11 @@ public class UserTests
             .ShouldNotBeEmpty();
         errors.ShouldBeOfType<List<ValidationError>>();
 
-        errors.Any(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBeTrue();
-        errors.Any(x => x.Identifier == nameof(DomainUser.LastName)).ShouldBeTrue();
-        errors.Any(x => x.Identifier == nameof(DomainUser.Email)).ShouldBeTrue();
-        errors.Any(x => x.Identifier == nameof(DomainUser.Password)).ShouldBeTrue();
-        errors.Any(x => x.Identifier == nameof(DomainUser.Role)).ShouldBeTrue();
+        errors.Any(x => x.Identifier == "FirstName").ShouldBeTrue();
+        errors.Any(x => x.Identifier == "LastName").ShouldBeTrue();
+        errors.Any(x => x.Identifier == "Email").ShouldBeTrue();
+        errors.Any(x => x.Identifier == "Password").ShouldBeTrue();
+        errors.Any(x => x.Identifier == "Role").ShouldBeTrue();
 
         userResult.Status.ShouldBe(ResultStatus.Invalid);
     }
@@ -254,10 +254,10 @@ public class UserTests
 
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
-        result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(DomainUser.FirstName));
-        result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(DomainUser.LastName));
-        result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(Email));
-        result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(Password));
-        result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(Role));
+        result.ValidationErrors.ShouldContain(x => x.Identifier == "FirstName");
+        result.ValidationErrors.ShouldContain(x => x.Identifier == "LastName");
+        result.ValidationErrors.ShouldContain(x => x.Identifier == "Email");
+        result.ValidationErrors.ShouldContain(x => x.Identifier == "Password");
+        result.ValidationErrors.ShouldContain(x => x.Identifier == "Role");
     }
 }
