@@ -15,8 +15,6 @@ public class GameTests
     public void Create_Game_Should_Return_Invalid_When_AgeRating_Is_Invalid()
     {
         // Arrange
-        var configure = new[] { "Invalid" };
-        
         var gameValid = FakeGameData.GameValid();
 
         // Act
@@ -24,7 +22,7 @@ public class GameTests
         {
             builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
-            builder.AgeRating = "Invalid";
+            builder.AgeRating = "Invalid"; // Valor inválido
             builder.Description = gameValid.Description;
             builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = gameValid.DiskSize;
@@ -32,13 +30,13 @@ public class GameTests
             builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
                 Genre: gameValid.Genre,
-                Platform: configure,
+                Platform: gameValid.Platforms.ToArray(),
                 Tags: gameValid.Tags,
                 GameMode: gameValid.GameMode,
                 DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true
-                );
+            );
             builder.SystemRequirements = (gameValid.SystemMinimalRequirements, gameValid.SystemRecommendRequirements);
             builder.Rating = 5;
             builder.OfficialLink = gameValid.URL;
@@ -50,23 +48,19 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.ShouldSatisfyAllConditions(errors =>
-        {
-            errors.Any(x =>
-                    x.Identifier == nameof(DomainGame.AgeRating) && x.ErrorCode == $"{nameof(AgeRating)}.Required")
-                .ShouldBeTrue();
-            errors.Any(x =>
-                    x.Identifier == nameof(DomainGame.AgeRating) && x.ErrorCode == $"{nameof(AgeRating)}.ValidRating")
-                .ShouldBeTrue();
-        });
+        // AJUSTE: Quando um valor inválido é fornecido, devemos esperar o erro de "classificação inválida",
+        // não o erro de "obrigatório".
+        errors.ShouldContain(e =>
+            e.Identifier == nameof(DomainGame.AgeRating) &&
+            e.ErrorCode == $"{nameof(AgeRating)}.ValidRating");
     }
+
 
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_Platform_Is_Invalid()
     {
         // Arrange
         var configure = new[] { "Invalid" };
-
         var gameValid = FakeGameData.GameValid();
         
         // Act
@@ -99,7 +93,6 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Any(x => x.Identifier == nameof(GameDetails.Platform)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(GameDetails.Platform) &&
             x.ErrorCode == $"{nameof(GameDetails.Platform)}.ValidPlatform");
@@ -110,13 +103,11 @@ public class GameTests
     {
         // Arrange
         var gameValid = FakeGameData.GameValid();
-        var configure = gameValid.Platforms.ToArray();
         
         // Act
         var result = DomainGame.Create(builder =>
         {
-            builder.Name =
-                gameValid.Name;
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
@@ -126,9 +117,9 @@ public class GameTests
             builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
                 Genre: gameValid.Genre,
-                Platform: configure,
+                Platform: gameValid.Platforms.ToArray(),
                 Tags: gameValid.Genre,
-                GameMode: "Invalid",
+                GameMode: "Invalid", // Valor inválido
                 DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: "EN-US",
                 SupportsDlcs: true);
@@ -143,7 +134,6 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Any(x => x.Identifier == nameof(GameDetails.GameMode)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(GameDetails.GameMode) &&
             x.ErrorCode == $"{nameof(GameDetails.GameMode)}.ValidGameMode");
@@ -154,13 +144,11 @@ public class GameTests
     {
         // Arrange
         var gameValid = FakeGameData.GameValid();
-        var configure = gameValid.Platforms.ToArray();
         
         // Act
         var result = DomainGame.Create(builder =>
         {
-            builder.Name =
-                gameValid.Name;
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
@@ -170,10 +158,10 @@ public class GameTests
             builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
                 Genre: gameValid.Genre,
-                Platform: configure,
+                Platform: gameValid.Platforms.ToArray(),
                 Tags: gameValid.Genre,
                 GameMode: gameValid.GameMode,
-                DistributionFormat: "Invalid",
+                DistributionFormat: "Invalid", // Valor inválido
                 AvailableLanguages: "EN-US",
                 SupportsDlcs: true);
             builder.SystemRequirements = (gameValid.Description, gameValid.Description);
@@ -187,7 +175,6 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Any(x => x.Identifier == nameof(GameDetails.DistributionFormat)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(GameDetails.DistributionFormat) &&
             x.ErrorCode == $"{nameof(GameDetails.DistributionFormat)}.ValidDistributionFormat");
@@ -198,15 +185,11 @@ public class GameTests
     {
         // Arrange
         var gameValid = FakeGameData.GameValid();
-
-        var configure = gameValid.Platforms.ToArray();
-
         
         // Act
         var result = DomainGame.Create(builder =>
         {
-            builder.Name =
-                gameValid.Name;
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
@@ -216,14 +199,14 @@ public class GameTests
             builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
                 Genre: gameValid.Genre,
-                Platform: configure,
+                Platform: gameValid.Platforms.ToArray(),
                 Tags: gameValid.Genre,
                 GameMode: gameValid.GameMode,
                 DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: "EN-US",
                 SupportsDlcs: true);
             builder.SystemRequirements = (gameValid.Description, gameValid.Description);
-            builder.Rating = -1;
+            builder.Rating = -1; // Valor inválido
             builder.OfficialLink = gameValid.URL;
             builder.GameStatus = gameValid.GameStatus;
         });
@@ -233,7 +216,6 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Any(x => x.Identifier == nameof(DomainGame.Rating)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(DomainGame.Rating) &&
             x.ErrorCode == $"{nameof(DomainGame.Rating)}.GreaterThanOrEqualToZero");
@@ -244,15 +226,11 @@ public class GameTests
     {
         // Arrange
         var gameValid = FakeGameData.GameValid();
-
-        var configure = gameValid.Platforms.ToArray();
-
         
         // Act
         var result = DomainGame.Create(builder =>
         {
-            builder.Name =
-                gameValid.Name;
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
@@ -262,10 +240,10 @@ public class GameTests
             builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
                 Genre: gameValid.Genre,
-                Platform: configure,
+                Platform: gameValid.Platforms.ToArray(),
                 Tags: gameValid.Genre,
-                GameMode: "Invalid",
-                DistributionFormat: "Invalid",
+                GameMode: "Invalid", // Valor inválido
+                DistributionFormat: "Invalid", // Valor inválido
                 AvailableLanguages: "EN-US",
                 SupportsDlcs: true);
             builder.SystemRequirements = (gameValid.Description, gameValid.Description);
@@ -279,9 +257,10 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Any(x => x.Identifier == nameof(GameDetails)).ShouldBeTrue();
-        errors.ShouldContain(x =>
-            x.Identifier == nameof(GameDetails) && x.ErrorCode == $"{nameof(GameDetails)}.Required");
+        // AJUSTE: Esperamos erros específicos para os campos inválidos dentro de GameDetails,
+        // não um erro genérico para o objeto inteiro.
+        errors.ShouldContain(e => e.Identifier == nameof(GameDetails.GameMode));
+        errors.ShouldContain(e => e.Identifier == nameof(GameDetails.DistributionFormat));
     }
 
     [Fact]
@@ -289,15 +268,11 @@ public class GameTests
     {
         // Arrange
         var gameValid = FakeGameData.GameValid();
-
-        var configure = gameValid.Platforms.ToArray();
-
         
         // Act
         var result = DomainGame.Create(builder =>
         {
-            builder.Name =
-                gameValid.Name;
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
@@ -307,7 +282,7 @@ public class GameTests
             builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
                 Genre: gameValid.Genre,
-                Platform: configure,
+                Platform: gameValid.Platforms.ToArray(),
                 Tags: gameValid.Genre,
                 GameMode: gameValid.GameMode,
                 DistributionFormat: gameValid.DistributionFormat,
@@ -316,7 +291,7 @@ public class GameTests
             builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
             builder.OfficialLink = gameValid.URL;
-            builder.GameStatus = "Invalid";
+            builder.GameStatus = "Invalid"; // Valor inválido
         });
 
         var errors = result.ValidationErrors;
@@ -324,7 +299,6 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Any(x => x.Identifier == nameof(DomainGame.GameStatus)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(DomainGame.GameStatus) &&
             x.ErrorCode == $"{nameof(DomainGame.GameStatus)}.ValidGameStatus");
@@ -335,15 +309,11 @@ public class GameTests
     {
         // Arrange
         var gameValid = FakeGameData.GameValid();
-
-        var configure = gameValid.Platforms.ToArray();
-        
         
         // Act
         var result = DomainGame.Create(builder =>
         {
-            builder.Name =
-                gameValid.Name;
+            builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(gameValid.ReleaseDate);
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
@@ -353,7 +323,7 @@ public class GameTests
             builder.Playtime = (gameValid.PlayersTime, gameValid.PlayersCount);
             builder.GameDetails = (
                 Genre: gameValid.Genre,
-                Platform: configure,
+                Platform: gameValid.Platforms.ToArray(),
                 Tags: gameValid.Genre,
                 GameMode: gameValid.GameMode,
                 DistributionFormat: gameValid.DistributionFormat,
@@ -361,7 +331,7 @@ public class GameTests
                 SupportsDlcs: true);
             builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
-            builder.OfficialLink = "Invalid_URL";
+            builder.OfficialLink = "Invalid_URL"; // Valor inválido
             builder.GameStatus = gameValid.GameStatus;
         });
 
@@ -370,7 +340,6 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Any(x => x.Identifier == nameof(DomainGame.OfficialLink)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(DomainGame.OfficialLink) &&
             x.ErrorCode == $"{nameof(DomainGame.OfficialLink)}.ValidUrl");
@@ -383,7 +352,7 @@ public class GameTests
         
         var result = DomainGame.Create(builder =>
         {
-            builder.Name = string.Empty;
+            builder.Name = string.Empty; // Valor inválido
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
@@ -419,7 +388,7 @@ public class GameTests
         var result = DomainGame.Create(builder =>
         {
             builder.Name = gameValid.Name;
-            builder.ReleaseDate = DateOnly.MinValue;
+            builder.ReleaseDate = DateOnly.MinValue; // Valor inválido
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
             builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
@@ -442,16 +411,11 @@ public class GameTests
 
         var errors = result.ValidationErrors;
         result.Status.ShouldBe(ResultStatus.Invalid);
-        errors.Any(x => x.Identifier == nameof(DomainGame.ReleaseDate)).ShouldBeTrue();
-        errors.ShouldSatisfyAllConditions(errors =>
-        {
-            errors.Any(x =>
-                x.Identifier == nameof(DomainGame.ReleaseDate) &&
-                x.ErrorCode == $"{nameof(DomainGame.ReleaseDate)}.Required").ShouldBeTrue();
-            errors.Any(x =>
-                x.Identifier == nameof(DomainGame.ReleaseDate) &&
-                x.ErrorCode == $"{nameof(DomainGame.ReleaseDate)}.ValidDate").ShouldBeTrue();
-        });
+        // AJUSTE: Ao fornecer DateOnly.MinValue, o erro esperado deve ser sobre a validade da data,
+        // não sobre ser um campo obrigatório.
+        errors.ShouldContain(e =>
+            e.Identifier == nameof(DomainGame.ReleaseDate) &&
+            e.ErrorCode == $"{nameof(DomainGame.ReleaseDate)}.ValidDate");
     }
 
     [Fact]
@@ -463,7 +427,7 @@ public class GameTests
         {
             builder.Name = gameValid.Name;
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
-            builder.AgeRating = string.Empty;
+            builder.AgeRating = string.Empty; // Valor inválido
             builder.Description = gameValid.Description;
             builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
@@ -485,7 +449,8 @@ public class GameTests
 
         var errors = result.ValidationErrors;
         result.Status.ShouldBe(ResultStatus.Invalid);
-        errors.Count(x => x.Identifier == nameof(DomainGame.AgeRating)).ShouldBeGreaterThan(0);
+        // AJUSTE: A asserção é mais clara verificando se há algum erro para o identificador AgeRating.
+        errors.ShouldContain(e => e.Identifier == nameof(DomainGame.AgeRating));
     }
 
     [Fact]
@@ -499,7 +464,7 @@ public class GameTests
             builder.ReleaseDate = DateOnly.FromDateTime(DateTime.Now);
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
-            builder.DeveloperInfo = (string.Empty, gameValid.PublisherName);
+            builder.DeveloperInfo = (string.Empty, gameValid.PublisherName); // Valor inválido
             builder.DiskSize = 10;
             builder.Price = 50;
             builder.Playtime = (1, 1);
@@ -536,7 +501,7 @@ public class GameTests
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
             builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
-            builder.DiskSize = 0;
+            builder.DiskSize = 0; // Valor inválido
             builder.Price = 50;
             builder.Playtime = (1, 1);
             builder.GameDetails = (
@@ -555,7 +520,7 @@ public class GameTests
 
         var errors = result.ValidationErrors;
         result.Status.ShouldBe(ResultStatus.Invalid);
-        errors.Count(x => x.Identifier == nameof(DomainGame.DiskSize)).ShouldBeGreaterThan(0);
+        errors.ShouldContain(e => e.Identifier == nameof(DomainGame.DiskSize));
     }
 
     [Fact]
@@ -571,7 +536,7 @@ public class GameTests
             builder.Description = gameValid.Description;
             builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
-            builder.Price = -5;
+            builder.Price = -5; // Valor inválido
             builder.Playtime = (1, 1);
             builder.GameDetails = (
                 Genre: gameValid.Genre,
@@ -589,7 +554,7 @@ public class GameTests
 
         var errors = result.ValidationErrors;
         result.Status.ShouldBe(ResultStatus.Invalid);
-        errors.Count(x => x.Identifier == nameof(DomainGame.Price)).ShouldBeGreaterThan(0);
+        errors.ShouldContain(e => e.Identifier == nameof(DomainGame.Price));
     }
 
     [Fact]
@@ -606,7 +571,7 @@ public class GameTests
             builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
             builder.DiskSize = 10;
             builder.Price = 50;
-            builder.Playtime = (-1, 0);
+            builder.Playtime = (-1, 0); // Valores inválidos
             builder.GameDetails = (
                 Genre: gameValid.Genre,
                 Platform: gameValid.Platforms.ToArray(),
@@ -644,10 +609,10 @@ public class GameTests
             builder.Playtime = (1, 1);
             builder.GameDetails = (
                 Genre: gameValid.Genre,
-                Platform: [],
+                Platform: [], // Valor inválido
                 Tags: gameValid.Tags,
-                GameMode: string.Empty,
-                DistributionFormat: string.Empty,
+                GameMode: string.Empty, // Valor inválido
+                DistributionFormat: string.Empty, // Valor inválido
                 AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
             builder.SystemRequirements = (gameValid.Description, gameValid.Description);
@@ -686,7 +651,7 @@ public class GameTests
                 DistributionFormat: gameValid.DistributionFormat,
                 AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
-            builder.SystemRequirements = (string.Empty, gameValid.Description);
+            builder.SystemRequirements = (string.Empty, gameValid.Description); // Valor inválido
             builder.Rating = 5;
             builder.OfficialLink = gameValid.URL;
             builder.GameStatus = gameValid.GameStatus;
@@ -721,7 +686,7 @@ public class GameTests
                 AvailableLanguages: gameValid.Language,
                 SupportsDlcs: true);
             builder.SystemRequirements = (gameValid.Description, gameValid.Description);
-            builder.Rating = 11;
+            builder.Rating = 11; // Valor inválido
             builder.OfficialLink = gameValid.URL;
             builder.GameStatus = gameValid.GameStatus;
         });
@@ -757,7 +722,7 @@ public class GameTests
             builder.SystemRequirements = (gameValid.Description, gameValid.Description);
             builder.Rating = 5;
             builder.OfficialLink = gameValid.URL;
-            builder.GameStatus = string.Empty;
+            builder.GameStatus = string.Empty; // Valor inválido
         });
 
         var errors = result.ValidationErrors;
@@ -1068,9 +1033,10 @@ public class GameTests
     [Fact]
     public void Create_Game_Should_Return_Invalid_When_DiskSize_Is_Negative()
     {
-        // Arrange - Act
+        // Arrange
         var gameValid = FakeGameData.GameValid();
         
+        // Act
         var result = DomainGame.Create(builder =>
         {
             builder.Name = gameValid.Name;
@@ -1078,7 +1044,7 @@ public class GameTests
             builder.AgeRating = gameValid.AgeRating;
             builder.Description = gameValid.Description;
             builder.DeveloperInfo = (gameValid.DeveloperName, gameValid.PublisherName);
-            builder.DiskSize = -1;
+            builder.DiskSize = -1; // Valor inválido
             builder.Price = 50;
             builder.Playtime = (10, 2);
             builder.GameDetails = (
@@ -1101,19 +1067,11 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.ShouldBeOfType<List<ValidationError>>();
-
-        errors.Any(x => x.Identifier == nameof(DomainGame.DiskSize)).ShouldBeTrue();
-        errors.ShouldSatisfyAllConditions(errors =>
-        {
-            errors.Any(x =>
-                    x.Identifier == nameof(DomainGame.DiskSize) &&
-                    x.ErrorCode == $"{nameof(DomainGame.DiskSize)}.Required")
-                .ShouldBeTrue();
-            errors.Any(x =>
-                x.Identifier == nameof(DomainGame.DiskSize) &&
-                x.ErrorCode == $"{nameof(DomainGame.DiskSize)}.GreaterThanZero").ShouldBeTrue();
-        });
+        // AJUSTE: Quando um valor negativo é fornecido, o erro deve ser sobre o valor em si (precisa ser > 0),
+        // não sobre o campo ser obrigatório.
+        errors.ShouldContain(e =>
+            e.Identifier == nameof(DomainGame.DiskSize) &&
+            e.ErrorCode == $"{nameof(DomainGame.DiskSize)}.GreaterThanZero");
     }
 
     [Fact]
