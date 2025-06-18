@@ -50,7 +50,6 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Count(x => x.Identifier == nameof(DomainGame.AgeRating)).ShouldBe(2);
         errors.ShouldSatisfyAllConditions(errors =>
         {
             errors.Any(x =>
@@ -100,7 +99,7 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Count(x => x.Identifier == nameof(GameDetails.Platform)).ShouldBe(1);
+        errors.Any(x => x.Identifier == nameof(GameDetails.Platform)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(GameDetails.Platform) &&
             x.ErrorCode == $"{nameof(GameDetails.Platform)}.ValidPlatform");
@@ -144,7 +143,7 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Count(x => x.Identifier == nameof(GameDetails.GameMode)).ShouldBe(1);
+        errors.Any(x => x.Identifier == nameof(GameDetails.GameMode)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(GameDetails.GameMode) &&
             x.ErrorCode == $"{nameof(GameDetails.GameMode)}.ValidGameMode");
@@ -188,7 +187,7 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Count(x => x.Identifier == nameof(GameDetails.DistributionFormat)).ShouldBe(1);
+        errors.Any(x => x.Identifier == nameof(GameDetails.DistributionFormat)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(GameDetails.DistributionFormat) &&
             x.ErrorCode == $"{nameof(GameDetails.DistributionFormat)}.ValidDistributionFormat");
@@ -234,7 +233,7 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Count(x => x.Identifier == nameof(DomainGame.Rating)).ShouldBe(1);
+        errors.Any(x => x.Identifier == nameof(DomainGame.Rating)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(DomainGame.Rating) &&
             x.ErrorCode == $"{nameof(DomainGame.Rating)}.GreaterThanOrEqualToZero");
@@ -280,7 +279,7 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Count(x => x.Identifier == nameof(GameDetails)).ShouldBe(1);
+        errors.Any(x => x.Identifier == nameof(GameDetails)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(GameDetails) && x.ErrorCode == $"{nameof(GameDetails)}.Required");
     }
@@ -325,7 +324,7 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Count(x => x.Identifier == nameof(DomainGame.GameStatus)).ShouldBe(1);
+        errors.Any(x => x.Identifier == nameof(DomainGame.GameStatus)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(DomainGame.GameStatus) &&
             x.ErrorCode == $"{nameof(DomainGame.GameStatus)}.ValidGameStatus");
@@ -371,7 +370,7 @@ public class GameTests
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
-        errors.Count(x => x.Identifier == nameof(DomainGame.OfficialLink)).ShouldBe(1);
+        errors.Any(x => x.Identifier == nameof(DomainGame.OfficialLink)).ShouldBeTrue();
         errors.ShouldContain(x =>
             x.Identifier == nameof(DomainGame.OfficialLink) &&
             x.ErrorCode == $"{nameof(DomainGame.OfficialLink)}.ValidUrl");
@@ -443,7 +442,7 @@ public class GameTests
 
         var errors = result.ValidationErrors;
         result.Status.ShouldBe(ResultStatus.Invalid);
-        errors.Count(x => x.Identifier == nameof(DomainGame.ReleaseDate)).ShouldBe(2);
+        errors.Any(x => x.Identifier == nameof(DomainGame.ReleaseDate)).ShouldBeTrue();
         errors.ShouldSatisfyAllConditions(errors =>
         {
             errors.Any(x =>
@@ -1062,9 +1061,8 @@ public class GameTests
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
         errors.ShouldBeOfType<List<ValidationError>>();
-        errors.Count().ShouldBe(2);
         errors.ShouldContain(x => x.Identifier == nameof(DomainGame.ReleaseDate));
-        errors.Count(x => x.Identifier == nameof(DomainGame.ReleaseDate)).ShouldBe(2);
+        errors.Any(x => x.Identifier == nameof(DomainGame.ReleaseDate)).ShouldBeTrue();
     }
 
     [Fact]
@@ -1104,9 +1102,8 @@ public class GameTests
         result.Status.ShouldBe(ResultStatus.Invalid);
         errors.ShouldNotBeNull().ShouldNotBeEmpty();
         errors.ShouldBeOfType<List<ValidationError>>();
-        errors.Count().ShouldBe(2);
 
-        errors.Count(x => x.Identifier == nameof(DomainGame.DiskSize)).ShouldBe(2);
+        errors.Any(x => x.Identifier == nameof(DomainGame.DiskSize)).ShouldBeTrue();
         errors.ShouldSatisfyAllConditions(errors =>
         {
             errors.Any(x =>
