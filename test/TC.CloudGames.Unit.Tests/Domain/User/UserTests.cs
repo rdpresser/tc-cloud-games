@@ -110,9 +110,17 @@ public class UserTests
             .ShouldNotBeEmpty();
         errors.ShouldBeOfType<List<ValidationError>>();
 
+        var rr = GroupValidationErrorsByIdentifier(errors);
+
         errors.Count(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBe(0);
         errors.Count(x => x.Identifier == nameof(DomainUser.LastName)).ShouldBe(0);
-        errors.Count(x => x.Identifier == nameof(Email)).ShouldBe(3);
+
+        errors.ShouldSatisfyAllConditions(errors =>
+        {
+            errors.Any(x => x.Identifier == nameof(Email) && x.ErrorCode == $"{nameof(Email)}.Required").ShouldBeTrue();
+            errors.Any(x => x.Identifier == nameof(Email) && x.ErrorCode == $"{nameof(Email)}.InvalidFormat").ShouldBeTrue();
+        });
+
         errors.Count(x => x.Identifier == nameof(Password)).ShouldBe(7);
         errors.Count(x => x.Identifier == nameof(Role)).ShouldBe(3);
         userResult.Status.ShouldBe(ResultStatus.Invalid);
@@ -257,5 +265,16 @@ public class UserTests
         result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(Email));
         result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(Password));
         result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(Role));
+    }
+
+    private static IEnumerable<(string Identifier, int Count, IEnumerable<string> ErrorCodes)> GroupValidationErrorsByIdentifier(IEnumerable<ValidationError> errors)
+    {
+        return errors
+            .GroupBy(e => e.Identifier)
+            .Select(g => (
+                Identifier: g.Key,
+                Count: g.Count(),
+                ErrorCodes: g.Select(e => $"{e.ErrorCode} - {e.ErrorMessage}")
+            ));
     }
 }
