@@ -24,5 +24,5 @@ jobs:
       - name: Build solution
         run: dotnet build TC.CloudGames.sln --configuration Release --no-restore
 
-      # - name: Run unit tests
-      #   run: dotnet test test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+      - name: Run unit tests
+        run: dotnet test test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
