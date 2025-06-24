@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="__xunit.runner.json__">
+    <None Include="xunit.runner.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
