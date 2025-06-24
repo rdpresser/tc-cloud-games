@@ -58,7 +58,7 @@ public class UserTests
             errors.Any(x => x.Identifier == nameof(Password) && x.ErrorCode == $"{nameof(Password)}.Digit").ShouldBeTrue();
             errors.Any(x => x.Identifier == nameof(Password) && x.ErrorCode == $"{nameof(Password)}.SpecialCharacter").ShouldBeTrue();
         });
-        
+
         errors.ShouldSatisfyAllConditions(errors =>
         {
             errors.Any(x => x.Identifier == nameof(Role) && x.ErrorCode == $"{nameof(Role)}.Required").ShouldBeTrue();
@@ -94,13 +94,13 @@ public class UserTests
         errors.ShouldBeOfType<List<ValidationError>>();
 
         var rr = GroupValidationErrorsByIdentifier(errors).Where(x => x.Identifier == nameof(Password));
-        
+
         userResult.Status.ShouldBe(ResultStatus.Invalid);
         errors.Count(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBe(0);
         errors.Count(x => x.Identifier == nameof(DomainUser.LastName)).ShouldBe(0);
-        errors.Count(x => x.Identifier == nameof(Password)  && x.ErrorCode == $"{nameof(Password)}.Required").ShouldBe(1);
-        errors.Count(x => x.Identifier == nameof(Email) && x.ErrorCode == $"{nameof(Email)}.Required").ShouldBe(1);
         errors.Count(x => x.Identifier == nameof(Role) && x.ErrorCode == $"{nameof(Role)}.Required").ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(Password) && x.ErrorCode == $"{nameof(Password)}.Required").ShouldBe(1);
+        errors.Count(x => x.Identifier == nameof(Email) && x.ErrorCode == $"{nameof(Email)}.Required").ShouldBe(1);
     }
 
     [Fact]
@@ -148,13 +148,13 @@ public class UserTests
             errors.Any(x => x.Identifier == nameof(Password) && x.ErrorCode == $"{nameof(Password)}.Digit").ShouldBeTrue();
             errors.Any(x => x.Identifier == nameof(Password) && x.ErrorCode == $"{nameof(Password)}.SpecialCharacter").ShouldBeTrue();
         });
-        
+
         errors.ShouldSatisfyAllConditions(errors =>
         {
             errors.Any(x => x.Identifier == nameof(Role) && x.ErrorCode == $"{nameof(Role)}.Required").ShouldBeTrue();
             errors.Any(x => x.Identifier == nameof(Role) && x.ErrorCode == $"{nameof(Role)}.InvalidRole").ShouldBeTrue();
         });
-        
+
         userResult.Status.ShouldBe(ResultStatus.Invalid);
     }
 
@@ -289,7 +289,7 @@ public class UserTests
             builder.Role = role;
         },
         _userEfRepository);
-        
+
         // Assert
         result.Status.ShouldBe(ResultStatus.Invalid);
         //result.ValidationErrors.ShouldContain(x => x.Identifier == nameof(DomainUser.FirstName));
