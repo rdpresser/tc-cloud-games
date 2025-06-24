@@ -1,9 +1,10 @@
-name: Deploy - Dev
-  
+name: Deploy - Dev (Manual Trigger)
+
 on:
-  push:
-    branches:
-    - feature/phase_02
+  workflow_dispatch: # Habilita botão manual no GitHub Actions
+  # push:
+  #   branches:
+  #   - feature/phase_02
 env:
   DOTNET_CORE_VERSION: 9.0.x
   CONTAINER_APP_NAME: tc-cloudgames-api-container-app
