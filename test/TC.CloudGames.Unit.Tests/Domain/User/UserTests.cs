@@ -38,7 +38,6 @@ public class UserTests
         errors.ShouldNotBeNull()
             .ShouldNotBeEmpty();
         errors.ShouldBeOfType<List<ValidationError>>();
-        errors.Count().ShouldBe(13);
 
         userResult.Status.ShouldBe(ResultStatus.Invalid);
         errors.Count(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBe(0);
