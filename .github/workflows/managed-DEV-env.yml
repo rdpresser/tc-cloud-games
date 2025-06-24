@@ -1,3 +1,5 @@
+name: Deploy - Dev
+  
 on:
   push:
     branches:
