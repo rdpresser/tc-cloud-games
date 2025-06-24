@@ -92,13 +92,15 @@ public class UserTests
         errors.ShouldNotBeNull()
             .ShouldNotBeEmpty();
         errors.ShouldBeOfType<List<ValidationError>>();
+
+        var rr = GroupValidationErrorsByIdentifier(errors).Where(x => x.Identifier == nameof(Password));
         
         userResult.Status.ShouldBe(ResultStatus.Invalid);
         errors.Count(x => x.Identifier == nameof(DomainUser.FirstName)).ShouldBe(0);
         errors.Count(x => x.Identifier == nameof(DomainUser.LastName)).ShouldBe(0);
+        errors.Count(x => x.Identifier == nameof(Password)  && x.ErrorCode == $"{nameof(Password)}.Required").ShouldBe(1);
         errors.Count(x => x.Identifier == nameof(Email) && x.ErrorCode == $"{nameof(Email)}.Required").ShouldBe(1);
-        errors.Count(x => x.Identifier == nameof(Password)).ShouldBe(2);
-        errors.Count(x => x.Identifier == nameof(Role)).ShouldBe(2);
+        errors.Count(x => x.Identifier == nameof(Role) && x.ErrorCode == $"{nameof(Role)}.Required").ShouldBe(1);
     }
 
     [Fact]
