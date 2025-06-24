@@ -12,10 +12,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x' # ou a versão do seu projeto
+          dotnet-version: '9.0.x'
 
       - name: Restore dependencies
         run: dotnet restore TC.CloudGames.sln
