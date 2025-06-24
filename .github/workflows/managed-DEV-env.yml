@@ -4,7 +4,7 @@ on:
     - feature/phase_02
 env:
   DOTNET_CORE_VERSION: 9.0.x
-  CONTAINER_APP_NAME: tc.cloudgames.api-container-app
+  CONTAINER_APP_NAME: tc-cloudgames-api-container-app
   CONTAINER_APP_ENVIRONMENT_NAME: managed-DEV-env
   RESOURCE_GROUP: managed-DEV-env-rg
   CONTAINER_REGISTRY_NAME: registrydevenv
