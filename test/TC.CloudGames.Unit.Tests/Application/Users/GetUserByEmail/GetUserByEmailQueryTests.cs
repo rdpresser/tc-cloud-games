@@ -18,7 +18,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserByEmail
             var email = _faker.Internet.Email();
             var userRepository = A.Fake<IUserPgRepository>();
             A.CallTo(() => userRepository.GetByEmailAsync(email, A<CancellationToken>._))
-                .Returns(Task.FromResult<UserByEmailResponse?>(null));
+                .Returns(Task.FromResult(null as UserByEmailResponse));
 
             // Act
             var result = await userRepository.GetByEmailAsync(email, CancellationToken.None);
@@ -44,7 +44,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserByEmail
 
             var userRepository = A.Fake<IUserPgRepository>();
             A.CallTo(() => userRepository.GetByEmailAsync(email, A<CancellationToken>._))
-                .Returns(Task.FromResult(expectedResponse));
+                .Returns(Task.FromResult<UserByEmailResponse?>(expectedResponse));
 
             // Act
             var result = await userRepository.GetByEmailAsync(email, CancellationToken.None);

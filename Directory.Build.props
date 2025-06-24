@@ -8,8 +8,8 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
-    <EfCoreVersion>9.0.5</EfCoreVersion>
-    <ExtensionsVersion>9.0.5</ExtensionsVersion>
+    <EfCoreVersion>9.0.6</EfCoreVersion>
+    <ExtensionsVersion>9.0.6</ExtensionsVersion>
   </PropertyGroup>
 
   <ItemGroup>

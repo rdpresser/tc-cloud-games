@@ -7,4 +7,8 @@
     <ProjectReference Include="..\TC.CloudGames.Infra.Data\TC.CloudGames.Infra.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="SonarAnalyzer.CSharp" Version="10.12.0.118525" />
+  </ItemGroup>
+
 </Project>
