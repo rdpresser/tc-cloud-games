@@ -15,10 +15,8 @@ public class LoginUserCommandValidatorTests
     public void Should_Return_Error_When_Email_Is_Empty()
     {
         // Arrange
-        const string email = "";
-        var password = _faker.Internet.Password() + "!";
-        var command = new LoginUserCommand(email, password);
         var validator = new LoginUserCommandValidator();
+        var command = new LoginUserCommand(Email: "", Password: "ValidPass123!");
 
         // Act
         var result = validator.Validate(command);
