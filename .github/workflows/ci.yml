@@ -2,7 +2,10 @@ name: CI - Unit Tests (.NET)
 
 on:
   push:
-    branches: ['**']
+    branches:
+    - feature/phase_02
+  # push:
+  #   branches: ['**']
 
 jobs:
   build-and-test:
