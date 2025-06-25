@@ -22,7 +22,7 @@ namespace TC.CloudGames.Unit.Tests.Shared
             Output.WriteLine("-------------------------------------------------------------------------------");
             foreach (var error in errors)
             {
-                Output.WriteLine($"ERROR => PropertyName: {error.PropertyName} | ErrorMessage: {error.ErrorMessage} | ErrorCode: {error.ErrorCode}");
+                Output.WriteLine($"EXPECTED ERROR => PropertyName: {error.PropertyName} | ErrorMessage: {error.ErrorMessage} | ErrorCode: {error.ErrorCode}");
             }
             Output.WriteLine("-------------------------------------------------------------------------------");
         }
@@ -32,12 +32,12 @@ namespace TC.CloudGames.Unit.Tests.Shared
             Output.WriteLine("-------------------------------------------------------------------------------");
             foreach (var error in errors)
             {
-                Output.WriteLine($"ERROR => Identifier: {error.Identifier} | ErrorMessage: {error.ErrorMessage} | ErrorCode: {error.ErrorCode}");
+                Output.WriteLine($"EXPECTED ERROR => Identifier: {error.Identifier} | ErrorMessage: {error.ErrorMessage} | ErrorCode: {error.ErrorCode}");
             }
             Output.WriteLine("-------------------------------------------------------------------------------");
         }
 
-        protected IEnumerable<(string Identifier, int Count, IEnumerable<string> ErrorCodes)> GroupValidationErrorsByIdentifier(IEnumerable<ValidationError> errors)
+        protected static IEnumerable<(string Identifier, int Count, IEnumerable<string> ErrorCodes)> GroupValidationErrorsByIdentifier(IEnumerable<ValidationError> errors)
         {
             return errors
                 .GroupBy(e => e.Identifier)
