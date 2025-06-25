@@ -1,10 +1,10 @@
 name: Deploy - Dev (Manual Trigger)
 
 on:
-  workflow_dispatch: # Habilita botão manual no GitHub Actions
-  # push:
-  #   branches:
-  #   - feature/phase_02
+  #workflow_dispatch: # Habilita botão manual no GitHub Actions
+  push:
+    branches:
+    - feature/phase_02
 
 env:
   DOTNET_CORE_VERSION: 9.0.x
