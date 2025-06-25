@@ -1,64 +1,64 @@
 name: Deploy - Dev (Manual Trigger)
 
-on:
-  #workflow_dispatch: # Habilita botão manual no GitHub Actions
-  push:
-    branches:
-    - feature/phase_02
+# on:
+#   #workflow_dispatch: # Habilita botão manual no GitHub Actions
+#   push:
+#     branches:
+#     - feature/phase_02
 
-env:
-  DOTNET_CORE_VERSION: 9.0.x
-  CONTAINER_APP_NAME: tc-cloudgames-api-container-app
-  CONTAINER_APP_ENVIRONMENT_NAME: managed-DEV-env
-  RESOURCE_GROUP: managed-DEV-env-rg
-  CONTAINER_REGISTRY_NAME: registrydevenv
-  CONTAINER_REGISTRY_LOGIN_SERVER: registrydevenv.azurecr.io
+# env:
+#   DOTNET_CORE_VERSION: 9.0.x
+#   CONTAINER_APP_NAME: tc-cloudgames-api-container-app
+#   CONTAINER_APP_ENVIRONMENT_NAME: managed-DEV-env
+#   RESOURCE_GROUP: managed-DEV-env-rg
+#   CONTAINER_REGISTRY_NAME: registrydevenv
+#   CONTAINER_REGISTRY_LOGIN_SERVER: registrydevenv.azurecr.io
 
-jobs:
-  check-ci-status:
-    runs-on: ubuntu-latest
-    outputs:
-      ci_passed: ${{ steps.ci-status.outputs.ci_passed }}
-    steps:
-      - name: Check latest CI workflow status
-        id: ci-status
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const runs = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'ci.yml',
-              branch: context.ref.replace('refs/heads/', ''),
-              status: 'success'
-            });
-            const latestSha = context.sha;
-            const ciPassed = runs.data.workflow_runs.some(run => run.head_sha === latestSha);
-            core.setOutput('ci_passed', ciPassed);
+# jobs:
+#   check-ci-status:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       ci_passed: ${{ steps.ci-status.outputs.ci_passed }}
+#     steps:
+#       - name: Check latest CI workflow status
+#         id: ci-status
+#         uses: actions/github-script@v7
+#         with:
+#           script: |
+#             const runs = await github.rest.actions.listWorkflowRuns({
+#               owner: context.repo.owner,
+#               repo: context.repo.repo,
+#               workflow_id: 'ci.yml',
+#               branch: context.ref.replace('refs/heads/', ''),
+#               status: 'success'
+#             });
+#             const latestSha = context.sha;
+#             const ciPassed = runs.data.workflow_runs.some(run => run.head_sha === latestSha);
+#             core.setOutput('ci_passed', ciPassed);
 
-  BuildAndDeployContainerApp:
-    needs: check-ci-status
-    if: needs.check-ci-status.outputs.ci_passed == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-      - name: Azure login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.managed_DEV_env_SPN }}
-      - name: Container App deploy
-        uses: azure/container-apps-deploy-action@v1
-        with:
-          appSourcePath: ${{ github.workspace }}
-          acrName: ${{ env.CONTAINER_REGISTRY_NAME }}
-          acrUsername: ${{ secrets.registryDEVenv_USERNAME_8480 }}
-          acrPassword: ${{ secrets.registryDEVenv_PASSWORD_8480 }}
-          imageToBuild: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ env.CONTAINER_APP_NAME }}:${{ github.sha }}
-          containerAppName: ${{ env.CONTAINER_APP_NAME }}
-          containerAppEnvironment: ${{ env.CONTAINER_APP_ENVIRONMENT_NAME }}
-          resourceGroup: ${{ env.RESOURCE_GROUP }}
+#   BuildAndDeployContainerApp:
+#     needs: check-ci-status
+#     if: needs.check-ci-status.outputs.ci_passed == 'true'
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout source code
+#         uses: actions/checkout@v4
+#       - name: Setup .NET SDK
+#         uses: actions/setup-dotnet@v4
+#         with:
+#           dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+#       - name: Azure login
+#         uses: azure/login@v2
+#         with:
+#           creds: ${{ secrets.managed_DEV_env_SPN }}
+#       - name: Container App deploy
+#         uses: azure/container-apps-deploy-action@v1
+#         with:
+#           appSourcePath: ${{ github.workspace }}
+#           acrName: ${{ env.CONTAINER_REGISTRY_NAME }}
+#           acrUsername: ${{ secrets.registryDEVenv_USERNAME_8480 }}
+#           acrPassword: ${{ secrets.registryDEVenv_PASSWORD_8480 }}
+#           imageToBuild: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ env.CONTAINER_APP_NAME }}:${{ github.sha }}
+#           containerAppName: ${{ env.CONTAINER_APP_NAME }}
+#           containerAppEnvironment: ${{ env.CONTAINER_APP_ENVIRONMENT_NAME }}
+#           resourceGroup: ${{ env.RESOURCE_GROUP }}
