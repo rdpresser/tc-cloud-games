@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.Resources;
 
 namespace TC.CloudGames.Unit.Tests.Shared
 {
@@ -8,6 +9,12 @@ namespace TC.CloudGames.Unit.Tests.Shared
         {
             ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
             ValidatorOptions.Global.DisplayNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
+            ValidatorOptions.Global.ErrorCodeResolver = validator => validator.Name;
+            ValidatorOptions.Global.LanguageManager = new LanguageManager
+            {
+                Enabled = true,
+                Culture = new System.Globalization.CultureInfo("en")
+            };
         }
 
         protected void LogTestStart(string testName) => Output.WriteLine($"Starting test: {testName}");

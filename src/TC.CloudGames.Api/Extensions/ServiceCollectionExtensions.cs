@@ -1,4 +1,5 @@
 using FluentValidation;
+using FluentValidation.Resources;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
@@ -16,6 +17,19 @@ namespace TC.CloudGames.Api.Extensions;
 [ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
+    // FluentValidation Global Setup
+    public static void ConfigureFluentValidationGlobals()
+    {
+        ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
+        ValidatorOptions.Global.DisplayNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
+        ValidatorOptions.Global.ErrorCodeResolver = validator => validator.Name;
+        ValidatorOptions.Global.LanguageManager = new LanguageManager
+        {
+            Enabled = true,
+            Culture = new System.Globalization.CultureInfo("en")
+        };
+    }
+
     // Authentication and Authorization
     public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
     {

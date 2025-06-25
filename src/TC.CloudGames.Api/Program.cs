@@ -1,11 +1,10 @@
-using FluentValidation;
+using ServiceCollectionExtensions = TC.CloudGames.Api.Extensions.ServiceCollectionExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseCustomSerilog(builder.Configuration);
 
-ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
-ValidatorOptions.Global.DisplayNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
+ServiceCollectionExtensions.ConfigureFluentValidationGlobals();
 
 builder.Services
    .AddCustomAuthentication(builder.Configuration)
