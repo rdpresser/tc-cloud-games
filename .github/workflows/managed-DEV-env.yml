@@ -32,7 +32,8 @@ jobs:
               branch: context.ref.replace('refs/heads/', ''),
               status: 'success'
             });
-            const ciPassed = runs.data.workflow_runs.length > 0;
+            const latestSha = context.sha;
+            const ciPassed = runs.data.workflow_runs.some(run => run.head_sha === latestSha);
             core.setOutput('ci_passed', ciPassed);
 
   BuildAndDeployContainerApp:
