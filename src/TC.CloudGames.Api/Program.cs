@@ -1,6 +1,10 @@
+using FluentValidation;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseCustomSerilog(builder.Configuration);
+
+ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
 
 builder.Services
    .AddCustomAuthentication(builder.Configuration)
