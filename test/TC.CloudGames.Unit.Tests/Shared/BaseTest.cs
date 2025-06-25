@@ -7,6 +7,7 @@ namespace TC.CloudGames.Unit.Tests.Shared
         protected BaseTest()
         {
             ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
+            ValidatorOptions.Global.DisplayNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
         }
 
         protected void LogTestStart(string testName) => Output.WriteLine($"Starting test: {testName}");
