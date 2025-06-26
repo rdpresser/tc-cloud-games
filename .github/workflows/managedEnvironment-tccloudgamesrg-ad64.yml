@@ -1,0 +1,36 @@
+on:
+  push:
+    branches:
+    - feature/phase_02
+env:
+  DOTNET_CORE_VERSION: 9.0.x
+  CONTAINER_APP_NAME: tc.cloudgames.api-container-app
+  CONTAINER_APP_ENVIRONMENT_NAME: managedEnvironment-tccloudgamesrg-ad64
+  RESOURCE_GROUP: tc-cloudgames-rg
+  CONTAINER_REGISTRY_NAME: tccloudgamesregistry
+  CONTAINER_REGISTRY_LOGIN_SERVER: tccloudgamesregistry.azurecr.io
+jobs:
+  BuildAndDeployContainerApp:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Azure login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.managedEnvironment_tccloudgamesrg_ad64_SPN }}
+    - name: Container App deploy
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        appSourcePath: ${{ github.workspace }}
+        acrName: ${{ env.CONTAINER_REGISTRY_NAME }}
+        acrUsername: ${{ secrets.tccloudgamesregistry_USERNAME_A23E }}
+        acrPassword: ${{ secrets.tccloudgamesregistry_PASSWORD_A23E }}
+        imageToBuild: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ env.CONTAINER_APP_NAME }}:${{ github.sha }}
+        containerAppName: ${{ env.CONTAINER_APP_NAME }}
+        containerAppEnvironment: ${{ env.CONTAINER_APP_ENVIRONMENT_NAME }}
+        resourceGroup: ${{ env.RESOURCE_GROUP }}
