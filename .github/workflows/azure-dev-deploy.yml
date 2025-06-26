@@ -8,7 +8,7 @@ on:
       [ feature/phase_02 ]
     paths:
     - '**'
-    - '.github/workflows/tc-cloudgames-api-container-app-AutoDeployTrigger-2691051d-3995-4ba3-8257-cb39b90571a1.yml'
+    - '.github/workflows/azure-dev-deploy.yml'
 
   # Allow manual trigger 
   workflow_dispatch:      
