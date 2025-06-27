@@ -1,0 +1,48 @@
+name: Deploy to Azure Container App
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - feature/phase_02
+env:
+  DOTNET_CORE_VERSION: 9.0.x
+  CONTAINER_REGISTRY_NAME: tccloudgamesregistry
+  CONTAINER_REGISTRY_LOGIN_SERVER: tccloudgamesregistry.azurecr.io
+  CONTAINER_APP_NAME: tc-cloudgames-api-container-app  
+  RESOURCE_GROUP: tc-cloudgames-rg
+jobs:
+  BuildAndDeployContainerApp:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+
+    - name: Log in to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Log in to Azure Container Registry
+      run: |
+        echo ${{ secrets.REGISTRY_PASSWORD }} | docker login ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} \
+          -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+
+    - name: Build and push Docker image
+      run: |
+        docker build -t $CONTAINER_REGISTRY_LOGIN_SERVER/$CONTAINER_APP_NAME:latest .
+        docker push $CONTAINER_REGISTRY_LOGIN_SERVER/$CONTAINER_APP_NAME:latest
+
+    - name: Deploy to Azure Container Apps
+      uses: azure/container-apps-deploy-action@v2
+      with:
+        acrName: ${{ env.CONTAINER_REGISTRY_NAME }}}}
+        containerAppName: ${{ env.CONTAINER_APP_NAME }}
+        resourceGroup: ${{ env.RESOURCE_GROUP }}
+        imageToDeploy: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ env.CONTAINER_APP_NAME }}:latest
