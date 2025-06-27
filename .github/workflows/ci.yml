@@ -1,9 +1,10 @@
 name: CI - Unit Tests (.NET)
 
 on:
-  push:
-    branches:
-    - feature/phase_02
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #   - feature/phase_02
   # push:
   #   branches: ['**']
 
