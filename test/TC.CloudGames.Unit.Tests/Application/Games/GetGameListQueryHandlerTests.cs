@@ -23,10 +23,9 @@ namespace TC.CloudGames.Unit.Tests.Application.Games
             var gameRepositoryFake = A.Fake<IGamePgRepository>();
             var handler = new GetGameListQueryHandler(gameRepositoryFake);
 
-
             var query = new GetGameListQuery();
             A.CallTo(() => gameRepositoryFake.GetGameListAsync(query, A<CancellationToken>._))
-                .Returns((IReadOnlyList<GameListResponse>?)null);
+                .Returns((IReadOnlyList<GameListResponse>?)null!); // Explicitly mark nullability with null-forgiving operator
 
             // Act
             var result = await handler.ExecuteAsync(query, TestContext.Current.CancellationToken);
@@ -43,7 +42,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Games
             // Arrange
             Factory.RegisterTestServices(_ => { });
 
-            string[] AvailableLanguagesList = ["English", "Spanish", "French", "German", "Japanese"];
+            string[] AvailableLanguagesList = { "English", "Spanish", "French", "German", "Japanese" };
 
             var gameRepositoryFake = A.Fake<IGamePgRepository>();
             var handler = new GetGameListQueryHandler(gameRepositoryFake);
@@ -73,7 +72,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Games
                         ),
                     GameDetails = new(
                             genre: _faker.Commerce.Categories(1)[0],
-                            platform: [.. _faker.PickRandom(DomainGameDetails.ValidPlatforms, _faker.Random.Int(1, DomainGameDetails.ValidPlatforms.Count))],
+                            platform: _faker.PickRandom(DomainGameDetails.ValidPlatforms, _faker.Random.Int(1, DomainGameDetails.ValidPlatforms.Count)).ToArray(), // Use ToArray() for proper type conversion
                             tags: string.Join(", ", _faker.Lorem.Words(5)),
                             gameMode: _faker.PickRandom(DomainGameDetails.ValidGameModes.ToArray()),
                             distributionFormat: _faker.PickRandom(DomainGameDetails.ValidDistributionFormats.ToArray()),

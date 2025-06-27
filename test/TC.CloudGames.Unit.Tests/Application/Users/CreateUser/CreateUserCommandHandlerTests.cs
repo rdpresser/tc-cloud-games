@@ -1,19 +1,12 @@
 ﻿using TC.CloudGames.Application.Users.CreateUser;
 using TC.CloudGames.Domain.Aggregates.User;
 using TC.CloudGames.Domain.Aggregates.User.Abstractions;
+using TC.CloudGames.Unit.Tests.Shared;
 
 namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
 {
-    public class CreateUserCommandHandlerTests
+    public class CreateUserCommandHandlerTests : BaseTest
     {
-
-        private readonly Faker _faker;
-
-        public CreateUserCommandHandlerTests()
-        {
-            _faker = new Faker();
-        }
-
         [Fact]
         public async Task ExecuteAsync_ShouldReturnInvalid_WhenEntityCreationFails()
         {
@@ -24,10 +17,10 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
             var repositoryFake = A.Fake<IUserEfRepository>();
 
             var command = new CreateUserCommand(
-                FirstName: _faker.Name.FirstName(),
-                LastName: _faker.Name.LastName(),
+                FirstName: ValidFirstName,
+                LastName: ValidLastName,
                 Email: "invalid_email",
-                Password: _faker.Internet.Password() + "!",
+                Password: CreateValidPassword,
                 Role: "User"
             );
 
@@ -51,8 +44,8 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.CreateUser
             var repositoryFake = A.Fake<IUserEfRepository>();
 
             var command = new CreateUserCommand(
-                FirstName: _faker.Name.FirstName(),
-                LastName: _faker.Name.LastName(),
+                FirstName: ValidFirstName,
+                LastName: ValidLastName,
                 Email: "duplicate@email.com",
                 Password: "Test@1234",
                 Role: "User"

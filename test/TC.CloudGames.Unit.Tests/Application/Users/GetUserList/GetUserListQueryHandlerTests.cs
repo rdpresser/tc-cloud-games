@@ -64,7 +64,7 @@ namespace TC.CloudGames.Unit.Tests.Application.Users.GetUserList
 
             var query = new GetUserListQuery();
             A.CallTo(() => userRepository.GetUserListAsync(query, A<CancellationToken>._))
-                .Returns(Task.FromResult<IReadOnlyList<UserListResponse>?>(null));
+                .Returns(Task.FromResult<IReadOnlyList<UserListResponse>>(null!)); // Return null explicitly
 
             // Act
             var result = await handler.ExecuteAsync(query, TestContext.Current.CancellationToken);

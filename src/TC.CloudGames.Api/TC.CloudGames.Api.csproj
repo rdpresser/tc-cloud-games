@@ -12,14 +12,14 @@
         <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
         <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
         <PackageReference Include="Bogus" Version="35.6.3" />
-        <PackageReference Include="FastEndpoints" Version="6.1.0" />
-        <PackageReference Include="FastEndpoints.Swagger" Version="6.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+        <PackageReference Include="FastEndpoints" Version="6.2.0" />
+        <PackageReference Include="FastEndpoints.Swagger" Version="6.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -39,6 +39,10 @@
       <Content Include="..\..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Update="SonarAnalyzer.CSharp" Version="10.12.0.118525" />
     </ItemGroup>
 
 

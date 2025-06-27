@@ -28,4 +28,25 @@ public static class StringExtensions
 
         return new string(value.Where(char.IsLetter).ToArray());
     }
+
+    public static string ToCamelCase(this string value)
+    {
+        if (string.IsNullOrEmpty(value) || !char.IsUpper(value[0]))
+            return value;
+
+        char[] chars = value.ToCharArray();
+        chars[0] = char.ToLowerInvariant(chars[0]);
+        return new string(chars);
+    }
+
+    public static string ToPascalCaseFirst(this string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return value;
+
+        if (char.IsUpper(value[0]))
+            return value;
+
+        return char.ToUpperInvariant(value[0]) + value.Substring(1);
+    }
 }

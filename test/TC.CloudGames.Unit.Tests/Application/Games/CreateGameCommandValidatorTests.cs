@@ -1,4 +1,5 @@
 ﻿using TC.CloudGames.Domain.Aggregates.Game.ValueObjects;
+using TC.CloudGames.Unit.Tests.Shared;
 using DeveloperInfo = TC.CloudGames.Application.Games.CreateGame.DeveloperInfo;
 using DomainGameDetails = TC.CloudGames.Domain.Aggregates.Game.ValueObjects.GameDetails;
 using GameDetails = TC.CloudGames.Application.Games.CreateGame.GameDetails;
@@ -7,9 +8,8 @@ using SystemRequirements = TC.CloudGames.Application.Games.CreateGame.SystemRequ
 
 namespace TC.CloudGames.Unit.Tests.Application.Games
 {
-    public class CreateGameCommandValidatorTests
+    public class CreateGameCommandValidatorTests : BaseTest
     {
-        private readonly Faker _faker;
         private readonly List<string> _genres;
         private readonly List<string> _platforms;
         private readonly List<string> _gameTags;
@@ -20,8 +20,6 @@ namespace TC.CloudGames.Unit.Tests.Application.Games
 
         public CreateGameCommandValidatorTests()
         {
-            _faker = new Faker();
-
             _genres = [ "Action", "Adventure", "RPG", "Strategy", "Simulation", "Racing", "Sport", "Puzzle",
             "Fighter", "Platform", "FPS", "TPS", "Survival", "Horror", "Stealth", "Open World", "MMORPG", "Roguelike",
             "Visual Novel", "Beat 'em up", "Battle Royale", "Musical", "Party Game", "Metroidvania", "Idle/Incremental",
@@ -51,12 +49,12 @@ namespace TC.CloudGames.Unit.Tests.Application.Games
         {
             // Arrange
             var releaseDate = DateOnly.FromDateTime(DateTime.Now);
-            var ageRating = _faker.PickRandom(_ageRatings.ToArray());
-            var description = _faker.Lorem.Paragraph();
-            var developerInfo = new DeveloperInfo(_faker.Company.CompanyName(), _faker.Company.CompanyName());
-            var diskSize = _faker.Random.Decimal(1, 100);
-            var price = _faker.Random.Decimal(10, 300);
-            var playtime = new Playtime(_faker.Random.Int(1, 10), _faker.Random.Int(10, 100));
+            var ageRating = Fake.PickRandom(_ageRatings.ToArray());
+            var description = Fake.Lorem.Paragraph();
+            var developerInfo = new DeveloperInfo(Fake.Company.CompanyName(), Fake.Company.CompanyName());
+            var diskSize = Fake.Random.Decimal(1, 100);
+            var price = Fake.Random.Decimal(10, 300);
+            var playtime = new Playtime(Fake.Random.Int(1, 10), Fake.Random.Int(10, 100));
 
             var validator = new CreateGameCommandValidator();
             var command = new CreateGameCommand(
@@ -69,17 +67,17 @@ namespace TC.CloudGames.Unit.Tests.Application.Games
                 Price: price,
                 Playtime: playtime,
                 GameDetails: new GameDetails(
-                    Genre: _faker.PickRandom(_genres),
-                    Platform: _faker.PickRandom(_platforms, 3).ToArray(),
-                    Tags: _faker.PickRandom(_gameTags),
-                    GameMode: _faker.PickRandom(_gameModes),
-                    DistributionFormat: _faker.PickRandom(_distributionFormats),
-                    AvailableLanguages: _faker.PickRandom(_languages),
+                    Genre: Fake.PickRandom(_genres),
+                    Platform: Fake.PickRandom(_platforms, 3).ToArray(),
+                    Tags: Fake.PickRandom(_gameTags),
+                    GameMode: Fake.PickRandom(_gameModes),
+                    DistributionFormat: Fake.PickRandom(_distributionFormats),
+                    AvailableLanguages: Fake.PickRandom(_languages),
                     SupportsDlcs: true
                 ),
-                SystemRequirements: new SystemRequirements(_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph()),
+                SystemRequirements: new SystemRequirements(Fake.Lorem.Paragraph(), Fake.Lorem.Paragraph()),
                 Rating: null,
-                OfficialLink: _faker.Internet.Url(),
+                OfficialLink: Fake.Internet.Url(),
                 GameStatus: "Released"
             );
 
@@ -95,14 +93,14 @@ namespace TC.CloudGames.Unit.Tests.Application.Games
         public void Should_Pass_When_Command_Is_Valid()
         {
             // Arrange
-            var name = _faker.Commerce.ProductName();
+            var name = Fake.Commerce.ProductName();
             var releaseDate = DateOnly.FromDateTime(DateTime.Now);
-            var ageRating = _faker.PickRandom(_ageRatings.ToArray());
-            var description = _faker.Lorem.Paragraph();
-            var developerInfo = new DeveloperInfo(_faker.Company.CompanyName(), _faker.Company.CompanyName());
-            var diskSize = _faker.Random.Decimal(1, 100);
-            var price = _faker.Random.Decimal(10, 300);
-            var playtime = new Playtime(_faker.Random.Int(1, 10), _faker.Random.Int(10, 100));
+            var ageRating = Fake.PickRandom(_ageRatings.ToArray());
+            var description = Fake.Lorem.Paragraph();
+            var developerInfo = new DeveloperInfo(Fake.Company.CompanyName(), Fake.Company.CompanyName());
+            var diskSize = Fake.Random.Decimal(1, 100);
+            var price = Fake.Random.Decimal(10, 300);
+            var playtime = new Playtime(Fake.Random.Int(1, 10), Fake.Random.Int(10, 100));
 
             var validator = new CreateGameCommandValidator();
             var command = new CreateGameCommand(
@@ -115,17 +113,17 @@ namespace TC.CloudGames.Unit.Tests.Application.Games
                 Price: price,
                 Playtime: playtime,
                 GameDetails: new GameDetails(
-                    Genre: _faker.PickRandom(_genres),
+                    Genre: Fake.PickRandom(_genres),
                     Platform: _platforms.ToArray(),
-                    Tags: _faker.PickRandom(_gameTags),
-                    GameMode: _faker.PickRandom(_gameModes),
-                    DistributionFormat: _faker.PickRandom(_distributionFormats),
-                    AvailableLanguages: _faker.PickRandom(_languages),
+                    Tags: Fake.PickRandom(_gameTags),
+                    GameMode: Fake.PickRandom(_gameModes),
+                    DistributionFormat: Fake.PickRandom(_distributionFormats),
+                    AvailableLanguages: Fake.PickRandom(_languages),
                     SupportsDlcs: true
                 ),
-                SystemRequirements: new SystemRequirements(_faker.Lorem.Paragraph(), _faker.Lorem.Paragraph()),
+                SystemRequirements: new SystemRequirements(Fake.Lorem.Paragraph(), Fake.Lorem.Paragraph()),
                 Rating: null,
-                OfficialLink: _faker.Internet.Url(),
+                OfficialLink: Fake.Internet.Url(),
                 GameStatus: "Released"
             );
 

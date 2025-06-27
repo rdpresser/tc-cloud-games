@@ -7,6 +7,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY Directory.Build.props ./
 COPY ["src/TC.CloudGames.Api/TC.CloudGames.Api.csproj", "src/TC.CloudGames.Api/"]
 COPY ["src/TC.CloudGames.Application/TC.CloudGames.Application.csproj", "src/TC.CloudGames.Application/"]
 COPY ["src/TC.CloudGames.Domain/TC.CloudGames.Domain.csproj", "src/TC.CloudGames.Domain/"]
