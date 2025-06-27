@@ -13,7 +13,30 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
+  check-ci-status:
+    runs-on: ubuntu-latest
+    outputs:
+      ci_passed: ${{ steps.ci-status.outputs.ci_passed }}
+    steps:
+      - name: Check latest CI workflow status
+        id: ci-status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              branch: context.ref.replace('refs/heads/', ''),
+              status: 'success'
+            });
+            const latestSha = context.sha;
+            const ciPassed = runs.data.workflow_runs.some(run => run.head_sha === latestSha);
+            core.setOutput('ci_passed', ciPassed);
+
   build-and-deploy:
+    needs: check-ci-status
+    if: needs.check-ci-status.outputs.ci_passed == 'true'
     runs-on: ubuntu-latest
 
     steps:
