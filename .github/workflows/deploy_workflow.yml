@@ -1,4 +1,4 @@
-﻿name: 🚀 Build and Deploy to Azure Container Apps
+﻿name: 🚀 CD | Azure Container Apps
 
 on:
   # push:

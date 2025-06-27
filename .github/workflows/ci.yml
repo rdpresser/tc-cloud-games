@@ -1,4 +1,4 @@
-name: CI - Unit Tests (.NET)
+﻿name: 🧪 CI | Unit Tests (.NET)
 
 on:
   workflow_dispatch:

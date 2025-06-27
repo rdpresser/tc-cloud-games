@@ -1,4 +1,4 @@
-﻿name: 🚀 CI and Deploy to Azure Container Apps
+﻿name: 🧪 CI | 🚀 CD | Azure Container Apps
 
 on:
   push:
