@@ -48,7 +48,7 @@ jobs:
           resourceGroup: ${{ env.RESOURCE_GROUP }}
           imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}
           environmentVariables: |
-            ASPNETCORE_ENVIRONMENT=Production
+            ASPNETCORE_ENVIRONMENT=Development
             
       - name: 📦 Output deployed image tag
         run: |
