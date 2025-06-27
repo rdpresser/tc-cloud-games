@@ -36,7 +36,7 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        docker build -t $CONTAINER_REGISTRY_LOGIN_SERVER/$CONTAINER_APP_NAME:latest .
+        docker build -f ./src/TC.CloudGames.Api/Dockerfile -t $CONTAINER_REGISTRY_LOGIN_SERVER/$CONTAINER_APP_NAME:latest ./src/TC.CloudGames.Api
         docker push $CONTAINER_REGISTRY_LOGIN_SERVER/$CONTAINER_APP_NAME:latest
 
     - name: Deploy to Azure Container Apps
