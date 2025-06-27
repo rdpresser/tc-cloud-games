@@ -1,9 +1,9 @@
 ﻿name: 🚀 CD | Azure Container Apps
 
 on:
-  push:
-    branches:
-    - feature/phase_02
+  # push:
+  #   branches:
+  #   - feature/phase_02
   workflow_dispatch:
 
 env:
