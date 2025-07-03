@@ -8,6 +8,7 @@ using TC.CloudGames.Domain.Aggregates.Game.Abstractions;
 using TC.CloudGames.Domain.Aggregates.User.Abstractions;
 using TC.CloudGames.Domain.Exceptions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
+using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
 using TC.CloudGames.Infra.CrossCutting.Commons.Clock;
 using TC.CloudGames.Infra.Data;
 using TC.CloudGames.Infra.Data.Configurations.Connection;
@@ -33,6 +34,7 @@ namespace TC.CloudGames.Infra.CrossCutting.IoC
         {
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
             services.AddSingleton<IConnectionStringProvider, ConnectionStringProvider>();
+            services.AddSingleton<ICacheProvider, CacheProvider>();
             services.AddSingleton<IPgDbConnectionProvider, PgDbConnectionProvider>();
             services.AddSingleton<ITokenProvider, TokenProvider>();
             services.AddScoped<IUserContext, UserContext>();
