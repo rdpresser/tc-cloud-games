@@ -68,7 +68,16 @@ jobs:
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           resourceGroup: ${{ env.RESOURCE_GROUP }}
           imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}
-          environmentVariables: ASPNETCORE_ENVIRONMENT=Development DB_HOST=${{ secrets.AZURE_DB_HOST }} DB_PORT=${{ secrets.AZURE_DB_PORT }} DB_NAME=${{ secrets.AZURE_DB_NAME }} DB_USER=${{ secrets.AZURE_DB_USER }} DB_PASSWORD=${{ secrets.AZURE_DB_PASSWORD }} CACHE_HOST=${{ secrets.AZURE_CACHE_HOST }} CACHE_PORT=${{ secrets.AZURE_CACHE_PORT }} CACHE_PASSWORD=${{ secrets.AZURE_CACHE_PASSWORD }}
+          environmentVariables: >
+            ASPNETCORE_ENVIRONMENT=Development
+            DB_HOST=${{ secrets.AZURE_DB_HOST }}
+            DB_PORT=${{ secrets.AZURE_DB_PORT }}
+            DB_NAME=${{ secrets.AZURE_DB_NAME }}
+            DB_USER=${{ secrets.AZURE_DB_USER }}
+            DB_PASSWORD=secretref:db-password-secret
+            CACHE_HOST=${{ secrets.AZURE_CACHE_HOST }}
+            CACHE_PORT=${{ secrets.AZURE_CACHE_PORT }}
+            CACHE_PASSWORD=secretref:cache-password-secret
 
       - name: 📦 Output deployed image tag
         run: |
