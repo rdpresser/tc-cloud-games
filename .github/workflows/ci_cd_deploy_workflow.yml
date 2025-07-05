@@ -47,7 +47,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Debug Key Vault Access
+      - name: 🧪 Debug Key Vault Access
         run: az keyvault secret list --vault-name $KEYVAULT_NAME
 
       - name: 🔑 Fetch secrets from Azure Key Vault
@@ -63,10 +63,15 @@ jobs:
           AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
           AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
 
+      - name: 🧾 Dump output variables
+        run: |
+          echo "Retrieved db-password: ${{ steps.fetch-secrets.outputs.db-password }}"
+          echo "Retrieved cache-password: ${{ steps.fetch-secrets.outputs.cache-password }}"
+
       - name: 💾 Upload Key Vault secrets to Azure Container App
         run: |
-          DB_PASSWORD="${{ steps.fetch-secrets.outputs.DB-PASSWORD }}"
-          CACHE_PASSWORD="${{ steps.fetch-secrets.outputs.CACHE-PASSWORD }}"
+          DB_PASSWORD="${{ steps.fetch-secrets.outputs.db-password }}"
+          CACHE_PASSWORD="${{ steps.fetch-secrets.outputs.cache-password }}"
 
           az containerapp secret set \
             --name "$CONTAINER_APP_NAME" \
