@@ -69,6 +69,7 @@ jobs:
             CACHE_HOST=${{ secrets.AZURE_CACHE_HOST }}
             CACHE_PORT=${{ secrets.AZURE_CACHE_PORT }}
             CACHE_PASSWORD=${{ secrets.AZURE_CACHE_PASSWORD }}
+
       - name: 📦 Output deployed image tag
         run: |
           echo "Deployed image: $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG"
