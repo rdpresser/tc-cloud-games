@@ -18,14 +18,18 @@ jobs:
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
+
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+
       - name: Restore dependencies
         run: dotnet restore TC.CloudGames.sln
+
       - name: Build
         run: dotnet build TC.CloudGames.sln --configuration Release --no-restore
+
       - name: Run unit tests
         run: dotnet test test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --no-build --verbosity normal --configuration Release
 
@@ -36,22 +40,27 @@ jobs:
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
+
       - name: 🔐 Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: 🐳 Login to ACR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.ACR_NAME }}.azurecr.io
           username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
           password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
       - name: ⚙️ Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: ⚙️ Build and push Docker image
         run: |
           docker build -f ./src/TC.CloudGames.Api/Dockerfile -t $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG .
           docker push $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG
+
       - name: 🚀 Deploy to Azure Container Apps
         uses: azure/container-apps-deploy-action@v2
         with:
