@@ -46,6 +46,9 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Debug Key Vault Access
+        run: az keyvault secret list --vault-name $KEYVAULT_NAME
 
       - name: 🔑 Fetch secrets from Azure Key Vault
         uses: azure/get-keyvault-secrets@v1
