@@ -56,8 +56,8 @@ jobs:
         with:
           keyvault: ${{ env.KEYVAULT_NAME }}
           secrets: |
-            DB-PASSWORD
-            CACHE-PASSWORD
+            db-password-kv
+            cache-password-kv
         env:
           AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
           AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
@@ -65,13 +65,13 @@ jobs:
 
       - name: 🧾 Dump output variables
         run: |
-          echo "Retrieved db-password: ${{ steps.fetch-secrets.outputs.db-password }}"
-          echo "Retrieved cache-password: ${{ steps.fetch-secrets.outputs.cache-password }}"
+          echo "Retrieved db-password-kv: ${{ steps.fetch-secrets.outputs.db-password-kv }}"
+          echo "Retrieved cache-password-kv: ${{ steps.fetch-secrets.outputs.cache-password-kv }}"
 
       - name: 💾 Upload Key Vault secrets to Azure Container App
         run: |
-          DB_PASSWORD="${{ steps.fetch-secrets.outputs.db-password }}"
-          CACHE_PASSWORD="${{ steps.fetch-secrets.outputs.cache-password }}"
+          DB_PASSWORD="${{ steps.fetch-secrets.outputs.db-password-kv }}"
+          CACHE_PASSWORD="${{ steps.fetch-secrets.outputs.cache-password-kv }}"
 
           az containerapp secret set \
             --name "$CONTAINER_APP_NAME" \
