@@ -11,6 +11,7 @@ env:
   CONTAINER_APP_NAME: tc-cloudgames-api-container-app
   RESOURCE_GROUP: tc-cloudgames-rg
   IMAGE_TAG: ${{ github.sha }}
+  KEYVAULT_NAME: tc-cloudgames-kv
 
 jobs:
   build-and-test:
@@ -46,6 +47,25 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: 🔑 Fetch secrets from Azure Key Vault
+        uses: azure/get-keyvault-secrets@v1
+        with:
+          keyvault: ${{ env.KEYVAULT_NAME }}
+          secrets: |
+            DB-PASSWORD
+            CACHE-PASSWORD
+        env:
+          AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+
+      - name: 💾 Upload Key Vault secrets to Azure Container App
+        run: |
+          az containerapp secret set \
+            --name $CONTAINER_APP_NAME \
+            --resource-group $RESOURCE_GROUP \
+            --secrets db-password-secret=$DB-PASSWORD cache-password-secret=$CACHE-PASSWORD
+
       - name: 🐳 Login to ACR
         uses: docker/login-action@v3
         with:
@@ -61,7 +81,7 @@ jobs:
           docker build -f ./src/TC.CloudGames.Api/Dockerfile -t $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG .
           docker push $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG
 
-      - name: 🚀 Deploy to Azure Container Apps
+      - name: 🚀 Deploy to Azure Container App
         uses: azure/container-apps-deploy-action@v2
         with:
           acrName: ${{ env.ACR_NAME }}
