@@ -64,8 +64,8 @@ jobs:
 
       - name: 💾 Upload Key Vault secrets to Azure Container App
         run: |
-          DB_PASSWORD="${{ env['db-password'] }}"
-          CACHE_PASSWORD="${{ env['cache-password'] }}"
+          DB_PASSWORD="${{ env['DB-PASSWORD'] }}"
+          CACHE_PASSWORD="${{ env['CACHE-PASSWORD'] }}"
 
           az containerapp secret set \
             --name "$CONTAINER_APP_NAME" \
