@@ -51,6 +51,7 @@ jobs:
         run: az keyvault secret list --vault-name $KEYVAULT_NAME
 
       - name: 🔑 Fetch secrets from Azure Key Vault
+        id: fetch-secrets
         uses: azure/get-keyvault-secrets@v1
         with:
           keyvault: ${{ env.KEYVAULT_NAME }}
@@ -64,8 +65,8 @@ jobs:
 
       - name: 💾 Upload Key Vault secrets to Azure Container App
         run: |
-          DB_PASSWORD="${{ env['DB-PASSWORD'] }}"
-          CACHE_PASSWORD="${{ env['CACHE-PASSWORD'] }}"
+          DB_PASSWORD="${{ steps.fetch-secrets.outputs.DB-PASSWORD }}"
+          CACHE_PASSWORD="${{ steps.fetch-secrets.outputs.CACHE-PASSWORD }}"
 
           az containerapp secret set \
             --name "$CONTAINER_APP_NAME" \
