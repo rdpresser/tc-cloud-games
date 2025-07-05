@@ -50,6 +50,10 @@ jobs:
       - name: 🧪 Debug Key Vault Access
         run: az keyvault secret list --vault-name $KEYVAULT_NAME
 
+      - name: 🔍 Manual fetch test
+        run: |
+          az keyvault secret show --vault-name $KEYVAULT_NAME --name db-password-kv
+
       - name: 🔑 Fetch secrets from Azure Key Vault
         id: fetch-secrets
         uses: azure/get-keyvault-secrets@v1
