@@ -46,7 +46,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+
       - name: Debug Key Vault Access
         run: az keyvault secret list --vault-name $KEYVAULT_NAME
 
@@ -64,10 +64,13 @@ jobs:
 
       - name: 💾 Upload Key Vault secrets to Azure Container App
         run: |
+          DB_PASSWORD="${{ env['db-password'] }}"
+          CACHE_PASSWORD="${{ env['cache-password'] }}"
+
           az containerapp secret set \
-            --name $CONTAINER_APP_NAME \
-            --resource-group $RESOURCE_GROUP \
-            --secrets db-password-secret=$DB-PASSWORD cache-password-secret=$CACHE-PASSWORD
+            --name "$CONTAINER_APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --secrets db-password-secret="$DB_PASSWORD" cache-password-secret="$CACHE_PASSWORD"
 
       - name: 🐳 Login to ACR
         uses: docker/login-action@v3
