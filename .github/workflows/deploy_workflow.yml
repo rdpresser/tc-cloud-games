@@ -1,0 +1,78 @@
+﻿name: 🚀 CD | Azure Container Apps
+
+on:
+  # push:
+  #   branches:
+  #   - feature/phase_02
+  workflow_dispatch:
+
+env:
+  ACR_NAME: tccloudgamesregistry
+  CONTAINER_APP_NAME: tc-cloudgames-api-container-app
+  RESOURCE_GROUP: tc-cloudgames-rg
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  check-ci-status:
+    runs-on: ubuntu-latest
+    outputs:
+      ci_passed: ${{ steps.ci-status.outputs.ci_passed }}
+    steps:
+      - name: Check latest CI workflow status
+        id: ci-status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              branch: context.ref.replace('refs/heads/', ''),
+              status: 'success'
+            });
+            const latestSha = context.sha;
+            const ciPassed = runs.data.workflow_runs.some(run => run.head_sha === latestSha);
+            core.setOutput('ci_passed', ciPassed);
+
+  build-and-deploy:
+    needs: check-ci-status
+    if: needs.check-ci-status.outputs.ci_passed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⏬ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔐 Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 🐳 Login to ACR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.ACR_NAME }}.azurecr.io
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+      - name: ⚙️ Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: ⚙️ Build and push Docker image
+        run: |
+          docker build -f ./src/TC.CloudGames.Api/Dockerfile -t $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG .
+          docker push $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG
+
+      - name: 🚀 Deploy to Azure Container Apps
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          acrName: ${{ env.ACR_NAME }}
+          containerAppName: ${{ env.CONTAINER_APP_NAME }}
+          resourceGroup: ${{ env.RESOURCE_GROUP }}
+          imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}
+          environmentVariables: |
+            ASPNETCORE_ENVIRONMENT=Development
+            
+      - name: 📦 Output deployed image tag
+        run: |
+          echo "Deployed image: $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG"

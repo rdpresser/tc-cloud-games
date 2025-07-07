@@ -1,6 +1,10 @@
+using ServiceCollectionExtensions = TC.CloudGames.Api.Extensions.ServiceCollectionExtensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseCustomSerilog(builder.Configuration);
+
+ServiceCollectionExtensions.ConfigureFluentValidationGlobals();
 
 builder.Services
    .AddCustomAuthentication(builder.Configuration)

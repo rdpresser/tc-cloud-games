@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Api.Middleware;
+using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 
 namespace TC.CloudGames.Api.Extensions;
 
@@ -31,22 +32,37 @@ internal static class ApplicationBuilderExtensions
             {
                 c.Endpoints.RoutePrefix = "api";
                 c.Endpoints.ShortNames = true;
-                c.Errors.UseProblemDetails(x =>
+                c.Errors.ProducesMetadataType = typeof(Microsoft.AspNetCore.Mvc.ProblemDetails);
+                c.Errors.ResponseBuilder = (failures, ctx, statusCode) =>
                 {
-                    x.AllowDuplicateErrors = true;
-                    x.IndicateErrorCode = true;
-                    x.IndicateErrorSeverity = false;
-                    x.TypeValue = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
-                    x.TitleValue = "One or more validation errors occurred.";
-                    x.TitleTransformer = pd => pd.Status switch
+                    var errors = failures.Select(f => new
+                    {
+                        name = f.PropertyName.ToPascalCaseFirst(),
+                        reason = f.ErrorMessage,
+                        code = f.ErrorCode
+                    }).ToArray();
+
+                    string title = statusCode switch
                     {
                         400 => "Validation Error",
                         404 => "Not Found",
                         403 => "Forbidden",
                         _ => "One or more errors occurred!"
                     };
-                });
-                c.Errors.ProducesMetadataType = typeof(ProblemDetails);
+
+                    var problemDetails = new Microsoft.AspNetCore.Mvc.ProblemDetails
+                    {
+                        Status = statusCode,
+                        Instance = ctx.Request.Path.Value ?? string.Empty,
+                        Type = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1",
+                        Title = title,
+                    };
+
+                    problemDetails.Extensions["traceId"] = ctx.TraceIdentifier;
+                    problemDetails.Extensions["errors"] = errors;
+
+                    return problemDetails;
+                };
             })
             .UseSwaggerGen();
 

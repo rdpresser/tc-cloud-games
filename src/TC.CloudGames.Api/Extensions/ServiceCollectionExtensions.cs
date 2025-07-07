@@ -1,10 +1,12 @@
 using FluentValidation;
+using FluentValidation.Resources;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
 using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Domain.Aggregates.Game.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
+using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 using TC.CloudGames.Infra.CrossCutting.IoC;
 using TC.CloudGames.Infra.Data.Configurations.Connection;
@@ -16,6 +18,19 @@ namespace TC.CloudGames.Api.Extensions;
 [ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
+    // FluentValidation Global Setup
+    public static void ConfigureFluentValidationGlobals()
+    {
+        ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
+        ValidatorOptions.Global.DisplayNameResolver = (type, memberInfo, expression) => memberInfo?.Name;
+        ValidatorOptions.Global.ErrorCodeResolver = validator => validator.Name;
+        ValidatorOptions.Global.LanguageManager = new LanguageManager
+        {
+            Enabled = true,
+            Culture = new System.Globalization.CultureInfo("en")
+        };
+    }
+
     // Authentication and Authorization
     public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
@@ -63,10 +78,11 @@ public static class ServiceCollectionExtensions
                     options.Duration = TimeSpan.FromSeconds(20);
                     options.DistributedCacheDuration = TimeSpan.FromSeconds(30);
                 })
-                .WithDistributedCache(_ =>
+                .WithDistributedCache(sp =>
                 {
-                    var connectionString = configuration.GetConnectionString("Cache");
-                    var options = new RedisCacheOptions { Configuration = connectionString, InstanceName = "FusionCache" };
+                    var cacheProvider = sp.GetRequiredService<ICacheProvider>();
+
+                    var options = new RedisCacheOptions { Configuration = cacheProvider.ConnectionString, InstanceName = cacheProvider.InstanceName };
 
                     return new RedisCache(options);
                 })
@@ -81,6 +97,7 @@ public static class ServiceCollectionExtensions
     {
         services.Configure<DatabaseSettings>(configuration.GetSection("Database"));
         services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+        services.Configure<CacheSettings>(configuration.GetSection("Cache"));
 
         return services;
     }

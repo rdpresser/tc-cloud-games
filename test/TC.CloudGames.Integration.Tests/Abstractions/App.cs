@@ -80,7 +80,11 @@ namespace TC.CloudGames.Integration.Tests.Abstractions
             Environment.SetEnvironmentVariable("Database:Password", tokens["Password"]);
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 
-            Environment.SetEnvironmentVariable("ConnectionStrings:Cache", _redisContainer.GetConnectionString());
+            var cacheTokens = CacheStringParser.Parse(_redisContainer.GetConnectionString());
+            Environment.SetEnvironmentVariable("Cache:Host", cacheTokens["Host"]);
+            Environment.SetEnvironmentVariable("Cache:Port", cacheTokens["Port"]);
+            Environment.SetEnvironmentVariable("Cache:Password", cacheTokens.TryGetValue("Password", out var password) ? password : string.Empty);
+            Environment.SetEnvironmentVariable("Cache:InstanceName", cacheTokens.TryGetValue("InstanceName", out var instanceName) ? instanceName : "API.IntegrationTests:");
         }
 
         // Register or override services for testing
