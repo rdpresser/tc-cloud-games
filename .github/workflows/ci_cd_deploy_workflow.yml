@@ -107,7 +107,7 @@ jobs:
             CACHE_PASSWORD=secretref:cache-password-secret
             OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-sa-east-1.grafana.net/otlp
             OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-            OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic secretref:opentl-password-secret"
+            OTEL_EXPORTER_OTLP_HEADERS=secretref:opentl-password-secret
             OTEL_RESOURCE_ATTRIBUTES="service.name=tccloudgames-app,service.namespace=tccloudgames-app-group,deployment.environment=development"
 
       - name: 📦 Output deployed image tag
