@@ -47,36 +47,28 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🧪 Debug Key Vault Access
-        run: az keyvault secret list --vault-name $KEYVAULT_NAME
-
-      - name: 🔍 Manual fetch test
-        run: |
-          az keyvault secret show --vault-name $KEYVAULT_NAME --name db-password-kv
-
       - name: 🔑 Fetch secrets from Azure Key Vault
         id: fetch-secrets
         uses: azure/get-keyvault-secrets@v1
         with:
           keyvault: ${{ env.KEYVAULT_NAME }}
           secrets: |
-            db-password-kv
-            cache-password-kv
+            dbpasswordkv
+            cachepasswordkv
         env:
           AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
           AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
           AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
 
-      - name: 🧾 Dump output variables
-        run: |
-          echo "Retrieved db-password-kv: ${{ steps.fetch-secrets.outputs.db-password-kv }}"
-          echo "Retrieved cache-password-kv: ${{ steps.fetch-secrets.outputs.cache-password-kv }}"
-
       - name: 💾 Upload Key Vault secrets to Azure Container App
+        env:
+          DB_PASSWORD: ${{ steps.fetch-secrets.outputs.dbpasswordkv }}
+          CACHE_PASSWORD: ${{ steps.fetch-secrets.outputs.cachepasswordkv }}
         run: |
-          DB_PASSWORD="${{ steps.fetch-secrets.outputs.db-password-kv }}"
-          CACHE_PASSWORD="${{ steps.fetch-secrets.outputs.cache-password-kv }}"
-
+          echo "Secrets fetched:"
+          echo "DB_PASSWORD length: ${#DB_PASSWORD}"
+          echo "CACHE_PASSWORD length: ${#CACHE_PASSWORD}"
+          
           az containerapp secret set \
             --name "$CONTAINER_APP_NAME" \
             --resource-group "$RESOURCE_GROUP" \
