@@ -52,9 +52,7 @@ jobs:
         uses: azure/get-keyvault-secrets@v1
         with:
           keyvault: ${{ env.KEYVAULT_NAME }}
-          secrets: |
-            dbpasswordkv
-            cachepasswordkv
+          secrets: dbpasswordkv,cachepasswordkv
         env:
           AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
           AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
