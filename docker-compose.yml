@@ -21,6 +21,10 @@ services:
       - sonar_token_data:/token_data
     environment:
       - DOTNET_USE_POLLING_FILE_WATCHER=1
+      - OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-sa-east-1.grafana.net/otlp
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic MTMxMDA1MjpnbGNfZXlKdklqb2lNVFEzTnpJek9TSXNJbTRpT2lKMFkyTnNiM1ZrWjJGdFpYTXRaM0poWm1GdVlTMTBiMnRsYmlJc0ltc2lPaUpzTVRFd01qVTJZMjVUY21STmN6ZHNOVGhpZVZOMU1FVWlMQ0p0SWpwN0luSWlPaUp3Y205a0xYTmhMV1ZoYzNRdE1TSjlmUT09
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=tccloudgames-app,service.namespace=tccloudgames-app-group,deployment.environment=development
       
   tc-cloudgames-db:
     image: postgres:latest
@@ -116,6 +120,18 @@ services:
       - "9000:9000"
     networks:
       - my-network
+
+  # aspire-dashboard:
+  #   image: mcr.microsoft.com/dotnet/aspire-dashboard:9.3
+  #   container_name: TC.CloudGames.AspireDashboard
+  #   environment:
+  #     DOTNET_DASHBOARD_UNSECURE_ALLOW_ANONYMOUS: true
+  #   ports:
+  #     - "18888:18888"
+  #   networks:
+  #     - my-network
+  #   depends_on:
+  #     - tc-cloudgames-api
 
   tc-cloudgames-seq:
     image: datalust/seq:latest

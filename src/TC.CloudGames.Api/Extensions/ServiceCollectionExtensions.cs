@@ -3,6 +3,11 @@ using FluentValidation.Resources;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
+using Npgsql;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Domain.Aggregates.Game.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
@@ -29,6 +34,63 @@ public static class ServiceCollectionExtensions
             Enabled = true,
             Culture = new System.Globalization.CultureInfo("en")
         };
+    }
+
+    public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
+    {
+        builder.Logging.AddOpenTelemetry(options =>
+        {
+            options.IncludeScopes = true;
+            options.ParseStateValues = true;
+            options.IncludeFormattedMessage = true;
+            options.AddOtlpExporter();
+        });
+
+        return builder;
+    }
+
+    public static IServiceCollection AddCustomOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOpenTelemetry()
+                .ConfigureResource(r => r.AddService("tccloudgames-app"))
+                .WithTracing(tracingBuilder =>
+                {
+                    tracingBuilder.AddHttpClientInstrumentation()
+                                  .AddAspNetCoreInstrumentation()
+                                  .AddEntityFrameworkCoreInstrumentation()
+                                  .AddRedisInstrumentation()
+                                  .AddFusionCacheInstrumentation(configure =>
+                                  {
+                                      configure.IncludeDistributedLevel = true;
+                                      configure.IncludeMemoryLevel = true;
+                                      configure.IncludeBackplane = true;
+                                  })
+                                  .AddSource("tccloudgames-app")
+                                  //.AddSource("TC.CloudGames.Application")
+                                  //.AddSource("TC.CloudGames.Domain")
+                                  //.AddSource("TC.CloudGames.Infra.CrossCutting.Commons")
+                                  //.AddSource("TC.CloudGames.Infra.CrossCutting.IoC")
+                                  //.AddSource("TC.CloudGames.Infra.Data")
+                                  .AddNpgsql();
+
+                    tracingBuilder.AddOtlpExporter();
+                })
+                .WithMetrics(metricsBuilder =>
+                {
+                    metricsBuilder.AddAspNetCoreInstrumentation()
+                                  .AddHttpClientInstrumentation()
+                                  .AddNpgsqlInstrumentation()
+                                  .AddFusionCacheInstrumentation(options =>
+                                  {
+                                      options.IncludeDistributedLevel = true;
+                                      options.IncludeMemoryLevel = true;
+                                      options.IncludeBackplane = true;
+                                  });
+
+                    metricsBuilder.AddOtlpExporter();
+                });
+
+        return services;
     }
 
     // Authentication and Authorization
