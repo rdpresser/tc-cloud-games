@@ -4,7 +4,7 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
 using Npgsql;
-using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -50,18 +50,22 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddCustomOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOpenTelemetry()
-                .ConfigureResource(r => r.AddService("tccloudgames-app"))
-                .WithMetrics(metricsBuilder =>
-
-                    metricsBuilder.AddAspNetCoreInstrumentation()
-                                  .AddHttpClientInstrumentation()
-                                  .AddNpgsqlInstrumentation())
-                .WithTracing(tracingBuilder =>
-                    tracingBuilder.AddHttpClientInstrumentation()
-                                  .AddAspNetCoreInstrumentation()
-                                  .AddEntityFrameworkCoreInstrumentation()
-                                  .AddNpgsql())
-                .UseOtlpExporter();
+            .ConfigureResource(r => r.AddService("tccloudgames-app"))
+            .WithLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddOtlpExporter(); // This line enables log export via OTLP
+            })
+            .WithMetrics(metricsBuilder =>
+                metricsBuilder.AddAspNetCoreInstrumentation()
+                              .AddHttpClientInstrumentation()
+                              .AddNpgsqlInstrumentation())
+            .WithTracing(tracingBuilder =>
+                tracingBuilder.AddHttpClientInstrumentation()
+                              .AddAspNetCoreInstrumentation()
+                              .AddEntityFrameworkCoreInstrumentation()
+                              .AddNpgsql())
+            // .UseOtlpExporter(); // Remove this if you use signal-specific AddOtlpExporter for all signals
+            ;
 
         return services;
     }
