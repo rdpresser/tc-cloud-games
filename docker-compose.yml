@@ -23,7 +23,7 @@ services:
       - DOTNET_USE_POLLING_FILE_WATCHER=1
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-sa-east-1.grafana.net/otlp
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-      - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic MTMxMDA1MjpnbGNfZXlKdklqb2lNVFEzTnpJek9TSXNJbTRpT2lKMFkyTnNiM1ZrWjJGdFpYTXRaM0poWm1GdVlTMTBiMnRsYmlJc0ltc2lPaUpzTVRFd01qVTJZMjVUY21STmN6ZHNOVGhpZVZOMU1FVWlMQ0p0SWpwN0luSWlPaUp3Y205a0xYTmhMV1ZoYzNRdE1TSjlmUT09
+      - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic <basic-value>
       - OTEL_RESOURCE_ATTRIBUTES=service.name=tccloudgames-app,service.namespace=tccloudgames-app-group,deployment.environment=development
       
   tc-cloudgames-db:
