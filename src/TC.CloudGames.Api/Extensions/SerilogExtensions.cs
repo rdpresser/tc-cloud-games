@@ -17,7 +17,6 @@ namespace TC.CloudGames.Api.Extensions
                 var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
 
                 loggerConfiguration
-                    .WriteTo.Console()
                     .WriteTo.Logger(lc => lc
                         .MinimumLevel.Debug()
                         .MinimumLevel.Override("Microsoft", LogEventLevel.Information)

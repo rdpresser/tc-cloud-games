@@ -369,3 +369,4 @@ FodyWeavers.xsd
 /.gitattributes
 .sonarqube
 /.github/_bkp_workflows_bkp
+/.env

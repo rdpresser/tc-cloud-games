@@ -4,7 +4,7 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
 using Npgsql;
-using OpenTelemetry.Logs;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -41,9 +41,7 @@ public static class ServiceCollectionExtensions
         builder.Logging.AddOpenTelemetry(options =>
         {
             options.IncludeScopes = true;
-            options.ParseStateValues = true;
             options.IncludeFormattedMessage = true;
-            options.AddOtlpExporter();
         });
 
         return builder;
@@ -53,42 +51,17 @@ public static class ServiceCollectionExtensions
     {
         services.AddOpenTelemetry()
                 .ConfigureResource(r => r.AddService("tccloudgames-app"))
+                .WithMetrics(metricsBuilder =>
+
+                    metricsBuilder.AddAspNetCoreInstrumentation()
+                                  .AddHttpClientInstrumentation()
+                                  .AddNpgsqlInstrumentation())
                 .WithTracing(tracingBuilder =>
-                {
                     tracingBuilder.AddHttpClientInstrumentation()
                                   .AddAspNetCoreInstrumentation()
                                   .AddEntityFrameworkCoreInstrumentation()
-                                  .AddRedisInstrumentation()
-                                  .AddFusionCacheInstrumentation(configure =>
-                                  {
-                                      configure.IncludeDistributedLevel = true;
-                                      configure.IncludeMemoryLevel = true;
-                                      configure.IncludeBackplane = true;
-                                  })
-                                  .AddSource("tccloudgames-app")
-                                  //.AddSource("TC.CloudGames.Application")
-                                  //.AddSource("TC.CloudGames.Domain")
-                                  //.AddSource("TC.CloudGames.Infra.CrossCutting.Commons")
-                                  //.AddSource("TC.CloudGames.Infra.CrossCutting.IoC")
-                                  //.AddSource("TC.CloudGames.Infra.Data")
-                                  .AddNpgsql();
-
-                    tracingBuilder.AddOtlpExporter();
-                })
-                .WithMetrics(metricsBuilder =>
-                {
-                    metricsBuilder.AddAspNetCoreInstrumentation()
-                                  .AddHttpClientInstrumentation()
-                                  .AddNpgsqlInstrumentation()
-                                  .AddFusionCacheInstrumentation(options =>
-                                  {
-                                      options.IncludeDistributedLevel = true;
-                                      options.IncludeMemoryLevel = true;
-                                      options.IncludeBackplane = true;
-                                  });
-
-                    metricsBuilder.AddOtlpExporter();
-                });
+                                  .AddNpgsql())
+                .UseOtlpExporter();
 
         return services;
     }
