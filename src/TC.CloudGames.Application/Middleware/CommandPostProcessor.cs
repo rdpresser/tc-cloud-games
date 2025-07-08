@@ -26,7 +26,6 @@ namespace TC.CloudGames.Application.Middleware
                     context.Response,
                 };
 
-                logger.LogInformation("Post-processing Request {Request} executed successfully", name);
                 using (LogContext.PushProperty("Content", responseValues, true))
                 {
                     logger.LogInformation("Post-processing Request {Request} executed successfully", name);
@@ -41,7 +40,6 @@ namespace TC.CloudGames.Application.Middleware
                     Error = context.ValidationFailures
                 };
 
-                logger.LogError("Post-processing Request {Request} validation failed with error", name);
                 using (LogContext.PushProperty("Content", responseValues, true))
                 {
                     logger.LogError("Post-processing Request {Request} validation failed with error", name);
