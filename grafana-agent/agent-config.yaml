@@ -6,9 +6,8 @@ logs:
     - name: azure-stdout
       clients:
         - url: https://logs-prod-024.grafana.net/loki/api/v1/push
-          tenant_id: rdpressertccloudgamesfiap
           basic_auth:
-            username: 1267846
+            username: 1267846  # Instance ID
             password: ${GRAFANA_API_TOKEN}
       positions:
         filename: /tmp/positions.yaml
@@ -22,4 +21,4 @@ logs:
                 job: tc-cloudgames
                 container: app
                 environment: development
-                __path__: /var/log/pods/*/*/*.log
+                __path__: /stdout  # <- especial: Azure CA stdout via Dockerfile redirect

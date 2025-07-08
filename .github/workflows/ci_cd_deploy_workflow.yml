@@ -94,41 +94,9 @@ jobs:
       - name: 🚀 Deploy both containers to Azure Container App
         uses: azure/container-apps-deploy-action@v2
         with:
-          acrName: ${{ env.ACR_NAME }}
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           resourceGroup: ${{ env.RESOURCE_GROUP }}
-          containers: |
-            [
-              {
-                "name": "app",
-                "image": "${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}",
-                "env": [
-                  { "name": "ASPNETCORE_ENVIRONMENT", "value": "Development" },
-                  { "name": "DB_HOST", "value": "${{ secrets.AZURE_DB_HOST }}" },
-                  { "name": "DB_PORT", "value": "${{ secrets.AZURE_DB_PORT }}" },
-                  { "name": "DB_NAME", "value": "${{ secrets.AZURE_DB_NAME }}" },
-                  { "name": "DB_USER", "value": "${{ secrets.AZURE_DB_USER }}" },
-                  { "name": "DB_PASSWORD", "value": "secretref:db-password-secret" },
-                  { "name": "CACHE_HOST", "value": "${{ secrets.AZURE_CACHE_HOST }}" },
-                  { "name": "CACHE_PORT", "value": "${{ secrets.AZURE_CACHE_PORT }}" },
-                  { "name": "CACHE_PASSWORD", "value": "secretref:cache-password-secret" },
-                  { "name": "OTEL_EXPORTER_OTLP_ENDPOINT", "value": "https://otlp-gateway-prod-sa-east-1.grafana.net/otlp" },
-                  { "name": "OTEL_EXPORTER_OTLP_PROTOCOL", "value": "http/protobuf" },
-                  { "name": "OTEL_EXPORTER_OTLP_HEADERS", "value": "secretref:opentl-password-secret" }
-                  #{ "name": "OTEL_RESOURCE_ATTRIBUTES", "value": "service.name=tccloudgames-app,service.namespace=tccloudgames-app-group,deployment.environment=development" }
-                ]
-              },
-              {
-                "name": "grafana-agent",
-                "image": "${{ env.ACR_NAME }}.azurecr.io/${{ env.GRAFANA_AGENT_NAME }}:${{ env.IMAGE_TAG }}",
-                "env": [
-                  {
-                    "name": "GRAFANA_API_TOKEN",
-                    "value": "secretref:grafana-api-token-secret"
-                  }
-                ]
-              }
-            ]
+          yamlConfigPath: infra/containerapp.yaml
 
       - name: 📦 Output deployed image tags
         run: |
