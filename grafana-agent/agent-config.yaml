@@ -1,0 +1,25 @@
+server:
+  log_level: info
+
+logs:
+  configs:
+    - name: azure-stdout
+      clients:
+        - url: https://logs-prod-024.grafana.net/loki/api/v1/push
+          tenant_id: rdpressertccloudgamesfiap
+          basic_auth:
+            username: 1267846
+            password: ${GRAFANA_API_TOKEN}
+      positions:
+        filename: /tmp/positions.yaml
+      scrape_configs:
+        - job_name: stdout-logs
+          pipeline_stages:
+            - docker: {}
+          static_configs:
+            - targets: [localhost]
+              labels:
+                job: tc-cloudgames
+                container: app
+                environment: development
+                __path__: /var/log/pods/*/*/*.log
