@@ -3,7 +3,6 @@ using ServiceCollectionExtensions = TC.CloudGames.Api.Extensions.ServiceCollecti
 var builder = WebApplication.CreateBuilder(args);
 
 // TODO: Make this conditional based on environment
-builder.AddCustomLoggingTelemetry();
 builder.Host.UseCustomSerilog(builder.Configuration);
 
 ServiceCollectionExtensions.ConfigureFluentValidationGlobals();
