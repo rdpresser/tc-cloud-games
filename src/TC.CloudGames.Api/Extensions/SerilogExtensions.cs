@@ -28,8 +28,7 @@ namespace TC.CloudGames.Api.Extensions
                         .Enrich.WithSensitiveDataMasking(options =>
                         {
                             options.MaskProperties = ["Password", "Email", "PhoneNumber"];
-                        })
-                    .CreateLogger();
+                        });
             });
         }
     }
