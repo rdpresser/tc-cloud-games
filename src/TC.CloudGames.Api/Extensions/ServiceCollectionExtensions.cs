@@ -48,31 +48,32 @@ public static class ServiceCollectionExtensions
     //    return builder;
     //}
 
-    public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
-    {
-        builder.Logging.AddOpenTelemetry(options =>
-        {
-            // ► Resource válido para logs
-            options.SetResourceBuilder(
-                ResourceBuilder.CreateDefault()
-                               .AddService(serviceName: "tccloudgames-app",
-                                           serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "1.0.0"));
+    //public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
+    //{
+    //    builder.Logging.AddOpenTelemetry(options =>
+    //    {
+    //        // ► Resource válido para logs
+    //        options.SetResourceBuilder(
+    //            ResourceBuilder.CreateDefault()
+    //                           .AddService(serviceName: "tccloudgames-app",
+    //                                       serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "1.0.0"));
 
-            options.IncludeScopes = true;
-            options.IncludeFormattedMessage = true;
+    //        options.IncludeScopes = true;
+    //        options.IncludeFormattedMessage = true;
 
-            // Exportador OTLP (ajuste endpoint se precisar)
-            options.AddOtlpExporter(options =>
-            {
-                options.Endpoint = new Uri("https://otlp-gateway-prod-sa-east-1.grafana.net/otlp");
-            });
+    //        // Exportador OTLP (ajuste endpoint se precisar)
+    //        options.AddOtlpExporter(options =>
+    //        {
+    //            options.Endpoint = new Uri("https://otlp-gateway-prod-sa-east-1.grafana.net/otlp");
+    //            options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+    //        });
 
-            // Opcional: Console em dev
-            //options.AddConsoleExporter();
-        });
+    //        // Opcional: Console em dev
+    //        //options.AddConsoleExporter();
+    //    });
 
-        return builder;
-    }
+    //    return builder;
+    //}
 
     public static IServiceCollection AddCustomOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
     {
@@ -90,10 +91,10 @@ public static class ServiceCollectionExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddEntityFrameworkCoreInstrumentation()
                     .AddNpgsql()
-                    .AddOtlpExporter())
-            .WithLogging(loggingBuilder =>
-                loggingBuilder
                     .AddOtlpExporter());
+        //.WithLogging(loggingBuilder =>
+        //    loggingBuilder
+        //        .AddOtlpExporter());
 
         return services;
     }
