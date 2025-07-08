@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.Resources;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -36,12 +36,39 @@ public static class ServiceCollectionExtensions
         };
     }
 
+    //public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
+    //{
+    //    builder.Logging.AddOpenTelemetry(options =>
+    //    {
+    //        options.IncludeScopes = true;
+    //        options.IncludeFormattedMessage = true;
+    //        options.AddOtlpExporter();
+    //    });
+
+    //    return builder;
+    //}
+
     public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
     {
         builder.Logging.AddOpenTelemetry(options =>
         {
+            // ► Resource válido para logs
+            options.SetResourceBuilder(
+                ResourceBuilder.CreateDefault()
+                               .AddService(serviceName: "tccloudgames-app",
+                                           serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "1.0.0"));
+
             options.IncludeScopes = true;
             options.IncludeFormattedMessage = true;
+
+            // Exportador OTLP (ajuste endpoint se precisar)
+            options.AddOtlpExporter(options =>
+            {
+                options.Endpoint = new Uri("https://otlp-gateway-prod-sa-east-1.grafana.net/otlp");
+            });
+
+            // Opcional: Console em dev
+            //options.AddConsoleExporter();
         });
 
         return builder;
@@ -51,21 +78,22 @@ public static class ServiceCollectionExtensions
     {
         services.AddOpenTelemetry()
             .ConfigureResource(r => r.AddService("tccloudgames-app"))
-            .WithLogging(loggingBuilder =>
-            {
-                loggingBuilder.AddOtlpExporter(); // This line enables log export via OTLP
-            })
             .WithMetrics(metricsBuilder =>
-                metricsBuilder.AddAspNetCoreInstrumentation()
-                              .AddHttpClientInstrumentation()
-                              .AddNpgsqlInstrumentation())
+                metricsBuilder
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddNpgsqlInstrumentation()
+                    .AddOtlpExporter())
             .WithTracing(tracingBuilder =>
-                tracingBuilder.AddHttpClientInstrumentation()
-                              .AddAspNetCoreInstrumentation()
-                              .AddEntityFrameworkCoreInstrumentation()
-                              .AddNpgsql())
-            // .UseOtlpExporter(); // Remove this if you use signal-specific AddOtlpExporter for all signals
-            ;
+                tracingBuilder
+                    .AddHttpClientInstrumentation()
+                    .AddAspNetCoreInstrumentation()
+                    .AddEntityFrameworkCoreInstrumentation()
+                    .AddNpgsql()
+                    .AddOtlpExporter())
+            .WithLogging(loggingBuilder =>
+                loggingBuilder
+                    .AddOtlpExporter());
 
         return services;
     }
