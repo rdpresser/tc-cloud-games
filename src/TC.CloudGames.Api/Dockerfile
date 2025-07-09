@@ -4,9 +4,6 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-# Copy .solution-root to /app
-COPY .solution-root .solution-root
-
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -30,4 +27,8 @@ RUN dotnet publish "./TC.CloudGames.Api.csproj" -c $BUILD_CONFIGURATION -o /app/
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Copy .solution-root to /app
+COPY .solution-root .solution-root
+
 ENTRYPOINT ["dotnet", "TC.CloudGames.Api.dll"]

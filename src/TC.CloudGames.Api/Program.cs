@@ -3,7 +3,7 @@ using ServiceCollectionExtensions = TC.CloudGames.Api.Extensions.ServiceCollecti
 
 var builder = WebApplication.CreateBuilder(args);
 
-var root = SolutionRootFinder.FindRoot();
+var root = SolutionRootFinder.FindRoot(".solution-root", @"/src", @"/app");
 DotNetEnv.Env.Load(Path.Combine(root, ".env"));
 
 // TODO: Make this conditional based on environment
