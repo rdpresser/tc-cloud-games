@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Serilog;
 using Serilog.Context;
 
 namespace TC.CloudGames.Application.Middleware
@@ -27,7 +26,6 @@ namespace TC.CloudGames.Application.Middleware
                     context.Response,
                 };
 
-                Log.Information("Post-processing Request {Request} executed successfully", name);
                 using (LogContext.PushProperty("Content", responseValues, true))
                 {
                     logger.LogInformation("Post-processing Request {Request} executed successfully", name);
@@ -42,7 +40,6 @@ namespace TC.CloudGames.Application.Middleware
                     Error = context.ValidationFailures
                 };
 
-                Log.Error("Post-processing Request {Request} validation failed with error", name);
                 using (LogContext.PushProperty("Content", responseValues, true))
                 {
                     logger.LogError("Post-processing Request {Request} validation failed with error", name);

@@ -91,10 +91,10 @@ public static class ServiceCollectionExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddEntityFrameworkCoreInstrumentation()
                     .AddNpgsql()
-                    .AddOtlpExporter())
-        .WithLogging(loggingBuilder =>
-            loggingBuilder
-                .AddOtlpExporter());
+                    .AddOtlpExporter());
+        //.WithLogging(loggingBuilder =>
+        //    loggingBuilder
+        //        .AddOtlpExporter());
 
         return services;
     }

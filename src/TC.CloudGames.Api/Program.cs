@@ -35,5 +35,4 @@ if (app.Environment.IsDevelopment())
 }
 
 Serilog.Debugging.SelfLog.Enable(Console.Error);
-Log.Information("Teste de log para Grafana Loki");
 await app.RunAsync().ConfigureAwait(false);
