@@ -16,10 +16,18 @@
 
                 while (dir != null)
                 {
-                    if (dir.GetFiles(markerFile).Any())
-                        return dir.FullName;
+                    try
+                    {
+                        if (dir.GetFiles(markerFile).Any())
+                            return dir.FullName;
 
-                    dir = dir.Parent;
+                        dir = dir.Parent;
+                    }
+                    catch
+                    {
+                        // If any exception occurs (e.g., access denied), skip to next startPath
+                        break;
+                    }
                 }
             }
 

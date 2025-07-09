@@ -1,9 +1,25 @@
+using System.Runtime.InteropServices;
 using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 using ServiceCollectionExtensions = TC.CloudGames.Api.Extensions.ServiceCollectionExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var root = SolutionRootFinder.FindRoot(".solution-root", @"/src", @"/app");
+string GetEnvRoot()
+{
+    // If running in Docker, likely Linux and /app or /src will exist
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+    {
+        // On Windows, start from current directory
+        return SolutionRootFinder.FindRoot();
+    }
+    else
+    {
+        // On Linux (Docker), try /app and /src
+        return SolutionRootFinder.FindRoot(".solution-root", "/tc-cloud-games", "/app", "/src");
+    }
+}
+
+var root = GetEnvRoot();
 DotNetEnv.Env.Load(Path.Combine(root, ".env"));
 
 // TODO: Make this conditional based on environment
