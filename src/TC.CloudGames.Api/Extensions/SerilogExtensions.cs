@@ -33,6 +33,11 @@ namespace TC.CloudGames.Api.Extensions
                     if (string.IsNullOrEmpty(grafanaLokiUrl))
                         throw new ArgumentNullException(nameof(grafanaLokiUrl), "GrafanaLokiUrl configuration is required.");
 
+                    Log.Information("grafanaLokiUrl:", grafanaLokiUrl);
+                    Log.Information("username:", configuration["Serilog:WriteTo:1:Args:credentials:username"]);
+                    Log.Information("env:", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+                    Log.Information("GRAFANA_API_TOKEN:", Environment.GetEnvironmentVariable("GRAFANA_API_TOKEN"));
+
                     loggerConfiguration.WriteTo.GrafanaLoki(
                         uri: grafanaLokiUrl,
                         credentials: new LokiCredentials
