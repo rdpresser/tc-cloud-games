@@ -1,6 +1,10 @@
+using TC.CloudGames.Infra.CrossCutting.Commons.Extensions;
 using ServiceCollectionExtensions = TC.CloudGames.Api.Extensions.ServiceCollectionExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var root = SolutionLocator.FindSolutionRoot();
+DotNetEnv.Env.Load(Path.Combine(root, ".env"));
 
 // TODO: Make this conditional based on environment
 builder.Host.UseCustomSerilog(builder.Configuration);

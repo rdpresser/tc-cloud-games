@@ -29,7 +29,7 @@ namespace TC.CloudGames.Api.Extensions
                 var useLoki = Array.Exists(serilogUsing, s => s == "Serilog.Sinks.Grafana.Loki");
                 if (useLoki)
                 {
-                    var grafanaLokiUrl = configuration["Serilog:WriteTo:2:Args:uri"];
+                    var grafanaLokiUrl = configuration["Serilog:WriteTo:1:Args:uri"];
                     if (string.IsNullOrEmpty(grafanaLokiUrl))
                         throw new ArgumentNullException(nameof(grafanaLokiUrl), "GrafanaLokiUrl configuration is required.");
 
@@ -37,7 +37,7 @@ namespace TC.CloudGames.Api.Extensions
                         uri: grafanaLokiUrl,
                         credentials: new LokiCredentials
                         {
-                            Login = configuration["Serilog:WriteTo:2:Args:credentials:username"],
+                            Login = configuration["Serilog:WriteTo:1:Args:credentials:username"],
                             Password = Environment.GetEnvironmentVariable("GRAFANA_API_TOKEN")
                         },
                         labels: new[]
