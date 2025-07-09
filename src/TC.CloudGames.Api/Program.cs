@@ -15,7 +15,7 @@ string GetEnvRoot()
     else
     {
         // On Linux (Docker), try /app and /src
-        return SolutionRootFinder.FindRoot(".solution-root", "/tc-cloud-games", "/app", "/src");
+        return SolutionRootFinder.FindRoot(".solution-root", "/TC.CloudGames.Unit.Tests", "/app", "/src");
     }
 }
 
