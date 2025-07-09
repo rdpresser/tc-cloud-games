@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Serilog.Enrichers.Sensitive;
-using Serilog.Events;
 
 namespace TC.CloudGames.Api.Extensions
 {
@@ -13,24 +12,16 @@ namespace TC.CloudGames.Api.Extensions
             {
                 loggerConfiguration.ReadFrom.Configuration(hostContext.Configuration);
 
+                // Se quiser manter o timezone customizado via código, pode adicionar só isso:
                 var timeZoneId = configuration["TimeZone"] ?? "UTC";
                 var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+                loggerConfiguration.Enrich.With(new UtcToLocalTimeEnricher(timeZone));
 
-                loggerConfiguration
-                    .WriteTo.Logger(lc =>
-                    {
-                        lc.MinimumLevel.Debug()
-                          .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                          .Enrich.FromLogContext()
-                          .Enrich.WithProperty("Application", "TC.CloudGames.Api")
-                          .Enrich.WithProperty("Environment", hostContext.HostingEnvironment.EnvironmentName)
-                          .Enrich.With(new UtcToLocalTimeEnricher(timeZone))
-                          .WriteTo.Console(outputTemplate: "[{LocalTimestamp}] {Level:u3} {Message:lj}{NewLine}{Exception}");
-                    })
-                    .Enrich.WithSensitiveDataMasking(options =>
-                    {
-                        options.MaskProperties = ["Password", "Email", "PhoneNumber"];
-                    });
+                // Se quiser manter o masking via código, pode deixar aqui:
+                loggerConfiguration.Enrich.WithSensitiveDataMasking(options =>
+                {
+                    options.MaskProperties = ["Password", "Email", "PhoneNumber"];
+                });
             });
         }
     }
