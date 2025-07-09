@@ -30,4 +30,6 @@ if (app.Environment.IsDevelopment())
     await app.SeedGameData().ConfigureAwait(false);
 }
 
+
+Log.Information("Teste de log para Grafana Loki");
 await app.RunAsync().ConfigureAwait(false);

@@ -106,6 +106,7 @@ jobs:
             OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
             OTEL_EXPORTER_OTLP_HEADERS=secretref:opentl-password-secret
             GRAFANA_API_TOKEN=secretref:grafana-api-token-secret
+            OTEL_RESOURCE_ATTRIBUTES="service.name=tccloudgames-app,service.namespace=tccloudgames-app-group,deployment.environment=development"
 
       - name: 📦 Output deployed image tag
         run: |
