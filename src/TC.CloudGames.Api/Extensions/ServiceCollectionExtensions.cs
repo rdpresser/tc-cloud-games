@@ -36,17 +36,17 @@ public static class ServiceCollectionExtensions
         };
     }
 
-    //public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
-    //{
-    //    builder.Logging.AddOpenTelemetry(options =>
-    //    {
-    //        options.IncludeScopes = true;
-    //        options.IncludeFormattedMessage = true;
-    //        options.AddOtlpExporter();
-    //    });
+    public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
+    {
+        builder.Logging.AddOpenTelemetry(options =>
+        {
+            options.IncludeScopes = true;
+            options.IncludeFormattedMessage = true;
+            options.AddOtlpExporter();
+        });
 
-    //    return builder;
-    //}
+        return builder;
+    }
 
     //public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
     //{
@@ -91,10 +91,10 @@ public static class ServiceCollectionExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddEntityFrameworkCoreInstrumentation()
                     .AddNpgsql()
-                    .AddOtlpExporter())
-            .WithLogging(loggingBuilder =>
-                loggingBuilder
                     .AddOtlpExporter());
+        //.WithLogging(loggingBuilder =>
+        //    loggingBuilder
+        //        .AddOtlpExporter());
 
         return services;
     }

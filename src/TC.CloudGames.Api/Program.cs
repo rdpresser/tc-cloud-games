@@ -11,6 +11,8 @@ builder.Host.UseCustomSerilog(builder.Configuration);
 
 ServiceCollectionExtensions.ConfigureFluentValidationGlobals();
 
+builder.AddCustomLoggingTelemetry();
+
 builder.Services
    .AddCustomOpenTelemetry(builder.Configuration)
    .AddCustomAuthentication(builder.Configuration)
