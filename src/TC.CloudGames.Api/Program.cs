@@ -30,6 +30,6 @@ if (app.Environment.IsDevelopment())
     await app.SeedGameData().ConfigureAwait(false);
 }
 
-
+Serilog.Debugging.SelfLog.Enable(Console.Error);
 Log.Information("Teste de log para Grafana Loki");
 await app.RunAsync().ConfigureAwait(false);
