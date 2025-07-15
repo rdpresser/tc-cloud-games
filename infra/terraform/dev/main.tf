@@ -25,15 +25,45 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_key_vault" "key_vault" {
-  location            = var.resource_group_location
   name                = "tc-cloudgames-dev-kv"
+  location            = var.resource_group_location
   resource_group_name = var.resource_group_name
   sku_name            = "standard"
   tenant_id           = var.tenant_id
+
+  # 🔑 Application (Service Principal ou Managed Identity)
+  access_policy {
+    tenant_id = var.tenant_id
+    object_id = var.app_object_id # Service principal objectId
+
+    key_permissions = [
+      "Get", "Set", "List", "Delete", "Backup", "Restore", "Purge", "Recover", "Update"
+    ]
+
+    secret_permissions = [
+      "Get", "Set", "List", "Delete", "Backup", "Restore", "Purge", "Recover", "Update"
+    ]
+  }
+
+  # 👤 User (Azure AD user objectId)
+  access_policy {
+    tenant_id = var.tenant_id
+    object_id = var.user_object_id # Usuário AAD
+
+    secret_permissions = [
+      "Get", "Set", "List", "Delete", "Backup", "Restore", "Purge", "Recover", "Update"
+    ]
+
+    key_permissions = [
+      "Get", "Set", "List", "Delete", "Backup", "Restore", "Purge", "Recover", "Update"
+    ]
+  }
+
   depends_on = [
     azurerm_resource_group.rg
   ]
 }
+
 
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
   name                = "tc-cloudgames-dev-db"
