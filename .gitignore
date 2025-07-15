@@ -370,3 +370,23 @@ FodyWeavers.xsd
 .sonarqube
 /.github/_bkp_workflows_bkp
 /.env
+
+# Diretório de plugins, providers e configurações locais
+.terraform/
+
+# Arquivos de estado do Terraform (contêm dados sensíveis!)
+terraform.tfstate
+terraform.tfstate.*
+
+# Arquivos de backup automáticos do Terraform
+*.tfstate.backup
+
+# Variáveis locais (nunca versionar secrets aqui)
+terraform.tfvars
+*.auto.tfvars
+
+# Arquivos de lock (dependem da máquina/local)
+.terraform.lock.hcl
+
+# Scripts de import gerados (como pelo aztfexport)
+import.sh
