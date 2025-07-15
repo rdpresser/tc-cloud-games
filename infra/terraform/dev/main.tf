@@ -37,11 +37,11 @@ resource "azurerm_key_vault" "key_vault" {
     object_id = var.app_object_id # Service principal objectId
 
     key_permissions = [
-      "Get", "List", "Update", "Create", "Delete"
+      "Get", "List", "Update", "Create", "Import", "Delete"
     ]
 
     secret_permissions = [
-      "Get", "List", "Set", "Delete"
+      "Get", "List", "Set", "Delete", "Recover", "Backup"
     ]
   }
 
@@ -51,11 +51,11 @@ resource "azurerm_key_vault" "key_vault" {
     object_id = var.user_object_id # Usuário AAD
 
     secret_permissions = [
-      "Get", "List", "Update", "Create", "Delete"
+      "Get", "List", "Set", "Delete", "Recover", "Backup"
     ]
 
     key_permissions = [
-      "Get", "List", "Set", "Delete"
+      "Get", "List", "Update", "Create", "Import", "Delete"
     ]
   }
 
