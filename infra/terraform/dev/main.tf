@@ -4,7 +4,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0.2"
+      version = "~> 4.0"
     }
   }
   cloud {
@@ -36,20 +36,20 @@ resource "azurerm_key_vault" "key_vault" {
 }
 
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
-  name                   = "tc-cloudgames-dev-db"
-  location               = "canadacentral"
-  resource_group_name    = var.resource_group_name
-  zone                   = "1"
+  name                = "tc-cloudgames-dev-db"
+  location            = "canadacentral"
+  resource_group_name = var.resource_group_name
+  zone                = "1"
 
   administrator_login    = var.postgres_admin_login
   administrator_password = var.postgres_admin_password
 
-  sku_name               = "Standard_B1ms"  
+  sku_name = "B_Standard_B1ms"
 
-  storage_mb             = 32768            # 32 GB
-  version                = "17"
+  storage_mb = 32768 # 32 GB
+  version    = "16"
 
-  backup_retention_days  = 7
+  backup_retention_days        = 7
   geo_redundant_backup_enabled = false
 
   depends_on = [
