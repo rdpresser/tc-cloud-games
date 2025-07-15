@@ -26,7 +26,7 @@ resource "azurerm_resource_group" "rg" {
 
 resource "azurerm_key_vault" "key_vault" {
   location            = var.resource_group_location
-  name                = "tc-cloudgames-kv"
+  name                = "tc-cloudgames-dev-kv"
   resource_group_name = var.resource_group_name
   sku_name            = "standard"
   tenant_id           = var.tenant_id
@@ -35,11 +35,15 @@ resource "azurerm_key_vault" "key_vault" {
   ]
 }
 
-resource "azurerm_postgresql_flexible_server" "res-14" {
+resource "azurerm_postgresql_flexible_server" "postgres_server" {
   location            = var.resource_group_location
   name                = "tc-cloudgames-db"
   resource_group_name = var.resource_group_name
   zone                = "1"
+
+  administrator_login    = var.postgres_admin_login
+  administrator_password = var.postgres_admin_password
+
   depends_on = [
     azurerm_resource_group.rg
   ]
