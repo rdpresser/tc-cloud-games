@@ -36,13 +36,21 @@ resource "azurerm_key_vault" "key_vault" {
 }
 
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
-  location            = var.resource_group_location
-  name                = "tc-cloudgames-db"
-  resource_group_name = var.resource_group_name
-  zone                = "1"
+  name                   = "tc-cloudgames-dev-db"
+  location               = "canadacentral"
+  resource_group_name    = var.resource_group_name
+  zone                   = "1"
 
   administrator_login    = var.postgres_admin_login
   administrator_password = var.postgres_admin_password
+
+  sku_name               = "Standard_B1ms"  
+
+  storage_mb             = 32768            # 32 GB
+  version                = "17"
+
+  backup_retention_days  = 7
+  geo_redundant_backup_enabled = false
 
   depends_on = [
     azurerm_resource_group.rg
