@@ -17,7 +17,7 @@ variable "postgres_admin_password" {
 }
 variable "app_object_id" {
   type    = string
-  default = "062a4a26-6f1c-46bb-8bdc-630a1c121f5b" # Replace with actual app object ID azure-cli-2025
+  default = "d240991c-b9f9-446e-b890-0ff307e34ab4" # Replace with actual app object ID azure-cli-2025
 }
 variable "user_object_id" {
   type    = string
