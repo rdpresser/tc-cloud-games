@@ -20,20 +20,20 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
-  location = var.resource_group_location
+  name     = var.azure_resource_group_name
+  location = var.azure_resource_group_location
 }
 
 resource "azurerm_key_vault" "key_vault" {
   name                = "tc-cloudgames-dev-kv"
-  location            = var.resource_group_location
-  resource_group_name = var.resource_group_name
+  location            = var.azure_resource_group_location
+  resource_group_name = var.azure_resource_group_name
   sku_name            = "standard"
-  tenant_id           = var.tenant_id
+  tenant_id           = var.azure_tenant_id
 
   # 🔑 Application (Service Principal ou Managed Identity)
   access_policy {
-    tenant_id = var.tenant_id
+    tenant_id = var.azure_tenant_id
     object_id = var.app_object_id # Service principal objectId
 
     key_permissions = [
@@ -47,7 +47,7 @@ resource "azurerm_key_vault" "key_vault" {
 
   # 👤 User (Azure AD user objectId)
   access_policy {
-    tenant_id = var.tenant_id
+    tenant_id = var.azure_tenant_id
     object_id = var.user_object_id # Usuário AAD
 
     secret_permissions = [
@@ -59,9 +59,9 @@ resource "azurerm_key_vault" "key_vault" {
     ]
   }
 
-  # 👤 User (Azure AD user objectId)
+  # 🤖 GitHub Actions Service Principal
   access_policy {
-    tenant_id = var.tenant_id
+    tenant_id = var.azure_tenant_id
     object_id = var.app_object_id_github_actions
 
     secret_permissions = [
@@ -78,31 +78,34 @@ resource "azurerm_key_vault" "key_vault" {
   ]
 }
 
-resource "azurerm_key_vault_secret" "key_vault_secret_cachepassword" {
+resource "azurerm_key_vault_secret" "key_vault_secret_cache_password" {
   key_vault_id = azurerm_key_vault.key_vault.id
-  name         = "cachepasswordkv"
-  value        = var.cache_password
+  name         = "cache-password"
+  value        = var.redis_cache_password
 }
-resource "azurerm_key_vault_secret" "key_vault_secret_postgresadminpassword" {
+
+resource "azurerm_key_vault_secret" "key_vault_secret_db_password" {
   key_vault_id = azurerm_key_vault.key_vault.id
-  name         = "dbpasswordkv"
+  name         = "db-password"
   value        = var.postgres_admin_password
 }
-resource "azurerm_key_vault_secret" "key_vault_secret_grafanaapitoken" {
+
+resource "azurerm_key_vault_secret" "key_vault_secret_grafana_api_token" {
   key_vault_id = azurerm_key_vault.key_vault.id
-  name         = "grafanaapitokenkv"
-  value        = var.grafana_api_token
+  name         = "grafana-api-token"
+  value        = var.grafana_logs_api_token
 }
-resource "azurerm_key_vault_secret" "key_vault_secret_opentl" {
+
+resource "azurerm_key_vault_secret" "key_vault_secret_otel_auth_header" {
   key_vault_id = azurerm_key_vault.key_vault.id
-  name         = "opentlkv"
-  value        = var.open_tl
+  name         = "otel-auth-header"
+  value        = var.grafana_open_tl_auth_header
 }
 
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
   name                = "tc-cloudgames-dev-db"
-  location            = "canadacentral"
-  resource_group_name = var.resource_group_name
+  location            = azurerm_resource_group.tc_cloud_games_rg.location
+  resource_group_name = azurerm_resource_group.tc_cloud_games_rg.name
   zone                = "1"
 
   administrator_login    = var.postgres_admin_login
@@ -117,7 +120,7 @@ resource "azurerm_postgresql_flexible_server" "postgres_server" {
   geo_redundant_backup_enabled = false
 
   depends_on = [
-    azurerm_resource_group.rg
+    azurerm_resource_group.tc_cloud_games_rg
   ]
 }
 

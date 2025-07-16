@@ -1,43 +1,137 @@
-variable "resource_group_name" {
-  default = "tc-cloudgames-rg"
+# =============================================================================
+# Azure Resource Configuration
+# =============================================================================
+
+variable "azure_resource_group_location" {
+  description = "Location for the resource group"
+  type = string
 }
-variable "resource_group_location" {
-  default = "brazilsouth"
+
+variable "azure_resource_group_name" {
+  description = "Name of the resource group"
+  type = string
 }
-variable "tenant_id" {
-  default = "084169c0-a779-43c3-970c-487a71a93f88"
+
+variable "azure_tenant_id" {
+  description = "Azure Tenant ID"
+  type = string
 }
+
+# =============================================================================
+# Database Configuration
+# =============================================================================
+
 variable "postgres_admin_login" {
-  type    = string
-  default = "tccloudgamesadm"
+  description = "Admin login for PostgreSQL database"
+  type = string
 }
+
 variable "postgres_admin_password" {
+  description = "Admin password for PostgreSQL database"
   type      = string
   sensitive = true
 }
-variable "cache_password" {
-  type      = string
-  sensitive = true
+
+variable "postgres_db_host" {
+  description = "Hostname for PostgreSQL database"
+  type = string
 }
-variable "grafana_api_token" {
-  type      = string
-  sensitive = true
-}
-variable "open_tl" {
-  type      = string
-  sensitive = true
-}
-variable "app_object_id" {
+
+variable "postgres_db_name" {
+  description = "Name of the PostgreSQL database"
   type    = string
-  default = "d240991c-b9f9-446e-b890-0ff307e34ab4"
+}
+
+variable "postgres_db_port" {
+  description = "Port for PostgreSQL database"
+  type    = number
+}
+
+# =============================================================================
+# Identity and Access Management
+# =============================================================================
+
+variable "app_object_id" {
+  description = "Object ID of the application in Azure AD"
+  type = string
 }
 
 variable "app_object_id_github_actions" {
-  type    = string
-  default = "311e0933-e635-4e8f-af82-a6e2bf200318"
+  description = "Object ID of the GitHub Actions application in Azure AD"
+  type = string
 }
 
 variable "user_object_id" {
-  type    = string
-  default = "887b7d92-985f-499b-b26d-9cc0785358cc"
+  description = "Object ID of the user in Azure AD"
+  type = string
+}
+
+# =============================================================================
+# Azure Redis Cache Configuration
+# =============================================================================
+
+variable "redis_cache_password" {
+  type      = string
+  description = "Password for Redis cache authentication"
+  sensitive = true
+}
+
+variable "redis_cache_host" {
+  type = string
+  description = "Hostname for Redis cache"
+}
+
+variable "redis_cache_port" {
+  type = number
+  description = "Port for Redis cache"
+}
+
+# =============================================================================
+# Grafana OpenTL Configuration
+# =============================================================================
+variable "grafana_logs_api_token" {
+  type      = string
+  description = "API token for Grafana Logs"
+  sensitive = true
+}
+
+variable "grafana_open_tl_exporter_endpoint" {
+  type = string
+  description = "Endpoint for Grafana OpenTL Exporter"
+}
+
+variable "grafana_open_tl_exporter_protocol" {
+  type = string
+  description = "Protocol for Grafana OpenTL Exporter"
+}
+
+variable "grafana_open_tl_resource_attributes" {
+  type = string
+  description = "Resource attributes for Grafana OpenTL Exporter"
+}
+
+variable "grafana_open_tl_auth_header" {
+  type      = string
+  description = "Grafana OpenTL authentication header API key"
+  sensitive = true
+}
+
+# =============================================================================
+# Azure Container Registry Configuration
+# =============================================================================
+
+variable "acr_name" {
+  description = "Name of the Azure Container Registry"
+  type        = string
+}
+
+variable "acr_admin_username" {
+  description = "Admin username for the Azure Container Registry"
+  type        = string
+}
+
+variable "acr_admin_password" {
+  description = "Admin password for the Azure Container Registry"
+  type        = string
+  sensitive   = true
 }

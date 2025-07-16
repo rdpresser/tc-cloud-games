@@ -7,11 +7,9 @@ on:
   workflow_dispatch:
 
 env:
-  ACR_NAME: tccloudgamesregistry
-  CONTAINER_APP_NAME: tc-cloudgames-api-container-app
-  RESOURCE_GROUP: tc-cloudgames-rg
+  # Apenas configurações que não mudam por ambiente
   IMAGE_TAG: ${{ github.sha }}
-  KEYVAULT_NAME: tc-cloudgames-kv
+  # Key Vault será detectado dinamicamente baseado na subscription ativa
 
 jobs:
   build-and-test:
@@ -47,12 +45,41 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🔑 Fetch secrets from Azure Key Vault
-        id: fetch-secrets
+      - name: 🔍 Discover environment configuration
+        id: discover-config
+        run: |
+          # Buscar Key Vault baseado na subscription ativa
+          SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+          echo "Current subscription: $SUBSCRIPTION_ID"
+          
+          # Buscar Key Vault (assumindo padrão de nomenclatura)
+          KEYVAULT_NAME=$(az keyvault list --query "[?contains(name, 'tc-cloudgames')].name" -o tsv | head -1)
+          
+          if [ -z "$KEYVAULT_NAME" ]; then
+            echo "❌ Key Vault não encontrado na subscription atual"
+            exit 1
+          fi
+          
+          echo "✅ Key Vault encontrado: $KEYVAULT_NAME"
+          echo "keyvault-name=$KEYVAULT_NAME" >> $GITHUB_OUTPUT
+
+      - name: 🔑 Fetch infrastructure secrets from Azure Key Vault
+        id: fetch-infra-secrets
         uses: azure/get-keyvault-secrets@v1
         with:
-          keyvault: ${{ env.KEYVAULT_NAME }}
-          secrets: dbpasswordkv,cachepasswordkv,opentlkv,grafanaapitokenkv
+          keyvault: ${{ steps.discover-config.outputs['keyvault-name'] }}
+          secrets: acr-name,container-app-name,resource-group-name,acr-username,acr-password
+        env:
+          AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+
+      - name: 🔑 Fetch application secrets from Azure Key Vault
+        id: fetch-app-secrets
+        uses: azure/get-keyvault-secrets@v1
+        with:
+          keyvault: ${{ steps.discover-config.outputs['keyvault-name'] }}
+          secrets: db-password,cache-password,otel-auth-header,grafana-api-token,db-host,db-port,db-name,db-user,cache-host,cache-port,otel-endpoint,otel-protocol,otel-resource-attributes
         env:
           AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
           AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
@@ -60,32 +87,49 @@ jobs:
 
       - name: 💾 Upload Key Vault secrets to Azure Container App
         env:
-          DB_PASSWORD: ${{ steps.fetch-secrets.outputs.dbpasswordkv }}
-          CACHE_PASSWORD: ${{ steps.fetch-secrets.outputs.cachepasswordkv }}
-          OPENTL_PASSWORD: ${{ steps.fetch-secrets.outputs.opentlkv }}
-          GRAFANA_API_TOKEN: ${{ steps.fetch-secrets.outputs.grafanaapitokenkv }}
+          # Infrastructure configuration
+          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
+          CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
+          RESOURCE_GROUP: ${{ steps.fetch-infra-secrets.outputs['resource-group-name'] }}
+          
+          # Application secrets
+          DB_PASSWORD: ${{ steps.fetch-app-secrets.outputs['db-password'] }}
+          CACHE_PASSWORD: ${{ steps.fetch-app-secrets.outputs['cache-password'] }}
+          OTEL_AUTH_HEADER: ${{ steps.fetch-app-secrets.outputs['otel-auth-header'] }}
+          GRAFANA_API_TOKEN: ${{ steps.fetch-app-secrets.outputs['grafana-api-token'] }}
         run: |          
           az containerapp secret set \
             --name "$CONTAINER_APP_NAME" \
             --resource-group "$RESOURCE_GROUP" \
-            --secrets db-password-secret="$DB_PASSWORD" cache-password-secret="$CACHE_PASSWORD" opentl-password-secret="$OPENTL_PASSWORD" grafana-api-token-secret="$GRAFANA_API_TOKEN"
+            --secrets db-password-secret="$DB_PASSWORD" cache-password-secret="$CACHE_PASSWORD" otel-auth-header-secret="$OTEL_AUTH_HEADER" grafana-api-token-secret="$GRAFANA_API_TOKEN"
 
       - name: 🐳 Login to ACR
+        env:
+          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
+          ACR_USERNAME: ${{ steps.fetch-infra-secrets.outputs['acr-username'] }}
+          ACR_PASSWORD: ${{ steps.fetch-infra-secrets.outputs['acr-password'] }}
         uses: docker/login-action@v3
         with:
           registry: ${{ env.ACR_NAME }}.azurecr.io
-          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
-          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+          username: ${{ env.ACR_USERNAME }}
+          password: ${{ env.ACR_PASSWORD }}
 
       - name: ⚙️ Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: ⚙️ Build and push Docker image
+        env:
+          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
+          CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
         run: |
-          docker build -f ./src/TC.CloudGames.Api/Dockerfile -t $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG .
-          docker push $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG
+          docker build -f ./src/TC.CloudGames.Api/Dockerfile -t $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:${{ env.IMAGE_TAG }} .
+          docker push $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:${{ env.IMAGE_TAG }}
 
       - name: 🚀 Deploy to Azure Container App
+        env:
+          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
+          CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
+          RESOURCE_GROUP: ${{ steps.fetch-infra-secrets.outputs['resource-group-name'] }}
         uses: azure/container-apps-deploy-action@v2
         with:
           acrName: ${{ env.ACR_NAME }}
@@ -94,20 +138,23 @@ jobs:
           imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}
           environmentVariables: >
             ASPNETCORE_ENVIRONMENT=Development
-            DB_HOST=${{ secrets.AZURE_DB_HOST }}
-            DB_PORT=${{ secrets.AZURE_DB_PORT }}
-            DB_NAME=${{ secrets.AZURE_DB_NAME }}
-            DB_USER=${{ secrets.AZURE_DB_USER }}
+            DB_HOST=${{ steps.fetch-app-secrets.outputs['db-host'] }}
+            DB_PORT=${{ steps.fetch-app-secrets.outputs['db-port'] }}
+            DB_NAME=${{ steps.fetch-app-secrets.outputs['db-name'] }}
+            DB_USER=${{ steps.fetch-app-secrets.outputs['db-user'] }}
             DB_PASSWORD=secretref:db-password-secret
-            CACHE_HOST=${{ secrets.AZURE_CACHE_HOST }}
-            CACHE_PORT=${{ secrets.AZURE_CACHE_PORT }}
+            CACHE_HOST=${{ steps.fetch-app-secrets.outputs['cache-host'] }}
+            CACHE_PORT=${{ steps.fetch-app-secrets.outputs['cache-port'] }}
             CACHE_PASSWORD=secretref:cache-password-secret
-            OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-sa-east-1.grafana.net/otlp
-            OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-            OTEL_EXPORTER_OTLP_HEADERS=secretref:opentl-password-secret
+            OTEL_EXPORTER_OTLP_ENDPOINT=${{ steps.fetch-app-secrets.outputs['otel-endpoint'] }}
+            OTEL_EXPORTER_OTLP_PROTOCOL=${{ steps.fetch-app-secrets.outputs['otel-protocol'] }}
+            OTEL_EXPORTER_OTLP_HEADERS=secretref:otel-auth-header-secret
             GRAFANA_API_TOKEN=secretref:grafana-api-token-secret
-            OTEL_RESOURCE_ATTRIBUTES="service.name=tccloudgames-app,service.namespace=tccloudgames-app-group,deployment.environment=development"
+            OTEL_RESOURCE_ATTRIBUTES=${{ steps.fetch-app-secrets.outputs['otel-resource-attributes'] }}
 
       - name: 📦 Output deployed image tag
+        env:
+          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
+          CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
         run: |
-          echo "Deployed image: $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:$IMAGE_TAG"
+          echo "Deployed image: $ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:${{ env.IMAGE_TAG }}"
