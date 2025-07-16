@@ -59,6 +59,20 @@ resource "azurerm_key_vault" "key_vault" {
     ]
   }
 
+  # 👤 User (Azure AD user objectId)
+  access_policy {
+    tenant_id = var.tenant_id
+    object_id = var.app_object_id_github_actions
+
+    secret_permissions = [
+      "Get", "List", "Set", "Delete", "Recover", "Backup"
+    ]
+
+    key_permissions = [
+      "Get", "List", "Update", "Create", "Import", "Delete"
+    ]
+  }
+
   depends_on = [
     azurerm_resource_group.rg
   ]
