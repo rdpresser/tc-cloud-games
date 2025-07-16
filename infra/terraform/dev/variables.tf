@@ -120,18 +120,18 @@ variable "grafana_open_tl_auth_header" {
 # Azure Container Registry Configuration
 # =============================================================================
 
-variable "acr_name" {
-  description = "Name of the Azure Container Registry"
-  type        = string
-}
+# variable "acr_name" {
+#   description = "Name of the Azure Container Registry"
+#   type        = string
+# }
 
-variable "acr_admin_username" {
-  description = "Admin username for the Azure Container Registry"
-  type        = string
-}
+# variable "acr_admin_username" {
+#   description = "Admin username for the Azure Container Registry"
+#   type        = string
+# }
 
-variable "acr_admin_password" {
-  description = "Admin password for the Azure Container Registry"
-  type        = string
-  sensitive   = true
-}
+# variable "acr_admin_password" {
+#   description = "Admin password for the Azure Container Registry"
+#   type        = string
+#   sensitive   = true
+# }
