@@ -15,6 +15,18 @@ variable "postgres_admin_password" {
   type      = string
   sensitive = true
 }
+variable "cache_password" {
+  type      = string
+  sensitive = true
+}
+variable "grafana_api_token" {
+  type      = string
+  sensitive = true
+}
+variable "open_tl" {
+  type      = string
+  sensitive = true
+}
 variable "app_object_id" {
   type    = string
   default = "d240991c-b9f9-446e-b890-0ff307e34ab4"

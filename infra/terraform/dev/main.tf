@@ -78,6 +78,27 @@ resource "azurerm_key_vault" "key_vault" {
   ]
 }
 
+resource "azurerm_key_vault_secret" "key_vault_secret_cachepassword" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "cachepasswordkv"
+  value        = var.cache_password
+}
+resource "azurerm_key_vault_secret" "key_vault_secret_postgresadminpassword" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "dbpasswordkv"
+  value        = var.postgres_admin_password
+}
+resource "azurerm_key_vault_secret" "key_vault_secret_grafanaapitoken" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "grafanaapitokenkv"
+  value        = var.grafana_api_token
+}
+resource "azurerm_key_vault_secret" "key_vault_secret_opentl" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "opentlkv"
+  value        = var.open_tl
+}
+
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
   name                = "tc-cloudgames-dev-db"
   location            = "canadacentral"
