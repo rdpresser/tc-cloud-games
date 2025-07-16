@@ -26,8 +26,8 @@ resource "azurerm_resource_group" "rg" {
 
 resource "azurerm_key_vault" "key_vault" {
   name                = "tc-cloudgames-dev-kv"
-  location            = var.azure_resource_group_location
-  resource_group_name = var.azure_resource_group_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
   sku_name            = "standard"
   tenant_id           = var.azure_tenant_id
 
@@ -82,30 +82,46 @@ resource "azurerm_key_vault_secret" "key_vault_secret_cache_password" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "cache-password"
   value        = var.redis_cache_password
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
 }
 
 resource "azurerm_key_vault_secret" "key_vault_secret_db_password" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "db-password"
   value        = var.postgres_admin_password
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
 }
 
 resource "azurerm_key_vault_secret" "key_vault_secret_grafana_api_token" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "grafana-api-token"
   value        = var.grafana_logs_api_token
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
 }
 
 resource "azurerm_key_vault_secret" "key_vault_secret_otel_auth_header" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "otel-auth-header"
   value        = var.grafana_open_tl_auth_header
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
 }
 
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
   name                = "tc-cloudgames-dev-db"
-  location            = azurerm_resource_group.tc_cloud_games_rg.location
-  resource_group_name = azurerm_resource_group.tc_cloud_games_rg.name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
   zone                = "1"
 
   administrator_login    = var.postgres_admin_login
@@ -120,7 +136,7 @@ resource "azurerm_postgresql_flexible_server" "postgres_server" {
   geo_redundant_backup_enabled = false
 
   depends_on = [
-    azurerm_resource_group.tc_cloud_games_rg
+    azurerm_resource_group.rg
   ]
 }
 
