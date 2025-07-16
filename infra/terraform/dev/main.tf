@@ -78,7 +78,6 @@ resource "azurerm_key_vault" "key_vault" {
   ]
 }
 
-
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
   name                = "tc-cloudgames-dev-db"
   location            = "canadacentral"
@@ -99,4 +98,17 @@ resource "azurerm_postgresql_flexible_server" "postgres_server" {
   depends_on = [
     azurerm_resource_group.rg
   ]
+}
+
+resource "azurerm_postgresql_flexible_server_firewall_rule" "postgres_server_firewall_rule_01" {
+  end_ip_address   = "0.0.0.0"
+  name             = "AllowAllAzureServicesAndResourcesWithinAzureIps_2025-7-15_10-48-25"
+  server_id        = azurerm_postgresql_flexible_server.postgres_server.id
+  start_ip_address = "0.0.0.0"
+}
+resource "azurerm_postgresql_flexible_server_firewall_rule" "postgres_server_firewall_rule_02" {
+  end_ip_address   = "179.216.21.147"
+  name             = "ClientIPAddress_2025-7-15_10-36-11"
+  server_id        = azurerm_postgresql_flexible_server.postgres_server.id
+  start_ip_address = "179.216.21.147"
 }
