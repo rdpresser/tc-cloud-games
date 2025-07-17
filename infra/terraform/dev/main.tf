@@ -45,17 +45,25 @@ resource "azurerm_key_vault" "key_vault" {
   sku_name            = "standard"
   tenant_id           = var.azure_tenant_id
 
+  # Enable soft delete with purge protection disabled to allow purging
+  soft_delete_retention_days = 7
+  purge_protection_enabled   = false
+
   # 🔑 Application (Service Principal ou Managed Identity)
   access_policy {
     tenant_id = var.azure_tenant_id
     object_id = var.app_object_id # Service principal objectId
 
     key_permissions = [
-      "Get", "List", "Update", "Create", "Import", "Delete"
+      "Get", "List", "Update", "Create", "Import", "Delete", "Purge", "Recover", "Backup", "Restore"
     ]
 
     secret_permissions = [
-      "Get", "List", "Set", "Delete", "Recover", "Backup"
+      "Get", "List", "Set", "Delete", "Purge", "Recover", "Backup", "Restore"
+    ]
+
+    certificate_permissions = [
+      "Get", "List", "Update", "Create", "Import", "Delete", "Purge", "Recover", "Backup", "Restore"
     ]
   }
 
@@ -65,11 +73,15 @@ resource "azurerm_key_vault" "key_vault" {
     object_id = var.user_object_id # Usuário AAD
 
     secret_permissions = [
-      "Get", "List", "Set", "Delete", "Recover", "Backup"
+      "Get", "List", "Set", "Delete", "Purge", "Recover", "Backup", "Restore"
     ]
 
     key_permissions = [
-      "Get", "List", "Update", "Create", "Import", "Delete"
+      "Get", "List", "Update", "Create", "Import", "Delete", "Purge", "Recover", "Backup", "Restore"
+    ]
+
+    certificate_permissions = [
+      "Get", "List", "Update", "Create", "Import", "Delete", "Purge", "Recover", "Backup", "Restore"
     ]
   }
 
@@ -79,11 +91,15 @@ resource "azurerm_key_vault" "key_vault" {
     object_id = var.app_object_id_github_actions
 
     secret_permissions = [
-      "Get", "List", "Set", "Delete", "Recover", "Backup"
+      "Get", "List", "Set", "Delete", "Purge", "Recover", "Backup", "Restore"
     ]
 
     key_permissions = [
-      "Get", "List", "Update", "Create", "Import", "Delete"
+      "Get", "List", "Update", "Create", "Import", "Delete", "Purge", "Recover", "Backup", "Restore"
+    ]
+
+    certificate_permissions = [
+      "Get", "List", "Update", "Create", "Import", "Delete", "Purge", "Recover", "Backup", "Restore"
     ]
   }
 
