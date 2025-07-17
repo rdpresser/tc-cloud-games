@@ -9,6 +9,7 @@ on:
 env:
   # Apenas configurações que não mudam por ambiente
   IMAGE_TAG: ${{ github.sha }}
+  CREDENTIALS_NAME: MAIN_AZURE_CREDENTIALS
   # Key Vault será detectado dinamicamente baseado na subscription ativa
 
 jobs:
@@ -43,9 +44,9 @@ jobs:
       - name: 🔐 Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ secrets[env.CREDENTIALS_NAME] }}
 
-      - name: 🔍 Discover environment configuration
+      - name:  Discover environment configuration
         id: discover-config
         run: |
           # Buscar Key Vault baseado na subscription ativa
@@ -70,20 +71,20 @@ jobs:
           keyvault: ${{ steps.discover-config.outputs['keyvault-name'] }}
           secrets: acr-name,container-app-name,resource-group-name,acr-username,acr-password
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+          AZURE_CLIENT_ID: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).clientSecret }}
 
       - name: 🔑 Fetch application secrets from Azure Key Vault
         id: fetch-app-secrets
         uses: azure/get-keyvault-secrets@v1
         with:
           keyvault: ${{ steps.discover-config.outputs['keyvault-name'] }}
-          secrets: db-password,cache-password,otel-auth-header,grafana-api-token,db-host,db-port,db-name,db-user,cache-host,cache-port,otel-endpoint,otel-protocol,otel-resource-attributes
+          secrets: db-password,cache-password,otel-auth-header,grafana-api-token,db-host,db-port,db-name,db-admin-login,cache-host,cache-port,grafana-endpoint,grafana-protocol,grafana-resource-attributes
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+          AZURE_CLIENT_ID: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).clientSecret }}
 
       - name: 💾 Upload Key Vault secrets to Azure Container App
         env:
@@ -141,16 +142,16 @@ jobs:
             DB_HOST=${{ steps.fetch-app-secrets.outputs['db-host'] }}
             DB_PORT=${{ steps.fetch-app-secrets.outputs['db-port'] }}
             DB_NAME=${{ steps.fetch-app-secrets.outputs['db-name'] }}
-            DB_USER=${{ steps.fetch-app-secrets.outputs['db-user'] }}
+            DB_USER=${{ steps.fetch-app-secrets.outputs['db-admin-login'] }}
             DB_PASSWORD=secretref:db-password-secret
             CACHE_HOST=${{ steps.fetch-app-secrets.outputs['cache-host'] }}
             CACHE_PORT=${{ steps.fetch-app-secrets.outputs['cache-port'] }}
             CACHE_PASSWORD=secretref:cache-password-secret
-            OTEL_EXPORTER_OTLP_ENDPOINT=${{ steps.fetch-app-secrets.outputs['otel-endpoint'] }}
-            OTEL_EXPORTER_OTLP_PROTOCOL=${{ steps.fetch-app-secrets.outputs['otel-protocol'] }}
+            OTEL_EXPORTER_OTLP_ENDPOINT=${{ steps.fetch-app-secrets.outputs['grafana-endpoint'] }}
+            OTEL_EXPORTER_OTLP_PROTOCOL=${{ steps.fetch-app-secrets.outputs['grafana-protocol'] }}
             OTEL_EXPORTER_OTLP_HEADERS=secretref:otel-auth-header-secret
             GRAFANA_API_TOKEN=secretref:grafana-api-token-secret
-            OTEL_RESOURCE_ATTRIBUTES=${{ steps.fetch-app-secrets.outputs['otel-resource-attributes'] }}
+            OTEL_RESOURCE_ATTRIBUTES=${{ steps.fetch-app-secrets.outputs['grafana-resource-attributes'] }}
 
       - name: 📦 Output deployed image tag
         env:
