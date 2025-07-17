@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1"
+    }
   }
   cloud {
     organization = "rdpresser_tccloudgames_fiap"
@@ -19,13 +23,23 @@ provider "azurerm" {
   features {}
 }
 
+# =============================================================================
+# Random String for Globally Unique Resources
+# =============================================================================
+
+resource "random_string" "unique_suffix" {
+  length  = 8
+  upper   = false
+  special = false
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = var.azure_resource_group_name
   location = var.azure_resource_group_location
 }
 
 resource "azurerm_key_vault" "key_vault" {
-  name                = "tc-cloudgames-dev-kv"
+  name                = "tc-cloudgames-dev-kv-${random_string.unique_suffix.result}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   sku_name            = "standard"
@@ -77,6 +91,54 @@ resource "azurerm_key_vault" "key_vault" {
     azurerm_resource_group.rg
   ]
 }
+
+# =============================================================================
+# Infrastructure Configuration Secrets (for CI/CD)
+# =============================================================================
+
+resource "azurerm_key_vault_secret" "key_vault_secret_acr_name" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "acr-name"
+  value        = var.acr_name
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+resource "azurerm_key_vault_secret" "key_vault_secret_acr_username" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "acr-username"
+  value        = var.acr_admin_username
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+resource "azurerm_key_vault_secret" "key_vault_secret_acr_password" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "acr-password"
+  value        = var.acr_admin_password
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+resource "azurerm_key_vault_secret" "key_vault_secret_container_app_name" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "container-app-name"
+  value        = var.container_app_name
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+# =============================================================================
+# Application Secrets
+# =============================================================================
 
 resource "azurerm_key_vault_secret" "key_vault_secret_cache_password" {
   key_vault_id = azurerm_key_vault.key_vault.id
@@ -221,7 +283,7 @@ resource "azurerm_key_vault_secret" "key_vault_secret_grafana_resource_attribute
 }
 
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
-  name                = "tc-cloudgames-dev-db"
+  name                = "tc-cloudgames-dev-db-${random_string.unique_suffix.result}"
   location            = "canadacentral"
   resource_group_name = azurerm_resource_group.rg.name
   zone                = "1"
