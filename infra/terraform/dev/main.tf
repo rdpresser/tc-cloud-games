@@ -118,9 +118,111 @@ resource "azurerm_key_vault_secret" "key_vault_secret_otel_auth_header" {
   ]
 }
 
+# =============================================================================
+# Database Configuration Secrets
+# =============================================================================
+
+resource "azurerm_key_vault_secret" "key_vault_secret_db_admin_login" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "db-admin-login"
+  value        = var.postgres_admin_login
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+resource "azurerm_key_vault_secret" "key_vault_secret_db_host" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "db-host"
+  value        = var.postgres_db_host
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+resource "azurerm_key_vault_secret" "key_vault_secret_db_name" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "db-name"
+  value        = var.postgres_db_name
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+resource "azurerm_key_vault_secret" "key_vault_secret_db_port" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "db-port"
+  value        = tostring(var.postgres_db_port)
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+# =============================================================================
+# Redis Cache Configuration Secrets
+# =============================================================================
+
+resource "azurerm_key_vault_secret" "key_vault_secret_cache_host" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "cache-host"
+  value        = var.redis_cache_host
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+resource "azurerm_key_vault_secret" "key_vault_secret_cache_port" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "cache-port"
+  value        = tostring(var.redis_cache_port)
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+# =============================================================================
+# Grafana OpenTL Configuration Secrets
+# =============================================================================
+
+resource "azurerm_key_vault_secret" "key_vault_secret_grafana_endpoint" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "grafana-endpoint"
+  value        = var.grafana_open_tl_exporter_endpoint
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+resource "azurerm_key_vault_secret" "key_vault_secret_grafana_protocol" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "grafana-protocol"
+  value        = var.grafana_open_tl_exporter_protocol
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
+resource "azurerm_key_vault_secret" "key_vault_secret_grafana_resource_attributes" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "grafana-resource-attributes"
+  value        = var.grafana_open_tl_resource_attributes
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
   name                = "tc-cloudgames-dev-db"
-  location            = azurerm_resource_group.rg.location
+  location            = "canadacentral"
   resource_group_name = azurerm_resource_group.rg.name
   zone                = "1"
 
