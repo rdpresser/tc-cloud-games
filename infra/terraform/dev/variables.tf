@@ -32,11 +32,6 @@ variable "postgres_admin_password" {
   sensitive   = true
 }
 
-variable "postgres_db_host" {
-  description = "Hostname for PostgreSQL database"
-  type        = string
-}
-
 variable "postgres_db_name" {
   description = "Name of the PostgreSQL database"
   type        = string
@@ -64,26 +59,6 @@ variable "app_object_id_github_actions" {
 variable "user_object_id" {
   description = "Object ID of the user in Azure AD"
   type        = string
-}
-
-# =============================================================================
-# Azure Redis Cache Configuration
-# =============================================================================
-
-variable "redis_cache_password" {
-  type        = string
-  description = "Password for Redis cache authentication"
-  sensitive   = true
-}
-
-variable "redis_cache_host" {
-  type        = string
-  description = "Hostname for Redis cache"
-}
-
-variable "redis_cache_port" {
-  type        = number
-  description = "Port for Redis cache"
 }
 
 # =============================================================================

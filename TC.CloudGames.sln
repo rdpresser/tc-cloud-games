@@ -83,6 +83,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fase_01", "fase_01", "{9B5B
 		doc\fase_01\Funcionalidades obrigatórias.docx = doc\fase_01\Funcionalidades obrigatórias.docx
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infra", "infra", "{1FDBFEB8-5A5F-4DCC-8B77-1320B69736AB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "terraform", "terraform", "{983F67D9-331B-4E14-BB1B-D1DCE67D6288}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dev", "dev", "{4D0B258F-5E53-4DC2-90A0-460DA6937118}"
+	ProjectSection(SolutionItems) = preProject
+		infra\terraform\dev\main.tf = infra\terraform\dev\main.tf
+		infra\terraform\dev\outputs.tf = infra\terraform\dev\outputs.tf
+		infra\terraform\dev\variables.tf = infra\terraform\dev\variables.tf
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -163,6 +174,9 @@ Global
 		{21A2451C-EA3D-4B51-ABB8-4FB7F37119DB} = {75F75AB9-EB63-43FA-96F1-4A32A1852CF5}
 		{15D2659A-6930-4A4A-9F63-34E0376D51D0} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
 		{9B5B9C3A-9DFA-4DB1-8131-1311EFC7FE40} = {15D2659A-6930-4A4A-9F63-34E0376D51D0}
+		{1FDBFEB8-5A5F-4DCC-8B77-1320B69736AB} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
+		{983F67D9-331B-4E14-BB1B-D1DCE67D6288} = {1FDBFEB8-5A5F-4DCC-8B77-1320B69736AB}
+		{4D0B258F-5E53-4DC2-90A0-460DA6937118} = {983F67D9-331B-4E14-BB1B-D1DCE67D6288}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A61EC7C9-970A-4856-9FA0-A09EE45536BB}

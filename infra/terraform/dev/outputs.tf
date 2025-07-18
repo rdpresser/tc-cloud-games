@@ -97,3 +97,27 @@ output "container_app_environment_name" {
 }
 
 # =============================================================================
+# Redis Cache Outputs
+# =============================================================================
+
+output "redis_cache_name" {
+  description = "Name of the Redis cache"
+  value       = azurerm_redis_cache.redis_cache.name
+}
+
+output "redis_cache_hostname" {
+  description = "Hostname of the Redis cache"
+  value       = azurerm_redis_cache.redis_cache.hostname
+}
+
+output "redis_cache_ssl_port" {
+  description = "SSL port of the Redis cache"
+  value       = azurerm_redis_cache.redis_cache.ssl_port
+}
+
+output "redis_cache_port" {
+  description = "Non-SSL port of the Redis cache"
+  value       = azurerm_redis_cache.redis_cache.port
+}
+
+# =============================================================================

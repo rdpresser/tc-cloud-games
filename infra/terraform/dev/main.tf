@@ -159,10 +159,11 @@ resource "azurerm_key_vault_secret" "key_vault_secret_container_app_name" {
 resource "azurerm_key_vault_secret" "key_vault_secret_cache_password" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "cache-password"
-  value        = var.redis_cache_password
+  value        = azurerm_redis_cache.redis_cache.primary_access_key
 
   depends_on = [
-    azurerm_key_vault.key_vault
+    azurerm_key_vault.key_vault,
+    azurerm_redis_cache.redis_cache
   ]
 }
 
@@ -213,10 +214,11 @@ resource "azurerm_key_vault_secret" "key_vault_secret_db_admin_login" {
 resource "azurerm_key_vault_secret" "key_vault_secret_db_host" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "db-host"
-  value        = var.postgres_db_host
+  value        = azurerm_postgresql_flexible_server.postgres_server.fqdn
 
   depends_on = [
-    azurerm_key_vault.key_vault
+    azurerm_key_vault.key_vault,
+    azurerm_postgresql_flexible_server.postgres_server
   ]
 }
 
@@ -247,20 +249,22 @@ resource "azurerm_key_vault_secret" "key_vault_secret_db_port" {
 resource "azurerm_key_vault_secret" "key_vault_secret_cache_host" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "cache-host"
-  value        = var.redis_cache_host
+  value        = azurerm_redis_cache.redis_cache.hostname
 
   depends_on = [
-    azurerm_key_vault.key_vault
+    azurerm_key_vault.key_vault,
+    azurerm_redis_cache.redis_cache
   ]
 }
 
 resource "azurerm_key_vault_secret" "key_vault_secret_cache_port" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "cache-port"
-  value        = tostring(var.redis_cache_port)
+  value        = tostring(azurerm_redis_cache.redis_cache.ssl_port)
 
   depends_on = [
-    azurerm_key_vault.key_vault
+    azurerm_key_vault.key_vault,
+    azurerm_redis_cache.redis_cache
   ]
 }
 
@@ -443,7 +447,7 @@ resource "azurerm_container_app" "tc_cloudgames_api" {
         name  = "ASPNETCORE_ENVIRONMENT"
         value = "Development"
       }
-      
+
       # Database configuration
       env {
         name  = "DB_HOST"
@@ -466,14 +470,14 @@ resource "azurerm_container_app" "tc_cloudgames_api" {
         secret_name = "db-password-secret"
       }
 
-      # Cache configuration - Using env vars from CI/CD
+      # Cache configuration - Using actual Redis resource values
       env {
         name  = "CACHE_HOST"
-        value = var.redis_cache_host
+        value = azurerm_redis_cache.redis_cache.hostname
       }
       env {
         name  = "CACHE_PORT"
-        value = tostring(var.redis_cache_port)
+        value = tostring(azurerm_redis_cache.redis_cache.ssl_port)
       }
       env {
         name        = "CACHE_PASSWORD"
@@ -512,4 +516,42 @@ resource "azurerm_container_app" "tc_cloudgames_api" {
       concurrent_requests = "10"
     }
   }
+}
+
+# =============================================================================
+# Azure Cache for Redis
+# =============================================================================
+
+resource "azurerm_redis_cache" "redis_cache" {
+  name                = "tc-cloudgames-redis-${random_string.unique_suffix.result}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  capacity            = 0
+  family              = "C"
+  sku_name            = "Basic"
+
+  # Security settings
+  //enable_non_ssl_port = false
+  minimum_tls_version = "1.2"
+
+  # Access settings
+  public_network_access_enabled = true
+
+  # Redis configuration
+  redis_configuration {
+    //enable_authentication           = true
+    maxmemory_reserved = 2
+    maxmemory_delta    = 2
+    maxmemory_policy   = "volatile-lru"
+  }
+
+  tags = {
+    Environment = "Development"
+    Project     = "TC Cloud Games"
+    ManagedBy   = "Terraform"
+  }
+
+  depends_on = [
+    azurerm_resource_group.rg
+  ]
 }
