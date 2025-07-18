@@ -511,11 +511,12 @@ resource "azurerm_container_app" "tc_cloudgames_api" {
     }
   }
 
-  # Container template
+  # Container template with placeholder image
   template {
     container {
-      name   = "tc-cloudgames-api-container"
-      image  = "${azurerm_container_registry.acr.login_server}/tc-cloudgames-api-app:latest"
+      name = "tc-cloudgames-api-container"
+      # Use a placeholder image that exists - this will be updated by CI/CD
+      image  = "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
       cpu    = 0.5
       memory = "1Gi"
 
@@ -593,6 +594,20 @@ resource "azurerm_container_app" "tc_cloudgames_api" {
       concurrent_requests = "10"
     }
   }
+
+  # Ignore changes to the image since CI/CD will update it
+  lifecycle {
+    ignore_changes = [
+      template[0].container[0].image
+    ]
+  }
+
+  depends_on = [
+    azurerm_container_app_environment.container_app_environment,
+    azurerm_container_registry.acr,
+    azurerm_postgresql_flexible_server.postgres_server,
+    azurerm_redis_cache.redis_cache
+  ]
 }
 
 # =============================================================================
