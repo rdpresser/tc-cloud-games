@@ -9,7 +9,6 @@ on:
 env:
   # Deployment configuration
   IMAGE_TAG: ${{ github.sha }}
-  CREDENTIALS_NAME: MAIN_AZURE_CREDENTIALS
   # Environment-specific configuration
   RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
   KEYVAULT_NAME: 'tccloudgamesdevkv92mr'
@@ -66,7 +65,7 @@ jobs:
       - name: 🔐 Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{ secrets[env.CREDENTIALS_NAME] }}
+          creds: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
 
       - name: 🔑 Fetch infrastructure secrets from Azure Key Vault
         id: fetch-infra-secrets
@@ -76,9 +75,9 @@ jobs:
           keyvault: ${{ env.KEYVAULT_NAME }}
           secrets: acr-name,acr-username,acr-password,container-app-name
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).clientSecret }}
+          AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
 
       - name: 🔑 Fetch database secrets from Azure Key Vault
         id: fetch-db-secrets
@@ -88,9 +87,9 @@ jobs:
           keyvault: ${{ env.KEYVAULT_NAME }}
           secrets: db-password,db-host,db-port,db-name,db-admin-login
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).clientSecret }}
+          AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
 
       - name: 🔑 Fetch observability secrets from Azure Key Vault
         id: fetch-observability-secrets
@@ -100,9 +99,9 @@ jobs:
           keyvault: ${{ env.KEYVAULT_NAME }}
           secrets: cache-password,cache-host,cache-port,otel-auth-header,grafana-api-token,grafana-endpoint,grafana-protocol,grafana-resource-attributes
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets[env.CREDENTIALS_NAME]).clientSecret }}
+          AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
 
       - name: 🔍 Validate required secrets
         env:
