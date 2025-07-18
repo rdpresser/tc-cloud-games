@@ -332,3 +332,184 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "postgres_server_fir
   server_id        = azurerm_postgresql_flexible_server.postgres_server.id
   start_ip_address = "179.216.21.147"
 }
+
+# =============================================================================
+# Azure Container Registry
+# =============================================================================
+
+resource "azurerm_container_registry" "acr" {
+  name                = "tccloudgamesacr${random_string.unique_suffix.result}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Basic"
+  admin_enabled       = true
+
+  tags = {
+    Environment = "Development"
+    Project     = "TC Cloud Games"
+    ManagedBy   = "Terraform"
+  }
+}
+
+# =============================================================================
+# Log Analytics Workspace
+# =============================================================================
+
+resource "azurerm_log_analytics_workspace" "log_analytics" {
+  name                = "tc-cloudgames-logs-${random_string.unique_suffix.result}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+
+  tags = {
+    Environment = "dev"
+    ManagedBy   = "terraform"
+    Project     = "tc-cloudgames"
+  }
+}
+
+# =============================================================================
+# Container App Environment
+# =============================================================================
+
+resource "azurerm_container_app_environment" "container_app_environment" {
+  name                       = "managedEnvironment-tccloudgamesrg-${random_string.unique_suffix.result}"
+  location                   = azurerm_resource_group.rg.location
+  resource_group_name        = azurerm_resource_group.rg.name
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.log_analytics.id
+}
+
+# =============================================================================
+# Container App
+# =============================================================================
+
+resource "azurerm_container_app" "tc_cloudgames_api" {
+  name                         = "tc-cloudgames-api-app"
+  container_app_environment_id = azurerm_container_app_environment.container_app_environment.id
+  resource_group_name          = azurerm_resource_group.rg.name
+  revision_mode                = "Single"
+
+  # Registry configuration using the new ACR
+  registry {
+    server               = azurerm_container_registry.acr.login_server
+    username             = azurerm_container_registry.acr.admin_username
+    password_secret_name = "acr-password-secret"
+  }
+
+  # Secrets management - Using placeholder values that will be updated by CI/CD
+  # The CI/CD pipeline uses: az containerapp secret set --secrets <values from Key Vault>
+  secret {
+    name  = "acr-password-secret"
+    value = azurerm_container_registry.acr.admin_password
+  }
+  secret {
+    name  = "db-password-secret"
+    value = "placeholder-updated-by-cicd"
+  }
+  secret {
+    name  = "cache-password-secret"
+    value = "placeholder-updated-by-cicd"
+  }
+  secret {
+    name  = "otel-auth-header-secret"
+    value = "placeholder-updated-by-cicd"
+  }
+  secret {
+    name  = "grafana-api-token-secret"
+    value = "placeholder-updated-by-cicd"
+  }
+
+  # Ingress configuration
+  ingress {
+    external_enabled = true
+    target_port      = 8080
+    traffic_weight {
+      latest_revision = true
+      percentage      = 100
+    }
+  }
+
+  # Container template
+  template {
+    container {
+      name   = "tc-cloudgames-api-container"
+      image  = "${azurerm_container_registry.acr.login_server}/tc-cloudgames-api-app:latest"
+      cpu    = 0.5
+      memory = "1Gi"
+
+      # Environment variables aligned with CI/CD workflow
+      env {
+        name  = "ASPNETCORE_ENVIRONMENT"
+        value = "Development"
+      }
+      
+      # Database configuration
+      env {
+        name  = "DB_HOST"
+        value = azurerm_postgresql_flexible_server.postgres_server.fqdn
+      }
+      env {
+        name  = "DB_PORT"
+        value = tostring(var.postgres_db_port)
+      }
+      env {
+        name  = "DB_NAME"
+        value = var.postgres_db_name
+      }
+      env {
+        name  = "DB_USER"
+        value = var.postgres_admin_login
+      }
+      env {
+        name        = "DB_PASSWORD"
+        secret_name = "db-password-secret"
+      }
+
+      # Cache configuration - Using env vars from CI/CD
+      env {
+        name  = "CACHE_HOST"
+        value = var.redis_cache_host
+      }
+      env {
+        name  = "CACHE_PORT"
+        value = tostring(var.redis_cache_port)
+      }
+      env {
+        name        = "CACHE_PASSWORD"
+        secret_name = "cache-password-secret"
+      }
+
+      # Observability configuration - Using env vars from CI/CD
+      env {
+        name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
+        value = var.grafana_open_tl_exporter_endpoint
+      }
+      env {
+        name  = "OTEL_EXPORTER_OTLP_PROTOCOL"
+        value = var.grafana_open_tl_exporter_protocol
+      }
+      env {
+        name        = "OTEL_EXPORTER_OTLP_HEADERS"
+        secret_name = "otel-auth-header-secret"
+      }
+      env {
+        name        = "GRAFANA_API_TOKEN"
+        secret_name = "grafana-api-token-secret"
+      }
+      env {
+        name  = "OTEL_RESOURCE_ATTRIBUTES"
+        value = var.grafana_open_tl_resource_attributes
+      }
+    }
+
+    # Scaling configuration
+    min_replicas = 0
+    max_replicas = 10
+
+    http_scale_rule {
+      name                = "http-scaler"
+      concurrent_requests = "10"
+    }
+  }
+}

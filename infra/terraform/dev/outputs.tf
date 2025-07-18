@@ -48,4 +48,52 @@ output "resource_group_id" {
   description = "The ID of the Resource Group"
   value       = azurerm_resource_group.rg.id
 }
+
+# =============================================================================
+# Container Registry Outputs
+# =============================================================================
+
+output "container_registry_name" {
+  description = "The name of the Container Registry"
+  value       = azurerm_container_registry.acr.name
+}
+
+output "container_registry_login_server" {
+  description = "The login server of the Container Registry"
+  value       = azurerm_container_registry.acr.login_server
+}
+
+# =============================================================================
+# Log Analytics Outputs
+# =============================================================================
+
+output "log_analytics_workspace_name" {
+  description = "The name of the Log Analytics workspace"
+  value       = azurerm_log_analytics_workspace.log_analytics.name
+}
+
+output "log_analytics_workspace_id" {
+  description = "The ID of the Log Analytics workspace"
+  value       = azurerm_log_analytics_workspace.log_analytics.id
+}
+
+# =============================================================================
+# Container App Outputs
+# =============================================================================
+
+output "container_app_name" {
+  description = "The name of the Container App"
+  value       = azurerm_container_app.tc_cloudgames_api.name
+}
+
+output "container_app_fqdn" {
+  description = "The FQDN of the Container App"
+  value       = azurerm_container_app.tc_cloudgames_api.latest_revision_fqdn
+}
+
+output "container_app_environment_name" {
+  description = "The name of the Container App Environment"
+  value       = azurerm_container_app_environment.container_app_environment.name
+}
+
 # =============================================================================
