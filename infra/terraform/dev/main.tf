@@ -32,31 +32,6 @@ resource "azurerm_resource_provider_registration" "app" {
   name = "Microsoft.App"
 }
 
-# Register Microsoft.OperationalInsights (Log Analytics)
-resource "azurerm_resource_provider_registration" "operational_insights" {
-  name = "Microsoft.OperationalInsights"
-}
-
-# Register Microsoft.ContainerRegistry (ACR)
-resource "azurerm_resource_provider_registration" "container_registry" {
-  name = "Microsoft.ContainerRegistry"
-}
-
-# Register Microsoft.KeyVault (Key Vault)
-resource "azurerm_resource_provider_registration" "key_vault" {
-  name = "Microsoft.KeyVault"
-}
-
-# Register Microsoft.DBforPostgreSQL (PostgreSQL)
-resource "azurerm_resource_provider_registration" "db_for_postgresql" {
-  name = "Microsoft.DBforPostgreSQL"
-}
-
-# Register Microsoft.Cache (Redis Cache)
-resource "azurerm_resource_provider_registration" "cache" {
-  name = "Microsoft.Cache"
-}
-
 # =============================================================================
 # Environment Configuration and Common Standards
 # =============================================================================
@@ -105,12 +80,7 @@ resource "azurerm_resource_group" "rg" {
 
   # Ensure all required providers are registered before creating resources
   depends_on = [
-    azurerm_resource_provider_registration.app,
-    azurerm_resource_provider_registration.operational_insights,
-    azurerm_resource_provider_registration.container_registry,
-    azurerm_resource_provider_registration.key_vault,
-    azurerm_resource_provider_registration.db_for_postgresql,
-    azurerm_resource_provider_registration.cache
+    azurerm_resource_provider_registration.app
   ]
 }
 
@@ -128,8 +98,7 @@ resource "azurerm_key_vault" "key_vault" {
   tags = local.common_tags
 
   depends_on = [
-    azurerm_resource_group.rg,
-    azurerm_resource_provider_registration.key_vault
+    azurerm_resource_group.rg
   ]
 
   # Enable soft delete with purge protection disabled to allow purging
@@ -412,8 +381,7 @@ resource "azurerm_postgresql_flexible_server" "postgres_server" {
   tags = local.common_tags
 
   depends_on = [
-    azurerm_resource_group.rg,
-    azurerm_resource_provider_registration.db_for_postgresql
+    azurerm_resource_group.rg
   ]
 }
 
@@ -445,8 +413,7 @@ resource "azurerm_container_registry" "acr" {
   tags = local.common_tags
 
   depends_on = [
-    azurerm_resource_group.rg,
-    azurerm_resource_provider_registration.container_registry
+    azurerm_resource_group.rg
   ]
 }
 
@@ -465,8 +432,7 @@ resource "azurerm_log_analytics_workspace" "log_analytics" {
   tags = local.common_tags
 
   depends_on = [
-    azurerm_resource_group.rg,
-    azurerm_resource_provider_registration.operational_insights
+    azurerm_resource_group.rg
   ]
 }
 
@@ -659,7 +625,6 @@ resource "azurerm_redis_cache" "redis_cache" {
   tags = local.common_tags
 
   depends_on = [
-    azurerm_resource_group.rg,
-    azurerm_resource_provider_registration.cache
+    azurerm_resource_group.rg
   ]
 }
