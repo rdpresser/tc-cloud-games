@@ -28,7 +28,7 @@ provider "azurerm" {
 # =============================================================================
 
 resource "random_string" "unique_suffix" {
-  length  = 8
+  length  = 4
   upper   = false
   special = false
 }
@@ -39,7 +39,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_key_vault" "key_vault" {
-  name                = "tc-cloudgames-kv-${random_string.unique_suffix.result}"
+  name                = "tccloudgames-dev-kv-${random_string.unique_suffix.result}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   sku_name            = "standard"
@@ -299,7 +299,7 @@ resource "azurerm_key_vault_secret" "key_vault_secret_grafana_resource_attribute
 }
 
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
-  name                = "tc-cloudgames-dev-db-${random_string.unique_suffix.result}"
+  name                = "tccloudgames-dev-db-${random_string.unique_suffix.result}"
   location            = "canadacentral"
   resource_group_name = azurerm_resource_group.rg.name
   zone                = "1"
