@@ -23,31 +23,114 @@ provider "azurerm" {
   features {}
 }
 
-# Local values for standard configurations
-locals {
-  postgres_port = 5432 # Standard PostgreSQL port
+# =============================================================================
+# Azure Resource Provider Registration (for multi-environment deployments)
+# =============================================================================
+
+# Register Microsoft.App (Container Apps)
+resource "azurerm_resource_provider_registration" "app" {
+  name = "Microsoft.App"
+}
+
+# Register Microsoft.OperationalInsights (Log Analytics)
+resource "azurerm_resource_provider_registration" "operational_insights" {
+  name = "Microsoft.OperationalInsights"
+}
+
+# Register Microsoft.ContainerRegistry (ACR)
+resource "azurerm_resource_provider_registration" "container_registry" {
+  name = "Microsoft.ContainerRegistry"
+}
+
+# Register Microsoft.KeyVault (Key Vault)
+resource "azurerm_resource_provider_registration" "key_vault" {
+  name = "Microsoft.KeyVault"
+}
+
+# Register Microsoft.DBforPostgreSQL (PostgreSQL)
+resource "azurerm_resource_provider_registration" "db_for_postgresql" {
+  name = "Microsoft.DBforPostgreSQL"
+}
+
+# Register Microsoft.Cache (Redis Cache)
+resource "azurerm_resource_provider_registration" "cache" {
+  name = "Microsoft.Cache"
 }
 
 # =============================================================================
-# Random String for Globally Unique Resources
+# Environment Configuration and Common Standards
 # =============================================================================
+
+locals {
+  # Environment and naming configuration
+  environment   = "dev" # Currently focused on dev only
+  project_name  = "tc-cloudgames"
+  name_prefix   = "${local.project_name}-${local.environment}"
+  postgres_port = 5432 # Standard PostgreSQL port
+
+  # Special naming for resources with specific requirements
+  kv_name  = "tccloudgames${local.environment}kv${random_string.unique_suffix.result}"  # No dashes for Key Vault
+  acr_name = "tccloudgames${local.environment}acr${random_string.unique_suffix.result}" # No dashes for ACR
+
+  # Common tags applied to all resources
+  common_tags = {
+    Environment = local.environment
+    Project     = "TC Cloud Games"
+    ManagedBy   = "Terraform"
+    Owner       = "DevOps Team"
+    CostCenter  = "Engineering"
+    Workspace   = terraform.workspace
+  }
+}
+
+# =============================================================================
+# Global Unique Naming
+# =============================================================================
+
 resource "random_string" "unique_suffix" {
   length  = 4
   upper   = false
   special = false
 }
 
+# =============================================================================
+# Resource Group (Foundation for all resources)
+# =============================================================================
+
 resource "azurerm_resource_group" "rg" {
-  name     = var.azure_resource_group_name
+  name     = "${local.name_prefix}-rg"
   location = var.azure_resource_group_location
+
+  tags = local.common_tags
+
+  # Ensure all required providers are registered before creating resources
+  depends_on = [
+    azurerm_resource_provider_registration.app,
+    azurerm_resource_provider_registration.operational_insights,
+    azurerm_resource_provider_registration.container_registry,
+    azurerm_resource_provider_registration.key_vault,
+    azurerm_resource_provider_registration.db_for_postgresql,
+    azurerm_resource_provider_registration.cache
+  ]
 }
 
+# =============================================================================
+# Azure Key Vault (Secrets Management)
+# =============================================================================
+
 resource "azurerm_key_vault" "key_vault" {
-  name                = "tccloudgames-dev-kv-${random_string.unique_suffix.result}"
+  name                = local.kv_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   sku_name            = "standard"
   tenant_id           = var.azure_tenant_id
+
+  tags = local.common_tags
+
+  depends_on = [
+    azurerm_resource_group.rg,
+    azurerm_resource_provider_registration.key_vault
+  ]
 
   # Enable soft delete with purge protection disabled to allow purging
   soft_delete_retention_days = 7
@@ -106,10 +189,6 @@ resource "azurerm_key_vault" "key_vault" {
       "Get", "List", "Update", "Create", "Import", "Delete", "Purge", "Recover", "Backup", "Restore"
     ]
   }
-
-  depends_on = [
-    azurerm_resource_group.rg
-  ]
 }
 
 # =============================================================================
@@ -310,25 +389,31 @@ resource "azurerm_key_vault_secret" "key_vault_secret_grafana_resource_attribute
   ]
 }
 
+# =============================================================================
+# PostgreSQL Database Server
+# =============================================================================
+
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
-  name                = "tccloudgames-dev-db-${random_string.unique_suffix.result}"
-  location            = "canadacentral"
+  name                = "${local.name_prefix}-db-${random_string.unique_suffix.result}"
+  location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   zone                = "1"
 
   administrator_login    = var.postgres_admin_login
   administrator_password = var.postgres_admin_password
 
-  sku_name = "B_Standard_B1ms"
-
+  sku_name   = "B_Standard_B1ms"
   storage_mb = 32768 # 32 GB
   version    = "16"
 
   backup_retention_days        = 7
   geo_redundant_backup_enabled = false
 
+  tags = local.common_tags
+
   depends_on = [
-    azurerm_resource_group.rg
+    azurerm_resource_group.rg,
+    azurerm_resource_provider_registration.db_for_postgresql
   ]
 }
 
@@ -346,50 +431,62 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "postgres_server_fir
 }
 
 # =============================================================================
+# =============================================================================
 # Azure Container Registry
 # =============================================================================
 
 resource "azurerm_container_registry" "acr" {
-  name                = "tccloudgamesacr${random_string.unique_suffix.result}"
+  name                = local.acr_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   sku                 = "Basic"
   admin_enabled       = true
 
-  tags = {
-    Environment = "Development"
-    Project     = "TC Cloud Games"
-    ManagedBy   = "Terraform"
-  }
+  tags = local.common_tags
+
+  depends_on = [
+    azurerm_resource_group.rg,
+    azurerm_resource_provider_registration.container_registry
+  ]
 }
 
+# =============================================================================
 # =============================================================================
 # Log Analytics Workspace
 # =============================================================================
 
 resource "azurerm_log_analytics_workspace" "log_analytics" {
-  name                = "tc-cloudgames-logs-${random_string.unique_suffix.result}"
+  name                = "${local.name_prefix}-logs-${random_string.unique_suffix.result}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   sku                 = "PerGB2018"
   retention_in_days   = 30
 
-  tags = {
-    Environment = "dev"
-    ManagedBy   = "terraform"
-    Project     = "tc-cloudgames"
-  }
+  tags = local.common_tags
+
+  depends_on = [
+    azurerm_resource_group.rg,
+    azurerm_resource_provider_registration.operational_insights
+  ]
 }
 
+# =============================================================================
 # =============================================================================
 # Container App Environment
 # =============================================================================
 
 resource "azurerm_container_app_environment" "container_app_environment" {
-  name                       = "managedEnvironment-tccloudgamesrg-${random_string.unique_suffix.result}"
+  name                       = "${local.name_prefix}-env-${random_string.unique_suffix.result}"
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
   log_analytics_workspace_id = azurerm_log_analytics_workspace.log_analytics.id
+
+  tags = local.common_tags
+
+  depends_on = [
+    azurerm_log_analytics_workspace.log_analytics,
+    azurerm_resource_provider_registration.app
+  ]
 }
 
 # =============================================================================
@@ -397,10 +494,12 @@ resource "azurerm_container_app_environment" "container_app_environment" {
 # =============================================================================
 
 resource "azurerm_container_app" "tc_cloudgames_api" {
-  name                         = "tc-cloudgames-api-app"
+  name                         = "${local.name_prefix}-api-app"
   container_app_environment_id = azurerm_container_app_environment.container_app_environment.id
   resource_group_name          = azurerm_resource_group.rg.name
   revision_mode                = "Single"
+
+  tags = local.common_tags
 
   # Registry configuration using the new ACR
   registry {
@@ -535,7 +634,7 @@ resource "azurerm_container_app" "tc_cloudgames_api" {
 # =============================================================================
 
 resource "azurerm_redis_cache" "redis_cache" {
-  name                = "tc-cloudgames-redis-${random_string.unique_suffix.result}"
+  name                = "${local.name_prefix}-redis-${random_string.unique_suffix.result}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   capacity            = 0
@@ -557,13 +656,10 @@ resource "azurerm_redis_cache" "redis_cache" {
     maxmemory_policy   = "volatile-lru"
   }
 
-  tags = {
-    Environment = "Development"
-    Project     = "TC Cloud Games"
-    ManagedBy   = "Terraform"
-  }
+  tags = local.common_tags
 
   depends_on = [
-    azurerm_resource_group.rg
+    azurerm_resource_group.rg,
+    azurerm_resource_provider_registration.cache
   ]
 }

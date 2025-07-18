@@ -7,10 +7,8 @@ variable "azure_resource_group_location" {
   type        = string
 }
 
-variable "azure_resource_group_name" {
-  description = "Name of the resource group"
-  type        = string
-}
+# Resource group name is now dynamically generated using name_prefix approach
+# Pattern: "tc-cloudgames-dev-rg"
 
 variable "azure_tenant_id" {
   description = "Azure Tenant ID"
