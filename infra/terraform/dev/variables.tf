@@ -37,11 +37,6 @@ variable "postgres_db_name" {
   type        = string
 }
 
-variable "postgres_db_port" {
-  description = "Port for PostgreSQL database"
-  type        = number
-}
-
 # =============================================================================
 # Identity and Access Management
 # =============================================================================
@@ -89,29 +84,4 @@ variable "grafana_open_tl_auth_header" {
   type        = string
   description = "Grafana OpenTL authentication header API key"
   sensitive   = true
-}
-
-# =============================================================================
-# Azure Infrastructure Configuration (for CI/CD)
-# =============================================================================
-
-variable "acr_name" {
-  description = "Name of the Azure Container Registry"
-  type        = string
-}
-
-variable "acr_admin_username" {
-  description = "Admin username for the Azure Container Registry"
-  type        = string
-}
-
-variable "acr_admin_password" {
-  description = "Admin password for the Azure Container Registry"
-  type        = string
-  sensitive   = true
-}
-
-variable "container_app_name" {
-  description = "Name of the Azure Container App"
-  type        = string
 }

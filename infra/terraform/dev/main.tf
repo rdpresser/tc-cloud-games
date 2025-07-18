@@ -23,10 +23,14 @@ provider "azurerm" {
   features {}
 }
 
+# Local values for standard configurations
+locals {
+  postgres_port = 5432 # Standard PostgreSQL port
+}
+
 # =============================================================================
 # Random String for Globally Unique Resources
 # =============================================================================
-
 resource "random_string" "unique_suffix" {
   length  = 4
   upper   = false
@@ -115,40 +119,44 @@ resource "azurerm_key_vault" "key_vault" {
 resource "azurerm_key_vault_secret" "key_vault_secret_acr_name" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "acr-name"
-  value        = var.acr_name
+  value        = azurerm_container_registry.acr.name
 
   depends_on = [
-    azurerm_key_vault.key_vault
+    azurerm_key_vault.key_vault,
+    azurerm_container_registry.acr
   ]
 }
 
 resource "azurerm_key_vault_secret" "key_vault_secret_acr_username" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "acr-username"
-  value        = var.acr_admin_username
+  value        = azurerm_container_registry.acr.admin_username
 
   depends_on = [
-    azurerm_key_vault.key_vault
+    azurerm_key_vault.key_vault,
+    azurerm_container_registry.acr
   ]
 }
 
 resource "azurerm_key_vault_secret" "key_vault_secret_acr_password" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "acr-password"
-  value        = var.acr_admin_password
+  value        = azurerm_container_registry.acr.admin_password
 
   depends_on = [
-    azurerm_key_vault.key_vault
+    azurerm_key_vault.key_vault,
+    azurerm_container_registry.acr
   ]
 }
 
 resource "azurerm_key_vault_secret" "key_vault_secret_container_app_name" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "container-app-name"
-  value        = var.container_app_name
+  value        = azurerm_container_app.tc_cloudgames_api.name
 
   depends_on = [
-    azurerm_key_vault.key_vault
+    azurerm_key_vault.key_vault,
+    azurerm_container_app.tc_cloudgames_api
   ]
 }
 
@@ -235,7 +243,7 @@ resource "azurerm_key_vault_secret" "key_vault_secret_db_name" {
 resource "azurerm_key_vault_secret" "key_vault_secret_db_port" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "db-port"
-  value        = tostring(var.postgres_db_port)
+  value        = tostring(local.postgres_port)
 
   depends_on = [
     azurerm_key_vault.key_vault
@@ -428,6 +436,10 @@ resource "azurerm_container_app" "tc_cloudgames_api" {
   ingress {
     external_enabled = true
     target_port      = 8080
+
+    # Optional: Improve security
+    allow_insecure_connections = false # Force HTTPS
+
     traffic_weight {
       latest_revision = true
       percentage      = 100
@@ -455,7 +467,7 @@ resource "azurerm_container_app" "tc_cloudgames_api" {
       }
       env {
         name  = "DB_PORT"
-        value = tostring(var.postgres_db_port)
+        value = tostring(local.postgres_port)
       }
       env {
         name  = "DB_NAME"
@@ -531,15 +543,15 @@ resource "azurerm_redis_cache" "redis_cache" {
   sku_name            = "Basic"
 
   # Security settings
-  //enable_non_ssl_port = false
-  minimum_tls_version = "1.2"
+  non_ssl_port_enabled = false
+  minimum_tls_version  = "1.2"
 
   # Access settings
   public_network_access_enabled = true
 
-  # Redis configuration
+  # Redis configuration - Fixed for azurerm provider v4.x
   redis_configuration {
-    //enable_authentication           = true
+    # Memory management settings (these are the correct properties)
     maxmemory_reserved = 2
     maxmemory_delta    = 2
     maxmemory_policy   = "volatile-lru"
