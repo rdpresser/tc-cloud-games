@@ -39,7 +39,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_key_vault" "key_vault" {
-  name                = "tc-cloudgames-dev-kv-${random_string.unique_suffix.result}"
+  name                = "tc-cloudgames-kv-${random_string.unique_suffix.result}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   sku_name            = "standard"
