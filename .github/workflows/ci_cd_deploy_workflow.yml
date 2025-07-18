@@ -11,8 +11,8 @@ env:
   IMAGE_TAG: ${{ github.sha }}
   CREDENTIALS_NAME: MAIN_AZURE_CREDENTIALS
   # Environment-specific configuration
-  RESOURCE_GROUP: 'tc-cloudgames-rg'
-  KEYVAULT_NAME: 'tccloudgames-dev-kv-92mr'
+  RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
+  KEYVAULT_NAME: 'tccloudgamesdevkv92mr'
   # Build configuration
   DOTNET_VERSION: '9.0.x'
   BUILD_CONFIGURATION: 'Release'
