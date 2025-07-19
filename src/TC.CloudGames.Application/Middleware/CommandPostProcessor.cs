@@ -1,5 +1,5 @@
-﻿using Serilog.Context;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using Serilog.Context;
 
 namespace TC.CloudGames.Application.Middleware
 {

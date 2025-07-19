@@ -27,4 +27,8 @@ RUN dotnet publish "./TC.CloudGames.Api.csproj" -c $BUILD_CONFIGURATION -o /app/
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Copy .solution-root to /app
+COPY .solution-root .solution-root
+
 ENTRYPOINT ["dotnet", "TC.CloudGames.Api.dll"]

@@ -1,8 +1,13 @@
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.Resources;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Converters;
+using Npgsql;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Domain.Aggregates.Game.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
@@ -29,6 +34,69 @@ public static class ServiceCollectionExtensions
             Enabled = true,
             Culture = new System.Globalization.CultureInfo("en")
         };
+    }
+
+    public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
+    {
+        builder.Logging.AddOpenTelemetry(options =>
+        {
+            options.IncludeScopes = true;
+            options.IncludeFormattedMessage = true;
+            options.AddOtlpExporter();
+        });
+
+        return builder;
+    }
+
+    //public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
+    //{
+    //    builder.Logging.AddOpenTelemetry(options =>
+    //    {
+    //        // ► Resource válido para logs
+    //        options.SetResourceBuilder(
+    //            ResourceBuilder.CreateDefault()
+    //                           .AddService(serviceName: "tccloudgames-app",
+    //                                       serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "1.0.0"));
+
+    //        options.IncludeScopes = true;
+    //        options.IncludeFormattedMessage = true;
+
+    //        // Exportador OTLP (ajuste endpoint se precisar)
+    //        options.AddOtlpExporter(options =>
+    //        {
+    //            options.Endpoint = new Uri("https://otlp-gateway-prod-sa-east-1.grafana.net/otlp");
+    //            options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+    //        });
+
+    //        // Opcional: Console em dev
+    //        //options.AddConsoleExporter();
+    //    });
+
+    //    return builder;
+    //}
+
+    public static IServiceCollection AddCustomOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOpenTelemetry()
+            .ConfigureResource(r => r.AddService("tccloudgames-app"))
+            .WithMetrics(metricsBuilder =>
+                metricsBuilder
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddNpgsqlInstrumentation()
+                    .AddOtlpExporter())
+            .WithTracing(tracingBuilder =>
+                tracingBuilder
+                    .AddHttpClientInstrumentation()
+                    .AddAspNetCoreInstrumentation()
+                    .AddEntityFrameworkCoreInstrumentation()
+                    .AddNpgsql()
+                    .AddOtlpExporter());
+        //.WithLogging(loggingBuilder =>
+        //    loggingBuilder
+        //        .AddOtlpExporter());
+
+        return services;
     }
 
     // Authentication and Authorization
