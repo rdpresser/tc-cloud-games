@@ -210,7 +210,7 @@ jobs:
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           resourceGroup: ${{ env.RESOURCE_GROUP }}
           imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}
-          environmentVariables: |
+          environmentVariables: >-
             ASPNETCORE_ENVIRONMENT=Development
             DB_HOST=${{ env.DB_HOST }}
             DB_PORT=${{ env.DB_PORT }}
