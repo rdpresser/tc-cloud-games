@@ -629,12 +629,11 @@ resource "azurerm_redis_cache" "redis_cache" {
   # Access settings
   public_network_access_enabled = true
 
-  # Redis configuration - Fixed for azurerm provider v4.x
+  # Redis configuration - Using Azure defaults for optimal performance
   redis_configuration {
-    # Memory management settings (these are the correct properties)
-    maxmemory_reserved = 2
-    maxmemory_delta    = 2
-    maxmemory_policy   = "volatile-lru"
+    # Removed maxmemory_reserved and maxmemory_delta to use Azure's optimal defaults
+    # Azure automatically sets these based on cache size and SKU
+    maxmemory_policy = "volatile-lru"
   }
 
   tags = local.common_tags
