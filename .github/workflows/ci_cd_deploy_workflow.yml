@@ -12,6 +12,7 @@ env:
   # Environment-specific configuration
   RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
   KEYVAULT_NAME: 'tccloudgamesdevkv92mr'
+  CREDENTIALS: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
   # Build configuration
   DOTNET_VERSION: '9.0.x'
   BUILD_CONFIGURATION: 'Release'
@@ -65,7 +66,7 @@ jobs:
       - name: 🔐 Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
+          creds: ${{ env.CREDENTIALS }}
 
       - name: 🔑 Fetch infrastructure secrets from Azure Key Vault
         id: fetch-infra-secrets
@@ -75,9 +76,9 @@ jobs:
           keyvault: ${{ env.KEYVAULT_NAME }}
           secrets: acr-name,acr-username,acr-password,container-app-name
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
+          AZURE_CLIENT_ID: ${{ fromJson(env.CREDENTIALS).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(env.CREDENTIALS).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(env.CREDENTIALS).clientSecret }}
 
       - name: 🔑 Fetch database secrets from Azure Key Vault
         id: fetch-db-secrets
@@ -87,9 +88,9 @@ jobs:
           keyvault: ${{ env.KEYVAULT_NAME }}
           secrets: db-password,db-host,db-port,db-name,db-admin-login
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
+          AZURE_CLIENT_ID: ${{ fromJson(env.CREDENTIALS).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(env.CREDENTIALS).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(env.CREDENTIALS).clientSecret }}
 
       - name: 🔑 Fetch observability secrets from Azure Key Vault
         id: fetch-observability-secrets
@@ -99,9 +100,9 @@ jobs:
           keyvault: ${{ env.KEYVAULT_NAME }}
           secrets: cache-password,cache-host,cache-port,otel-auth-header,grafana-api-token,grafana-endpoint,grafana-protocol,grafana-resource-attributes
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
+          AZURE_CLIENT_ID: ${{ fromJson(env.CREDENTIALS).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(env.CREDENTIALS).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(env.CREDENTIALS).clientSecret }}
 
       - name: 🔍 Validate required secrets
         env:
