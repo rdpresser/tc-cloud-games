@@ -9,6 +9,12 @@ on:
       - master  # CD roda apenas em PRs para master
     types: [closed]  # Apenas quando o PR é fechado (merged)
   workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Force deployment (only works on master branch)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   # Deployment configuration
@@ -59,17 +65,23 @@ jobs:
           name: test-results-${{ github.sha }}
           path: ./coverage
 
-  # JOB 2: CD - Roda apenas em merge para master
+  # JOB 2: CD - Roda em merge para master, push direto para master, ou workflow_dispatch
   build-and-deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Condição: só executa se for um PR fechado (merged) para master E se os testes passaram
+    # Condição: executa se for um PR merged para master OU push direto para master OU workflow_dispatch forçado
     if: |
-      github.event_name == 'pull_request' && 
-      github.event.pull_request.merged == true && 
-      github.base_ref == 'master' && 
-      needs.build-and-test.result == 'success'
+      needs.build-and-test.result == 'success' && (
+        (github.event_name == 'pull_request' && 
+         github.event.pull_request.merged == true && 
+         github.base_ref == 'master') ||
+        (github.event_name == 'push' && 
+         github.ref == 'refs/heads/master') ||
+        (github.event_name == 'workflow_dispatch' && 
+         github.ref == 'refs/heads/master' && 
+         github.event.inputs.deploy == 'true')
+      )
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
