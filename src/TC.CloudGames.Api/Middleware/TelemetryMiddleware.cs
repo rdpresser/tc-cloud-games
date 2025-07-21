@@ -42,7 +42,7 @@ public class TelemetryMiddleware
 
         try
         {
-            userId = $"{userContext.UserName} - {userContext.UserId}";
+            userId = userContext.UserId.ToString();
             isAuthenticated = true;
         }
         catch (InvalidOperationException)

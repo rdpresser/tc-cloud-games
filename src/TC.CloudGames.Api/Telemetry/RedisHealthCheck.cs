@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
 using StackExchange.Redis;
 using System.Diagnostics.CodeAnalysis;
+using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
 
 namespace TC.CloudGames.Api.Telemetry;
 
@@ -19,12 +19,12 @@ public class RedisHealthCheck : IHealthCheck
     {
         try
         {
-            using var connection = ConnectionMultiplexer.Connect(_cacheProvider.ConnectionString);
+            using var connection = await ConnectionMultiplexer.ConnectAsync(_cacheProvider.ConnectionString);
             var database = connection.GetDatabase();
-            
+
             // Simple ping test
             var result = await database.PingAsync();
-            
+
             if (result.TotalMilliseconds > 1000)
             {
                 return HealthCheckResult.Degraded($"Redis responded in {result.TotalMilliseconds}ms");
