@@ -83,7 +83,7 @@ public class TelemetryMiddleware
             // Track user activity
             if (isAuthenticated)
             {
-                _userMetrics.RecordUserAction("http_request", userId, context.Request.Method + " " + path);
+                _userMetrics.RecordUserAction("http_request", userId, $"{context.Request.Method} {path}");
             }
 
             await _next(context);
