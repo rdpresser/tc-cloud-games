@@ -8,6 +8,7 @@ namespace TC.CloudGames.Infra.CrossCutting.Commons.Middleware
     public class CorrelationMiddleware
     {
         private readonly RequestDelegate _next;
+        // Use consistent header naming across the application
         private const string _correlationIdHeader = "x-correlation-id";
 
         public CorrelationMiddleware(RequestDelegate next) => _next = next ?? throw new ArgumentNullException(nameof(next));

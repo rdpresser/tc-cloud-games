@@ -83,12 +83,17 @@ output "log_analytics_workspace_id" {
 
 output "container_app_name" {
   description = "The name of the Container App"
-  value       = azurerm_container_app.tc_cloudgames_api.name
+  value       = azurerm_container_app.container_app.name
 }
 
 output "container_app_fqdn" {
   description = "The FQDN of the Container App"
-  value       = azurerm_container_app.tc_cloudgames_api.latest_revision_fqdn
+  value       = azurerm_container_app.container_app.ingress[0].fqdn
+}
+
+output "container_app_url" {
+  description = "The full URL of the Container App"
+  value       = "https://${azurerm_container_app.container_app.ingress[0].fqdn}"
 }
 
 output "container_app_environment_name" {
@@ -115,9 +120,18 @@ output "redis_cache_ssl_port" {
   value       = azurerm_redis_cache.redis_cache.ssl_port
 }
 
-output "redis_cache_port" {
-  description = "Non-SSL port of the Redis cache"
-  value       = azurerm_redis_cache.redis_cache.port
+# =============================================================================
+# Environment Information
+# =============================================================================
+
+output "environment" {
+  description = "The deployment environment"
+  value       = local.environment
+}
+
+output "resource_name_prefix" {
+  description = "The naming prefix used for all resources"
+  value       = local.name_prefix
 }
 
 # =============================================================================
