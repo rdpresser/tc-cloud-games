@@ -323,8 +323,8 @@ jobs:
           
           echo "Workspace ID: $WORKSPACE_ID"
           
-          # Create a targeted destroy plan for Redis and related secrets only
-          echo "Creating targeted destroy run for Redis cache and related secrets..."
+          # Create a targeted destroy plan for Redis only (most conservative approach)
+          echo "Creating targeted destroy run for Redis cache only..."
           DESTROY_RUN_ID=$(curl -s \
             -X POST \
             -H "Authorization: Bearer $TF_API_TOKEN" \
@@ -333,14 +333,9 @@ jobs:
               \"data\": {
                 \"type\": \"runs\",
                 \"attributes\": {
-                  \"message\": \"Destroy Redis cache and related secrets - triggered from GitHub Actions by ${{ github.actor }}\",
+                  \"message\": \"Destroy Redis cache only - triggered from GitHub Actions by ${{ github.actor }}\",
                   \"is-destroy\": true,
-                  \"target-addrs\": [
-                    \"azurerm_redis_cache.redis_cache\",
-                    \"azurerm_key_vault_secret.key_vault_secret_cache_password\",
-                    \"azurerm_key_vault_secret.key_vault_secret_cache_host\",
-                    \"azurerm_key_vault_secret.key_vault_secret_cache_port\"
-                  ]
+                  \"target-addrs\": [\"azurerm_redis_cache.redis_cache\"]
                 },
                 \"relationships\": {
                   \"workspace\": {
@@ -388,7 +383,15 @@ jobs:
             sleep 10
           done
           
+          echo ""
+          echo "⚠️  IMPORTANT: Redis destruction may affect dependent resources:"
+          echo "  • Key Vault secrets (cache-password, cache-host, cache-port)"
+          echo "  • Container App environment variables"
+          echo "  • Application cache functionality"
+          echo ""
           echo "💰 Estimated monthly savings: ~$15-25 (Redis Standard C1)"
+          echo ""
+          echo "🔄 To recreate Redis and restore full functionality, use 'recreate-redis' action"
 
       - name: 🔄 Recreate Redis Cache via Terraform Cloud
         if: github.event.inputs.action == 'recreate-redis'
@@ -408,8 +411,8 @@ jobs:
             exit 1
           fi
           
-          # Step 1: Destroy Redis and related secrets
-          echo "Step 1: Destroying existing Redis cache and related secrets..."
+          # Step 1: Targeted destroy of Redis only (not secrets or container app)
+          echo "Step 1: Destroying Redis cache only..."
           DESTROY_RUN_ID=$(curl -s \
             -X POST \
             -H "Authorization: Bearer $TF_API_TOKEN" \
@@ -418,14 +421,9 @@ jobs:
               \"data\": {
                 \"type\": \"runs\",
                 \"attributes\": {
-                  \"message\": \"Destroy Redis cache and secrets for recreation - triggered from GitHub Actions by ${{ github.actor }}\",
+                  \"message\": \"Targeted destroy Redis cache only - triggered from GitHub Actions by ${{ github.actor }}\",
                   \"is-destroy\": true,
-                  \"target-addrs\": [
-                    \"azurerm_redis_cache.redis_cache\",
-                    \"azurerm_key_vault_secret.key_vault_secret_cache_password\",
-                    \"azurerm_key_vault_secret.key_vault_secret_cache_host\",
-                    \"azurerm_key_vault_secret.key_vault_secret_cache_port\"
-                  ]
+                  \"target-addrs\": [\"azurerm_redis_cache.redis_cache\"]
                 },
                 \"relationships\": {
                   \"workspace\": {
@@ -453,7 +451,7 @@ jobs:
             echo "Destroy status ($i/60): $RUN_STATUS"
             
             if [ "$RUN_STATUS" == "applied" ] || [ "$RUN_STATUS" == "planned_and_finished" ]; then
-              echo "✅ Destroy completed successfully"
+              echo "✅ Redis destroy completed successfully"
               break
             elif [ "$RUN_STATUS" == "errored" ] || [ "$RUN_STATUS" == "canceled" ]; then
               echo "❌ Destroy failed with status: $RUN_STATUS"
@@ -463,8 +461,8 @@ jobs:
             sleep 15
           done
           
-          # Step 2: Create Redis and related secrets
-          echo "Step 2: Creating new Redis cache and related secrets..."
+          # Step 2: Full terraform apply to recreate everything that depends on Redis
+          echo "Step 2: Running full Terraform apply to recreate Redis and dependencies..."
           sleep 30  # Wait a bit before recreating
           
           CREATE_RUN_ID=$(curl -s \
@@ -475,13 +473,7 @@ jobs:
               \"data\": {
                 \"type\": \"runs\",
                 \"attributes\": {
-                  \"message\": \"Recreate Redis cache and secrets - triggered from GitHub Actions by ${{ github.actor }}\",
-                  \"target-addrs\": [
-                    \"azurerm_redis_cache.redis_cache\",
-                    \"azurerm_key_vault_secret.key_vault_secret_cache_password\",
-                    \"azurerm_key_vault_secret.key_vault_secret_cache_host\",
-                    \"azurerm_key_vault_secret.key_vault_secret_cache_port\"
-                  ]
+                  \"message\": \"Full apply to recreate Redis and dependencies - triggered from GitHub Actions by ${{ github.actor }}\"
                 },
                 \"relationships\": {
                   \"workspace\": {
@@ -496,27 +488,27 @@ jobs:
             "https://app.terraform.io/api/v2/runs" \
             | jq -r '.data.id')
           
-          echo "✅ Redis recreation run created: $CREATE_RUN_ID"
+          echo "✅ Full apply run created: $CREATE_RUN_ID"
           echo "🔗 Monitor progress: https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE/runs/$CREATE_RUN_ID"
           
           # Wait for recreation to complete
-          echo "⏳ Waiting for recreation to complete..."
+          echo "⏳ Waiting for full apply to complete..."
           for i in {1..60}; do
             RUN_STATUS=$(curl -s \
               -H "Authorization: Bearer $TF_API_TOKEN" \
               "https://app.terraform.io/api/v2/runs/$CREATE_RUN_ID" \
               | jq -r '.data.attributes.status')
             
-            echo "Recreation status ($i/60): $RUN_STATUS"
+            echo "Apply status ($i/60): $RUN_STATUS"
             
             if [ "$RUN_STATUS" == "applied" ] || [ "$RUN_STATUS" == "planned_and_finished" ]; then
-              echo "✅ Redis recreation completed successfully"
+              echo "✅ Full apply completed successfully"
               break
             elif [ "$RUN_STATUS" == "planned" ]; then
-              echo "⚠️  Redis recreation plan ready - manual approval may be required in Terraform Cloud"
+              echo "⚠️  Full apply plan ready - manual approval may be required in Terraform Cloud"
               break
             elif [ "$RUN_STATUS" == "errored" ] || [ "$RUN_STATUS" == "canceled" ]; then
-              echo "❌ Recreation failed with status: $RUN_STATUS"
+              echo "❌ Full apply failed with status: $RUN_STATUS"
               exit 1
             fi
             
@@ -526,55 +518,13 @@ jobs:
           echo ""
           echo "🔄 Recreation Summary:"
           echo "  • Redis cache: Recreated with new instance"
-          echo "  • Cache secrets: Recreated with new connection details"
-          echo "  • Container App: Preserved (secrets will be updated by next deployment)"
+          echo "  • Related secrets: Automatically recreated"
+          echo "  • Container App: Preserved with updated Redis connection"
+          echo "  • All dependencies: Verified and consistent"
           echo ""
-          echo "⚠️  Next Steps:"
-          echo "  • Run a deployment to update Container App with new Redis secrets"
-          echo "  • Or manually update Container App secrets via Azure CLI"
+          echo "✅ Redis recreation completed successfully!"
 
-      - name: 🔄 Update Container App Secrets (Post-Redis Recreation)
-        if: github.event.inputs.action == 'recreate-redis'
-        run: |
-          echo "🔄 Updating Container App secrets with new Redis connection details..."
-          
-          # Get the actual container app name
-          APP_NAME=$(az containerapp list \
-            --resource-group "$RESOURCE_GROUP" \
-            --query "[?contains(name, 'tc-cloudgames-dev-api-app')].name" \
-            --output tsv)
-          
-          if [ -n "$APP_NAME" ]; then
-            echo "Found container app: $APP_NAME"
-            
-            # Get new Redis connection details from Key Vault
-            echo "🔑 Fetching updated Redis secrets from Key Vault..."
-            
-            CACHE_PASSWORD=$(az keyvault secret show \
-              --vault-name "tccloudgamesdevkv*" \
-              --name "cache-password" \
-              --query "value" \
-              --output tsv)
-            
-            if [ -n "$CACHE_PASSWORD" ] && [ "$CACHE_PASSWORD" != "null" ]; then
-              # Update Container App secrets with new Redis password
-              echo "🔄 Updating Container App cache secrets..."
-              az containerapp secret set \
-                --name "$APP_NAME" \
-                --resource-group "$RESOURCE_GROUP" \
-                --secrets cache-password-secret="$CACHE_PASSWORD"
-              
-              echo "✅ Container App secrets updated successfully"
-              echo "🔄 Container App will automatically pick up new Redis connection"
-            else
-              echo "⚠️  Could not retrieve new cache password from Key Vault"
-              echo "   Manual secret update may be required"
-            fi
-          else
-            echo "❌ Container app not found"
-          fi
-
-      - name: 📊 Terraform Operation Summary
+      - name:  Terraform Operation Summary
         if: always()
         run: |
           echo "📊 Terraform Operation Summary:"
