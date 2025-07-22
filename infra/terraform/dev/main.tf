@@ -603,19 +603,13 @@ resource "azurerm_container_app" "container_app" {
       # This prevents drift when Azure reorders env vars
       template[0].container[0].env,
     ]
-
-    # Prevent container app from being destroyed when Redis is destroyed
-    # This helps avoid unnecessary downtime during Redis recreation
-    prevent_destroy = false # Set to true in production
   }
 
   depends_on = [
     azurerm_container_app_environment.container_app_environment,
     azurerm_container_registry.acr,
     azurerm_postgresql_flexible_server.postgres_server,
-    #azurerm_redis_cache.redis_cache
-    # Note: Redis dependency is implicit through environment variables
-    # but we don't make it explicit to avoid cascade destroy issues
+    azurerm_redis_cache.redis_cache    
   ]
 }
 
