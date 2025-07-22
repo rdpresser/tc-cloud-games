@@ -31,11 +31,14 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Run CI for: push to any branch, or PR opened/reopened/synchronized to master (but not closed)
+    # Run CI for: 
+    # - Push to any branch (including master after PR merge)
+    # - PR opened/reopened/synchronized to master (but not closed)
     if: |
       github.event_name == 'push' || 
       (github.event_name == 'pull_request' && 
-       github.event.action != 'closed')
+       github.event.action != 'closed') ||
+      github.event_name == 'workflow_dispatch'
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
@@ -80,31 +83,43 @@ jobs:
       - name: 🔍 Check deployment conditions
         id: check-conditions
         run: |
-          # Check if this is a merged PR to master (CI already ran when PR was opened)
-          if [[ "${{ github.event_name }}" == "pull_request" && 
-                "${{ github.event.pull_request.merged }}" == "true" && 
-                "${{ github.base_ref }}" == "master" ]]; then
+          echo "🔍 Checking deployment conditions..."
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Head Ref: ${{ github.head_ref }}"
+          echo "Base Ref: ${{ github.base_ref }}"
+          echo "Repository: ${{ github.repository }}"
+          
+          # IMPORTANT: Only deploy from master branch workflows, never from feature branch workflows
+          # This prevents duplicate runs when PR is merged (feature branch + master branch workflows)
+          
+          # Check if this is a push to master (direct push or merge result)
+          if [[ "${{ github.event_name }}" == "push" && 
+                "${{ github.ref }}" == "refs/heads/master" && 
+                "${{ needs.build-and-test.result }}" == "success" ]]; then
             echo "condition=deploy" >> $GITHUB_OUTPUT
-            echo "✅ Deployment triggered by merged PR to master"
-          # Check if this is a direct push to master (need CI to pass)
-          elif [[ "${{ github.event_name }}" == "push" && 
-                  "${{ github.ref }}" == "refs/heads/master" && 
-                  "${{ needs.build-and-test.result }}" == "success" ]]; then
-            echo "condition=deploy" >> $GITHUB_OUTPUT
-            echo "✅ Deployment triggered by direct push to master (CI passed)"
-          # Check if this is manual workflow dispatch (need CI to pass)
+            echo "✅ Deployment triggered by push to master branch (CI passed)"
+            
+          # Check if this is manual workflow dispatch on master
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" && 
                   "${{ github.ref }}" == "refs/heads/master" && 
                   "${{ github.event.inputs.deploy }}" == "true" && 
                   "${{ needs.build-and-test.result }}" == "success" ]]; then
             echo "condition=deploy" >> $GITHUB_OUTPUT
-            echo "✅ Deployment triggered by manual dispatch (CI passed)"
+            echo "✅ Deployment triggered by manual dispatch on master (CI passed)"
+            
           else
             echo "condition=skip" >> $GITHUB_OUTPUT
             echo "❌ Deployment conditions not met"
-            echo "Event: ${{ github.event_name }}"
-            echo "Ref: ${{ github.ref }}"
-            echo "CI Result: ${{ needs.build-and-test.result }}"
+            echo "   Deployment only runs for:"
+            echo "   - Push events to master branch (with successful CI)"
+            echo "   - Manual workflow dispatch on master branch (with successful CI)"
+            echo "   - NOT for pull_request events (even when merged)"
+            echo ""
+            echo "Current state:"
+            echo "   Event: ${{ github.event_name }}"
+            echo "   Ref: ${{ github.ref }}"
+            echo "   CI Result: ${{ needs.build-and-test.result }}"
           fi
 
       - name: ⏬ Checkout repository
