@@ -171,17 +171,194 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🔗 **[View Terraform Cloud Workspace]($WORKSPACE_URL)**" >> $GITHUB_STEP_SUMMARY
 
-  # JOB 3: CD - Application deployment (depends on successful Terraform)
+  # JOB 3: Database Health Check - Ensure database is running before deployment
+  database-health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [terraform-deploy]
+    # Run after Terraform completes successfully and before application deployment
+    if: |
+      needs.terraform-deploy.result == 'success' &&
+      ((github.event_name == 'push' && github.ref == 'refs/heads/master') ||
+       (github.event_name == 'pull_request' && 
+        github.event.action == 'closed' && 
+        github.event.pull_request.merged == true &&
+        github.base_ref == 'master') ||
+       (github.event_name == 'workflow_dispatch' && 
+        github.ref == 'refs/heads/master'))
+    steps:
+      - name: 🔐 Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
+
+      - name: 🗄️ Check and Start PostgreSQL Database
+        env:
+          RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
+        run: |
+          echo "🔍 Checking PostgreSQL database status..."
+          
+          # Get the actual server name (it includes a random suffix)
+          SERVER_NAME=$(az postgres flexible-server list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "[?contains(name, 'tc-cloudgames-dev-db')].name" \
+            --output tsv)
+          
+          if [ -z "$SERVER_NAME" ]; then
+            echo "❌ PostgreSQL server not found in resource group: $RESOURCE_GROUP"
+            echo "🔧 This is expected if this is the first deployment"
+            echo "⏳ Terraform should have created the server, waiting for propagation..."
+            sleep 30
+            
+            # Try again after waiting
+            SERVER_NAME=$(az postgres flexible-server list \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "[?contains(name, 'tc-cloudgames-dev-db')].name" \
+              --output tsv)
+          fi
+          
+          if [ -n "$SERVER_NAME" ]; then
+            echo "✅ Found PostgreSQL server: $SERVER_NAME"
+            
+            # Check current status
+            CURRENT_STATUS=$(az postgres flexible-server show \
+              --name "$SERVER_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "state" \
+              --output tsv)
+            
+            echo "📊 Current database status: $CURRENT_STATUS"
+            
+            case "$CURRENT_STATUS" in
+              "Ready")
+                echo "✅ Database is already running and ready for connections"
+                echo "DB_STATUS=ready" >> $GITHUB_ENV
+                ;;
+              "Stopped")
+                echo "🚀 Database is stopped, starting it now..."
+                az postgres flexible-server start \
+                  --name "$SERVER_NAME" \
+                  --resource-group "$RESOURCE_GROUP"
+                
+                echo "⏳ Waiting for database to become ready..."
+                for i in {1..20}; do
+                  sleep 15
+                  DB_STATUS=$(az postgres flexible-server show \
+                    --name "$SERVER_NAME" \
+                    --resource-group "$RESOURCE_GROUP" \
+                    --query "state" \
+                    --output tsv)
+                  
+                  echo "Status check ($i/20): $DB_STATUS"
+                  
+                  if [ "$DB_STATUS" == "Ready" ]; then
+                    echo "✅ Database started successfully and is ready!"
+                    echo "DB_STATUS=started" >> $GITHUB_ENV
+                    break
+                  fi
+                  
+                  if [ $i -eq 20 ]; then
+                    echo "⚠️ Database taking longer than expected to start"
+                    echo "Current status: $DB_STATUS"
+                    echo "DB_STATUS=timeout" >> $GITHUB_ENV
+                  fi
+                done
+                ;;
+              "Starting")
+                echo "⏳ Database is already starting, waiting for it to become ready..."
+                for i in {1..15}; do
+                  sleep 20
+                  DB_STATUS=$(az postgres flexible-server show \
+                    --name "$SERVER_NAME" \
+                    --resource-group "$RESOURCE_GROUP" \
+                    --query "state" \
+                    --output tsv)
+                  
+                  echo "Status check ($i/15): $DB_STATUS"
+                  
+                  if [ "$DB_STATUS" == "Ready" ]; then
+                    echo "✅ Database is now ready!"
+                    echo "DB_STATUS=ready" >> $GITHUB_ENV
+                    break
+                  fi
+                done
+                ;;
+              *)
+                echo "⚠️ Database is in unexpected state: $CURRENT_STATUS"
+                echo "🔧 Proceeding with deployment, but monitor database connectivity"
+                echo "DB_STATUS=unknown" >> $GITHUB_ENV
+                ;;
+            esac
+            
+            # Final status check
+            FINAL_STATUS=$(az postgres flexible-server show \
+              --name "$SERVER_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "state" \
+              --output tsv)
+            
+            echo "🏁 Final database status: $FINAL_STATUS"
+            echo "SERVER_NAME=$SERVER_NAME" >> $GITHUB_ENV
+            
+          else
+            echo "⚠️ PostgreSQL server not found after waiting"
+            echo "🔧 This might be a new deployment - proceeding cautiously"
+            echo "DB_STATUS=not_found" >> $GITHUB_ENV
+          fi
+
+      - name: 📊 Database Health Summary
+        run: |
+          echo "## 🗄️ Database Health Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Resource Group** | \`${{ env.RESOURCE_GROUP }}\` |" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -n "$SERVER_NAME" ]; then
+            echo "| **Server Name** | \`$SERVER_NAME\` |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "| **Check Time** | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
+          
+          case "$DB_STATUS" in
+            "ready")
+              echo "| **Status** | ✅ Already Running |" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ **Database is ready for application deployment!**" >> $GITHUB_STEP_SUMMARY
+              ;;
+            "started")
+              echo "| **Status** | 🚀 Started Successfully |" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ **Database started and ready for application deployment!**" >> $GITHUB_STEP_SUMMARY
+              ;;
+            "timeout")
+              echo "| **Status** | ⏳ Start Timeout |" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "⚠️ **Database start took longer than expected - monitor connectivity**" >> $GITHUB_STEP_SUMMARY
+              ;;
+            "not_found")
+              echo "| **Status** | 🔧 Not Found (New Deployment) |" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "🔧 **Database not found - this might be a new deployment**" >> $GITHUB_STEP_SUMMARY
+              ;;
+            *)
+              echo "| **Status** | ❓ Unknown State |" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "⚠️ **Database in unexpected state - proceed with caution**" >> $GITHUB_STEP_SUMMARY
+              ;;
+          esac
+
+  # JOB 4: CD - Application deployment (depends on successful Terraform and Database Health)
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Run after both CI and Terraform complete successfully
-    needs: [build-and-test, terraform-deploy]
-    # Deploy only when both CI and Terraform succeed, and merge occurs on master branch
+    # Run after both Terraform and Database Health Check complete successfully
+    needs: [build-and-test, terraform-deploy, database-health-check]
+    # Deploy only when all previous jobs succeed, and merge occurs on master branch
     if: |
       always() &&
       needs.build-and-test.result == 'success' &&
       needs.terraform-deploy.result == 'success' &&
+      needs.database-health-check.result == 'success' &&
       ((github.event_name == 'push' && github.ref == 'refs/heads/master') ||
        (github.event_name == 'pull_request' && 
         github.event.action == 'closed' && 
