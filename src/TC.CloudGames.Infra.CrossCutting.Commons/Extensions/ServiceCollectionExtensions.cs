@@ -7,7 +7,7 @@ namespace TC.CloudGames.Infra.CrossCutting.Commons.Extensions
     {
         public static IServiceCollection AddCorrelationIdGenerator(this IServiceCollection services)
         {
-            services.AddTransient<ICorrelationIdGenerator, CorrelationIdGenerator>();
+            services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
 
             return services;
         }

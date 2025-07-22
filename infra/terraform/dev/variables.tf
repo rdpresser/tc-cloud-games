@@ -5,6 +5,18 @@
 variable "azure_resource_group_location" {
   description = "Location for the resource group"
   type        = string
+
+  validation {
+    condition = contains([
+      "eastus", "eastus2", "westus", "westus2", "westus3",
+      "centralus", "southcentralus", "northcentralus", "westcentralus",
+      "canadacentral", "canadaeast", "brazilsouth",
+      "northeurope", "westeurope", "francecentral", "germanywestcentral", "norwayeast",
+      "uksouth", "ukwest", "switzerlandnorth", "swedencentral",
+      "eastasia", "southeastasia", "japaneast", "japanwest", "koreacentral", "australiaeast", "australiasoutheast"
+    ], var.azure_resource_group_location)
+    error_message = "The azure_resource_group_location must be a valid Azure region."
+  }
 }
 
 # Resource group name is now dynamically generated using name_prefix approach

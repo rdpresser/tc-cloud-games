@@ -200,11 +200,11 @@ resource "azurerm_key_vault_secret" "key_vault_secret_acr_password" {
 resource "azurerm_key_vault_secret" "key_vault_secret_container_app_name" {
   key_vault_id = azurerm_key_vault.key_vault.id
   name         = "container-app-name"
-  value        = azurerm_container_app.tc_cloudgames_api.name
+  value        = azurerm_container_app.container_app.name
 
   depends_on = [
     azurerm_key_vault.key_vault,
-    azurerm_container_app.tc_cloudgames_api
+    azurerm_container_app.container_app
   ]
 }
 
@@ -407,7 +407,7 @@ resource "azurerm_container_registry" "acr" {
   name                = local.acr_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  sku                 = "Basic"
+  sku                 = "Standard"
   admin_enabled       = true
 
   tags = local.common_tags
@@ -459,7 +459,7 @@ resource "azurerm_container_app_environment" "container_app_environment" {
 # Container App
 # =============================================================================
 
-resource "azurerm_container_app" "tc_cloudgames_api" {
+resource "azurerm_container_app" "container_app" {
   name                         = "${local.name_prefix}-api-app"
   container_app_environment_id = azurerm_container_app_environment.container_app_environment.id
   resource_group_name          = azurerm_resource_group.rg.name
@@ -514,70 +514,64 @@ resource "azurerm_container_app" "tc_cloudgames_api" {
   # Container template with placeholder image
   template {
     container {
-      name = "tc-cloudgames-api-container"
+      name = "${local.name_prefix}-api-container"
       # Use a placeholder image that exists - this will be updated by CI/CD
       image  = "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
       cpu    = 0.5
       memory = "1Gi"
 
-      # Environment variables aligned with CI/CD workflow
+      # Environment variables - sorted alphabetically to prevent drift
       env {
         name  = "ASPNETCORE_ENVIRONMENT"
         value = "Development"
       }
-
-      # Database configuration
-      env {
-        name  = "DB_HOST"
-        value = azurerm_postgresql_flexible_server.postgres_server.fqdn
-      }
-      env {
-        name  = "DB_PORT"
-        value = tostring(local.postgres_port)
-      }
-      env {
-        name  = "DB_NAME"
-        value = var.postgres_db_name
-      }
-      env {
-        name  = "DB_USER"
-        value = var.postgres_admin_login
-      }
-      env {
-        name        = "DB_PASSWORD"
-        secret_name = "db-password-secret"
-      }
-
-      # Cache configuration - Using actual Redis resource values
       env {
         name  = "CACHE_HOST"
         value = azurerm_redis_cache.redis_cache.hostname
+      }
+      env {
+        name        = "CACHE_PASSWORD"
+        secret_name = "cache-password-secret"
       }
       env {
         name  = "CACHE_PORT"
         value = tostring(azurerm_redis_cache.redis_cache.ssl_port)
       }
       env {
-        name        = "CACHE_PASSWORD"
-        secret_name = "cache-password-secret"
+        name  = "DB_HOST"
+        value = azurerm_postgresql_flexible_server.postgres_server.fqdn
       }
-
-      # Observability configuration - Using env vars from CI/CD
+      env {
+        name  = "DB_NAME"
+        value = var.postgres_db_name
+      }
+      env {
+        name        = "DB_PASSWORD"
+        secret_name = "db-password-secret"
+      }
+      env {
+        name  = "DB_PORT"
+        value = tostring(local.postgres_port)
+      }
+      env {
+        name  = "DB_USER"
+        value = var.postgres_admin_login
+      }
+      env {
+        name        = "GRAFANA_API_TOKEN"
+        secret_name = "grafana-api-token-secret"
+      }
       env {
         name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
         value = var.grafana_open_tl_exporter_endpoint
-      }
-      env {
-        name  = "OTEL_EXPORTER_OTLP_PROTOCOL"
-        value = var.grafana_open_tl_exporter_protocol
       }
       env {
         name        = "OTEL_EXPORTER_OTLP_HEADERS"
         secret_name = "otel-auth-header-secret"
       }
       env {
-        name        = "GRAFANA_API_TOKEN"
-        secret_name = "grafana-api-token-secret"
+        name  = "OTEL_EXPORTER_OTLP_PROTOCOL"
+        value = var.grafana_open_tl_exporter_protocol
       }
       env {
         name  = "OTEL_RESOURCE_ATTRIBUTES"
@@ -595,10 +589,19 @@ resource "azurerm_container_app" "tc_cloudgames_api" {
     }
   }
 
-  # Ignore changes to the image since CI/CD will update it
+  # Enhanced lifecycle management to prevent false positives
   lifecycle {
     ignore_changes = [
-      template[0].container[0].image
+      # Ignore image changes since CI/CD updates this
+      template[0].container[0].image,
+
+      # Ignore all secret values since they're managed by CI/CD
+      # We can't reference individual secrets by index since they're a set
+      secret,
+
+      # Ignore potential ordering changes in environment variables
+      # This prevents drift when Azure reorders env vars
+      template[0].container[0].env,
     ]
   }
 
@@ -629,12 +632,11 @@ resource "azurerm_redis_cache" "redis_cache" {
   # Access settings
   public_network_access_enabled = true
 
-  # Redis configuration - Fixed for azurerm provider v4.x
+  # Redis configuration - Using Azure defaults for optimal performance
   redis_configuration {
-    # Memory management settings (these are the correct properties)
-    maxmemory_reserved = 2
-    maxmemory_delta    = 2
-    maxmemory_policy   = "volatile-lru"
+    # Removed maxmemory_reserved and maxmemory_delta to use Azure's optimal defaults
+    # Azure automatically sets these based on cache size and SKU
+    maxmemory_policy = "volatile-lru"
   }
 
   tags = local.common_tags

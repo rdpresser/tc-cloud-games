@@ -2,6 +2,7 @@
 using Serilog.Enrichers.Span;
 using Serilog.Sinks.Grafana.Loki;
 using System.Diagnostics.CodeAnalysis;
+using TC.CloudGames.Api.Telemetry;
 
 namespace TC.CloudGames.Api.Extensions
 {
@@ -14,6 +15,10 @@ namespace TC.CloudGames.Api.Extensions
             {
                 loggerConfiguration.ReadFrom.Configuration(hostContext.Configuration);
 
+                // Get consistent values using centralized constants
+                var environment = configuration["ASPNETCORE_ENVIRONMENT"]?.ToLower() ?? "development";
+                var serviceVersion = typeof(Program).Assembly.GetName().Version?.ToString() ?? TelemetryConstants.Version;
+
                 // Timezone customizado
                 var timeZoneId = configuration["TimeZone"] ?? "UTC";
                 var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
@@ -22,10 +27,16 @@ namespace TC.CloudGames.Api.Extensions
                 // Enrich com trace_id e span_id
                 loggerConfiguration.Enrich.WithSpan();
 
-                // service.name, service.namespace, deployment.environment
-                loggerConfiguration.Enrich.WithProperty("service.name", Environment.GetEnvironmentVariable("OTEL_SERVICE_NAME") ?? "tccloudgames-app");
-                loggerConfiguration.Enrich.WithProperty("service.namespace", Environment.GetEnvironmentVariable("OTEL_SERVICE_NAMESPACE") ?? "tccloudgames-app-group");
-                loggerConfiguration.Enrich.WithProperty("deployment.environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.ToLower() ?? "development");
+                // Use OpenTelemetry semantic conventions (dot notation) for Serilog properties
+                loggerConfiguration.Enrich.WithProperty("service.name", TelemetryConstants.ServiceName);
+                loggerConfiguration.Enrich.WithProperty("service.namespace", TelemetryConstants.ServiceNamespace);
+                loggerConfiguration.Enrich.WithProperty("service.version", serviceVersion);
+                loggerConfiguration.Enrich.WithProperty("deployment.environment", environment);
+                
+                // Additional OpenTelemetry resource attributes for consistency
+                loggerConfiguration.Enrich.WithProperty("cloud.provider", "azure");
+                loggerConfiguration.Enrich.WithProperty("cloud.platform", "azure_container_apps");
+                loggerConfiguration.Enrich.WithProperty("service.instance.id", Environment.MachineName);
 
                 // Sensitive data masking
                 loggerConfiguration.Enrich.WithSensitiveDataMasking(options =>
@@ -36,7 +47,7 @@ namespace TC.CloudGames.Api.Extensions
                 // Console sink for local/dev visibility
                 loggerConfiguration.WriteTo.Console();
 
-                // Loki sink via appsettings (recommended), but if you want to keep code-based fallback:
+                // Loki sink with FIXED label naming (underscores for Grafana Cloud compatibility)
                 var serilogUsing = configuration.GetSection("Serilog:Using").Get<string[]>() ?? [];
                 var useLoki = Array.Exists(serilogUsing, s => s == "Serilog.Sinks.Grafana.Loki");
                 if (useLoki)
@@ -54,10 +65,12 @@ namespace TC.CloudGames.Api.Extensions
                         },
                         labels: new[]
                         {
-                            //new LokiLabel { Key = "app", Value = "tccloudgames-app" },
-                            new LokiLabel { Key = "service_name", Value = "tccloudgames-app" },
-                            new LokiLabel { Key = "service_namespace", Value = "tccloudgames-app-group" },
-                            new LokiLabel { Key = "deployment_environment", Value = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.ToLower() }
+                            // CRITICAL: Use underscores for Loki label compatibility (not dots!)
+                            new LokiLabel { Key = "service_name", Value = TelemetryConstants.ServiceName },
+                            new LokiLabel { Key = "service_namespace", Value = TelemetryConstants.ServiceNamespace },
+                            new LokiLabel { Key = "deployment_environment", Value = environment },
+                            new LokiLabel { Key = "cloud_provider", Value = "azure" },
+                            new LokiLabel { Key = "service_version", Value = serviceVersion }
                         }
                     );
                 }

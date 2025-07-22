@@ -3,8 +3,18 @@
 on:
   push:
     branches:
-      - feature/phase_02
+      - '**'  # CI roda em qualquer branch
+  pull_request:
+    branches:
+      - master  # CD roda apenas em PRs para master
+    types: [closed]  # Apenas quando o PR é fechado (merged)
   workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Force deployment (only works on master branch)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   # Deployment configuration
@@ -17,6 +27,7 @@ env:
   BUILD_CONFIGURATION: 'Release'
 
 jobs:
+  # JOB 1: CI - Roda sempre (qualquer branch)
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -50,14 +61,26 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results
+          name: test-results-${{ github.sha }}
           path: ./coverage
 
+  # JOB 2: CD - Roda em merge para master, push direto para master, ou workflow_dispatch
   build-and-deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: ${{ needs.build-and-test.result == 'success' }}
+    # Condição: executa se for um PR merged para master OU push direto para master OU workflow_dispatch forçado
+    if: |
+      needs.build-and-test.result == 'success' && (
+        (github.event_name == 'pull_request' && 
+         github.event.pull_request.merged == true && 
+         github.base_ref == 'master') ||
+        (github.event_name == 'push' && 
+         github.ref == 'refs/heads/master') ||
+        (github.event_name == 'workflow_dispatch' && 
+         github.ref == 'refs/heads/master' && 
+         github.event.inputs.deploy == 'true')
+      )
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
@@ -210,7 +233,7 @@ jobs:
           containerAppName: ${{ env.CONTAINER_APP_NAME }}
           resourceGroup: ${{ env.RESOURCE_GROUP }}
           imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}
-          environmentVariables: |
+          environmentVariables: >-
             ASPNETCORE_ENVIRONMENT=Development
             DB_HOST=${{ env.DB_HOST }}
             DB_PORT=${{ env.DB_PORT }}
@@ -231,7 +254,7 @@ jobs:
           CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
           RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
         run: |
-          echo "� Getting Container App URL..."
+          echo "🌐 Getting Container App URL..."
           APP_URL=$(az containerapp show \
             --name "$CONTAINER_APP_NAME" \
             --resource-group "$RESOURCE_GROUP" \

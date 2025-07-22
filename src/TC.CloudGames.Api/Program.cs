@@ -1,25 +1,13 @@
+using TC.CloudGames.Api.Telemetry;
 using ServiceCollectionExtensions = TC.CloudGames.Api.Extensions.ServiceCollectionExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//string GetEnvRoot()
-//{
-//    // If running in Docker, likely Linux and /app or /src will exist
-//    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-//    {
-//        // On Windows, start from current directory
-//        return SolutionRootFinder.FindRoot();
-//    }
-//    else
-//    {
-//        // On Linux (Docker), try /app and /src
-//        return SolutionRootFinder.FindRoot(".solution-root", "/TC.CloudGames.Unit.Tests", "/app", "/src");
-//    }
-//}
-
 DotNetEnv.Env.Load(Path.Combine("./", ".env"));
 
-// TODO: Make this conditional based on environment
+// DEBUG: Log telemetry configuration
+TelemetryConstants.LogTelemetryConfiguration();
+
 builder.Host.UseCustomSerilog(builder.Configuration);
 
 ServiceCollectionExtensions.ConfigureFluentValidationGlobals();
@@ -27,10 +15,10 @@ ServiceCollectionExtensions.ConfigureFluentValidationGlobals();
 builder.AddCustomLoggingTelemetry();
 
 builder.Services
+   .AddCustomServices(builder.Configuration)
    .AddCustomOpenTelemetry(builder.Configuration)
    .AddCustomAuthentication(builder.Configuration)
    .AddCustomFastEndpoints()
-   .AddCustomServices(builder.Configuration)
    //.AddCustomMiddleware()
    .ConfigureAppSettings(builder.Configuration)
    .AddCustomHealthCheck();

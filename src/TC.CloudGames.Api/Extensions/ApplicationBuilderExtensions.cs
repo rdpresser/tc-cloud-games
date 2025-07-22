@@ -75,6 +75,7 @@ internal static class ApplicationBuilderExtensions
         app.UseHttpsRedirection()
             .UseCustomExceptionHandler()
             .UseCorrelationMiddleware()
+            .UseMiddleware<TelemetryMiddleware>() // Add telemetry middleware after correlation
             .UseSerilogRequestLogging()
             .UseHealthChecks("/health", new HealthCheckOptions
             {
