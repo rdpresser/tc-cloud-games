@@ -5,17 +5,29 @@ on:
     # 8:30 AM BRT (11:30 AM UTC) Monday-Friday
     - cron: '30 11 * * 1-5'
   
-  # Manual trigger option for testing
+  # Manual trigger option for testing with customizable parameters
   workflow_dispatch:
-
-env:
-  # GitHub token for triggering workflows
-  GH_TOKEN: ${{ github.token }}
+    inputs:
+      recreate_wait_minutes:
+        description: 'Minutes to wait after triggering recreate-storage (default: 5)'
+        required: false
+        type: number
+        default: 5
+      start_wait_minutes:
+        description: 'Minutes to wait after triggering start-all (default: 2)'
+        required: false
+        type: number
+        default: 2
+      skip_recreate:
+        description: 'Skip recreating storage resources (if they still exist)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   morning-preparation:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
@@ -24,55 +36,133 @@ jobs:
         run: |
           echo "🌅 Starting Morning Business Preparation at $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')"
           echo "💼 Preparing infrastructure for business day"
-          echo "🔄 This will trigger two actions sequentially:"
-          echo "  1. Recreate storage resources (Redis + Container Registry)"
+          echo "🔄 Configuration:"
+          echo "  - Recreate wait time: ${{ github.event.inputs.recreate_wait_minutes || '5' }} minutes"
+          echo "  - Start wait time: ${{ github.event.inputs.start_wait_minutes || '2' }} minutes"
+          echo "  - Skip recreate: ${{ github.event.inputs.skip_recreate || 'false' }}"
+          echo "🔄 This will trigger actions sequentially:"
+          if [ "${{ github.event.inputs.skip_recreate || 'false' }}" != "true" ]; then
+            echo "  1. Recreate storage resources (Redis + Container Registry)"
+          else
+            echo "  1. Skip recreating storage resources (manual override)"
+          fi
           echo "  2. Start all compute resources (Database + Container App)"
           echo ""
 
       - name: 🔄 Trigger Recreate Storage Resources
+        if: ${{ github.event.inputs.skip_recreate != 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const recreateWaitMinutes = parseInt('${{ github.event.inputs.recreate_wait_minutes }}') || 5;
+            const recreateWaitMs = recreateWaitMinutes * 60 * 1000;
+            
+            try {
+              const result = await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'iac_management_workflow.yml',
+                ref: context.ref,
+                inputs: {
+                  action: 'recreate-storage-resources',
+                  confirm_destructive: 'true'
+                }
+              });
+              console.log('🔄 Recreate storage resources workflow dispatched successfully');
+              console.log(`📍 Using branch: ${context.ref}`);
+              
+              // Dynamic wait based on input
+              console.log(`⏳ Waiting ${recreateWaitMinutes} minutes for storage resources to be recreated...`);
+              await new Promise(resolve => setTimeout(resolve, recreateWaitMs));
+              console.log('✅ Storage recreation wait period completed');
+            } catch (error) {
+              console.error('❌ Failed to dispatch recreate storage resources workflow:', error.message);
+              throw error;
+            }
+
+      - name: ⏭️ Skip Recreate Storage Resources
+        if: ${{ github.event.inputs.skip_recreate == 'true' }}
         run: |
-          echo "🔄 Triggering 'recreate-storage-resources' action..."
-          gh workflow run iac_management_workflow.yml \
-            --field action=recreate-storage-resources \
-            --field confirm_destructive=true
-          
-          echo "⏳ Waiting for storage recreation to complete..."
-          sleep 300  # Wait 5 minutes for storage resources to be recreated
+          echo "⏭️ Skipping storage resource recreation (manual override)"
+          echo "ℹ️ Assuming Redis Cache and Container Registry still exist"
+          echo "⚠️ If storage was destroyed, this may cause application startup issues"
 
       - name: 🚀 Trigger Start All Resources
-        run: |
-          echo "🚀 Triggering 'start-all' action..."
-          gh workflow run iac_management_workflow.yml \
-            --field action=start-all \
-            --field confirm_destructive=false
-          
-          echo "✅ Both preparation actions have been triggered"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const startWaitMinutes = parseInt('${{ github.event.inputs.start_wait_minutes }}') || 2;
+            const startWaitMs = startWaitMinutes * 60 * 1000;
+            
+            try {
+              const result = await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'iac_management_workflow.yml',
+                ref: context.ref,
+                inputs: {
+                  action: 'start-all',
+                  confirm_destructive: 'false'
+                }
+              });
+              console.log('🚀 Start all resources workflow dispatched successfully');
+              console.log(`📍 Using branch: ${context.ref}`);
+              
+              // Dynamic wait based on input
+              console.log(`⏳ Waiting ${startWaitMinutes} minutes for resources to start...`);
+              await new Promise(resolve => setTimeout(resolve, startWaitMs));
+              console.log('✅ Both preparation actions have been triggered');
+            } catch (error) {
+              console.error('❌ Failed to dispatch start all resources workflow:', error.message);
+              throw error;
+            }
 
       - name: 📊 Morning Preparation Summary
         run: |
           BRT_TIME=$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')
+          SKIP_RECREATE="${{ github.event.inputs.skip_recreate || 'false' }}"
+          RECREATE_WAIT="${{ github.event.inputs.recreate_wait_minutes || '5' }}"
+          START_WAIT="${{ github.event.inputs.start_wait_minutes || '2' }}"
           
           echo "## 🌅 Morning Business Preparation Triggered" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Component | Action |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Schedule** | 8:30 AM BRT (Monday-Friday) |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Triggered At** | $BRT_TIME |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Redis Cache** | 🔄 Recreate Triggered |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Container Registry** | 🔄 Recreate Triggered |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Database** | 🚀 Start Triggered |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Container App** | 🚀 Start Triggered |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Business Status** | 💼 Ready for Work Day |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Next Optimization** | 10:00 PM BRT |" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Action | Wait Time |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|-----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Schedule** | 8:30 AM BRT (Monday-Friday) | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered At** | $BRT_TIME | - |" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$SKIP_RECREATE" != "true" ]; then
+            echo "| **Redis Cache** | 🔄 Recreate Triggered | ${RECREATE_WAIT} min |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Container Registry** | 🔄 Recreate Triggered | ${RECREATE_WAIT} min |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| **Redis Cache** | ⏭️ Skip Recreate | - |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Container Registry** | ⏭️ Skip Recreate | - |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "| **Database** | 🚀 Start Triggered | ${START_WAIT} min |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Container App** | 🚀 Start Triggered | ${START_WAIT} min |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Business Status** | 💼 Ready for Work Day | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Next Optimization** | 10:00 PM BRT | - |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ **Business day preparation workflows triggered successfully!**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 What Happens Next:" >> $GITHUB_STEP_SUMMARY
           echo "- Monitor the [IaC Management workflow runs](https://github.com/${{ github.repository }}/actions/workflows/iac_management_workflow.yml)" >> $GITHUB_STEP_SUMMARY
           echo "- Verify application functionality and health endpoints" >> $GITHUB_STEP_SUMMARY
-          echo "- Rebuild and push container images to new ACR if needed" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$SKIP_RECREATE" != "true" ]; then
+            echo "- Rebuild and push container images to new ACR if needed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "- Resources will auto-optimize again at 10:00 PM BRT" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ⚠️ Post-Startup Tasks:" >> $GITHUB_STEP_SUMMARY
-          echo "- Container images were lost during optimization - rebuild if needed" >> $GITHUB_STEP_SUMMARY
-          echo "- Redis cache is empty - will warm up automatically with use" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$SKIP_RECREATE" != "true" ]; then
+            echo "### ⚠️ Post-Startup Tasks:" >> $GITHUB_STEP_SUMMARY
+            echo "- Container images were lost during optimization - rebuild if needed" >> $GITHUB_STEP_SUMMARY
+            echo "- Redis cache is empty - will warm up automatically with use" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ℹ️ Storage Resources:" >> $GITHUB_STEP_SUMMARY
+            echo "- Redis cache preserved - existing data available" >> $GITHUB_STEP_SUMMARY
+            echo "- Container registry preserved - existing images available" >> $GITHUB_STEP_SUMMARY
+          fi
