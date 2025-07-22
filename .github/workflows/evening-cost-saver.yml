@@ -28,6 +28,9 @@ jobs:
   evening-optimization:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      actions: write
+      contents: read
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
@@ -57,6 +60,24 @@ jobs:
             const stopWaitMs = stopWaitMinutes * 60 * 1000;
             
             try {
+              // First verify the target workflow exists
+              const workflows = await github.rest.actions.listRepoWorkflows({
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              });
+              
+              const targetWorkflow = workflows.data.workflows.find(w => 
+                w.name === '🏗️ IaC Management | Stop/Start Resources' || 
+                w.path.includes('iac_management_workflow.yml')
+              );
+              
+              if (!targetWorkflow) {
+                throw new Error('Target IaC Management workflow not found');
+              }
+              
+              console.log(`🔍 Found target workflow: ${targetWorkflow.name}`);
+              console.log(`📍 Using branch: ${context.ref}`);
+              
               const result = await github.rest.actions.createWorkflowDispatch({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -68,7 +89,6 @@ jobs:
                 }
               });
               console.log('🛑 Stop-all workflow dispatched successfully');
-              console.log(`📍 Using branch: ${context.ref}`);
               
               // Dynamic wait based on input
               console.log(`⏳ Waiting ${stopWaitMinutes} minutes for resources to stop...`);
@@ -76,6 +96,7 @@ jobs:
               console.log('✅ Stop-all wait period completed');
             } catch (error) {
               console.error('❌ Failed to dispatch stop-all workflow:', error.message);
+              console.error('🔍 Error details:', error.status, error.response?.data?.message);
               throw error;
             }
 

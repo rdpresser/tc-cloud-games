@@ -28,6 +28,9 @@ jobs:
   morning-preparation:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    permissions:
+      actions: write
+      contents: read
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
@@ -58,6 +61,24 @@ jobs:
             const recreateWaitMs = recreateWaitMinutes * 60 * 1000;
             
             try {
+              // First verify the target workflow exists
+              const workflows = await github.rest.actions.listRepoWorkflows({
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              });
+              
+              const targetWorkflow = workflows.data.workflows.find(w => 
+                w.name === '🏗️ IaC Management | Stop/Start Resources' || 
+                w.path.includes('iac_management_workflow.yml')
+              );
+              
+              if (!targetWorkflow) {
+                throw new Error('Target IaC Management workflow not found');
+              }
+              
+              console.log(`🔍 Found target workflow: ${targetWorkflow.name}`);
+              console.log(`📍 Using branch: ${context.ref}`);
+              
               const result = await github.rest.actions.createWorkflowDispatch({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -69,7 +90,6 @@ jobs:
                 }
               });
               console.log('🔄 Recreate storage resources workflow dispatched successfully');
-              console.log(`📍 Using branch: ${context.ref}`);
               
               // Dynamic wait based on input
               console.log(`⏳ Waiting ${recreateWaitMinutes} minutes for storage resources to be recreated...`);
@@ -77,6 +97,7 @@ jobs:
               console.log('✅ Storage recreation wait period completed');
             } catch (error) {
               console.error('❌ Failed to dispatch recreate storage resources workflow:', error.message);
+              console.error('🔍 Error details:', error.status, error.response?.data?.message);
               throw error;
             }
 
@@ -114,6 +135,7 @@ jobs:
               console.log('✅ Both preparation actions have been triggered');
             } catch (error) {
               console.error('❌ Failed to dispatch start all resources workflow:', error.message);
+              console.error('🔍 Error details:', error.status, error.response?.data?.message);
               throw error;
             }
 
