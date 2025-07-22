@@ -436,7 +436,7 @@ jobs:
             
             echo "Destroy status ($i/60): $RUN_STATUS"
             
-            if [ "$RUN_STATUS" == "applied" ]; then
+            if [ "$RUN_STATUS" == "applied" ] || [ "$RUN_STATUS" == "planned_and_finished" ]; then
               echo "✅ Destroy completed successfully"
               break
             elif [ "$RUN_STATUS" == "errored" ] || [ "$RUN_STATUS" == "canceled" ]; then
