@@ -99,6 +99,7 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false  # Disable wrapper to get proper exit codes
 
       - name: 🔧 Terraform Init & Upgrade
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -121,6 +122,9 @@ jobs:
           
           echo "📋 Terraform workspace info:"
           terraform workspace show
+          
+          echo "� Workspace is configured for local execution with remote state"
+          echo "🔧 This will provide proper exit codes for CI/CD automation"
 
       - name: 📋 Terraform Plan
         id: terraform-plan
@@ -135,15 +139,14 @@ jobs:
           ARM_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
           # Terraform Cloud workspace
           TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
-          # Environment-specific variables (can be customized per environment)
-          TF_VAR_environment: "dev"
-          TF_VAR_project_name: "tc-cloudgames"
-          TF_VAR_location: "East US"
         run: |
           echo "📋 Creating Terraform plan..."
-          # Create plan with detailed exit code for conditional apply
+          echo "🔧 Using local execution with remote state storage"
+          
           set +e  # Don't exit on non-zero exit codes
-          terraform plan -detailed-exitcode
+          
+          # Create plan with proper exit code handling for local execution
+          terraform plan -detailed-exitcode -no-color -input=false -out=tfplan
           
           # Capture exit code for conditional apply
           PLAN_EXIT_CODE=$?
@@ -154,21 +157,18 @@ jobs:
           
           if [ $PLAN_EXIT_CODE -eq 1 ]; then
             echo "❌ Terraform plan failed"
+            echo "🔍 Check the plan output above for error details"
             exit 1
           elif [ $PLAN_EXIT_CODE -eq 2 ]; then
             echo "📝 Terraform plan shows changes to apply"
-          else
+            echo "🚀 Terraform Apply step will be executed"
+            echo "📁 Plan saved to: tfplan"
+          elif [ $PLAN_EXIT_CODE -eq 0 ]; then
             echo "✅ Terraform plan shows no changes"
-          fi
-
-      - name: 🔍 Debug Plan Exit Code
-        run: |
-          echo "🔍 Debug: Plan exit code is '${{ steps.terraform-plan.outputs.plan-exit-code }}'"
-          echo "🔍 Debug: Plan exit code type: $(echo '${{ steps.terraform-plan.outputs.plan-exit-code }}' | wc -c) characters"
-          if [ '${{ steps.terraform-plan.outputs.plan-exit-code }}' == '2' ]; then
-            echo "✅ Debug: Exit code matches '2' - Apply should run"
+            echo "⏭️ Terraform Apply step will be skipped (no changes needed)"
           else
-            echo "❌ Debug: Exit code does not match '2' - Apply will be skipped"
+            echo "⚠️ Unexpected exit code: $PLAN_EXIT_CODE"
+            echo "🔍 This might indicate a configuration issue"
           fi
 
       - name: 🚀 Terraform Apply
@@ -186,8 +186,14 @@ jobs:
           TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
           echo "🚀 Applying Terraform changes..."
-          # Apply changes with auto-approve for Terraform Cloud
-          terraform apply -auto-approve
+          # Apply the plan file created in the previous step
+          if [ -f "tfplan" ]; then
+            echo "📁 Applying plan from file: tfplan"
+            terraform apply -auto-approve tfplan
+          else
+            echo "⚠️ Plan file not found, running apply without plan file"
+            terraform apply -auto-approve
+          fi
           echo "✅ Terraform apply completed successfully"
 
       - name: 📊 Terraform Outputs
