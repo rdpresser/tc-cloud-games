@@ -67,14 +67,26 @@ jobs:
         run: dotnet build TC.CloudGames.sln --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
 
       - name: 🧪 Run unit tests
-        run: dotnet test test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj --no-build --verbosity normal --configuration ${{ env.BUILD_CONFIGURATION }} --collect:"XPlat Code Coverage" --results-directory ./coverage
+        run: |
+          dotnet test test/TC.CloudGames.Unit.Tests/TC.CloudGames.Unit.Tests.csproj \
+            --no-build \
+            --verbosity normal \
+            --configuration ${{ env.BUILD_CONFIGURATION }} \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage \
+            --logger trx
+
+      - name: 🔒 Security NuGet Vulnerability Scan
+        run: dotnet list package --vulnerable --include-transitive || true
 
       - name: 📊 Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results-${{ github.sha }}
-          path: ./coverage
+          path: |
+            ./coverage
+            **/*.trx
 
   # JOB 2: Terraform - Infrastructure deployment via Terraform Cloud (Remote Execution)
   terraform-deploy:
@@ -143,16 +155,21 @@ jobs:
           echo "📊 Infrastructure outputs:"
           terraform output -json || echo "No outputs available"
           
+          # Enhanced deployment summary with clickable links
+          WORKSPACE_URL="https://app.terraform.io/app/rdpresser_tccloudgames_fiap/workspaces/${{ secrets.TF_WORKSPACE }}"
+          
           echo "## 🏗️ Infrastructure Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| **Execution Mode** | Remote (Terraform Cloud) |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Workspace** | \`${{ secrets.TF_WORKSPACE }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Workspace** | [\`${{ secrets.TF_WORKSPACE }}\`]($WORKSPACE_URL) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Terraform Version** | \`${{ env.TF_VERSION }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Deploy Time** | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | [\`${{ github.sha }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ **Infrastructure deployment completed!**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 **View details**: [Terraform Cloud Workspace](https://app.terraform.io/app/rdpresser_tccloudgames_fiap/workspaces/${{ secrets.TF_WORKSPACE }})" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **[View Terraform Cloud Workspace]($WORKSPACE_URL)**" >> $GITHUB_STEP_SUMMARY
 
   # JOB 3: CD - Application deployment (depends on successful Terraform)
   build-and-deploy:
@@ -182,168 +199,116 @@ jobs:
         with:
           creds: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
 
-      - name: 🔑 Fetch infrastructure secrets from Azure Key Vault
-        id: fetch-infra-secrets
+      - name: 🔑 Fetch all secrets from Azure Key Vault
+        id: fetch-secrets
         uses: azure/get-keyvault-secrets@v1
         timeout-minutes: 5
         with:
           keyvault: ${{ env.KEYVAULT_NAME }}
-          secrets: acr-name,acr-username,acr-password,container-app-name
+          secrets: |
+            acr-name,acr-username,acr-password,container-app-name,
+            db-password,db-host,db-port,db-name,db-admin-login,
+            cache-password,cache-host,cache-port,
+            otel-auth-header,grafana-api-token,grafana-endpoint,
+            grafana-protocol,grafana-resource-attributes
         env:
           AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
           AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
           AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
 
-      - name: 🔑 Fetch database secrets from Azure Key Vault
-        id: fetch-db-secrets
-        uses: azure/get-keyvault-secrets@v1
-        timeout-minutes: 5
-        with:
-          keyvault: ${{ env.KEYVAULT_NAME }}
-          secrets: db-password,db-host,db-port,db-name,db-admin-login
+      - name: 🔍 Validate critical secrets
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
-
-      - name: 🔑 Fetch observability secrets from Azure Key Vault
-        id: fetch-observability-secrets
-        uses: azure/get-keyvault-secrets@v1
-        timeout-minutes: 5
-        with:
-          keyvault: ${{ env.KEYVAULT_NAME }}
-          secrets: cache-password,cache-host,cache-port,otel-auth-header,grafana-api-token,grafana-endpoint,grafana-protocol,grafana-resource-attributes
-        env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
-
-      - name: 🔍 Validate required secrets
-        env:
-          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
-          CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
-          DB_HOST: ${{ steps.fetch-db-secrets.outputs['db-host'] }}
-          CACHE_HOST: ${{ steps.fetch-observability-secrets.outputs['cache-host'] }}
+          ACR_NAME: ${{ steps.fetch-secrets.outputs['acr-name'] }}
+          CONTAINER_APP_NAME: ${{ steps.fetch-secrets.outputs['container-app-name'] }}
+          DB_HOST: ${{ steps.fetch-secrets.outputs['db-host'] }}
+          CACHE_HOST: ${{ steps.fetch-secrets.outputs['cache-host'] }}
         run: |
-          echo "🔍 Validating required secrets..."
+          echo "🔍 Validating critical secrets..."
           
-          if [ -z "$ACR_NAME" ]; then
-            echo "❌ ACR_NAME is empty or not found in Key Vault"
+          MISSING_SECRETS=()
+          
+          [ -z "$ACR_NAME" ] && MISSING_SECRETS+=("acr-name")
+          [ -z "$CONTAINER_APP_NAME" ] && MISSING_SECRETS+=("container-app-name")
+          [ -z "$DB_HOST" ] && MISSING_SECRETS+=("db-host")
+          [ -z "$CACHE_HOST" ] && MISSING_SECRETS+=("cache-host")
+          
+          if [ ${#MISSING_SECRETS[@]} -ne 0 ]; then
+            echo "❌ Missing critical secrets: ${MISSING_SECRETS[*]}"
             exit 1
           fi
           
-          if [ -z "$CONTAINER_APP_NAME" ]; then
-            echo "❌ CONTAINER_APP_NAME is empty or not found in Key Vault"
-            exit 1
-          fi
-          
-          if [ -z "$DB_HOST" ]; then
-            echo "❌ DB_HOST is empty or not found in Key Vault"
-            exit 1
-          fi
-          
-          if [ -z "$CACHE_HOST" ]; then
-            echo "❌ CACHE_HOST is empty or not found in Key Vault"
-            exit 1
-          fi
-          
-          echo "✅ All required secrets validated successfully"
-          echo "📋 Infrastructure:"
-          echo "  - ACR: $ACR_NAME"
-          echo "  - Container App: $CONTAINER_APP_NAME"
-          echo "  - DB Host: $DB_HOST"
-          echo "  - Cache Host: $CACHE_HOST"
+          echo "✅ All critical secrets validated"
+          echo "📋 Infrastructure verified: ACR=$ACR_NAME, App=$CONTAINER_APP_NAME"
 
-      - name: 💾 Upload Key Vault secrets to Azure Container App
+      - name: 💾 Update Container App secrets
         env:
-          # Infrastructure configuration
-          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
-          CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
+          CONTAINER_APP_NAME: ${{ steps.fetch-secrets.outputs['container-app-name'] }}
           RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
-          
-          # Application secrets
-          DB_PASSWORD: ${{ steps.fetch-db-secrets.outputs['db-password'] }}
-          CACHE_PASSWORD: ${{ steps.fetch-observability-secrets.outputs['cache-password'] }}
-          OTEL_AUTH_HEADER: ${{ steps.fetch-observability-secrets.outputs['otel-auth-header'] }}
-          GRAFANA_API_TOKEN: ${{ steps.fetch-observability-secrets.outputs['grafana-api-token'] }}
-        run: |          
-          echo "💾 Uploading secrets to Container App..."
+          DB_PASSWORD: ${{ steps.fetch-secrets.outputs['db-password'] }}
+          CACHE_PASSWORD: ${{ steps.fetch-secrets.outputs['cache-password'] }}
+          OTEL_AUTH_HEADER: ${{ steps.fetch-secrets.outputs['otel-auth-header'] }}
+          GRAFANA_API_TOKEN: ${{ steps.fetch-secrets.outputs['grafana-api-token'] }}
+        run: |
+          echo "💾 Updating Container App secrets..."
           az containerapp secret set \
             --name "$CONTAINER_APP_NAME" \
             --resource-group "$RESOURCE_GROUP" \
-            --secrets db-password-secret="$DB_PASSWORD" cache-password-secret="$CACHE_PASSWORD" otel-auth-header-secret="$OTEL_AUTH_HEADER" grafana-api-token-secret="$GRAFANA_API_TOKEN"
-          echo "✅ Secrets uploaded successfully"
+            --secrets \
+              db-password-secret="$DB_PASSWORD" \
+              cache-password-secret="$CACHE_PASSWORD" \
+              otel-auth-header-secret="$OTEL_AUTH_HEADER" \
+              grafana-api-token-secret="$GRAFANA_API_TOKEN"
+          echo "✅ Secrets updated successfully"
 
       - name: 🐳 Login to ACR
-        env:
-          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
-          ACR_USERNAME: ${{ steps.fetch-infra-secrets.outputs['acr-username'] }}
-          ACR_PASSWORD: ${{ steps.fetch-infra-secrets.outputs['acr-password'] }}
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.ACR_NAME }}.azurecr.io
-          username: ${{ env.ACR_USERNAME }}
-          password: ${{ env.ACR_PASSWORD }}
+          registry: ${{ steps.fetch-secrets.outputs['acr-name'] }}.azurecr.io
+          username: ${{ steps.fetch-secrets.outputs['acr-username'] }}
+          password: ${{ steps.fetch-secrets.outputs['acr-password'] }}
 
       - name: ⚙️ Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: ⚙️ Build and push Docker image
-        env:
-          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
-          CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./src/TC.CloudGames.Api/Dockerfile
           push: true
-          tags: ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}
+          tags: ${{ steps.fetch-secrets.outputs['acr-name'] }}.azurecr.io/${{ steps.fetch-secrets.outputs['container-app-name'] }}:${{ env.IMAGE_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
 
       - name: 🚀 Deploy to Azure Container App
-        env:
-          # Infrastructure configuration
-          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
-          CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
-          RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
-          
-          # Application configuration values
-          DB_HOST: ${{ steps.fetch-db-secrets.outputs['db-host'] }}
-          DB_PORT: ${{ steps.fetch-db-secrets.outputs['db-port'] }}
-          DB_NAME: ${{ steps.fetch-db-secrets.outputs['db-name'] }}
-          DB_USER: ${{ steps.fetch-db-secrets.outputs['db-admin-login'] }}
-          CACHE_HOST: ${{ steps.fetch-observability-secrets.outputs['cache-host'] }}
-          CACHE_PORT: ${{ steps.fetch-observability-secrets.outputs['cache-port'] }}
-          GRAFANA_ENDPOINT: ${{ steps.fetch-observability-secrets.outputs['grafana-endpoint'] }}
-          GRAFANA_PROTOCOL: ${{ steps.fetch-observability-secrets.outputs['grafana-protocol'] }}
-          GRAFANA_RESOURCE_ATTRIBUTES: ${{ steps.fetch-observability-secrets.outputs['grafana-resource-attributes'] }}
         uses: azure/container-apps-deploy-action@v2
         with:
-          acrName: ${{ env.ACR_NAME }}
-          containerAppName: ${{ env.CONTAINER_APP_NAME }}
+          acrName: ${{ steps.fetch-secrets.outputs['acr-name'] }}
+          containerAppName: ${{ steps.fetch-secrets.outputs['container-app-name'] }}
           resourceGroup: ${{ env.RESOURCE_GROUP }}
-          imageToDeploy: ${{ env.ACR_NAME }}.azurecr.io/${{ env.CONTAINER_APP_NAME }}:${{ env.IMAGE_TAG }}
+          imageToDeploy: ${{ steps.fetch-secrets.outputs['acr-name'] }}.azurecr.io/${{ steps.fetch-secrets.outputs['container-app-name'] }}:${{ env.IMAGE_TAG }}
           environmentVariables: >-
             ASPNETCORE_ENVIRONMENT=Development
-            DB_HOST=${{ env.DB_HOST }}
-            DB_PORT=${{ env.DB_PORT }}
-            DB_NAME=${{ env.DB_NAME }}
-            DB_USER=${{ env.DB_USER }}
+            DB_HOST=${{ steps.fetch-secrets.outputs['db-host'] }}
+            DB_PORT=${{ steps.fetch-secrets.outputs['db-port'] }}
+            DB_NAME=${{ steps.fetch-secrets.outputs['db-name'] }}
+            DB_USER=${{ steps.fetch-secrets.outputs['db-admin-login'] }}
             DB_PASSWORD=secretref:db-password-secret
-            CACHE_HOST=${{ env.CACHE_HOST }}
-            CACHE_PORT=${{ env.CACHE_PORT }}
+            CACHE_HOST=${{ steps.fetch-secrets.outputs['cache-host'] }}
+            CACHE_PORT=${{ steps.fetch-secrets.outputs['cache-port'] }}
             CACHE_PASSWORD=secretref:cache-password-secret
-            OTEL_EXPORTER_OTLP_ENDPOINT=${{ env.GRAFANA_ENDPOINT }}
-            OTEL_EXPORTER_OTLP_PROTOCOL=${{ env.GRAFANA_PROTOCOL }}
+            OTEL_EXPORTER_OTLP_ENDPOINT=${{ steps.fetch-secrets.outputs['grafana-endpoint'] }}
+            OTEL_EXPORTER_OTLP_PROTOCOL=${{ steps.fetch-secrets.outputs['grafana-protocol'] }}
             OTEL_EXPORTER_OTLP_HEADERS=secretref:otel-auth-header-secret
             GRAFANA_API_TOKEN=secretref:grafana-api-token-secret
-            OTEL_RESOURCE_ATTRIBUTES=${{ env.GRAFANA_RESOURCE_ATTRIBUTES }}
+            OTEL_RESOURCE_ATTRIBUTES=${{ steps.fetch-secrets.outputs['grafana-resource-attributes'] }}
 
-      - name: 🩺 Health check deployed application
+      - name: 🩺 Enhanced health check with retries
         env:
-          CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
+          CONTAINER_APP_NAME: ${{ steps.fetch-secrets.outputs['container-app-name'] }}
           RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
         run: |
           echo "🌐 Getting Container App URL..."
@@ -354,34 +319,58 @@ jobs:
             --output tsv)
           
           if [ -n "$APP_URL" ] && [ "$APP_URL" != "null" ]; then
-            echo "🌐 Container App URL: https://$APP_URL"
-            echo "🔄 Waiting for application to be ready..."
-            sleep 30
+            echo "🌐 Application URL: https://$APP_URL"
+            echo "APP_URL=https://$APP_URL" >> $GITHUB_ENV
             
-            # Perform health check
-            if curl -f -s "https://$APP_URL/health" > /dev/null 2>&1; then
-              echo "✅ Application health check passed"
-            else
-              echo "⚠️ Application health check failed, but deployment completed"
-              echo "   This might be normal if the health endpoint is not yet configured"
+            echo "🔄 Waiting for application startup..."
+            sleep 45
+            
+            # Enhanced health check with retries
+            HEALTH_CHECK_PASSED=false
+            for i in {1..5}; do
+              echo "🔍 Health check attempt $i/5..."
+              if curl -f -s -m 10 "https://$APP_URL/health" > /dev/null 2>&1; then
+                echo "✅ Health check passed on attempt $i"
+                HEALTH_CHECK_PASSED=true
+                break
+              fi
+              [ $i -lt 5 ] && sleep 15
+            done
+            
+            if [ "$HEALTH_CHECK_PASSED" = false ]; then
+              echo "⚠️ Health check failed after 5 attempts"
+              echo "📋 This might be normal if health endpoint is not configured"
             fi
           else
             echo "⚠️ Could not retrieve Container App URL"
           fi
 
-      - name: 📊 Deployment summary
+      - name: 📊 Enhanced deployment summary
         env:
-          ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
-          CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
+          ACR_NAME: ${{ steps.fetch-secrets.outputs['acr-name'] }}
+          CONTAINER_APP_NAME: ${{ steps.fetch-secrets.outputs['container-app-name'] }}
         run: |
           echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "| Component | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Image Tag** | \`${{ env.IMAGE_TAG }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Container App** | \`$CONTAINER_APP_NAME\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Resource Group** | \`${{ env.RESOURCE_GROUP }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Azure Container Registry** | \`$ACR_NAME\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Deploy Time** | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Deployed Image** | \`$ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:${{ env.IMAGE_TAG }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **🎯 Environment** | Development |" >> $GITHUB_STEP_SUMMARY
+          echo "| **📦 Image Tag** | [\`${{ env.IMAGE_TAG }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **🐳 Container App** | \`$CONTAINER_APP_NAME\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **📁 Resource Group** | \`${{ env.RESOURCE_GROUP }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **🏭 Registry** | \`$ACR_NAME\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **⏰ Deploy Time** | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **📋 Deployed Image** | \`$ACR_NAME.azurecr.io/$CONTAINER_APP_NAME:${{ env.IMAGE_TAG }}\` |" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -n "$APP_URL" ]; then
+            echo "| **🌐 Application URL** | [$APP_URL]($APP_URL) |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ **Deployment completed successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 Quick Links" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 [Azure Portal](https://portal.azure.com/#@/resource/subscriptions/${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).subscriptionId }}/resourceGroups/${{ env.RESOURCE_GROUP }}/overview)" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -n "$APP_URL" ]; then
+            echo "- 🌐 [Live Application]($APP_URL)" >> $GITHUB_STEP_SUMMARY
+          fi

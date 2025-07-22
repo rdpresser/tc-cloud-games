@@ -609,7 +609,7 @@ resource "azurerm_container_app" "container_app" {
     azurerm_container_app_environment.container_app_environment,
     azurerm_container_registry.acr,
     azurerm_postgresql_flexible_server.postgres_server,
-    azurerm_redis_cache.redis_cache    
+    azurerm_redis_cache.redis_cache
   ]
 }
 
