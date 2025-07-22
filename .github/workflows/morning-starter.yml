@@ -1,0 +1,78 @@
+name: 🌅 Morning Starter
+
+on:
+  schedule:
+    # 8:30 AM BRT (11:30 AM UTC) Monday-Friday
+    - cron: '30 11 * * 1-5'
+  
+  # Manual trigger option for testing
+  workflow_dispatch:
+
+env:
+  # GitHub token for triggering workflows
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  morning-preparation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: ⏬ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🌅 Morning Business Preparation Started
+        run: |
+          echo "🌅 Starting Morning Business Preparation at $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')"
+          echo "💼 Preparing infrastructure for business day"
+          echo "🔄 This will trigger two actions sequentially:"
+          echo "  1. Recreate storage resources (Redis + Container Registry)"
+          echo "  2. Start all compute resources (Database + Container App)"
+          echo ""
+
+      - name: 🔄 Trigger Recreate Storage Resources
+        run: |
+          echo "🔄 Triggering 'recreate-storage-resources' action..."
+          gh workflow run iac_management_workflow.yml \
+            --field action=recreate-storage-resources \
+            --field confirm_destructive=true
+          
+          echo "⏳ Waiting for storage recreation to complete..."
+          sleep 300  # Wait 5 minutes for storage resources to be recreated
+
+      - name: 🚀 Trigger Start All Resources
+        run: |
+          echo "🚀 Triggering 'start-all' action..."
+          gh workflow run iac_management_workflow.yml \
+            --field action=start-all \
+            --field confirm_destructive=false
+          
+          echo "✅ Both preparation actions have been triggered"
+
+      - name: 📊 Morning Preparation Summary
+        run: |
+          BRT_TIME=$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')
+          
+          echo "## 🌅 Morning Business Preparation Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Action |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Schedule** | 8:30 AM BRT (Monday-Friday) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered At** | $BRT_TIME |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Redis Cache** | 🔄 Recreate Triggered |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Container Registry** | 🔄 Recreate Triggered |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Database** | 🚀 Start Triggered |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Container App** | 🚀 Start Triggered |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Business Status** | 💼 Ready for Work Day |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Next Optimization** | 10:00 PM BRT |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Business day preparation workflows triggered successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 What Happens Next:" >> $GITHUB_STEP_SUMMARY
+          echo "- Monitor the [IaC Management workflow runs](https://github.com/${{ github.repository }}/actions/workflows/iac_management_workflow.yml)" >> $GITHUB_STEP_SUMMARY
+          echo "- Verify application functionality and health endpoints" >> $GITHUB_STEP_SUMMARY
+          echo "- Rebuild and push container images to new ACR if needed" >> $GITHUB_STEP_SUMMARY
+          echo "- Resources will auto-optimize again at 10:00 PM BRT" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ⚠️ Post-Startup Tasks:" >> $GITHUB_STEP_SUMMARY
+          echo "- Container images were lost during optimization - rebuild if needed" >> $GITHUB_STEP_SUMMARY
+          echo "- Redis cache is empty - will warm up automatically with use" >> $GITHUB_STEP_SUMMARY

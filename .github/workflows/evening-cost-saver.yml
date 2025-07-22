@@ -1,0 +1,73 @@
+name: 🌙 Evening Cost Saver
+
+on:
+  schedule:
+    # 10:00 PM BRT (1:00 AM UTC) Monday-Friday
+    - cron: '0 1 * * 1-5'
+  
+  # Manual trigger option for testing
+  workflow_dispatch:
+
+env:
+  # GitHub token for triggering workflows
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  evening-optimization:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: ⏬ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🌙 Evening Cost Optimization Started
+        run: |
+          echo "🌙 Starting Evening Cost Optimization at $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')"
+          echo "💰 Expected monthly savings: ~$50-155"
+          echo "🔄 This will trigger two actions sequentially:"
+          echo "  1. Stop all compute resources (Database + Container App)"
+          echo "  2. Destroy storage resources (Redis + Container Registry)"
+          echo ""
+
+      - name: 🛑 Trigger Stop All Resources
+        run: |
+          echo "🛑 Triggering 'stop-all' action..."
+          gh workflow run iac_management_workflow.yml \
+            --field action=stop-all \
+            --field confirm_destructive=false
+          
+          echo "⏳ Waiting for stop-all to complete..."
+          sleep 180  # Wait 3 minutes for resources to stop
+
+      - name: 🗑️ Trigger Destroy Storage Resources  
+        run: |
+          echo "🗑️ Triggering 'destroy-storage-resources' action..."
+          gh workflow run iac_management_workflow.yml \
+            --field action=destroy-storage-resources \
+            --field confirm_destructive=true
+          
+          echo "✅ Both optimization actions have been triggered"
+
+      - name: 📊 Evening Optimization Summary
+        run: |
+          BRT_TIME=$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')
+          
+          echo "## 🌙 Evening Cost Optimization Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Action |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Schedule** | 10:00 PM BRT (Monday-Friday) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered At** | $BRT_TIME |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Database** | 🛑 Stop Triggered |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Container App** | 🛑 Stop Triggered |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Redis Cache** | 🗑️ Destroy Triggered |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Container Registry** | 🗑️ Destroy Triggered |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Expected Savings** | ~$50-155/month |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Next Startup** | 8:30 AM BRT |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Cost optimization workflows triggered successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 What Happens Next:" >> $GITHUB_STEP_SUMMARY
+          echo "- Monitor the [IaC Management workflow runs](https://github.com/${{ github.repository }}/actions/workflows/iac_management_workflow.yml)" >> $GITHUB_STEP_SUMMARY
+          echo "- Resources will automatically restart tomorrow morning at 8:30 AM BRT" >> $GITHUB_STEP_SUMMARY
+          echo "- Check Azure Cost Management for savings verification" >> $GITHUB_STEP_SUMMARY
