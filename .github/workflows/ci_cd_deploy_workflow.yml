@@ -76,10 +76,10 @@ jobs:
           name: test-results-${{ github.sha }}
           path: ./coverage
 
-  # JOB 2: Terraform - Infrastructure deployment via Terraform Cloud CLI
+  # JOB 2: Terraform - Infrastructure deployment via Terraform Cloud (Remote Execution)
   terraform-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     needs: [build-and-test]
     # Only run Terraform when merge occurs on master branch (CD requirement)
     if: |
@@ -99,22 +99,16 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-          terraform_wrapper: false  # Disable wrapper to get proper exit codes
 
-      - name: 🔧 Terraform Init & Upgrade
+      - name: 🔧 Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
           # Terraform Cloud authentication
           TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
-          # Azure authentication for Terraform providers
-          ARM_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
-          ARM_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
-          ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).subscriptionId }}
-          ARM_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
           # Terraform Cloud workspace
           TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
-          echo "🔧 Initializing Terraform..."
+          echo "🔧 Initializing Terraform with remote execution..."
           terraform init -upgrade
           
           echo "🔍 Validating Terraform configuration..."
@@ -123,111 +117,47 @@ jobs:
           echo "📋 Terraform workspace info:"
           terraform workspace show
           
-          echo "� Workspace is configured for local execution with remote state"
-          echo "🔧 This will provide proper exit codes for CI/CD automation"
+          echo "🔧 Workspace is configured for remote execution with auto-apply"
+          echo "🔧 All variables are managed in Terraform Cloud workspace"
+          echo "🔗 View progress: https://app.terraform.io/app/rdpresser_tccloudgames_fiap/workspaces/${{ secrets.TF_WORKSPACE }}"
 
-      - name: 📋 Terraform Plan
-        id: terraform-plan
+      - name: 🚀 Terraform Apply (Remote Execution)
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
           # Terraform Cloud authentication
           TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
-          # Azure authentication for Terraform providers
-          ARM_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
-          ARM_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
-          ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).subscriptionId }}
-          ARM_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
           # Terraform Cloud workspace
           TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
-          echo "📋 Creating Terraform plan..."
-          echo "🔧 Using local execution with remote state storage"
+          echo "🚀 Triggering remote infrastructure deployment..."
+          echo "📋 Plan and apply will execute in Terraform Cloud with auto-apply enabled"
+          echo "🔗 Monitor progress: https://app.terraform.io/app/rdpresser_tccloudgames_fiap/workspaces/${{ secrets.TF_WORKSPACE }}"
           
-          set +e  # Don't exit on non-zero exit codes
+          # Trigger remote apply with auto-approval
+          terraform apply -auto-approve
           
-          # Create plan with proper exit code handling for local execution
-          terraform plan -detailed-exitcode -no-color -input=false -out=tfplan
-          
-          # Capture exit code for conditional apply
-          PLAN_EXIT_CODE=$?
-          set -e  # Re-enable exit on error
-          
-          echo "plan-exit-code=$PLAN_EXIT_CODE" >> $GITHUB_OUTPUT
-          echo "🔍 Plan exit code: $PLAN_EXIT_CODE"
-          
-          if [ $PLAN_EXIT_CODE -eq 1 ]; then
-            echo "❌ Terraform plan failed"
-            echo "🔍 Check the plan output above for error details"
-            exit 1
-          elif [ $PLAN_EXIT_CODE -eq 2 ]; then
-            echo "📝 Terraform plan shows changes to apply"
-            echo "🚀 Terraform Apply step will be executed"
-            echo "📁 Plan saved to: tfplan"
-          elif [ $PLAN_EXIT_CODE -eq 0 ]; then
-            echo "✅ Terraform plan shows no changes"
-            echo "⏭️ Terraform Apply step will be skipped (no changes needed)"
-          else
-            echo "⚠️ Unexpected exit code: $PLAN_EXIT_CODE"
-            echo "🔍 This might indicate a configuration issue"
-          fi
-
-      - name: 🚀 Terraform Apply
-        if: steps.terraform-plan.outputs.plan-exit-code == '2'
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          # Terraform Cloud authentication
-          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
-          # Azure authentication for Terraform providers
-          ARM_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
-          ARM_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
-          ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).subscriptionId }}
-          ARM_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
-          # Terraform Cloud workspace
-          TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
-        run: |
-          echo "🚀 Applying Terraform changes..."
-          # Apply the plan file created in the previous step
-          if [ -f "tfplan" ]; then
-            echo "📁 Applying plan from file: tfplan"
-            terraform apply -auto-approve tfplan
-          else
-            echo "⚠️ Plan file not found, running apply without plan file"
-            terraform apply -auto-approve
-          fi
-          echo "✅ Terraform apply completed successfully"
+          echo "✅ Infrastructure deployment completed successfully"
 
       - name: 📊 Terraform Outputs
         if: always()
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
           TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
-          ARM_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
-          ARM_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
-          ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).subscriptionId }}
-          ARM_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
           TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
-          echo "📊 Terraform Outputs:"
-          terraform output -json || echo "No outputs defined"
+          echo "📊 Infrastructure outputs:"
+          terraform output -json || echo "No outputs available"
           
           echo "## 🏗️ Infrastructure Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Terraform Version** | \`${{ env.TF_VERSION }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Working Directory** | \`${{ env.TF_WORKING_DIR }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Execution Mode** | Remote (Terraform Cloud) |" >> $GITHUB_STEP_SUMMARY
           echo "| **Workspace** | \`${{ secrets.TF_WORKSPACE }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Plan Exit Code** | \`${{ steps.terraform-plan.outputs.plan-exit-code }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Deploy Time** | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
-          if [ "${{ steps.terraform-plan.outputs.plan-exit-code }}" == "2" ]; then
-            echo "✅ **Infrastructure changes applied successfully!**" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "ℹ️ **No infrastructure changes were needed**" >> $GITHUB_STEP_SUMMARY
-          fi
-          
+          echo "✅ **Infrastructure deployment completed!**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 **Terraform Cloud State**: Managed in workspace \`${{ secrets.TF_WORKSPACE }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **View details**: [Terraform Cloud Workspace](https://app.terraform.io/app/rdpresser_tccloudgames_fiap/workspaces/${{ secrets.TF_WORKSPACE }})" >> $GITHUB_STEP_SUMMARY
 
   # JOB 3: CD - Application deployment (depends on successful Terraform)
   build-and-deploy:
