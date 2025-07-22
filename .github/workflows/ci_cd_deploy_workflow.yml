@@ -103,8 +103,6 @@ jobs:
       - name: 🔧 Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
-          # Terraform Cloud authentication
-          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
           # Terraform Cloud workspace
           TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
@@ -124,8 +122,6 @@ jobs:
       - name: 🚀 Terraform Apply (Remote Execution)
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
-          # Terraform Cloud authentication
-          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
           # Terraform Cloud workspace
           TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
@@ -142,7 +138,6 @@ jobs:
         if: always()
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
-          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
           TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
           echo "📊 Infrastructure outputs:"
