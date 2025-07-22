@@ -141,9 +141,9 @@ jobs:
           TF_VAR_location: "East US"
         run: |
           echo "📋 Creating Terraform plan..."
-          # Create plan with output file for Terraform Cloud tracking
+          # Create plan with detailed exit code for conditional apply
           set +e  # Don't exit on non-zero exit codes
-          terraform plan -detailed-exitcode -out=tfplan-${{ github.sha }}.tfplan
+          terraform plan -detailed-exitcode
           
           # Capture exit code for conditional apply
           PLAN_EXIT_CODE=$?
@@ -157,9 +157,18 @@ jobs:
             exit 1
           elif [ $PLAN_EXIT_CODE -eq 2 ]; then
             echo "📝 Terraform plan shows changes to apply"
-            echo "📁 Plan file: tfplan-${{ github.sha }}.tfplan"
           else
             echo "✅ Terraform plan shows no changes"
+          fi
+
+      - name: 🔍 Debug Plan Exit Code
+        run: |
+          echo "🔍 Debug: Plan exit code is '${{ steps.terraform-plan.outputs.plan-exit-code }}'"
+          echo "🔍 Debug: Plan exit code type: $(echo '${{ steps.terraform-plan.outputs.plan-exit-code }}' | wc -c) characters"
+          if [ '${{ steps.terraform-plan.outputs.plan-exit-code }}' == '2' ]; then
+            echo "✅ Debug: Exit code matches '2' - Apply should run"
+          else
+            echo "❌ Debug: Exit code does not match '2' - Apply will be skipped"
           fi
 
       - name: 🚀 Terraform Apply
@@ -177,8 +186,8 @@ jobs:
           TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
           echo "🚀 Applying Terraform changes..."
-          # Apply the specific plan file created earlier
-          terraform apply -auto-approve tfplan-${{ github.sha }}.tfplan
+          # Apply changes with auto-approve for Terraform Cloud
+          terraform apply -auto-approve
           echo "✅ Terraform apply completed successfully"
 
       - name: 📊 Terraform Outputs
@@ -202,7 +211,6 @@ jobs:
           echo "| **Working Directory** | \`${{ env.TF_WORKING_DIR }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Workspace** | \`${{ secrets.TF_WORKSPACE }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Plan Exit Code** | \`${{ steps.terraform-plan.outputs.plan-exit-code }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Plan File** | \`tfplan-${{ github.sha }}.tfplan\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Deploy Time** | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
