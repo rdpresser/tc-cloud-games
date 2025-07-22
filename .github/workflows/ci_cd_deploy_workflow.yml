@@ -3,10 +3,10 @@
 on:
   push:
     branches:
-      - '**'  # CI runs on any branch
+      - '**'  # CI runs on commits to any branch
   pull_request:
     branches:
-      - master  # CI runs when PR is opened to master, CD runs when PR is closed/merged
+      - master  # CI runs when PR is opened to master
     types: [opened, reopened, synchronize, closed]
   workflow_dispatch:
     inputs:
@@ -30,13 +30,14 @@ env:
   TF_WORKING_DIR: './infra/terraform/dev'
 
 jobs:
-  # JOB 1: CI - Runs on all branches for push events and when PRs are opened/updated to master
+  # JOB 1: CI - Runs on PR opening/commits according to project requirements
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # Run CI for: 
-    # - Push to any branch (including master after PR merge)
+    # - Push/commit to any branch
     # - PR opened/reopened/synchronized to master (but not closed)
+    # - Manual workflow dispatch
     if: |
       github.event_name == 'push' || 
       (github.event_name == 'pull_request' && 
@@ -80,10 +81,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [build-and-test]
-    # Only run Terraform on master branch with successful CI
+    # Only run Terraform when merge occurs on master branch (CD requirement)
     if: |
       needs.build-and-test.result == 'success' &&
       ((github.event_name == 'push' && github.ref == 'refs/heads/master') ||
+       (github.event_name == 'pull_request' && 
+        github.event.action == 'closed' && 
+        github.event.pull_request.merged == true &&
+        github.base_ref == 'master') ||
        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'))
     steps:
       - name: ⏬ Checkout repository
@@ -216,13 +221,19 @@ jobs:
     timeout-minutes: 30
     # Run after both CI and Terraform complete successfully
     needs: [build-and-test, terraform-deploy]
-    # Deploy only when both CI and Terraform succeed, and we're on master
+    # Deploy only when both CI and Terraform succeed, and merge occurs on master branch
     if: |
       always() &&
       needs.build-and-test.result == 'success' &&
       needs.terraform-deploy.result == 'success' &&
       ((github.event_name == 'push' && github.ref == 'refs/heads/master') ||
-       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && github.event.inputs.deploy == 'true'))
+       (github.event_name == 'pull_request' && 
+        github.event.action == 'closed' && 
+        github.event.pull_request.merged == true &&
+        github.base_ref == 'master') ||
+       (github.event_name == 'workflow_dispatch' && 
+        github.ref == 'refs/heads/master' && 
+        github.event.inputs.deploy == 'true'))
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
