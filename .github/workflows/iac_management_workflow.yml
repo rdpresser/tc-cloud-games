@@ -1,0 +1,611 @@
+name: 🏗️ IaC Management | Stop/Start Resources
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Infrastructure Action'
+        required: true
+        type: choice
+        options:
+          - stop-all
+          - start-all
+          - stop-database
+          - start-database
+          - stop-container-app
+          - start-container-app
+          - destroy-redis
+          - recreate-redis
+        default: 'stop-all'
+      confirm_destructive:
+        description: 'Confirm destructive actions (destroy-redis, recreate-redis)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  # Infrastructure configuration
+  RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
+  CONTAINER_APP_NAME: 'tc-cloudgames-dev-api-app'
+  POSTGRES_SERVER_NAME: 'tc-cloudgames-dev-db'
+  REDIS_CACHE_NAME: 'tc-cloudgames-dev-redis'
+  
+  # Terraform Cloud configuration
+  TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+  TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
+  TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
+  
+  # Azure credentials
+  CREDENTIALS: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
+
+jobs:
+  # Job 1: Stop/Start Azure Resources via CLI
+  manage-azure-resources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: |
+      contains(fromJSON('["stop-all", "start-all", "stop-database", "start-database", "stop-container-app", "start-container-app"]'), github.event.inputs.action)
+    steps:
+      - name: 🔐 Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ env.CREDENTIALS }}
+
+      - name: 🛑 Stop Database Server
+        if: contains(fromJSON('["stop-all", "stop-database"]'), github.event.inputs.action)
+        run: |
+          echo "🛑 Stopping PostgreSQL Flexible Server..."
+          
+          # Get the actual server name (it includes a random suffix)
+          SERVER_NAME=$(az postgres flexible-server list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "[?contains(name, 'tc-cloudgames-dev-db')].name" \
+            --output tsv)
+          
+          if [ -n "$SERVER_NAME" ]; then
+            echo "Found server: $SERVER_NAME"
+            
+            # Check current status
+            CURRENT_STATUS=$(az postgres flexible-server show \
+              --name "$SERVER_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "state" \
+              --output tsv)
+            
+            echo "Current status: $CURRENT_STATUS"
+            
+            if [ "$CURRENT_STATUS" == "Ready" ]; then
+              az postgres flexible-server stop \
+                --name "$SERVER_NAME" \
+                --resource-group "$RESOURCE_GROUP"
+              echo "✅ Database server stopped successfully"
+            elif [ "$CURRENT_STATUS" == "Stopped" ]; then
+              echo "ℹ️ Database server is already stopped"
+            else
+              echo "⚠️ Database server is in state: $CURRENT_STATUS - cannot stop"
+            fi
+          else
+            echo "❌ Database server not found"
+            exit 1
+          fi
+
+      - name: 🚀 Start Database Server
+        if: contains(fromJSON('["start-all", "start-database"]'), github.event.inputs.action)
+        run: |
+          echo "🚀 Starting PostgreSQL Flexible Server..."
+          
+          # Get the actual server name (it includes a random suffix)
+          SERVER_NAME=$(az postgres flexible-server list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "[?contains(name, 'tc-cloudgames-dev-db')].name" \
+            --output tsv)
+          
+          if [ -n "$SERVER_NAME" ]; then
+            echo "Found server: $SERVER_NAME"
+            
+            # Check current status
+            CURRENT_STATUS=$(az postgres flexible-server show \
+              --name "$SERVER_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "state" \
+              --output tsv)
+            
+            echo "Current status: $CURRENT_STATUS"
+            
+            if [ "$CURRENT_STATUS" == "Stopped" ]; then
+              az postgres flexible-server start \
+                --name "$SERVER_NAME" \
+                --resource-group "$RESOURCE_GROUP"
+              echo "✅ Database server started successfully"
+            elif [ "$CURRENT_STATUS" == "Ready" ]; then
+              echo "ℹ️ Database server is already running"
+            else
+              echo "⚠️ Database server is in state: $CURRENT_STATUS - cannot start"
+            fi
+          else
+            echo "❌ Database server not found"
+            exit 1
+          fi
+
+      - name: 🛑 Stop Container App
+        if: contains(fromJSON('["stop-all", "stop-container-app"]'), github.event.inputs.action)
+        run: |
+          echo "🛑 Stopping Container App by scaling to 0 replicas..."
+          
+          # Get the actual container app name (it includes a random suffix if any)
+          APP_NAME=$(az containerapp list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "[?contains(name, 'tc-cloudgames-dev-api-app')].name" \
+            --output tsv)
+          
+          if [ -n "$APP_NAME" ]; then
+            echo "Found container app: $APP_NAME"
+            
+            # Get current replica configuration
+            CURRENT_MIN=$(az containerapp show \
+              --name "$APP_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "properties.template.scale.minReplicas" \
+              --output tsv)
+            
+            CURRENT_MAX=$(az containerapp show \
+              --name "$APP_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "properties.template.scale.maxReplicas" \
+              --output tsv)
+            
+            echo "Current configuration: min=$CURRENT_MIN, max=$CURRENT_MAX"
+            
+            if [ "$CURRENT_MIN" != "0" ] || [ "$CURRENT_MAX" != "0" ]; then
+              az containerapp update \
+                --name "$APP_NAME" \
+                --resource-group "$RESOURCE_GROUP" \
+                --min-replicas 0 \
+                --max-replicas 0
+              echo "✅ Container app scaled to 0 replicas"
+            else
+              echo "ℹ️ Container app is already stopped (0 replicas)"
+            fi
+          else
+            echo "❌ Container app not found"
+            exit 1
+          fi
+
+      - name: 🚀 Start Container App
+        if: contains(fromJSON('["start-all", "start-container-app"]'), github.event.inputs.action)
+        run: |
+          echo "🚀 Starting Container App by scaling up..."
+          
+          # Get the actual container app name
+          APP_NAME=$(az containerapp list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "[?contains(name, 'tc-cloudgames-dev-api-app')].name" \
+            --output tsv)
+          
+          if [ -n "$APP_NAME" ]; then
+            echo "Found container app: $APP_NAME"
+            
+            # Get current replica configuration
+            CURRENT_MAX=$(az containerapp show \
+              --name "$APP_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "properties.template.scale.maxReplicas" \
+              --output tsv)
+            
+            echo "Current max replicas: $CURRENT_MAX"
+            
+            if [ "$CURRENT_MAX" == "0" ] || [ "$CURRENT_MAX" == "null" ]; then
+              az containerapp update \
+                --name "$APP_NAME" \
+                --resource-group "$RESOURCE_GROUP" \
+                --min-replicas 0 \
+                --max-replicas 10
+              echo "✅ Container app scaled up and ready for traffic"
+            else
+              echo "ℹ️ Container app is already configured for traffic (max replicas: $CURRENT_MAX)"
+            fi
+          else
+            echo "❌ Container app not found"
+            exit 1
+          fi
+
+      - name: 📊 Resource Status Summary
+        if: always()
+        run: |
+          echo "📊 Current Resource Status:"
+          echo "========================="
+          
+          # Database status
+          echo "🗄️ Database Status:"
+          SERVER_NAME=$(az postgres flexible-server list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "[?contains(name, 'tc-cloudgames-dev-db')].name" \
+            --output tsv)
+          
+          if [ -n "$SERVER_NAME" ]; then
+            DB_STATUS=$(az postgres flexible-server show \
+              --name "$SERVER_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "state" \
+              --output tsv)
+            echo "  Server: $SERVER_NAME"
+            echo "  Status: $DB_STATUS"
+          fi
+          
+          # Container app status
+          echo ""
+          echo "📦 Container App Status:"
+          APP_NAME=$(az containerapp list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "[?contains(name, 'tc-cloudgames-dev-api-app')].name" \
+            --output tsv)
+          
+          if [ -n "$APP_NAME" ]; then
+            MIN_REPLICAS=$(az containerapp show \
+              --name "$APP_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "properties.template.scale.minReplicas" \
+              --output tsv)
+            
+            MAX_REPLICAS=$(az containerapp show \
+              --name "$APP_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "properties.template.scale.maxReplicas" \
+              --output tsv)
+            
+            echo "  App: $APP_NAME"
+            echo "  Scale Configuration: min=$MIN_REPLICAS, max=$MAX_REPLICAS"
+            
+            if [ "$MAX_REPLICAS" == "0" ]; then
+              echo "  Status: 🛑 Stopped (no traffic allowed)"
+            else
+              echo "  Status: 🚀 Active (ready for traffic)"
+            fi
+          fi
+
+  # Job 2: Manage Redis Cache via Terraform Cloud
+  manage-redis-terraform:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: |
+      contains(fromJSON('["destroy-redis", "recreate-redis"]'), github.event.inputs.action)
+    steps:
+      - name: ⚠️ Validate Destructive Action Confirmation
+        if: github.event.inputs.confirm_destructive != 'true'
+        run: |
+          echo "❌ Destructive action requires confirmation!"
+          echo "Please check 'Confirm destructive actions' checkbox to proceed."
+          echo ""
+          echo "⚠️  WARNING: This action will:"
+          if [ "${{ github.event.inputs.action }}" == "destroy-redis" ]; then
+            echo "  • Permanently destroy the Redis cache"
+            echo "  • All cached data will be lost"
+            echo "  • Applications will lose cache functionality"
+          elif [ "${{ github.event.inputs.action }}" == "recreate-redis" ]; then
+            echo "  • Destroy and recreate the Redis cache"
+            echo "  • All cached data will be lost"
+            echo "  • Cache will be empty after recreation"
+          fi
+          exit 1
+
+      - name: 🗑️ Destroy Redis Cache via Terraform Cloud
+        if: github.event.inputs.action == 'destroy-redis'
+        run: |
+          echo "🗑️ Destroying Redis cache via Terraform Cloud..."
+          
+          # Get workspace ID
+          echo "Getting workspace information..."
+          WORKSPACE_ID=$(curl -s \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            -H "Content-Type: application/vnd.api+json" \
+            "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE" \
+            | jq -r '.data.id')
+          
+          if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
+            echo "❌ Failed to get workspace ID"
+            echo "Please verify TF_CLOUD_ORGANIZATION and TF_WORKSPACE secrets"
+            exit 1
+          fi
+          
+          echo "Workspace ID: $WORKSPACE_ID"
+          
+          # Create a targeted destroy plan for Redis
+          echo "Creating targeted destroy run..."
+          DESTROY_RUN_ID=$(curl -s \
+            -X POST \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            -H "Content-Type: application/vnd.api+json" \
+            -d "{
+              \"data\": {
+                \"type\": \"runs\",
+                \"attributes\": {
+                  \"message\": \"Destroy Redis cache - triggered from GitHub Actions by ${{ github.actor }}\",
+                  \"is-destroy\": true,
+                  \"target-addrs\": [\"azurerm_redis_cache.redis_cache\"]
+                },
+                \"relationships\": {
+                  \"workspace\": {
+                    \"data\": {
+                      \"type\": \"workspaces\",
+                      \"id\": \"$WORKSPACE_ID\"
+                    }
+                  }
+                }
+              }
+            }" \
+            "https://app.terraform.io/api/v2/runs" \
+            | jq -r '.data.id')
+          
+          if [ "$DESTROY_RUN_ID" == "null" ] || [ -z "$DESTROY_RUN_ID" ]; then
+            echo "❌ Failed to create destroy run"
+            exit 1
+          fi
+          
+          echo "✅ Terraform destroy run created: $DESTROY_RUN_ID"
+          echo "🔗 Monitor progress: https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE/runs/$DESTROY_RUN_ID"
+          
+          # Wait for plan to complete
+          echo "⏳ Waiting for destroy plan to complete..."
+          for i in {1..30}; do
+            RUN_STATUS=$(curl -s \
+              -H "Authorization: Bearer $TF_API_TOKEN" \
+              "https://app.terraform.io/api/v2/runs/$DESTROY_RUN_ID" \
+              | jq -r '.data.attributes.status')
+            
+            echo "Plan status ($i/30): $RUN_STATUS"
+            
+            if [ "$RUN_STATUS" == "planned" ]; then
+              echo "✅ Destroy plan completed successfully"
+              echo "⚠️  Manual approval may be required in Terraform Cloud"
+              break
+            elif [ "$RUN_STATUS" == "applied" ]; then
+              echo "✅ Destroy completed successfully"
+              break
+            elif [ "$RUN_STATUS" == "errored" ] || [ "$RUN_STATUS" == "canceled" ]; then
+              echo "❌ Destroy plan failed with status: $RUN_STATUS"
+              exit 1
+            fi
+            
+            sleep 10
+          done
+          
+          echo "💰 Estimated monthly savings: ~$15-25 (Redis Standard C1)"
+
+      - name: 🔄 Recreate Redis Cache via Terraform Cloud
+        if: github.event.inputs.action == 'recreate-redis'
+        run: |
+          echo "🔄 Recreating Redis cache via Terraform Cloud..."
+          
+          # Get workspace ID
+          echo "Getting workspace information..."
+          WORKSPACE_ID=$(curl -s \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            -H "Content-Type: application/vnd.api+json" \
+            "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE" \
+            | jq -r '.data.id')
+          
+          if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
+            echo "❌ Failed to get workspace ID"
+            exit 1
+          fi
+          
+          # Step 1: Destroy Redis
+          echo "Step 1: Destroying existing Redis cache..."
+          DESTROY_RUN_ID=$(curl -s \
+            -X POST \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            -H "Content-Type: application/vnd.api+json" \
+            -d "{
+              \"data\": {
+                \"type\": \"runs\",
+                \"attributes\": {
+                  \"message\": \"Destroy Redis for recreation - triggered from GitHub Actions by ${{ github.actor }}\",
+                  \"is-destroy\": true,
+                  \"target-addrs\": [\"azurerm_redis_cache.redis_cache\"]
+                },
+                \"relationships\": {
+                  \"workspace\": {
+                    \"data\": {
+                      \"type\": \"workspaces\",
+                      \"id\": \"$WORKSPACE_ID\"
+                    }
+                  }
+                }
+              }
+            }" \
+            "https://app.terraform.io/api/v2/runs" \
+            | jq -r '.data.id')
+          
+          echo "Destroy run created: $DESTROY_RUN_ID"
+          
+          # Wait for destroy to complete
+          echo "⏳ Waiting for destroy to complete..."
+          for i in {1..60}; do
+            RUN_STATUS=$(curl -s \
+              -H "Authorization: Bearer $TF_API_TOKEN" \
+              "https://app.terraform.io/api/v2/runs/$DESTROY_RUN_ID" \
+              | jq -r '.data.attributes.status')
+            
+            echo "Destroy status ($i/60): $RUN_STATUS"
+            
+            if [ "$RUN_STATUS" == "applied" ]; then
+              echo "✅ Destroy completed successfully"
+              break
+            elif [ "$RUN_STATUS" == "errored" ] || [ "$RUN_STATUS" == "canceled" ]; then
+              echo "❌ Destroy failed with status: $RUN_STATUS"
+              exit 1
+            fi
+            
+            sleep 15
+          done
+          
+          # Step 2: Create Redis
+          echo "Step 2: Creating new Redis cache..."
+          sleep 30  # Wait a bit before recreating
+          
+          CREATE_RUN_ID=$(curl -s \
+            -X POST \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            -H "Content-Type: application/vnd.api+json" \
+            -d "{
+              \"data\": {
+                \"type\": \"runs\",
+                \"attributes\": {
+                  \"message\": \"Recreate Redis cache - triggered from GitHub Actions by ${{ github.actor }}\",
+                  \"target-addrs\": [\"azurerm_redis_cache.redis_cache\"]
+                },
+                \"relationships\": {
+                  \"workspace\": {
+                    \"data\": {
+                      \"type\": \"workspaces\",
+                      \"id\": \"$WORKSPACE_ID\"
+                    }
+                  }
+                }
+              }
+            }" \
+            "https://app.terraform.io/api/v2/runs" \
+            | jq -r '.data.id')
+          
+          echo "✅ Redis recreation run created: $CREATE_RUN_ID"
+          echo "🔗 Monitor progress: https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE/runs/$CREATE_RUN_ID"
+
+      - name: 📊 Terraform Operation Summary
+        if: always()
+        run: |
+          echo "📊 Terraform Operation Summary:"
+          echo "==============================="
+          echo "Action performed: ${{ github.event.inputs.action }}"
+          echo "Workspace: $TF_WORKSPACE"
+          echo "Organization: $TF_CLOUD_ORGANIZATION"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Timestamp: $(date -u)"
+          echo ""
+          echo "🔗 View workspace: https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE"
+
+  # Job 3: Cost Estimation and Summary
+  cost-summary:
+    runs-on: ubuntu-latest
+    needs: [manage-azure-resources, manage-redis-terraform]
+    if: always()
+    steps:
+      - name: 💰 Cost Impact Summary
+        run: |
+          echo "💰 Cost Impact Summary"
+          echo "====================="
+          
+          ACTION="${{ github.event.inputs.action }}"
+          
+          case "$ACTION" in
+            "stop-all")
+              echo "🛑 Resources Stopped:"
+              echo "  • PostgreSQL Flexible Server: ~$20-50/month savings"
+              echo "  • Container App: ~$10-30/month savings" 
+              echo "  • Total estimated savings: ~$30-80/month"
+              echo ""
+              echo "💡 Benefits:"
+              echo "  • Immediate cost reduction"
+              echo "  • Resources can be restarted quickly"
+              echo "  • Data is preserved"
+              ;;
+            "start-all")
+              echo "🚀 Resources Started:"
+              echo "  • PostgreSQL Flexible Server: ~$20-50/month cost resumed"
+              echo "  • Container App: ~$10-30/month cost resumed"
+              echo "  • Total estimated cost resumed: ~$30-80/month"
+              echo ""
+              echo "✅ Services:"
+              echo "  • Database ready for connections"
+              echo "  • API ready to handle requests"
+              echo "  • Full application functionality restored"
+              ;;
+            "stop-database")
+              echo "🛑 Database Server Stopped:"
+              echo "  • PostgreSQL Flexible Server: ~$20-50/month savings"
+              echo "  • ⚠️  Application will lose database connectivity"
+              ;;
+            "start-database")
+              echo "🚀 Database Server Started:"
+              echo "  • PostgreSQL Flexible Server: ~$20-50/month cost resumed"
+              echo "  • ✅ Database ready for connections"
+              ;;
+            "stop-container-app")
+              echo "🛑 Container App Stopped:"
+              echo "  • Container App: ~$10-30/month savings"
+              echo "  • ⚠️  API endpoints will be unavailable"
+              ;;
+            "start-container-app")
+              echo "🚀 Container App Started:"
+              echo "  • Container App: ~$10-30/month cost resumed"
+              echo "  • ✅ API ready to handle requests"
+              ;;
+            "destroy-redis")
+              echo "🗑️ Redis Cache Destroyed:"
+              echo "  • Redis Standard C1: ~$15-25/month savings"
+              echo "  • ⚠️  Data permanently lost - ensure backups if needed"
+              echo "  • ⚠️  Applications will lose cache functionality"
+              ;;
+            "recreate-redis")
+              echo "🔄 Redis Cache Recreated:"
+              echo "  • Redis Standard C1: ~$15-25/month cost resumed"
+              echo "  • 🗑️ Previous data lost - cache will be empty"
+              echo "  • ✅ Fresh cache instance available"
+              ;;
+            *)
+              echo "Individual resource action performed: $ACTION"
+              ;;
+          esac
+          
+          echo ""
+          echo "📊 Resource Management Tips:"
+          echo "  • Use 'stop-all' during non-business hours for maximum savings"
+          echo "  • Database stop/start may take 2-5 minutes"
+          echo "  • Container apps scale instantly"
+          echo "  • Redis recreation takes 10-15 minutes"
+          echo "  • Always confirm destructive actions"
+          echo ""
+          echo "⏰ Recommended Schedule:"
+          echo "  • Weekdays 6 PM: stop-all"
+          echo "  • Weekdays 8 AM: start-all" 
+          echo "  • Weekends: keep stopped"
+
+      - name: 📧 Action Completion Summary
+        run: |
+          echo "## 🏗️ IaC Management Action Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Action** | \`${{ github.event.inputs.action }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered by** | \`${{ github.actor }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Timestamp** | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Confirmation** | \`${{ github.event.inputs.confirm_destructive }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ github.event.inputs.action }}" == *"redis"* ]]; then
+            echo "### 🔗 Terraform Cloud" >> $GITHUB_STEP_SUMMARY
+            echo "Monitor progress in your [Terraform Cloud workspace](https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "### 📋 Next Steps" >> $GITHUB_STEP_SUMMARY
+          case "${{ github.event.inputs.action }}" in
+            "stop-all"|"stop-database"|"stop-container-app")
+              echo "- Monitor cost savings in Azure Cost Management" >> $GITHUB_STEP_SUMMARY
+              echo "- Use corresponding 'start' action to resume services" >> $GITHUB_STEP_SUMMARY
+              ;;
+            "start-all"|"start-database"|"start-container-app")
+              echo "- Verify application functionality" >> $GITHUB_STEP_SUMMARY
+              echo "- Check health endpoints" >> $GITHUB_STEP_SUMMARY
+              ;;
+            "destroy-redis")
+              echo "- Verify applications handle missing cache gracefully" >> $GITHUB_STEP_SUMMARY
+              echo "- Monitor application performance without cache" >> $GITHUB_STEP_SUMMARY
+              ;;
+            "recreate-redis")
+              echo "- Update application connection strings if needed" >> $GITHUB_STEP_SUMMARY
+              echo "- Warm up cache with frequently accessed data" >> $GITHUB_STEP_SUMMARY
+              ;;
+          esac
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **IaC Management operation completed successfully!**" >> $GITHUB_STEP_SUMMARY
