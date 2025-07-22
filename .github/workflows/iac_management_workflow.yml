@@ -61,37 +61,61 @@ jobs:
         run: |
           echo "🛑 Stopping PostgreSQL Flexible Server..."
           
+          # First check if any PostgreSQL servers exist in the resource group
+          SERVER_COUNT=$(az postgres flexible-server list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "length(@)" \
+            --output tsv 2>/dev/null || echo "0")
+          
+          if [ "$SERVER_COUNT" == "0" ]; then
+            echo "ℹ️ No PostgreSQL servers found in resource group '$RESOURCE_GROUP'"
+            echo "✅ Database stop operation completed (nothing to stop)"
+            exit 0
+          fi
+          
           # Get the actual server name (it includes a random suffix)
           SERVER_NAME=$(az postgres flexible-server list \
             --resource-group "$RESOURCE_GROUP" \
             --query "[?contains(name, 'tc-cloudgames-dev-db')].name" \
-            --output tsv)
+            --output tsv 2>/dev/null)
           
-          if [ -n "$SERVER_NAME" ]; then
-            echo "Found server: $SERVER_NAME"
-            
-            # Check current status
-            CURRENT_STATUS=$(az postgres flexible-server show \
-              --name "$SERVER_NAME" \
+          if [ -z "$SERVER_NAME" ]; then
+            echo "ℹ️ PostgreSQL server with pattern 'tc-cloudgames-dev-db' not found"
+            echo "📋 Available PostgreSQL servers in resource group:"
+            az postgres flexible-server list \
               --resource-group "$RESOURCE_GROUP" \
-              --query "state" \
-              --output tsv)
+              --query "[].{Name:name, State:state}" \
+              --output table 2>/dev/null || echo "  None found or error querying"
+            echo "✅ Database stop operation completed (target server not found)"
+            exit 0
+          fi
+          
+          echo "Found server: $SERVER_NAME"
+          
+          # Check current status
+          CURRENT_STATUS=$(az postgres flexible-server show \
+            --name "$SERVER_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "state" \
+            --output tsv 2>/dev/null)
+          
+          echo "Current status: $CURRENT_STATUS"
+          
+          if [ "$CURRENT_STATUS" == "Ready" ]; then
+            echo "🔄 Stopping database server..."
+            az postgres flexible-server stop \
+              --name "$SERVER_NAME" \
+              --resource-group "$RESOURCE_GROUP" 2>/dev/null
             
-            echo "Current status: $CURRENT_STATUS"
-            
-            if [ "$CURRENT_STATUS" == "Ready" ]; then
-              az postgres flexible-server stop \
-                --name "$SERVER_NAME" \
-                --resource-group "$RESOURCE_GROUP"
+            if [ $? -eq 0 ]; then
               echo "✅ Database server stopped successfully"
-            elif [ "$CURRENT_STATUS" == "Stopped" ]; then
-              echo "ℹ️ Database server is already stopped"
             else
-              echo "⚠️ Database server is in state: $CURRENT_STATUS - cannot stop"
+              echo "⚠️ Failed to stop database server - it may be in transition state"
             fi
+          elif [ "$CURRENT_STATUS" == "Stopped" ]; then
+            echo "ℹ️ Database server is already stopped"
           else
-            echo "❌ Database server not found"
-            exit 1
+            echo "⚠️ Database server is in state: $CURRENT_STATUS - cannot stop"
           fi
 
       - name: 🚀 Start Database Server
@@ -99,37 +123,61 @@ jobs:
         run: |
           echo "🚀 Starting PostgreSQL Flexible Server..."
           
+          # First check if any PostgreSQL servers exist in the resource group
+          SERVER_COUNT=$(az postgres flexible-server list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "length(@)" \
+            --output tsv 2>/dev/null || echo "0")
+          
+          if [ "$SERVER_COUNT" == "0" ]; then
+            echo "ℹ️ No PostgreSQL servers found in resource group '$RESOURCE_GROUP'"
+            echo "⚠️ Database needs to be deployed first before it can be started"
+            exit 0
+          fi
+          
           # Get the actual server name (it includes a random suffix)
           SERVER_NAME=$(az postgres flexible-server list \
             --resource-group "$RESOURCE_GROUP" \
             --query "[?contains(name, 'tc-cloudgames-dev-db')].name" \
-            --output tsv)
+            --output tsv 2>/dev/null)
           
-          if [ -n "$SERVER_NAME" ]; then
-            echo "Found server: $SERVER_NAME"
-            
-            # Check current status
-            CURRENT_STATUS=$(az postgres flexible-server show \
-              --name "$SERVER_NAME" \
+          if [ -z "$SERVER_NAME" ]; then
+            echo "ℹ️ PostgreSQL server with pattern 'tc-cloudgames-dev-db' not found"
+            echo "📋 Available PostgreSQL servers in resource group:"
+            az postgres flexible-server list \
               --resource-group "$RESOURCE_GROUP" \
-              --query "state" \
-              --output tsv)
+              --query "[].{Name:name, State:state}" \
+              --output table 2>/dev/null || echo "  None found or error querying"
+            echo "⚠️ Database needs to be deployed first before it can be started"
+            exit 0
+          fi
+          
+          echo "Found server: $SERVER_NAME"
+          
+          # Check current status
+          CURRENT_STATUS=$(az postgres flexible-server show \
+            --name "$SERVER_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "state" \
+            --output tsv 2>/dev/null)
+          
+          echo "Current status: $CURRENT_STATUS"
+          
+          if [ "$CURRENT_STATUS" == "Stopped" ]; then
+            echo "🔄 Starting database server..."
+            az postgres flexible-server start \
+              --name "$SERVER_NAME" \
+              --resource-group "$RESOURCE_GROUP" 2>/dev/null
             
-            echo "Current status: $CURRENT_STATUS"
-            
-            if [ "$CURRENT_STATUS" == "Stopped" ]; then
-              az postgres flexible-server start \
-                --name "$SERVER_NAME" \
-                --resource-group "$RESOURCE_GROUP"
+            if [ $? -eq 0 ]; then
               echo "✅ Database server started successfully"
-            elif [ "$CURRENT_STATUS" == "Ready" ]; then
-              echo "ℹ️ Database server is already running"
             else
-              echo "⚠️ Database server is in state: $CURRENT_STATUS - cannot start"
+              echo "⚠️ Failed to start database server - it may be in transition state"
             fi
+          elif [ "$CURRENT_STATUS" == "Ready" ]; then
+            echo "ℹ️ Database server is already running"
           else
-            echo "❌ Database server not found"
-            exit 1
+            echo "⚠️ Database server is in state: $CURRENT_STATUS - cannot start"
           fi
 
       - name: 🛑 Stop Container App
@@ -137,44 +185,83 @@ jobs:
         run: |
           echo "🛑 Stopping Container App by setting min replicas to 0..."
           
+          # First check if any container apps exist in the resource group
+          APP_COUNT=$(az containerapp list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "length(@)" \
+            --output tsv 2>/dev/null || echo "0")
+          
+          if [ "$APP_COUNT" == "0" ]; then
+            echo "ℹ️ No container apps found in resource group '$RESOURCE_GROUP'"
+            echo "✅ Container app stop operation completed (nothing to stop)"
+            exit 0
+          fi
+          
           # Get the actual container app name (it includes a random suffix if any)
           APP_NAME=$(az containerapp list \
             --resource-group "$RESOURCE_GROUP" \
             --query "[?contains(name, 'tc-cloudgames-dev-api-app')].name" \
-            --output tsv)
+            --output tsv 2>/dev/null)
           
-          if [ -n "$APP_NAME" ]; then
-            echo "Found container app: $APP_NAME"
-            
-            # Get current replica configuration
-            CURRENT_MIN=$(az containerapp show \
+          if [ -z "$APP_NAME" ]; then
+            echo "ℹ️ Container app with pattern 'tc-cloudgames-dev-api-app' not found"
+            echo "📋 Available container apps in resource group:"
+            az containerapp list \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "[].{Name:name, Status:properties.provisioningState}" \
+              --output table 2>/dev/null || echo "  None found or error querying"
+            echo "✅ Container app stop operation completed (target app not found)"
+            exit 0
+          fi
+          
+          echo "Found container app: $APP_NAME"
+          
+          # Check if the app is in a valid state for modification
+          PROVISIONING_STATE=$(az containerapp show \
+            --name "$APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "properties.provisioningState" \
+            --output tsv 2>/dev/null)
+          
+          echo "Provisioning state: $PROVISIONING_STATE"
+          
+          if [ "$PROVISIONING_STATE" != "Succeeded" ]; then
+            echo "⚠️ Container app is in state '$PROVISIONING_STATE' - cannot modify"
+            echo "Please wait for the app to reach 'Succeeded' state before stopping"
+            exit 0
+          fi
+          
+          # Get current replica configuration
+          CURRENT_MIN=$(az containerapp show \
+            --name "$APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "properties.template.scale.minReplicas" \
+            --output tsv 2>/dev/null)
+          
+          CURRENT_MAX=$(az containerapp show \
+            --name "$APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "properties.template.scale.maxReplicas" \
+            --output tsv 2>/dev/null)
+          
+          echo "Current configuration: min=$CURRENT_MIN, max=$CURRENT_MAX"
+          
+          if [ "$CURRENT_MIN" != "0" ]; then
+            echo "🔄 Updating container app to stop..."
+            # Only update min replicas to 0, keep max at 10 for quick restart
+            az containerapp update \
               --name "$APP_NAME" \
               --resource-group "$RESOURCE_GROUP" \
-              --query "properties.template.scale.minReplicas" \
-              --output tsv)
+              --min-replicas 0 \
+              --max-replicas 10 2>/dev/null
             
-            CURRENT_MAX=$(az containerapp show \
-              --name "$APP_NAME" \
-              --resource-group "$RESOURCE_GROUP" \
-              --query "properties.template.scale.maxReplicas" \
-              --output tsv)
-            
-            echo "Current configuration: min=$CURRENT_MIN, max=$CURRENT_MAX"
-            
-            if [ "$CURRENT_MIN" != "0" ]; then
-              # Only update min replicas to 0, keep max at 10 for quick restart
-              az containerapp update \
-                --name "$APP_NAME" \
-                --resource-group "$RESOURCE_GROUP" \
-                --min-replicas 0 \
-                --max-replicas 10
+            if [ $? -eq 0 ]; then
               echo "✅ Container app stopped (min replicas set to 0, max remains 10)"
             else
-              echo "ℹ️ Container app is already stopped (min replicas = 0)"
+              echo "⚠️ Failed to update container app - it may be in transition state"
             fi
           else
-            echo "❌ Container app not found"
-            exit 1
+            echo "ℹ️ Container app is already stopped (min replicas = 0)"
           fi
 
       - name: 🚀 Start Container App
@@ -182,44 +269,83 @@ jobs:
         run: |
           echo "🚀 Starting Container App by setting min replicas to 1..."
           
+          # First check if any container apps exist in the resource group
+          APP_COUNT=$(az containerapp list \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "length(@)" \
+            --output tsv 2>/dev/null || echo "0")
+          
+          if [ "$APP_COUNT" == "0" ]; then
+            echo "ℹ️ No container apps found in resource group '$RESOURCE_GROUP'"
+            echo "⚠️ Container app needs to be deployed first before it can be started"
+            exit 0
+          fi
+          
           # Get the actual container app name
           APP_NAME=$(az containerapp list \
             --resource-group "$RESOURCE_GROUP" \
             --query "[?contains(name, 'tc-cloudgames-dev-api-app')].name" \
-            --output tsv)
+            --output tsv 2>/dev/null)
           
-          if [ -n "$APP_NAME" ]; then
-            echo "Found container app: $APP_NAME"
-            
-            # Get current replica configuration
-            CURRENT_MIN=$(az containerapp show \
+          if [ -z "$APP_NAME" ]; then
+            echo "ℹ️ Container app with pattern 'tc-cloudgames-dev-api-app' not found"
+            echo "📋 Available container apps in resource group:"
+            az containerapp list \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "[].{Name:name, Status:properties.provisioningState}" \
+              --output table 2>/dev/null || echo "  None found or error querying"
+            echo "⚠️ Container app needs to be deployed first before it can be started"
+            exit 0
+          fi
+          
+          echo "Found container app: $APP_NAME"
+          
+          # Check if the app is in a valid state for modification
+          PROVISIONING_STATE=$(az containerapp show \
+            --name "$APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "properties.provisioningState" \
+            --output tsv 2>/dev/null)
+          
+          echo "Provisioning state: $PROVISIONING_STATE"
+          
+          if [ "$PROVISIONING_STATE" != "Succeeded" ]; then
+            echo "⚠️ Container app is in state '$PROVISIONING_STATE' - cannot modify"
+            echo "Please wait for the app to reach 'Succeeded' state before starting"
+            exit 0
+          fi
+          
+          # Get current replica configuration
+          CURRENT_MIN=$(az containerapp show \
+            --name "$APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "properties.template.scale.minReplicas" \
+            --output tsv 2>/dev/null)
+          
+          CURRENT_MAX=$(az containerapp show \
+            --name "$APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query "properties.template.scale.maxReplicas" \
+            --output tsv 2>/dev/null)
+          
+          echo "Current configuration: min=$CURRENT_MIN, max=$CURRENT_MAX"
+          
+          if [ "$CURRENT_MIN" == "0" ] || [ "$CURRENT_MIN" == "null" ]; then
+            echo "🔄 Updating container app to start..."
+            # Set min replicas to 1 to ensure the app starts, keep max at 10 for scaling
+            az containerapp update \
               --name "$APP_NAME" \
               --resource-group "$RESOURCE_GROUP" \
-              --query "properties.template.scale.minReplicas" \
-              --output tsv)
+              --min-replicas 1 \
+              --max-replicas 10 2>/dev/null
             
-            CURRENT_MAX=$(az containerapp show \
-              --name "$APP_NAME" \
-              --resource-group "$RESOURCE_GROUP" \
-              --query "properties.template.scale.maxReplicas" \
-              --output tsv)
-            
-            echo "Current configuration: min=$CURRENT_MIN, max=$CURRENT_MAX"
-            
-            if [ "$CURRENT_MIN" == "0" ] || [ "$CURRENT_MIN" == "null" ]; then
-              # Set min replicas to 1 to ensure the app starts, keep max at 10 for scaling
-              az containerapp update \
-                --name "$APP_NAME" \
-                --resource-group "$RESOURCE_GROUP" \
-                --min-replicas 1 \
-                --max-replicas 10
+            if [ $? -eq 0 ]; then
               echo "✅ Container app started (min replicas set to 1, max remains 10)"
             else
-              echo "ℹ️ Container app is already running (min replicas: $CURRENT_MIN)"
+              echo "⚠️ Failed to update container app - it may be in transition state"
             fi
           else
-            echo "❌ Container app not found"
-            exit 1
+            echo "ℹ️ Container app is already running (min replicas: $CURRENT_MIN)"
           fi
 
       - name: 📊 Resource Status Summary
@@ -339,7 +465,7 @@ jobs:
           echo "🗑️ Destroying Redis cache via Terraform Cloud..."
           
           # Get workspace ID
-          echo "Getting workspace information..."
+          echo "📋 Getting workspace information..."
           WORKSPACE_ID=$(curl -s \
             -H "Authorization: Bearer $TF_API_TOKEN" \
             -H "Content-Type: application/vnd.api+json" \
@@ -353,6 +479,33 @@ jobs:
           fi
           
           echo "✅ Workspace ID: $WORKSPACE_ID"
+          
+          # Check if Redis resource exists in Terraform state before attempting destroy
+          echo "🔍 Checking if Redis cache exists in Terraform state..."
+          STATE_VERSION_ID=$(curl -s \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/current-state-version" \
+            | jq -r '.data.id // "none"')
+          
+          if [ "$STATE_VERSION_ID" == "none" ] || [ -z "$STATE_VERSION_ID" ]; then
+            echo "ℹ️ No Terraform state found - Redis cache likely doesn't exist"
+            echo "✅ Redis destroy operation completed (target resource not found)"
+            exit 0
+          fi
+          
+          # Get the state file to check for Redis resource
+          REDIS_EXISTS=$(curl -s \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            "https://app.terraform.io/api/v2/state-versions/$STATE_VERSION_ID/download" \
+            | jq -r '.resources[] | select(.type == "azurerm_redis_cache") | .type' 2>/dev/null || echo "")
+          
+          if [ -z "$REDIS_EXISTS" ]; then
+            echo "ℹ️ Redis cache not found in Terraform state - may have been destroyed already"
+            echo "✅ Redis destroy operation completed (target resource not in state)"
+            exit 0
+          fi
+          
+          echo "✅ Redis cache found in state - proceeding with destroy"
           
           # Create a targeted destroy plan for Redis only
           echo "📋 Creating targeted destroy run for Redis cache..."
@@ -425,6 +578,43 @@ jobs:
             echo "📋 Getting workspace information..."
             WORKSPACE_ID=$(curl -s \
               -H "Authorization: Bearer $TF_API_TOKEN" \
+              -H "Content-Type: application/vnd.api+json" \
+              "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE" \
+              | jq -r '.data.id')
+            
+            if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
+              echo "❌ Failed to get workspace ID"
+              exit 1
+            fi
+            echo "✅ Workspace ID: $WORKSPACE_ID"
+          fi
+          
+          # Check if ACR resource exists in Terraform state before attempting destroy
+          echo "🔍 Checking if Container Registry exists in Terraform state..."
+          STATE_VERSION_ID=$(curl -s \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/current-state-version" \
+            | jq -r '.data.id // "none"')
+          
+          if [ "$STATE_VERSION_ID" == "none" ] || [ -z "$STATE_VERSION_ID" ]; then
+            echo "ℹ️ No Terraform state found - Container Registry likely doesn't exist"
+            echo "✅ ACR destroy operation completed (target resource not found)"
+            exit 0
+          fi
+          
+          # Get the state file to check for ACR resource
+          ACR_EXISTS=$(curl -s \
+            -H "Authorization: Bearer $TF_API_TOKEN" \
+            "https://app.terraform.io/api/v2/state-versions/$STATE_VERSION_ID/download" \
+            | jq -r '.resources[] | select(.type == "azurerm_container_registry") | .type' 2>/dev/null || echo "")
+          
+          if [ -z "$ACR_EXISTS" ]; then
+            echo "ℹ️ Container Registry not found in Terraform state - may have been destroyed already"
+            echo "✅ ACR destroy operation completed (target resource not in state)"
+            exit 0
+          fi
+          
+          echo "✅ Container Registry found in state - proceeding with destroy" \
               -H "Content-Type: application/vnd.api+json" \
               "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE" \
               | jq -r '.data.id')
