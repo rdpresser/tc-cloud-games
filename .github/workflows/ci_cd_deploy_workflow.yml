@@ -137,11 +137,15 @@ jobs:
         run: |
           echo "📋 Creating Terraform plan..."
           # Create plan with output file for Terraform Cloud tracking
+          set +e  # Don't exit on non-zero exit codes
           terraform plan -detailed-exitcode -out=tfplan-${{ github.sha }}.tfplan
           
           # Capture exit code for conditional apply
           PLAN_EXIT_CODE=$?
+          set -e  # Re-enable exit on error
+          
           echo "plan-exit-code=$PLAN_EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "🔍 Plan exit code: $PLAN_EXIT_CODE"
           
           if [ $PLAN_EXIT_CODE -eq 1 ]; then
             echo "❌ Terraform plan failed"
