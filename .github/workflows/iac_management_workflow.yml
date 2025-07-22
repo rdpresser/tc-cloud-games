@@ -16,9 +16,13 @@ on:
           - start-container-app
           - destroy-redis
           - recreate-redis
+          - destroy-acr
+          - recreate-acr
+          - destroy-storage-resources
+          - recreate-storage-resources
         default: 'stop-all'
       confirm_destructive:
-        description: 'Confirm destructive actions (destroy-redis, recreate-redis)'
+        description: 'Confirm destructive actions (destroy-redis, recreate-redis, destroy-acr, recreate-acr, destroy-storage-resources, recreate-storage-resources)'
         required: false
         type: boolean
         default: false
@@ -29,6 +33,7 @@ env:
   CONTAINER_APP_NAME: 'tc-cloudgames-dev-api-app'
   POSTGRES_SERVER_NAME: 'tc-cloudgames-dev-db'
   REDIS_CACHE_NAME: 'tc-cloudgames-dev-redis'
+  ACR_NAME: 'tc-cloudgames-dev-acr'
   
   # Terraform Cloud configuration
   TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
@@ -271,12 +276,12 @@ jobs:
             fi
           fi
 
-  # Job 2: Manage Redis Cache via Terraform Cloud
-  manage-redis-terraform:
+  # Job 2: Manage Storage Resources (Redis + ACR) via Terraform Cloud
+  manage-storage-terraform:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     if: |
-      contains(fromJSON('["destroy-redis", "recreate-redis"]'), github.event.inputs.action)
+      contains(fromJSON('["destroy-redis", "recreate-redis", "destroy-acr", "recreate-acr", "destroy-storage-resources", "recreate-storage-resources"]'), github.event.inputs.action)
     steps:
       - name: 🔐 Azure Login (for Container App secrets update)
         if: github.event.inputs.action == 'recreate-redis'
@@ -291,19 +296,45 @@ jobs:
           echo "Please check 'Confirm destructive actions' checkbox to proceed."
           echo ""
           echo "⚠️  WARNING: This action will:"
-          if [ "${{ github.event.inputs.action }}" == "destroy-redis" ]; then
-            echo "  • Permanently destroy the Redis cache"
-            echo "  • All cached data will be lost"
-            echo "  • Applications will lose cache functionality"
-          elif [ "${{ github.event.inputs.action }}" == "recreate-redis" ]; then
-            echo "  • Destroy and recreate the Redis cache"
-            echo "  • All cached data will be lost"
-            echo "  • Cache will be empty after recreation"
-          fi
+          ACTION="${{ github.event.inputs.action }}"
+          
+          case "$ACTION" in
+            "destroy-redis")
+              echo "  • Permanently destroy the Redis cache"
+              echo "  • All cached data will be lost"
+              echo "  • Applications will lose cache functionality"
+              ;;
+            "recreate-redis")
+              echo "  • Destroy and recreate the Redis cache"
+              echo "  • All cached data will be lost"
+              echo "  • Cache will be empty after recreation"
+              ;;
+            "destroy-acr")
+              echo "  • Permanently destroy the Container Registry"
+              echo "  • All container images will be lost"
+              echo "  • Container apps will need image rebuilds"
+              ;;
+            "recreate-acr")
+              echo "  • Destroy and recreate the Container Registry"
+              echo "  • All container images will be lost"
+              echo "  • Images will need to be rebuilt and pushed"
+              ;;
+            "destroy-storage-resources")
+              echo "  • Permanently destroy BOTH Redis cache AND Container Registry"
+              echo "  • All cached data AND container images will be lost"
+              echo "  • Applications will lose cache functionality"
+              echo "  • Container apps will need complete rebuild"
+              ;;
+            "recreate-storage-resources")
+              echo "  • Destroy and recreate BOTH Redis cache AND Container Registry"
+              echo "  • All cached data AND container images will be lost"
+              echo "  • Cache will be empty and images need rebuild"
+              ;;
+          esac
           exit 1
 
       - name: 🗑️ Destroy Redis Cache via Terraform Cloud
-        if: github.event.inputs.action == 'destroy-redis'
+        if: contains(fromJSON('["destroy-redis", "destroy-storage-resources"]'), github.event.inputs.action)
         run: |
           echo "🗑️ Destroying Redis cache via Terraform Cloud..."
           
@@ -321,10 +352,10 @@ jobs:
             exit 1
           fi
           
-          echo "Workspace ID: $WORKSPACE_ID"
+          echo "✅ Workspace ID: $WORKSPACE_ID"
           
-          # Create a targeted destroy plan for Redis only (most conservative approach)
-          echo "Creating targeted destroy run for Redis cache only..."
+          # Create a targeted destroy plan for Redis only
+          echo "📋 Creating targeted destroy run for Redis cache..."
           DESTROY_RUN_ID=$(curl -s \
             -X POST \
             -H "Authorization: Bearer $TF_API_TOKEN" \
@@ -333,7 +364,7 @@ jobs:
               \"data\": {
                 \"type\": \"runs\",
                 \"attributes\": {
-                  \"message\": \"Destroy Redis cache only - triggered from GitHub Actions by ${{ github.actor }}\",
+                  \"message\": \"Destroy Redis cache only - triggered by ${{ github.actor }}\",
                   \"is-destroy\": true,
                   \"target-addrs\": [\"azurerm_redis_cache.redis_cache\"]
                 },
@@ -355,65 +386,59 @@ jobs:
             exit 1
           fi
           
-          echo "✅ Terraform destroy run created: $DESTROY_RUN_ID"
-          echo "🔗 Monitor progress: https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE/runs/$DESTROY_RUN_ID"
+          echo "✅ Redis destroy run created: $DESTROY_RUN_ID"
+          echo "🔗 Monitor: https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE/runs/$DESTROY_RUN_ID"
           
-          # Wait for plan to complete
-          echo "⏳ Waiting for destroy plan to complete..."
+          # Wait for destroy to complete
+          echo "⏳ Waiting for Redis destroy to complete..."
           for i in {1..30}; do
             RUN_STATUS=$(curl -s \
               -H "Authorization: Bearer $TF_API_TOKEN" \
               "https://app.terraform.io/api/v2/runs/$DESTROY_RUN_ID" \
               | jq -r '.data.attributes.status')
             
-            echo "Plan status ($i/30): $RUN_STATUS"
+            echo "Status ($i/30): $RUN_STATUS"
             
-            if [ "$RUN_STATUS" == "planned" ]; then
-              echo "✅ Destroy plan completed successfully"
+            if [ "$RUN_STATUS" == "applied" ] || [ "$RUN_STATUS" == "planned_and_finished" ]; then
+              echo "✅ Redis destroy completed"
+              break
+            elif [ "$RUN_STATUS" == "planned" ]; then
               echo "⚠️  Manual approval may be required in Terraform Cloud"
               break
-            elif [ "$RUN_STATUS" == "applied" ]; then
-              echo "✅ Destroy completed successfully"
-              break
             elif [ "$RUN_STATUS" == "errored" ] || [ "$RUN_STATUS" == "canceled" ]; then
-              echo "❌ Destroy plan failed with status: $RUN_STATUS"
+              echo "❌ Redis destroy failed: $RUN_STATUS"
               exit 1
             fi
             
             sleep 10
           done
           
-          echo ""
-          echo "⚠️  IMPORTANT: Redis destruction may affect dependent resources:"
-          echo "  • Key Vault secrets (cache-password, cache-host, cache-port)"
-          echo "  • Container App environment variables"
-          echo "  • Application cache functionality"
-          echo ""
-          echo "💰 Estimated monthly savings: ~$15-25 (Redis Standard C1)"
-          echo ""
-          echo "🔄 To recreate Redis and restore full functionality, use 'recreate-redis' action"
+          echo "💰 Redis Cost Savings: ~$15-25/month"
 
-      - name: 🔄 Recreate Redis Cache via Terraform Cloud
-        if: github.event.inputs.action == 'recreate-redis'
+      - name: 🗑️ Destroy Container Registry via Terraform Cloud
+        if: contains(fromJSON('["destroy-acr", "destroy-storage-resources"]'), github.event.inputs.action)
         run: |
-          echo "🔄 Recreating Redis cache via Terraform Cloud..."
+          echo "🗑️ Destroying Container Registry via Terraform Cloud..."
           
-          # Get workspace ID
-          echo "Getting workspace information..."
-          WORKSPACE_ID=$(curl -s \
-            -H "Authorization: Bearer $TF_API_TOKEN" \
-            -H "Content-Type: application/vnd.api+json" \
-            "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE" \
-            | jq -r '.data.id')
-          
-          if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
-            echo "❌ Failed to get workspace ID"
-            exit 1
+          # Get workspace ID (reuse from previous step if available)
+          if [ -z "$WORKSPACE_ID" ]; then
+            echo "📋 Getting workspace information..."
+            WORKSPACE_ID=$(curl -s \
+              -H "Authorization: Bearer $TF_API_TOKEN" \
+              -H "Content-Type: application/vnd.api+json" \
+              "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE" \
+              | jq -r '.data.id')
+            
+            if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
+              echo "❌ Failed to get workspace ID"
+              exit 1
+            fi
+            echo "✅ Workspace ID: $WORKSPACE_ID"
           fi
           
-          # Step 1: Targeted destroy of Redis only (not secrets or container app)
-          echo "Step 1: Destroying Redis cache only..."
-          DESTROY_RUN_ID=$(curl -s \
+          # Create a targeted destroy plan for ACR only
+          echo "📋 Creating targeted destroy run for Container Registry..."
+          ACR_DESTROY_RUN_ID=$(curl -s \
             -X POST \
             -H "Authorization: Bearer $TF_API_TOKEN" \
             -H "Content-Type: application/vnd.api+json" \
@@ -421,9 +446,9 @@ jobs:
               \"data\": {
                 \"type\": \"runs\",
                 \"attributes\": {
-                  \"message\": \"Targeted destroy Redis cache only - triggered from GitHub Actions by ${{ github.actor }}\",
+                  \"message\": \"Destroy Container Registry only - triggered by ${{ github.actor }}\",
                   \"is-destroy\": true,
-                  \"target-addrs\": [\"azurerm_redis_cache.redis_cache\"]
+                  \"target-addrs\": [\"azurerm_container_registry.acr\"]
                 },
                 \"relationships\": {
                   \"workspace\": {
@@ -438,32 +463,169 @@ jobs:
             "https://app.terraform.io/api/v2/runs" \
             | jq -r '.data.id')
           
-          echo "Destroy run created: $DESTROY_RUN_ID"
+          if [ "$ACR_DESTROY_RUN_ID" == "null" ] || [ -z "$ACR_DESTROY_RUN_ID" ]; then
+            echo "❌ Failed to create ACR destroy run"
+            exit 1
+          fi
           
-          # Wait for destroy to complete
-          echo "⏳ Waiting for destroy to complete..."
-          for i in {1..60}; do
+          echo "✅ ACR destroy run created: $ACR_DESTROY_RUN_ID"
+          echo "🔗 Monitor: https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE/runs/$ACR_DESTROY_RUN_ID"
+          
+          # Wait for ACR destroy to complete
+          echo "⏳ Waiting for ACR destroy to complete..."
+          for i in {1..30}; do
             RUN_STATUS=$(curl -s \
               -H "Authorization: Bearer $TF_API_TOKEN" \
-              "https://app.terraform.io/api/v2/runs/$DESTROY_RUN_ID" \
+              "https://app.terraform.io/api/v2/runs/$ACR_DESTROY_RUN_ID" \
               | jq -r '.data.attributes.status')
             
-            echo "Destroy status ($i/60): $RUN_STATUS"
+            echo "Status ($i/30): $RUN_STATUS"
             
             if [ "$RUN_STATUS" == "applied" ] || [ "$RUN_STATUS" == "planned_and_finished" ]; then
-              echo "✅ Redis destroy completed successfully"
+              echo "✅ ACR destroy completed"
+              break
+            elif [ "$RUN_STATUS" == "planned" ]; then
+              echo "⚠️  Manual approval may be required in Terraform Cloud"
               break
             elif [ "$RUN_STATUS" == "errored" ] || [ "$RUN_STATUS" == "canceled" ]; then
-              echo "❌ Destroy failed with status: $RUN_STATUS"
+              echo "❌ ACR destroy failed: $RUN_STATUS"
               exit 1
             fi
             
-            sleep 15
+            sleep 10
           done
           
-          # Step 2: Full terraform apply to recreate everything that depends on Redis
-          echo "Step 2: Running full Terraform apply to recreate Redis and dependencies..."
-          sleep 30  # Wait a bit before recreating
+          echo "💰 ACR Cost Savings: ~$5-50/month (depending on SKU)"
+
+      - name: 🔄 Recreate Storage Resources via Terraform Cloud
+        if: contains(fromJSON('["recreate-redis", "recreate-acr", "recreate-storage-resources"]'), github.event.inputs.action)
+        run: |
+          ACTION="${{ github.event.inputs.action }}"
+          echo "🔄 Recreating storage resources via Terraform Cloud..."
+          echo "Action: $ACTION"
+          
+          # Get workspace ID (reuse if available)
+          if [ -z "$WORKSPACE_ID" ]; then
+            echo "📋 Getting workspace information..."
+            WORKSPACE_ID=$(curl -s \
+              -H "Authorization: Bearer $TF_API_TOKEN" \
+              -H "Content-Type: application/vnd.api+json" \
+              "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE" \
+              | jq -r '.data.id')
+            
+            if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
+              echo "❌ Failed to get workspace ID"
+              exit 1
+            fi
+            echo "✅ Workspace ID: $WORKSPACE_ID"
+          fi
+          
+          # For recreate actions, we need to first destroy then create
+          if [ "$ACTION" == "recreate-redis" ] || [ "$ACTION" == "recreate-storage-resources" ]; then
+            echo "🗑️ Step 1: Destroying Redis cache..."
+            
+            REDIS_DESTROY_RUN_ID=$(curl -s \
+              -X POST \
+              -H "Authorization: Bearer $TF_API_TOKEN" \
+              -H "Content-Type: application/vnd.api+json" \
+              -d "{
+                \"data\": {
+                  \"type\": \"runs\",
+                  \"attributes\": {
+                    \"message\": \"Targeted destroy Redis for recreation - triggered by ${{ github.actor }}\",
+                    \"is-destroy\": true,
+                    \"target-addrs\": [\"azurerm_redis_cache.redis_cache\"]
+                  },
+                  \"relationships\": {
+                    \"workspace\": {
+                      \"data\": {
+                        \"type\": \"workspaces\",
+                        \"id\": \"$WORKSPACE_ID\"
+                      }
+                    }
+                  }
+                }
+              }" \
+              "https://app.terraform.io/api/v2/runs" \
+              | jq -r '.data.id')
+            
+            echo "📋 Redis destroy run: $REDIS_DESTROY_RUN_ID"
+            
+            # Wait for Redis destroy
+            for i in {1..40}; do
+              RUN_STATUS=$(curl -s \
+                -H "Authorization: Bearer $TF_API_TOKEN" \
+                "https://app.terraform.io/api/v2/runs/$REDIS_DESTROY_RUN_ID" \
+                | jq -r '.data.attributes.status')
+              
+              echo "Redis destroy ($i/40): $RUN_STATUS"
+              
+              if [ "$RUN_STATUS" == "applied" ] || [ "$RUN_STATUS" == "planned_and_finished" ]; then
+                echo "✅ Redis destroyed successfully"
+                break
+              elif [ "$RUN_STATUS" == "errored" ] || [ "$RUN_STATUS" == "canceled" ]; then
+                echo "❌ Redis destroy failed: $RUN_STATUS"
+                exit 1
+              fi
+              
+              sleep 15
+            done
+          fi
+          
+          if [ "$ACTION" == "recreate-acr" ] || [ "$ACTION" == "recreate-storage-resources" ]; then
+            echo "🗑️ Step 2: Destroying Container Registry..."
+            
+            ACR_DESTROY_RUN_ID=$(curl -s \
+              -X POST \
+              -H "Authorization: Bearer $TF_API_TOKEN" \
+              -H "Content-Type: application/vnd.api+json" \
+              -d "{
+                \"data\": {
+                  \"type\": \"runs\",
+                  \"attributes\": {
+                    \"message\": \"Targeted destroy ACR for recreation - triggered by ${{ github.actor }}\",
+                    \"is-destroy\": true,
+                    \"target-addrs\": [\"azurerm_container_registry.acr\"]
+                  },
+                  \"relationships\": {
+                    \"workspace\": {
+                      \"data\": {
+                        \"type\": \"workspaces\",
+                        \"id\": \"$WORKSPACE_ID\"
+                      }
+                    }
+                  }
+                }
+              }" \
+              "https://app.terraform.io/api/v2/runs" \
+              | jq -r '.data.id')
+            
+            echo "📋 ACR destroy run: $ACR_DESTROY_RUN_ID"
+            
+            # Wait for ACR destroy
+            for i in {1..40}; do
+              RUN_STATUS=$(curl -s \
+                -H "Authorization: Bearer $TF_API_TOKEN" \
+                "https://app.terraform.io/api/v2/runs/$ACR_DESTROY_RUN_ID" \
+                | jq -r '.data.attributes.status')
+              
+              echo "ACR destroy ($i/40): $RUN_STATUS"
+              
+              if [ "$RUN_STATUS" == "applied" ] || [ "$RUN_STATUS" == "planned_and_finished" ]; then
+                echo "✅ ACR destroyed successfully"
+                break
+              elif [ "$RUN_STATUS" == "errored" ] || [ "$RUN_STATUS" == "canceled" ]; then
+                echo "❌ ACR destroy failed: $RUN_STATUS"
+                exit 1
+              fi
+              
+              sleep 15
+            done
+          fi
+          
+          # Step 3: Full terraform apply to recreate everything
+          echo "🔄 Step 3: Full Terraform apply to recreate resources..."
+          sleep 30  # Wait before recreating
           
           CREATE_RUN_ID=$(curl -s \
             -X POST \
@@ -473,7 +635,7 @@ jobs:
               \"data\": {
                 \"type\": \"runs\",
                 \"attributes\": {
-                  \"message\": \"Full apply to recreate Redis and dependencies - triggered from GitHub Actions by ${{ github.actor }}\"
+                  \"message\": \"Full apply to recreate storage resources - triggered by ${{ github.actor }}\"
                 },
                 \"relationships\": {
                   \"workspace\": {
@@ -489,7 +651,7 @@ jobs:
             | jq -r '.data.id')
           
           echo "✅ Full apply run created: $CREATE_RUN_ID"
-          echo "🔗 Monitor progress: https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE/runs/$CREATE_RUN_ID"
+          echo "🔗 Monitor: https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE/runs/$CREATE_RUN_ID"
           
           # Wait for recreation to complete
           echo "⏳ Waiting for full apply to complete..."
@@ -505,10 +667,10 @@ jobs:
               echo "✅ Full apply completed successfully"
               break
             elif [ "$RUN_STATUS" == "planned" ]; then
-              echo "⚠️  Full apply plan ready - manual approval may be required in Terraform Cloud"
+              echo "⚠️  Full apply plan ready - manual approval may be required"
               break
             elif [ "$RUN_STATUS" == "errored" ] || [ "$RUN_STATUS" == "canceled" ]; then
-              echo "❌ Full apply failed with status: $RUN_STATUS"
+              echo "❌ Full apply failed: $RUN_STATUS"
               exit 1
             fi
             
@@ -517,12 +679,26 @@ jobs:
           
           echo ""
           echo "🔄 Recreation Summary:"
-          echo "  • Redis cache: Recreated with new instance"
-          echo "  • Related secrets: Automatically recreated"
-          echo "  • Container App: Preserved with updated Redis connection"
-          echo "  • All dependencies: Verified and consistent"
+          case "$ACTION" in
+            "recreate-redis")
+              echo "  • Redis cache: ✅ Recreated with fresh instance"
+              echo "  • Cache data: ⚠️  Empty (as expected)"
+              echo "  • Key Vault secrets: ✅ Automatically updated"
+              ;;
+            "recreate-acr")
+              echo "  • Container Registry: ✅ Recreated with fresh instance"
+              echo "  • Container images: ⚠️  Lost (need rebuild)"
+              echo "  • Key Vault secrets: ✅ Automatically updated"
+              ;;
+            "recreate-storage-resources")
+              echo "  • Redis cache: ✅ Recreated (empty)"
+              echo "  • Container Registry: ✅ Recreated (no images)"
+              echo "  • All Key Vault secrets: ✅ Automatically updated"
+              echo "  • Dependencies: ✅ Consistent"
+              ;;
+          esac
           echo ""
-          echo "✅ Redis recreation completed successfully!"
+          echo "✅ Storage resources recreation completed successfully!"
 
       - name:  Terraform Operation Summary
         if: always()
@@ -540,7 +716,7 @@ jobs:
   # Job 3: Cost Estimation and Summary
   cost-summary:
     runs-on: ubuntu-latest
-    needs: [manage-azure-resources, manage-redis-terraform]
+    needs: [manage-azure-resources, manage-storage-terraform]
     if: always()
     steps:
       - name: 💰 Cost Impact Summary
@@ -605,6 +781,30 @@ jobs:
               echo "  • 🗑️ Previous data lost - cache will be empty"
               echo "  • ✅ Fresh cache instance available"
               ;;
+            "destroy-acr")
+              echo "🗑️ Container Registry Destroyed:"
+              echo "  • ACR Basic/Standard: ~$5-50/month savings"
+              echo "  • ⚠️  All container images permanently lost"
+              echo "  • ⚠️  Applications will need image rebuilds"
+              ;;
+            "recreate-acr")
+              echo "🔄 Container Registry Recreated:"
+              echo "  • ACR Basic/Standard: ~$5-50/month cost resumed"
+              echo "  • 🗑️ All images lost - need rebuild and push"
+              echo "  • ✅ Fresh registry instance available"
+              ;;
+            "destroy-storage-resources")
+              echo "🗑️ Storage Resources Destroyed:"
+              echo "  • Redis + ACR: ~$20-75/month savings"
+              echo "  • ⚠️  All cached data AND images permanently lost"
+              echo "  • ⚠️  Applications need cache + image rebuilds"
+              ;;
+            "recreate-storage-resources")
+              echo "🔄 Storage Resources Recreated:"
+              echo "  • Redis + ACR: ~$20-75/month cost resumed"
+              echo "  • 🗑️ All data and images lost"
+              echo "  • ✅ Fresh instances available - rebuild required"
+              ;;
             *)
               echo "Individual resource action performed: $ACTION"
               ;;
@@ -616,12 +816,19 @@ jobs:
           echo "  • Database stop/start may take 2-5 minutes"
           echo "  • Container apps scale instantly"
           echo "  • Redis recreation takes 10-15 minutes"
+          echo "  • ACR recreation takes 5-10 minutes"
+          echo "  • 'destroy-storage-resources' = biggest cost savings"
           echo "  • Always confirm destructive actions"
           echo ""
-          echo "⏰ Recommended Schedule:"
-          echo "  • Weekdays 6 PM: stop-all"
-          echo "  • Weekdays 8 AM: start-all" 
-          echo "  • Weekends: keep stopped"
+          echo "⏰ Recommended Cost Optimization Schedule:"
+          echo "  • Daily: stop-all (6 PM) → start-all (8 AM)"
+          echo "  • Weekly: destroy-storage-resources (Friday) → recreate (Monday)"
+          echo "  • Weekend: stop-all completely"
+          echo ""
+          echo "💡 Cost Optimization Strategies:"
+          echo "  • destroy-storage-resources: ~$20-75/month savings"
+          echo "  • stop-all: ~$30-80/month savings" 
+          echo "  • Combined approach: ~$50-155/month savings"
 
       - name: 📧 Action Completion Summary
         run: |
@@ -651,13 +858,20 @@ jobs:
               echo "- Verify application functionality" >> $GITHUB_STEP_SUMMARY
               echo "- Check health endpoints" >> $GITHUB_STEP_SUMMARY
               ;;
-            "destroy-redis")
-              echo "- Verify applications handle missing cache gracefully" >> $GITHUB_STEP_SUMMARY
-              echo "- Monitor application performance without cache" >> $GITHUB_STEP_SUMMARY
+            "destroy-redis"|"destroy-acr"|"destroy-storage-resources")
+              echo "- Verify applications handle missing resources gracefully" >> $GITHUB_STEP_SUMMARY
+              echo "- Monitor application performance without these resources" >> $GITHUB_STEP_SUMMARY
+              echo "- Consider using 'recreate' actions to restore functionality" >> $GITHUB_STEP_SUMMARY
               ;;
-            "recreate-redis")
+            "recreate-redis"|"recreate-acr"|"recreate-storage-resources")
               echo "- Update application connection strings if needed" >> $GITHUB_STEP_SUMMARY
-              echo "- Warm up cache with frequently accessed data" >> $GITHUB_STEP_SUMMARY
+              if [[ "${{ github.event.inputs.action }}" == *"redis"* ]]; then
+                echo "- Warm up Redis cache with frequently accessed data" >> $GITHUB_STEP_SUMMARY
+              fi
+              if [[ "${{ github.event.inputs.action }}" == *"acr"* ]]; then
+                echo "- Rebuild and push container images to new registry" >> $GITHUB_STEP_SUMMARY
+                echo "- Update CI/CD pipeline to push latest images" >> $GITHUB_STEP_SUMMARY
+              fi
               ;;
           esac
           
