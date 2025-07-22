@@ -3,11 +3,11 @@
 on:
   push:
     branches:
-      - '**'  # CI roda em qualquer branch
+      - '**'  # CI runs on any branch
   pull_request:
     branches:
-      - master  # CD roda apenas em PRs para master
-    types: [closed]  # Apenas quando o PR é fechado (merged)
+      - master  # CI runs when PR is opened to master, CD runs when PR is closed/merged
+    types: [opened, reopened, synchronize, closed]
   workflow_dispatch:
     inputs:
       deploy:
@@ -27,10 +27,15 @@ env:
   BUILD_CONFIGURATION: 'Release'
 
 jobs:
-  # JOB 1: CI - Roda sempre (qualquer branch)
+  # JOB 1: CI - Runs on all branches for push events and when PRs are opened/updated to master
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Run CI for: push to any branch, or PR opened/reopened/synchronized to master (but not closed)
+    if: |
+      github.event_name == 'push' || 
+      (github.event_name == 'pull_request' && 
+       github.event.action != 'closed')
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
@@ -64,23 +69,21 @@ jobs:
           name: test-results-${{ github.sha }}
           path: ./coverage
 
-  # JOB 2: CD - Roda em merge para master, push direto para master, ou workflow_dispatch
+  # JOB 2: CD - Runs only when PR to master is closed/merged, push to master, or manual dispatch
   build-and-deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Condição: executa se for um PR merged para master OU push direto para master OU workflow_dispatch forçado
+    # Execute if: PR merged to master OR push directly to master OR manual workflow dispatch
     if: |
-      needs.build-and-test.result == 'success' && (
-        (github.event_name == 'pull_request' && 
-         github.event.pull_request.merged == true && 
-         github.base_ref == 'master') ||
-        (github.event_name == 'push' && 
-         github.ref == 'refs/heads/master') ||
-        (github.event_name == 'workflow_dispatch' && 
-         github.ref == 'refs/heads/master' && 
-         github.event.inputs.deploy == 'true')
-      )
+      (github.event_name == 'pull_request' && 
+       github.event.pull_request.merged == true && 
+       github.base_ref == 'master') ||
+      (github.event_name == 'push' && 
+       github.ref == 'refs/heads/master') ||
+      (github.event_name == 'workflow_dispatch' && 
+       github.ref == 'refs/heads/master' && 
+       github.event.inputs.deploy == 'true')
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
