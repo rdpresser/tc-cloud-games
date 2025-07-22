@@ -130,7 +130,7 @@ jobs:
       - name: 🛑 Stop Container App
         if: contains(fromJSON('["stop-all", "stop-container-app"]'), github.event.inputs.action)
         run: |
-          echo "🛑 Stopping Container App by scaling to 0 replicas..."
+          echo "🛑 Stopping Container App by setting min replicas to 0..."
           
           # Get the actual container app name (it includes a random suffix if any)
           APP_NAME=$(az containerapp list \
@@ -156,15 +156,16 @@ jobs:
             
             echo "Current configuration: min=$CURRENT_MIN, max=$CURRENT_MAX"
             
-            if [ "$CURRENT_MIN" != "0" ] || [ "$CURRENT_MAX" != "0" ]; then
+            if [ "$CURRENT_MIN" != "0" ]; then
+              # Only update min replicas to 0, keep max at 10 for quick restart
               az containerapp update \
                 --name "$APP_NAME" \
                 --resource-group "$RESOURCE_GROUP" \
                 --min-replicas 0 \
-                --max-replicas 0
-              echo "✅ Container app scaled to 0 replicas"
+                --max-replicas 10
+              echo "✅ Container app stopped (min replicas set to 0, max remains 10)"
             else
-              echo "ℹ️ Container app is already stopped (0 replicas)"
+              echo "ℹ️ Container app is already stopped (min replicas = 0)"
             fi
           else
             echo "❌ Container app not found"
@@ -174,7 +175,7 @@ jobs:
       - name: 🚀 Start Container App
         if: contains(fromJSON('["start-all", "start-container-app"]'), github.event.inputs.action)
         run: |
-          echo "🚀 Starting Container App by scaling up..."
+          echo "🚀 Starting Container App by setting min replicas to 1..."
           
           # Get the actual container app name
           APP_NAME=$(az containerapp list \
@@ -186,23 +187,30 @@ jobs:
             echo "Found container app: $APP_NAME"
             
             # Get current replica configuration
+            CURRENT_MIN=$(az containerapp show \
+              --name "$APP_NAME" \
+              --resource-group "$RESOURCE_GROUP" \
+              --query "properties.template.scale.minReplicas" \
+              --output tsv)
+            
             CURRENT_MAX=$(az containerapp show \
               --name "$APP_NAME" \
               --resource-group "$RESOURCE_GROUP" \
               --query "properties.template.scale.maxReplicas" \
               --output tsv)
             
-            echo "Current max replicas: $CURRENT_MAX"
+            echo "Current configuration: min=$CURRENT_MIN, max=$CURRENT_MAX"
             
-            if [ "$CURRENT_MAX" == "0" ] || [ "$CURRENT_MAX" == "null" ]; then
+            if [ "$CURRENT_MIN" == "0" ] || [ "$CURRENT_MIN" == "null" ]; then
+              # Set min replicas to 1 to ensure the app starts, keep max at 10 for scaling
               az containerapp update \
                 --name "$APP_NAME" \
                 --resource-group "$RESOURCE_GROUP" \
-                --min-replicas 0 \
+                --min-replicas 1 \
                 --max-replicas 10
-              echo "✅ Container app scaled up and ready for traffic"
+              echo "✅ Container app started (min replicas set to 1, max remains 10)"
             else
-              echo "ℹ️ Container app is already configured for traffic (max replicas: $CURRENT_MAX)"
+              echo "ℹ️ Container app is already running (min replicas: $CURRENT_MIN)"
             fi
           else
             echo "❌ Container app not found"
@@ -256,10 +264,10 @@ jobs:
             echo "  App: $APP_NAME"
             echo "  Scale Configuration: min=$MIN_REPLICAS, max=$MAX_REPLICAS"
             
-            if [ "$MAX_REPLICAS" == "0" ]; then
-              echo "  Status: 🛑 Stopped (no traffic allowed)"
+            if [ "$MIN_REPLICAS" == "0" ]; then
+              echo "  Status: 🛑 Stopped (min replicas = 0)"
             else
-              echo "  Status: 🚀 Active (ready for traffic)"
+              echo "  Status: 🚀 Active (min replicas = $MIN_REPLICAS)"
             fi
           fi
 
