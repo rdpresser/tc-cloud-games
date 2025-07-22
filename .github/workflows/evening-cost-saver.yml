@@ -5,17 +5,29 @@ on:
     # 10:00 PM BRT (1:00 AM UTC) Monday-Friday
     - cron: '0 1 * * 1-5'
   
-  # Manual trigger option for testing
+  # Manual trigger option for testing with customizable parameters
   workflow_dispatch:
-
-env:
-  # GitHub token for triggering workflows
-  GH_TOKEN: ${{ github.token }}
+    inputs:
+      stop_wait_minutes:
+        description: 'Minutes to wait after triggering stop-all (default: 3)'
+        required: false
+        type: number
+        default: 3
+      destroy_wait_minutes:
+        description: 'Minutes to wait after triggering destroy-storage (default: 2)'
+        required: false  
+        type: number
+        default: 2
+      skip_destroy:
+        description: 'Skip destroying storage resources (just stop)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   evening-optimization:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
@@ -24,46 +36,114 @@ jobs:
         run: |
           echo "🌙 Starting Evening Cost Optimization at $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')"
           echo "💰 Expected monthly savings: ~$50-155"
-          echo "🔄 This will trigger two actions sequentially:"
+          echo "🔄 Configuration:"
+          echo "  - Stop wait time: ${{ github.event.inputs.stop_wait_minutes || '3' }} minutes"
+          echo "  - Destroy wait time: ${{ github.event.inputs.destroy_wait_minutes || '2' }} minutes" 
+          echo "  - Skip destroy: ${{ github.event.inputs.skip_destroy || 'false' }}"
+          echo "🔄 This will trigger actions sequentially:"
           echo "  1. Stop all compute resources (Database + Container App)"
-          echo "  2. Destroy storage resources (Redis + Container Registry)"
+          if [ "${{ github.event.inputs.skip_destroy || 'false' }}" != "true" ]; then
+            echo "  2. Destroy storage resources (Redis + Container Registry)"
+          else
+            echo "  2. Skip destroying storage resources (manual override)"
+          fi
           echo ""
 
       - name: 🛑 Trigger Stop All Resources
-        run: |
-          echo "🛑 Triggering 'stop-all' action..."
-          gh workflow run iac_management_workflow.yml \
-            --field action=stop-all \
-            --field confirm_destructive=false
-          
-          echo "⏳ Waiting for stop-all to complete..."
-          sleep 180  # Wait 3 minutes for resources to stop
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const stopWaitMinutes = parseInt('${{ github.event.inputs.stop_wait_minutes }}') || 3;
+            const stopWaitMs = stopWaitMinutes * 60 * 1000;
+            
+            try {
+              const result = await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'iac_management_workflow.yml',
+                ref: context.ref,
+                inputs: {
+                  action: 'stop-all',
+                  confirm_destructive: 'false'
+                }
+              });
+              console.log('🛑 Stop-all workflow dispatched successfully');
+              console.log(`📍 Using branch: ${context.ref}`);
+              
+              // Dynamic wait based on input
+              console.log(`⏳ Waiting ${stopWaitMinutes} minutes for resources to stop...`);
+              await new Promise(resolve => setTimeout(resolve, stopWaitMs));
+              console.log('✅ Stop-all wait period completed');
+            } catch (error) {
+              console.error('❌ Failed to dispatch stop-all workflow:', error.message);
+              throw error;
+            }
 
-      - name: 🗑️ Trigger Destroy Storage Resources  
+      - name: 🗑️ Trigger Destroy Storage Resources
+        if: ${{ github.event.inputs.skip_destroy != 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const destroyWaitMinutes = parseInt('${{ github.event.inputs.destroy_wait_minutes }}') || 2;
+            const destroyWaitMs = destroyWaitMinutes * 60 * 1000;
+            
+            try {
+              const result = await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'iac_management_workflow.yml',
+                ref: context.ref,
+                inputs: {
+                  action: 'destroy-storage-resources',
+                  confirm_destructive: 'true'
+                }
+              });
+              console.log('🗑️ Destroy storage resources workflow dispatched successfully');
+              console.log(`📍 Using branch: ${context.ref}`);
+              
+              // Dynamic wait based on input  
+              console.log(`⏳ Waiting ${destroyWaitMinutes} minutes for storage destruction...`);
+              await new Promise(resolve => setTimeout(resolve, destroyWaitMs));
+              console.log('✅ Both optimization actions have been triggered');
+            } catch (error) {
+              console.error('❌ Failed to dispatch destroy storage resources workflow:', error.message);
+              throw error;
+            }
+
+      - name: ⏭️ Skip Destroy Storage Resources
+        if: ${{ github.event.inputs.skip_destroy == 'true' }}
         run: |
-          echo "🗑️ Triggering 'destroy-storage-resources' action..."
-          gh workflow run iac_management_workflow.yml \
-            --field action=destroy-storage-resources \
-            --field confirm_destructive=true
-          
-          echo "✅ Both optimization actions have been triggered"
+          echo "⏭️ Skipping storage resource destruction (manual override)"
+          echo "💰 Partial savings - compute resources stopped, storage preserved"
+          echo "ℹ️ Storage resources (Redis + ACR) will continue to incur costs"
 
       - name: 📊 Evening Optimization Summary
         run: |
           BRT_TIME=$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')
+          SKIP_DESTROY="${{ github.event.inputs.skip_destroy || 'false' }}"
+          STOP_WAIT="${{ github.event.inputs.stop_wait_minutes || '3' }}"
+          DESTROY_WAIT="${{ github.event.inputs.destroy_wait_minutes || '2' }}"
           
           echo "## 🌙 Evening Cost Optimization Triggered" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Component | Action |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Schedule** | 10:00 PM BRT (Monday-Friday) |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Triggered At** | $BRT_TIME |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Database** | 🛑 Stop Triggered |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Container App** | 🛑 Stop Triggered |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Redis Cache** | 🗑️ Destroy Triggered |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Container Registry** | 🗑️ Destroy Triggered |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Expected Savings** | ~$50-155/month |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Next Startup** | 8:30 AM BRT |" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Action | Wait Time |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|-----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Schedule** | 10:00 PM BRT (Monday-Friday) | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered At** | $BRT_TIME | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Database** | 🛑 Stop Triggered | ${STOP_WAIT} min |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Container App** | 🛑 Stop Triggered | ${STOP_WAIT} min |" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$SKIP_DESTROY" != "true" ]; then
+            echo "| **Redis Cache** | 🗑️ Destroy Triggered | ${DESTROY_WAIT} min |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Container Registry** | 🗑️ Destroy Triggered | ${DESTROY_WAIT} min |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Expected Savings** | ~$50-155/month | - |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| **Redis Cache** | ⏭️ Skip Destroy | - |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Container Registry** | ⏭️ Skip Destroy | - |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Expected Savings** | ~$25-75/month (partial) | - |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "| **Next Startup** | 8:30 AM BRT | - |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ **Cost optimization workflows triggered successfully!**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
