@@ -25,6 +25,9 @@ env:
   # Build configuration
   DOTNET_VERSION: '9.0.x'
   BUILD_CONFIGURATION: 'Release'
+  # Terraform configuration
+  TF_VERSION: '1.12.2'
+  TF_WORKING_DIR: './infra/terraform/dev'
 
 jobs:
   # JOB 1: CI - Runs on all branches for push events and when PRs are opened/updated to master
@@ -72,68 +75,160 @@ jobs:
           name: test-results-${{ github.sha }}
           path: ./coverage
 
-  # JOB 2: CD - Runs only when PR to master is closed/merged, push to master, or manual dispatch
+  # JOB 2: Terraform - Infrastructure deployment via Terraform Cloud CLI
+  terraform-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [build-and-test]
+    # Only run Terraform on master branch with successful CI
+    if: |
+      needs.build-and-test.result == 'success' &&
+      ((github.event_name == 'push' && github.ref == 'refs/heads/master') ||
+       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'))
+    steps:
+      - name: ⏬ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: 🔧 Terraform Init & Upgrade
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          # Terraform Cloud authentication
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+          # Azure authentication for Terraform providers
+          ARM_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
+          ARM_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).subscriptionId }}
+          ARM_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
+          # Terraform Cloud workspace
+          TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
+        run: |
+          echo "🔧 Initializing Terraform..."
+          terraform init -upgrade
+          
+          echo "🔍 Validating Terraform configuration..."
+          terraform validate
+          
+          echo "📋 Terraform workspace info:"
+          terraform workspace show
+
+      - name: 📋 Terraform Plan
+        id: terraform-plan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          # Terraform Cloud authentication
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+          # Azure authentication for Terraform providers
+          ARM_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
+          ARM_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).subscriptionId }}
+          ARM_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
+          # Terraform Cloud workspace
+          TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
+          # Environment-specific variables (can be customized per environment)
+          TF_VAR_environment: "dev"
+          TF_VAR_project_name: "tc-cloudgames"
+          TF_VAR_location: "East US"
+        run: |
+          echo "📋 Creating Terraform plan..."
+          # Create plan with output file for Terraform Cloud tracking
+          terraform plan -detailed-exitcode -out=tfplan-${{ github.sha }}.tfplan
+          
+          # Capture exit code for conditional apply
+          PLAN_EXIT_CODE=$?
+          echo "plan-exit-code=$PLAN_EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          if [ $PLAN_EXIT_CODE -eq 1 ]; then
+            echo "❌ Terraform plan failed"
+            exit 1
+          elif [ $PLAN_EXIT_CODE -eq 2 ]; then
+            echo "📝 Terraform plan shows changes to apply"
+            echo "📁 Plan file: tfplan-${{ github.sha }}.tfplan"
+          else
+            echo "✅ Terraform plan shows no changes"
+          fi
+
+      - name: 🚀 Terraform Apply
+        if: steps.terraform-plan.outputs.plan-exit-code == '2'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          # Terraform Cloud authentication
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+          # Azure authentication for Terraform providers
+          ARM_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
+          ARM_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).subscriptionId }}
+          ARM_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
+          # Terraform Cloud workspace
+          TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
+        run: |
+          echo "🚀 Applying Terraform changes..."
+          # Apply the specific plan file created earlier
+          terraform apply -auto-approve tfplan-${{ github.sha }}.tfplan
+          echo "✅ Terraform apply completed successfully"
+
+      - name: 📊 Terraform Outputs
+        if: always()
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+          ARM_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
+          ARM_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).subscriptionId }}
+          ARM_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
+          TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
+        run: |
+          echo "📊 Terraform Outputs:"
+          terraform output -json || echo "No outputs defined"
+          
+          echo "## 🏗️ Infrastructure Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Terraform Version** | \`${{ env.TF_VERSION }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Working Directory** | \`${{ env.TF_WORKING_DIR }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Workspace** | \`${{ secrets.TF_WORKSPACE }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Plan Exit Code** | \`${{ steps.terraform-plan.outputs.plan-exit-code }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Plan File** | \`tfplan-${{ github.sha }}.tfplan\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Deploy Time** | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.terraform-plan.outputs.plan-exit-code }}" == "2" ]; then
+            echo "✅ **Infrastructure changes applied successfully!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ **No infrastructure changes were needed**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **Terraform Cloud State**: Managed in workspace \`${{ secrets.TF_WORKSPACE }}\`" >> $GITHUB_STEP_SUMMARY
+
+  # JOB 3: CD - Application deployment (depends on successful Terraform)
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Always run the job if conditions are met, but handle CI dependency logic inside
-    if: always()
-    needs: [build-and-test]
+    # Run after both CI and Terraform complete successfully
+    needs: [build-and-test, terraform-deploy]
+    # Deploy only when both CI and Terraform succeed, and we're on master
+    if: |
+      always() &&
+      needs.build-and-test.result == 'success' &&
+      needs.terraform-deploy.result == 'success' &&
+      ((github.event_name == 'push' && github.ref == 'refs/heads/master') ||
+       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && github.event.inputs.deploy == 'true'))
     steps:
-      - name: 🔍 Check deployment conditions
-        id: check-conditions
-        run: |
-          echo "🔍 Checking deployment conditions..."
-          echo "Event: ${{ github.event_name }}"
-          echo "Ref: ${{ github.ref }}"
-          echo "Head Ref: ${{ github.head_ref }}"
-          echo "Base Ref: ${{ github.base_ref }}"
-          echo "Repository: ${{ github.repository }}"
-          
-          # IMPORTANT: Only deploy from master branch workflows, never from feature branch workflows
-          # This prevents duplicate runs when PR is merged (feature branch + master branch workflows)
-          
-          # Check if this is a push to master (direct push or merge result)
-          if [[ "${{ github.event_name }}" == "push" && 
-                "${{ github.ref }}" == "refs/heads/master" && 
-                "${{ needs.build-and-test.result }}" == "success" ]]; then
-            echo "condition=deploy" >> $GITHUB_OUTPUT
-            echo "✅ Deployment triggered by push to master branch (CI passed)"
-            
-          # Check if this is manual workflow dispatch on master
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && 
-                  "${{ github.ref }}" == "refs/heads/master" && 
-                  "${{ github.event.inputs.deploy }}" == "true" && 
-                  "${{ needs.build-and-test.result }}" == "success" ]]; then
-            echo "condition=deploy" >> $GITHUB_OUTPUT
-            echo "✅ Deployment triggered by manual dispatch on master (CI passed)"
-            
-          else
-            echo "condition=skip" >> $GITHUB_OUTPUT
-            echo "❌ Deployment conditions not met"
-            echo "   Deployment only runs for:"
-            echo "   - Push events to master branch (with successful CI)"
-            echo "   - Manual workflow dispatch on master branch (with successful CI)"
-            echo "   - NOT for pull_request events (even when merged)"
-            echo ""
-            echo "Current state:"
-            echo "   Event: ${{ github.event_name }}"
-            echo "   Ref: ${{ github.ref }}"
-            echo "   CI Result: ${{ needs.build-and-test.result }}"
-          fi
-
       - name: ⏬ Checkout repository
-        if: steps.check-conditions.outputs.condition == 'deploy'
         uses: actions/checkout@v4
 
       - name: 🔐 Login to Azure
-        if: steps.check-conditions.outputs.condition == 'deploy'
         uses: azure/login@v1
         with:
           creds: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
 
       - name: 🔑 Fetch infrastructure secrets from Azure Key Vault
-        if: steps.check-conditions.outputs.condition == 'deploy'
         id: fetch-infra-secrets
         uses: azure/get-keyvault-secrets@v1
         timeout-minutes: 5
@@ -146,7 +241,6 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
 
       - name: 🔑 Fetch database secrets from Azure Key Vault
-        if: steps.check-conditions.outputs.condition == 'deploy'
         id: fetch-db-secrets
         uses: azure/get-keyvault-secrets@v1
         timeout-minutes: 5
@@ -159,7 +253,6 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
 
       - name: 🔑 Fetch observability secrets from Azure Key Vault
-        if: steps.check-conditions.outputs.condition == 'deploy'
         id: fetch-observability-secrets
         uses: azure/get-keyvault-secrets@v1
         timeout-minutes: 5
@@ -172,7 +265,6 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
 
       - name: 🔍 Validate required secrets
-        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
           CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
@@ -209,7 +301,6 @@ jobs:
           echo "  - Cache Host: $CACHE_HOST"
 
       - name: 💾 Upload Key Vault secrets to Azure Container App
-        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           # Infrastructure configuration
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
@@ -230,7 +321,6 @@ jobs:
           echo "✅ Secrets uploaded successfully"
 
       - name: 🐳 Login to ACR
-        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
           ACR_USERNAME: ${{ steps.fetch-infra-secrets.outputs['acr-username'] }}
@@ -242,11 +332,9 @@ jobs:
           password: ${{ env.ACR_PASSWORD }}
 
       - name: ⚙️ Set up Docker Buildx
-        if: steps.check-conditions.outputs.condition == 'deploy'
         uses: docker/setup-buildx-action@v3
 
       - name: ⚙️ Build and push Docker image
-        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
           CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
@@ -261,7 +349,6 @@ jobs:
           platforms: linux/amd64
 
       - name: 🚀 Deploy to Azure Container App
-        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           # Infrastructure configuration
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
@@ -301,7 +388,6 @@ jobs:
             OTEL_RESOURCE_ATTRIBUTES=${{ env.GRAFANA_RESOURCE_ATTRIBUTES }}
 
       - name: 🩺 Health check deployed application
-        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
           RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
@@ -330,7 +416,6 @@ jobs:
           fi
 
       - name: 📊 Deployment summary
-        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
           CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
