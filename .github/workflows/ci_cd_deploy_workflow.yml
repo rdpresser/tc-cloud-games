@@ -71,29 +71,54 @@ jobs:
 
   # JOB 2: CD - Runs only when PR to master is closed/merged, push to master, or manual dispatch
   build-and-deploy:
-    needs: build-and-test
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Execute if: PR merged to master OR push directly to master OR manual workflow dispatch
-    if: |
-      (github.event_name == 'pull_request' && 
-       github.event.pull_request.merged == true && 
-       github.base_ref == 'master') ||
-      (github.event_name == 'push' && 
-       github.ref == 'refs/heads/master') ||
-      (github.event_name == 'workflow_dispatch' && 
-       github.ref == 'refs/heads/master' && 
-       github.event.inputs.deploy == 'true')
+    # Always run the job if conditions are met, but handle CI dependency logic inside
+    if: always()
+    needs: [build-and-test]
     steps:
+      - name: 🔍 Check deployment conditions
+        id: check-conditions
+        run: |
+          # Check if this is a merged PR to master (CI already ran when PR was opened)
+          if [[ "${{ github.event_name }}" == "pull_request" && 
+                "${{ github.event.pull_request.merged }}" == "true" && 
+                "${{ github.base_ref }}" == "master" ]]; then
+            echo "condition=deploy" >> $GITHUB_OUTPUT
+            echo "✅ Deployment triggered by merged PR to master"
+          # Check if this is a direct push to master (need CI to pass)
+          elif [[ "${{ github.event_name }}" == "push" && 
+                  "${{ github.ref }}" == "refs/heads/master" && 
+                  "${{ needs.build-and-test.result }}" == "success" ]]; then
+            echo "condition=deploy" >> $GITHUB_OUTPUT
+            echo "✅ Deployment triggered by direct push to master (CI passed)"
+          # Check if this is manual workflow dispatch (need CI to pass)
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && 
+                  "${{ github.ref }}" == "refs/heads/master" && 
+                  "${{ github.event.inputs.deploy }}" == "true" && 
+                  "${{ needs.build-and-test.result }}" == "success" ]]; then
+            echo "condition=deploy" >> $GITHUB_OUTPUT
+            echo "✅ Deployment triggered by manual dispatch (CI passed)"
+          else
+            echo "condition=skip" >> $GITHUB_OUTPUT
+            echo "❌ Deployment conditions not met"
+            echo "Event: ${{ github.event_name }}"
+            echo "Ref: ${{ github.ref }}"
+            echo "CI Result: ${{ needs.build-and-test.result }}"
+          fi
+
       - name: ⏬ Checkout repository
+        if: steps.check-conditions.outputs.condition == 'deploy'
         uses: actions/checkout@v4
 
       - name: 🔐 Login to Azure
+        if: steps.check-conditions.outputs.condition == 'deploy'
         uses: azure/login@v1
         with:
           creds: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
 
       - name: 🔑 Fetch infrastructure secrets from Azure Key Vault
+        if: steps.check-conditions.outputs.condition == 'deploy'
         id: fetch-infra-secrets
         uses: azure/get-keyvault-secrets@v1
         timeout-minutes: 5
@@ -106,6 +131,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
 
       - name: 🔑 Fetch database secrets from Azure Key Vault
+        if: steps.check-conditions.outputs.condition == 'deploy'
         id: fetch-db-secrets
         uses: azure/get-keyvault-secrets@v1
         timeout-minutes: 5
@@ -118,6 +144,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
 
       - name: 🔑 Fetch observability secrets from Azure Key Vault
+        if: steps.check-conditions.outputs.condition == 'deploy'
         id: fetch-observability-secrets
         uses: azure/get-keyvault-secrets@v1
         timeout-minutes: 5
@@ -130,6 +157,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
 
       - name: 🔍 Validate required secrets
+        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
           CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
@@ -166,6 +194,7 @@ jobs:
           echo "  - Cache Host: $CACHE_HOST"
 
       - name: 💾 Upload Key Vault secrets to Azure Container App
+        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           # Infrastructure configuration
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
@@ -186,6 +215,7 @@ jobs:
           echo "✅ Secrets uploaded successfully"
 
       - name: 🐳 Login to ACR
+        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
           ACR_USERNAME: ${{ steps.fetch-infra-secrets.outputs['acr-username'] }}
@@ -197,9 +227,11 @@ jobs:
           password: ${{ env.ACR_PASSWORD }}
 
       - name: ⚙️ Set up Docker Buildx
+        if: steps.check-conditions.outputs.condition == 'deploy'
         uses: docker/setup-buildx-action@v3
 
       - name: ⚙️ Build and push Docker image
+        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
           CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
@@ -214,6 +246,7 @@ jobs:
           platforms: linux/amd64
 
       - name: 🚀 Deploy to Azure Container App
+        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           # Infrastructure configuration
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
@@ -253,6 +286,7 @@ jobs:
             OTEL_RESOURCE_ATTRIBUTES=${{ env.GRAFANA_RESOURCE_ATTRIBUTES }}
 
       - name: 🩺 Health check deployed application
+        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
           RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
@@ -281,6 +315,7 @@ jobs:
           fi
 
       - name: 📊 Deployment summary
+        if: steps.check-conditions.outputs.condition == 'deploy'
         env:
           ACR_NAME: ${{ steps.fetch-infra-secrets.outputs['acr-name'] }}
           CONTAINER_APP_NAME: ${{ steps.fetch-infra-secrets.outputs['container-app-name'] }}
