@@ -460,7 +460,7 @@ resource "azurerm_container_app_environment" "container_app_environment" {
 # =============================================================================
 
 resource "azurerm_container_app" "container_app" {
-  name                         = "${local.name_prefix}-api-app"
+  name                         = "${local.name_prefix}-api-app-${random_string.unique_suffix.result}"
   container_app_environment_id = azurerm_container_app_environment.container_app_environment.id
   resource_group_name          = azurerm_resource_group.rg.name
   revision_mode                = "Single"
