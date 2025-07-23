@@ -493,19 +493,37 @@ jobs:
             exit 0
           fi
           
-          # Get the state file to check for Redis resource
-          REDIS_EXISTS=$(curl -s \
+          echo "🔍 Found state version: $STATE_VERSION_ID"
+          echo "🔍 Checking for Redis resources in Terraform state..."
+          
+          # Get the state file and check for any Redis-related resources
+          STATE_CONTENT=$(curl -s \
             -H "Authorization: Bearer $TF_API_TOKEN" \
-            "https://app.terraform.io/api/v2/state-versions/$STATE_VERSION_ID/download" \
-            | jq -r '.resources[] | select(.type == "azurerm_redis_cache") | .type' 2>/dev/null || echo "")
+            "https://app.terraform.io/api/v2/state-versions/$STATE_VERSION_ID/download")
           
-          if [ -z "$REDIS_EXISTS" ]; then
-            echo "ℹ️ Redis cache not found in Terraform state - may have been destroyed already"
-            echo "✅ Redis destroy operation completed (target resource not in state)"
-            exit 0
+          # Check for Redis resources with multiple possible patterns
+          REDIS_RESOURCES=$(echo "$STATE_CONTENT" | jq -r '.resources[]? | select(.type | test("redis")) | .type + " -> " + .name' 2>/dev/null || echo "")
+          
+          if [ -z "$REDIS_RESOURCES" ]; then
+            echo "🔍 No Redis resources found. Checking all resources in state..."
+            ALL_RESOURCES=$(echo "$STATE_CONTENT" | jq -r '.resources[]? | .type + " -> " + .name' 2>/dev/null || echo "none")
+            echo "📋 All resources in state:"
+            echo "$ALL_RESOURCES"
+            
+            # For destroy-storage-resources, we should proceed even if Redis isn't found
+            # since it might be part of a combined operation
+            if [ "${{ github.event.inputs.action }}" == "destroy-storage-resources" ]; then
+              echo "ℹ️ Redis not found but continuing with destroy-storage-resources operation"
+            else
+              echo "ℹ️ Redis cache not found in Terraform state - may have been destroyed already"
+              echo "✅ Redis destroy operation completed (target resource not in state)"
+              exit 0
+            fi
+          else
+            echo "✅ Found Redis resources in state:"
+            echo "$REDIS_RESOURCES"
+            echo "✅ Proceeding with Redis destroy"
           fi
-          
-          echo "✅ Redis cache found in state - proceeding with destroy"
           
           # Create a targeted destroy plan for Redis only
           echo "📋 Creating targeted destroy run for Redis cache..."
@@ -602,28 +620,35 @@ jobs:
             exit 0
           fi
           
-          # Get the state file to check for ACR resource
-          ACR_EXISTS=$(curl -s \
+          echo "🔍 Found state version: $STATE_VERSION_ID"
+          echo "🔍 Checking for ACR resources in Terraform state..."
+          
+          # Get the state file and check for any ACR-related resources
+          STATE_CONTENT=$(curl -s \
             -H "Authorization: Bearer $TF_API_TOKEN" \
-            "https://app.terraform.io/api/v2/state-versions/$STATE_VERSION_ID/download" \
-            | jq -r '.resources[] | select(.type == "azurerm_container_registry") | .type' 2>/dev/null || echo "")
+            "https://app.terraform.io/api/v2/state-versions/$STATE_VERSION_ID/download")
           
-          if [ -z "$ACR_EXISTS" ]; then
-            echo "ℹ️ Container Registry not found in Terraform state - may have been destroyed already"
-            echo "✅ ACR destroy operation completed (target resource not in state)"
-            exit 0
-          fi
+          # Check for ACR resources with multiple possible patterns
+          ACR_RESOURCES=$(echo "$STATE_CONTENT" | jq -r '.resources[]? | select(.type | test("container_registry")) | .type + " -> " + .name' 2>/dev/null || echo "")
           
-          echo "✅ Container Registry found in state - proceeding with destroy" \
-              -H "Content-Type: application/vnd.api+json" \
-              "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE" \
-              | jq -r '.data.id')
+          if [ -z "$ACR_RESOURCES" ]; then
+            echo "🔍 No ACR resources found. Checking all resources in state..."
+            ALL_RESOURCES=$(echo "$STATE_CONTENT" | jq -r '.resources[]? | .type + " -> " + .name' 2>/dev/null || echo "none")
+            echo "📋 All resources in state:"
+            echo "$ALL_RESOURCES"
             
-            if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
-              echo "❌ Failed to get workspace ID"
-              exit 1
+            # For destroy-storage-resources, we should proceed even if ACR isn't found
+            if [ "${{ github.event.inputs.action }}" == "destroy-storage-resources" ]; then
+              echo "ℹ️ ACR not found but continuing with destroy-storage-resources operation"
+            else
+              echo "ℹ️ Container Registry not found in Terraform state - may have been destroyed already"
+              echo "✅ ACR destroy operation completed (target resource not in state)"
+              exit 0
             fi
-            echo "✅ Workspace ID: $WORKSPACE_ID"
+          else
+            echo "✅ Found ACR resources in state:"
+            echo "$ACR_RESOURCES"
+            echo "✅ Proceeding with ACR destroy"
           fi
           
           # Create a targeted destroy plan for ACR only
