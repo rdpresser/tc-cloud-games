@@ -10,7 +10,6 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Diagnostics.CodeAnalysis;
 using TC.CloudGames.Api.Telemetry;
-using TC.CloudGames.Api.Middleware;
 using TC.CloudGames.Domain.Aggregates.Game.Abstractions;
 using TC.CloudGames.Infra.CrossCutting.Commons.Authentication;
 using TC.CloudGames.Infra.CrossCutting.Commons.Caching;
@@ -41,16 +40,16 @@ public static class ServiceCollectionExtensions
     public static WebApplicationBuilder AddCustomLoggingTelemetry(this WebApplicationBuilder builder)
     {
         builder.Logging.ClearProviders();
-        
+
         builder.Logging.AddOpenTelemetry(options =>
         {
             options.IncludeScopes = true;
             options.IncludeFormattedMessage = true;
-            
+
             // Enhanced resource configuration for logs using centralized constants
             options.SetResourceBuilder(
                 ResourceBuilder.CreateDefault()
-                    .AddService(TelemetryConstants.ServiceName, 
+                    .AddService(TelemetryConstants.ServiceName,
                                serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? TelemetryConstants.Version)
                     .AddAttributes(new Dictionary<string, object>
                     {
@@ -101,6 +100,7 @@ public static class ServiceCollectionExtensions
                 metricsBuilder
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
+                    .AddFusionCacheInstrumentation()
                     .AddNpgsqlInstrumentation()
                     .AddMeter("Microsoft.AspNetCore.Hosting")
                     .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
@@ -144,7 +144,7 @@ public static class ServiceCollectionExtensions
                             activity.SetTag("user.authenticated", request.HttpContext.User?.Identity?.IsAuthenticated);
                             activity.SetTag("http.route", request.HttpContext.GetRouteValue("action")?.ToString());
                             activity.SetTag("http.client_ip", request.HttpContext.Connection.RemoteIpAddress?.ToString());
-                            
+
                             // Add correlation ID using standardized header name
                             if (request.Headers.TryGetValue(TelemetryConstants.CorrelationIdHeader, out var correlationId))
                             {
@@ -173,6 +173,7 @@ public static class ServiceCollectionExtensions
                             activity.SetTag("db.row_count", command.Parameters?.Count);
                         };
                     })
+                    .AddFusionCacheInstrumentation()
                     .AddNpgsql()
                     .AddSource(TelemetryConstants.GameActivitySource) // Custom activity sources
                     .AddSource(TelemetryConstants.UserActivitySource)
@@ -276,9 +277,9 @@ public static class ServiceCollectionExtensions
                     {
                         var allocated = GC.GetTotalMemory(false);
                         var mb = allocated / 1024 / 1024;
-                        
-                        return mb < 1024 
-                            ? HealthCheckResult.Healthy($"Memory usage: {mb} MB") 
+
+                        return mb < 1024
+                            ? HealthCheckResult.Healthy($"Memory usage: {mb} MB")
                             : HealthCheckResult.Degraded($"High memory usage: {mb} MB");
                     },
                     tags: ["memory", "system"])
@@ -286,7 +287,7 @@ public static class ServiceCollectionExtensions
                     {
                         // Add any custom health logic for your metrics system
                         return HealthCheckResult.Healthy("Custom metrics are functioning");
-                    }, 
+                    },
                     tags: ["metrics", "telemetry"]);
 
         return services;
