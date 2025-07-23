@@ -62,18 +62,6 @@ public class TelemetryMiddleware
         activity?.SetTag("user.authenticated", isAuthenticated);
         activity?.SetTag("correlation.id", correlationId);
 
-        if (context.Response.StatusCode == 404)
-        {
-            // Set status code for 404 responses
-            activity?.SetStatus(ActivityStatusCode.Error, "Not Found");
-            activity?.SetTag("http.status_code", 404);
-        }
-        else
-        {
-            // Set default status code for other responses
-            activity?.SetTag("http.status_code", context.Response.StatusCode);
-        }
-
         // Add additional user context tags when authenticated
         if (isAuthenticated)
         {
@@ -102,13 +90,74 @@ public class TelemetryMiddleware
 
             stopwatch.Stop();
 
-            // Log successful request
+            // Set activity tags that are always needed
             activity?.SetTag("http.status_code", context.Response.StatusCode);
             activity?.SetTag("http.duration_ms", stopwatch.ElapsedMilliseconds);
-            activity?.SetStatus(ActivityStatusCode.Ok);
 
-            _logger.LogInformation("Request {Method} {Path} completed in {Duration}ms with status {StatusCode} for user {UserId} with correlation {CorrelationId}",
-                context.Request.Method, path, stopwatch.ElapsedMilliseconds, context.Response.StatusCode, userId, correlationId);
+            // Handle different status code ranges with appropriate logging and activity status
+            if (context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)
+            {
+                // Success responses (2xx)
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                _logger.LogDebug("Request {Method} {Path} completed successfully in {Duration}ms with status {StatusCode} for user {UserId} with correlation {CorrelationId}",
+                    context.Request.Method, path, stopwatch.ElapsedMilliseconds, context.Response.StatusCode, userId, correlationId);
+            }
+            else if (context.Response.StatusCode >= 300 && context.Response.StatusCode < 400)
+            {
+                // Redirection responses (3xx) - Usually not errors
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                _logger.LogInformation("Request {Method} {Path} redirected in {Duration}ms with status {StatusCode} for user {UserId} with correlation {CorrelationId}",
+                    context.Request.Method, path, stopwatch.ElapsedMilliseconds, context.Response.StatusCode, userId, correlationId);
+            }
+            else if (context.Response.StatusCode == 400)
+            {
+                // Bad Request - Client error but not necessarily an application error
+                activity?.SetStatus(ActivityStatusCode.Error, "Bad Request");
+                _logger.LogWarning("Request {Method} {Path} completed with bad request in {Duration}ms with status {StatusCode} for user {UserId} with correlation {CorrelationId}",
+                    context.Request.Method, path, stopwatch.ElapsedMilliseconds, context.Response.StatusCode, userId, correlationId);
+            }
+            else if (context.Response.StatusCode == 401)
+            {
+                // Unauthorized - Security related, should be logged as warning
+                activity?.SetStatus(ActivityStatusCode.Error, "Unauthorized");
+                _logger.LogWarning("Unauthorized request {Method} {Path} completed in {Duration}ms with status {StatusCode} for user {UserId} with correlation {CorrelationId}",
+                    context.Request.Method, path, stopwatch.ElapsedMilliseconds, context.Response.StatusCode, userId, correlationId);
+            }
+            else if (context.Response.StatusCode == 403)
+            {
+                // Forbidden - Security related, should be logged as warning
+                activity?.SetStatus(ActivityStatusCode.Error, "Forbidden");
+                _logger.LogWarning("Forbidden request {Method} {Path} completed in {Duration}ms with status {StatusCode} for user {UserId} with correlation {CorrelationId}",
+                    context.Request.Method, path, stopwatch.ElapsedMilliseconds, context.Response.StatusCode, userId, correlationId);
+            }
+            else if (context.Response.StatusCode == 404)
+            {
+                // Not Found - Usually not an application error, more informational
+                activity?.SetStatus(ActivityStatusCode.Error, "Not Found");
+                _logger.LogInformation("Request {Method} {Path} not found in {Duration}ms with status {StatusCode} for user {UserId} with correlation {CorrelationId}",
+                    context.Request.Method, path, stopwatch.ElapsedMilliseconds, context.Response.StatusCode, userId, correlationId);
+            }
+            else if (context.Response.StatusCode == 422)
+            {
+                // Unprocessable Entity - Validation errors
+                activity?.SetStatus(ActivityStatusCode.Error, "Unprocessable Entity");
+                _logger.LogWarning("Request {Method} {Path} validation failed in {Duration}ms with status {StatusCode} for user {UserId} with correlation {CorrelationId}",
+                    context.Request.Method, path, stopwatch.ElapsedMilliseconds, context.Response.StatusCode, userId, correlationId);
+            }
+            else if (context.Response.StatusCode >= 400 && context.Response.StatusCode < 500)
+            {
+                // Other client errors (4xx)
+                activity?.SetStatus(ActivityStatusCode.Error, "Client Error");
+                _logger.LogWarning("Request {Method} {Path} client error in {Duration}ms with status {StatusCode} for user {UserId} with correlation {CorrelationId}",
+                    context.Request.Method, path, stopwatch.ElapsedMilliseconds, context.Response.StatusCode, userId, correlationId);
+            }
+            else if (context.Response.StatusCode >= 500)
+            {
+                // Server errors (5xx) - These are actual application errors
+                activity?.SetStatus(ActivityStatusCode.Error, "Server Error");
+                _logger.LogError("Request {Method} {Path} server error in {Duration}ms with status {StatusCode} for user {UserId} with correlation {CorrelationId}",
+                    context.Request.Method, path, stopwatch.ElapsedMilliseconds, context.Response.StatusCode, userId, correlationId);
+            }
         }
         catch (Exception ex)
         {
@@ -117,9 +166,11 @@ public class TelemetryMiddleware
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             activity?.SetTag("error.type", ex.GetType().Name);
             activity?.SetTag("error.message", ex.Message);
+            activity?.SetTag("http.status_code", context.Response.StatusCode);
+            activity?.SetTag("http.duration_ms", stopwatch.ElapsedMilliseconds);
 
-            _logger.LogError(ex, "Request {Method} {Path} failed after {Duration}ms for user {UserId} with correlation {CorrelationId}",
-                context.Request.Method, path, stopwatch.ElapsedMilliseconds, userId, correlationId);
+            _logger.LogError(ex, "Request {Method} {Path} failed after {Duration}ms for user {UserId} with correlation {CorrelationId}. Exception: {ExceptionType}",
+                context.Request.Method, path, stopwatch.ElapsedMilliseconds, userId, correlationId, ex.GetType().Name);
 
             // Re-throw the exception
             throw;
