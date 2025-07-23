@@ -9,15 +9,15 @@ on:
   workflow_dispatch:
     inputs:
       stop_wait_minutes:
-        description: 'Minutes to wait after triggering stop-all (default: 3)'
+        description: 'Minutes to wait after triggering stop-all (default: 5)'
         required: false
         type: number
-        default: 3
+        default: 5
       destroy_wait_minutes:
-        description: 'Minutes to wait after triggering destroy-storage (default: 2)'
+        description: 'Minutes to wait after triggering destroy-storage (default: 3)'
         required: false  
         type: number
-        default: 2
+        default: 3
       skip_destroy:
         description: 'Skip destroying storage resources (just stop)'
         required: false
@@ -40,8 +40,8 @@ jobs:
           echo "🌙 Starting Evening Cost Optimization at $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')"
           echo "💰 Expected monthly savings: ~$50-155"
           echo "🔄 Configuration:"
-          echo "  - Stop wait time: ${{ github.event.inputs.stop_wait_minutes || '3' }} minutes"
-          echo "  - Destroy wait time: ${{ github.event.inputs.destroy_wait_minutes || '2' }} minutes" 
+          echo "  - Stop wait time: ${{ github.event.inputs.stop_wait_minutes || '5' }} minutes"
+          echo "  - Destroy wait time: ${{ github.event.inputs.destroy_wait_minutes || '3' }} minutes" 
           echo "  - Skip destroy: ${{ github.event.inputs.skip_destroy || 'false' }}"
           echo "🔄 This will trigger actions sequentially:"
           echo "  1. Stop all compute resources (Database + Container App)"
@@ -56,7 +56,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const stopWaitMinutes = parseInt('${{ github.event.inputs.stop_wait_minutes }}') || 3;
+            const stopWaitMinutes = parseInt('${{ github.event.inputs.stop_wait_minutes }}') || 5;
             const stopWaitMs = stopWaitMinutes * 60 * 1000;
             
             try {
@@ -105,7 +105,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const destroyWaitMinutes = parseInt('${{ github.event.inputs.destroy_wait_minutes }}') || 2;
+            const destroyWaitMinutes = parseInt('${{ github.event.inputs.destroy_wait_minutes }}') || 3;
             const destroyWaitMs = destroyWaitMinutes * 60 * 1000;
             
             try {
@@ -142,8 +142,8 @@ jobs:
         run: |
           BRT_TIME=$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')
           SKIP_DESTROY="${{ github.event.inputs.skip_destroy || 'false' }}"
-          STOP_WAIT="${{ github.event.inputs.stop_wait_minutes || '3' }}"
-          DESTROY_WAIT="${{ github.event.inputs.destroy_wait_minutes || '2' }}"
+          STOP_WAIT="${{ github.event.inputs.stop_wait_minutes || '5' }}"
+          DESTROY_WAIT="${{ github.event.inputs.destroy_wait_minutes || '3' }}"
           
           echo "## 🌙 Evening Cost Optimization Triggered" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

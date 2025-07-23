@@ -1,23 +1,19 @@
 name: 🌅 Morning Starter
 
 on:
-  schedule:
-    # 8:30 AM BRT (11:30 AM UTC) Monday-Friday
-    - cron: '30 11 * * 1-5'
-  
   # Manual trigger option for testing with customizable parameters
   workflow_dispatch:
     inputs:
       recreate_wait_minutes:
-        description: 'Minutes to wait after triggering recreate-storage (default: 5)'
+        description: 'Minutes to wait after triggering recreate-storage (default: 25)'
+        required: false
+        type: number
+        default: 25
+      start_wait_minutes:
+        description: 'Minutes to wait after triggering start-all (default: 5)'
         required: false
         type: number
         default: 5
-      start_wait_minutes:
-        description: 'Minutes to wait after triggering start-all (default: 2)'
-        required: false
-        type: number
-        default: 2
       skip_recreate:
         description: 'Skip recreating storage resources (if they still exist)'
         required: false
@@ -40,8 +36,8 @@ jobs:
           echo "🌅 Starting Morning Business Preparation at $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')"
           echo "💼 Preparing infrastructure for business day"
           echo "🔄 Configuration:"
-          echo "  - Recreate wait time: ${{ github.event.inputs.recreate_wait_minutes || '5' }} minutes"
-          echo "  - Start wait time: ${{ github.event.inputs.start_wait_minutes || '2' }} minutes"
+          echo "  - Recreate wait time: ${{ github.event.inputs.recreate_wait_minutes || '25' }} minutes"
+          echo "  - Start wait time: ${{ github.event.inputs.start_wait_minutes || '5' }} minutes"
           echo "  - Skip recreate: ${{ github.event.inputs.skip_recreate || 'false' }}"
           echo "🔄 This will trigger actions sequentially:"
           if [ "${{ github.event.inputs.skip_recreate || 'false' }}" != "true" ]; then
@@ -57,7 +53,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const recreateWaitMinutes = parseInt('${{ github.event.inputs.recreate_wait_minutes }}') || 5;
+            const recreateWaitMinutes = parseInt('${{ github.event.inputs.recreate_wait_minutes }}') || 25;
             const recreateWaitMs = recreateWaitMinutes * 60 * 1000;
             
             try {
@@ -112,7 +108,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const startWaitMinutes = parseInt('${{ github.event.inputs.start_wait_minutes }}') || 2;
+            const startWaitMinutes = parseInt('${{ github.event.inputs.start_wait_minutes }}') || 5;
             const startWaitMs = startWaitMinutes * 60 * 1000;
             
             try {
@@ -143,14 +139,14 @@ jobs:
         run: |
           BRT_TIME=$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')
           SKIP_RECREATE="${{ github.event.inputs.skip_recreate || 'false' }}"
-          RECREATE_WAIT="${{ github.event.inputs.recreate_wait_minutes || '5' }}"
-          START_WAIT="${{ github.event.inputs.start_wait_minutes || '2' }}"
+          RECREATE_WAIT="${{ github.event.inputs.recreate_wait_minutes || '25' }}"
+          START_WAIT="${{ github.event.inputs.start_wait_minutes || '5' }}"
           
           echo "## 🌅 Morning Business Preparation Triggered" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Component | Action | Wait Time |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|-----------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Schedule** | 8:30 AM BRT (Monday-Friday) | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Schedule** | 8:00 AM BRT (Monday-Friday) | - |" >> $GITHUB_STEP_SUMMARY
           echo "| **Triggered At** | $BRT_TIME | - |" >> $GITHUB_STEP_SUMMARY
           
           if [ "$SKIP_RECREATE" != "true" ]; then
