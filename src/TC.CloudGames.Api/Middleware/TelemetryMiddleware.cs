@@ -62,6 +62,18 @@ public class TelemetryMiddleware
         activity?.SetTag("user.authenticated", isAuthenticated);
         activity?.SetTag("correlation.id", correlationId);
 
+        if (context.Response.StatusCode == 404)
+        {
+            // Set status code for 404 responses
+            activity?.SetStatus(ActivityStatusCode.Error, "Not Found");
+            activity?.SetTag("http.status_code", 404);
+        }
+        else
+        {
+            // Set default status code for other responses
+            activity?.SetTag("http.status_code", context.Response.StatusCode);
+        }
+
         // Add additional user context tags when authenticated
         if (isAuthenticated)
         {
