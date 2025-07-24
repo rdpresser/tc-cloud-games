@@ -29,23 +29,23 @@ namespace TC.CloudGames.Api.Abstractions
         {
             if (response.IsSuccess)
             {
-                await SendAsync(response.Value, cancellation: ct).ConfigureAwait(false);
+                await Send.OkAsync(response.Value, cancellation: ct).ConfigureAwait(false);
                 return;
             }
 
             if (response.IsNotFound())
             {
-                await SendErrorsAsync((int)HttpStatusCode.NotFound, ct).ConfigureAwait(false);
+                await Send.ErrorsAsync((int)HttpStatusCode.NotFound, ct).ConfigureAwait(false);
                 return;
             }
 
             if (response.IsUnauthorized())
             {
-                await SendErrorsAsync((int)HttpStatusCode.Unauthorized, ct).ConfigureAwait(false);
+                await Send.ErrorsAsync((int)HttpStatusCode.Unauthorized, ct).ConfigureAwait(false);
                 return;
             }
 
-            await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
+            await Send.ErrorsAsync(cancellation: ct).ConfigureAwait(false);
         }
 
         /// <summary>
