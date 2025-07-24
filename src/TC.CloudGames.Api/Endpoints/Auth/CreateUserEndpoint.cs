@@ -13,7 +13,7 @@ namespace TC.CloudGames.Api.Endpoints.Auth
 
             AllowAnonymous();
             Description(
-                x => x.Produces<CreateUserResponse>(200)
+                x => x.Produces<CreateUserResponse>(201)
                       .ProducesProblemDetails());
 
             Summary(s =>
@@ -21,8 +21,8 @@ namespace TC.CloudGames.Api.Endpoints.Auth
                 s.Summary = "Endpoint for creating a new user.";
                 s.Description = "This endpoint allows for the registration of a new user by providing their first name, last name, email, password, and role. Upon successful registration, a new user is created in the system.";
                 s.ExampleRequest = new CreateUserCommand("John", "Smith", "john.smith@gmail.com", "******", Role.Create(builder => builder.Value = "Admin").Value.Value);
-                s.ResponseExamples[200] = new CreateUserResponse(Guid.NewGuid(), "John", "Smith", "john.smith@gmail.com", Role.Create(builder => builder.Value = "Admin").Value.Value);
-                s.Responses[200] = "Returned when a new user is successfully created.";
+                s.ResponseExamples[201] = new CreateUserResponse(Guid.NewGuid(), "John", "Smith", "john.smith@gmail.com", Role.Create(builder => builder.Value = "Admin").Value.Value);
+                s.Responses[201] = "Returned when a new user is successfully created.";
                 s.Responses[400] = "Returned when a bad request occurs.";
             });
         }
@@ -33,11 +33,13 @@ namespace TC.CloudGames.Api.Endpoints.Auth
 
             if (response.IsSuccess)
             {
-                await SendAsync(response.Value, cancellation: ct).ConfigureAwait(false);
+                string location = $"{BaseURL}api/user/";
+                object routeValues = new { id = response.Value.Id };
+                await Send.CreatedAtAsync(location, routeValues, response.Value, cancellation: ct).ConfigureAwait(false);
                 return;
             }
 
-            await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
+            await Send.ErrorsAsync(cancellation: ct).ConfigureAwait(false);
         }
     }
 }

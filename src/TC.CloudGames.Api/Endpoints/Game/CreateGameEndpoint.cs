@@ -14,7 +14,7 @@ namespace TC.CloudGames.Api.Endpoints.Game
             PostProcessor<CommandPostProcessor<CreateGameCommand, CreateGameResponse>>();
 
             Description(
-                x => x.Produces<CreateGameResponse>(200)
+                x => x.Produces<CreateGameResponse>(201)
                       .ProducesProblemDetails());
 
             Summary(s =>
@@ -22,8 +22,8 @@ namespace TC.CloudGames.Api.Endpoints.Game
                 s.Summary = "Endpoint for creating a new game.";
                 s.Description = "This endpoint allows for the creation of a new game by providing its name, description, and other relevant details. Upon successful creation, a new game is added to the system.";
                 s.ExampleRequest = CreateGameCommandExample();
-                s.ResponseExamples[200] = CreateGameResponseExample();
-                s.Responses[200] = "Returned when a new game is successfully created.";
+                s.ResponseExamples[201] = CreateGameResponseExample();
+                s.Responses[201] = "Returned when a new game is successfully created.";
                 s.Responses[400] = "Returned when a bad request occurs.";
                 s.Responses[403] = "Returned when the caller lacks the required role to access this endpoint.";
                 s.Responses[401] = "Returned when the request is made without a valid user token.";
@@ -35,11 +35,13 @@ namespace TC.CloudGames.Api.Endpoints.Game
 
             if (response.IsSuccess)
             {
-                await SendAsync(response.Value, cancellation: ct).ConfigureAwait(false);
+                string location = $"{BaseURL}api/game/";
+                object routeValues = new { id = response.Value.Id };
+                await Send.CreatedAtAsync(location, routeValues, response.Value, cancellation: ct).ConfigureAwait(false);
                 return;
             }
 
-            await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
+            await Send.ErrorsAsync(cancellation: ct).ConfigureAwait(false);
         }
 
         public static CreateGameCommand CreateGameCommandExample()

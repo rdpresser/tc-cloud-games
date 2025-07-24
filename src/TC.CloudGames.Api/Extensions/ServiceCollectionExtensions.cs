@@ -98,16 +98,23 @@ public static class ServiceCollectionExtensions
                 }))
             .WithMetrics(metricsBuilder =>
                 metricsBuilder
+                    // ASP.NET Core and system instrumentation
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
+                    .AddRuntimeInstrumentation() // CPU, Memory, GC metrics
                     .AddFusionCacheInstrumentation()
                     .AddNpgsqlInstrumentation()
+                    // Built-in meters for system metrics
                     .AddMeter("Microsoft.AspNetCore.Hosting")
                     .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
                     .AddMeter("System.Net.Http")
+                    .AddMeter("System.Runtime") // .NET runtime metrics
+                                                // Custom application meters
                     .AddMeter(TelemetryConstants.GameMeterName) // Custom game metrics
                     .AddMeter(TelemetryConstants.UserMeterName) // Custom user metrics
-                    .AddOtlpExporter())
+                                                                // Export to both OTLP (Grafana Cloud) and Prometheus endpoint
+                    .AddOtlpExporter()
+                    .AddPrometheusExporter()) // Prometheus scraping endpoint
             .WithTracing(tracingBuilder =>
                 tracingBuilder
                     .AddHttpClientInstrumentation(options =>
@@ -116,7 +123,7 @@ public static class ServiceCollectionExtensions
                         {
                             // Filter out health check and metrics requests
                             var path = request.RequestUri?.AbsolutePath ?? "";
-                            return !path.Contains("/health") && !path.Contains("/metrics");
+                            return !path.Contains("/health") && !path.Contains("/metrics") && !path.Contains("/prometheus");
                         };
                         options.EnrichWithHttpRequestMessage = (activity, request) =>
                         {
@@ -132,20 +139,27 @@ public static class ServiceCollectionExtensions
                     })
                     .AddAspNetCoreInstrumentation(options =>
                     {
-                        options.Filter = context =>
+                        options.Filter = httpContext =>
                         {
-                            var path = context.Request.Path.Value ?? "";
-                            return !path.Contains("/health") && !path.Contains("/metrics");
+                            // Filter out health check, metrics, and prometheus requests
+                            var path = httpContext.Request.Path.Value ?? "";
+                            return !path.Contains("/health") && !path.Contains("/metrics") && !path.Contains("/prometheus");
                         };
                         options.EnrichWithHttpRequest = (activity, request) =>
                         {
+                            activity.SetTag("http.method", request.Method);
+                            activity.SetTag("http.scheme", request.Scheme);
+                            activity.SetTag("http.host", request.Host.Value);
+                            activity.SetTag("http.target", request.Path);
+                            if (request.ContentLength.HasValue)
+                                activity.SetTag("http.request_content_length", request.ContentLength.Value);
+
                             activity.SetTag("http.request.size", request.ContentLength);
                             activity.SetTag("user.id", request.HttpContext.User?.Identity?.Name);
                             activity.SetTag("user.authenticated", request.HttpContext.User?.Identity?.IsAuthenticated);
                             activity.SetTag("http.route", request.HttpContext.GetRouteValue("action")?.ToString());
                             activity.SetTag("http.client_ip", request.HttpContext.Connection.RemoteIpAddress?.ToString());
 
-                            // Add correlation ID using standardized header name
                             if (request.Headers.TryGetValue(TelemetryConstants.CorrelationIdHeader, out var correlationId))
                             {
                                 activity.SetTag("correlation.id", correlationId.FirstOrDefault());
@@ -153,8 +167,13 @@ public static class ServiceCollectionExtensions
                         };
                         options.EnrichWithHttpResponse = (activity, response) =>
                         {
+                            activity.SetTag("http.status_code", response.StatusCode);
+                            if (response.ContentLength.HasValue)
+                                activity.SetTag("http.response_content_length", response.ContentLength.Value);
+
                             activity.SetTag("http.response.size", response.ContentLength);
                         };
+
                         options.EnrichWithException = (activity, exception) =>
                         {
                             activity.SetTag("exception.type", exception.GetType().Name);
@@ -166,20 +185,30 @@ public static class ServiceCollectionExtensions
                     {
                         options.SetDbStatementForText = true;
                         options.SetDbStatementForStoredProcedure = true;
-                        options.EnrichWithIDbCommand = (activity, command) =>
+                        options.EnrichWithIDbCommand = (activity, dbCommand) =>
                         {
-                            activity.SetTag("db.statement", command.CommandText);
-                            activity.SetTag("db.operation", command.CommandType.ToString());
-                            activity.SetTag("db.row_count", command.Parameters?.Count);
+                            activity.SetTag("db.operation", dbCommand.CommandText?.Split(' ').FirstOrDefault()?.ToUpper());
+
+                            // RESTORED: Enhanced DB enrichment from previous version
+                            activity.SetTag("db.statement", dbCommand.CommandText);
+                            activity.SetTag("db.operation", dbCommand.CommandType.ToString());
+                            activity.SetTag("db.row_count", dbCommand.Parameters?.Count);
                         };
                     })
+                    // RESTORED: Missing instrumentation from previous version
                     .AddFusionCacheInstrumentation()
                     .AddNpgsql()
-                    .AddSource(TelemetryConstants.GameActivitySource) // Custom activity sources
+                    .AddRedisInstrumentation()
+                    .AddSource(TelemetryConstants.GameActivitySource)
                     .AddSource(TelemetryConstants.UserActivitySource)
                     .AddSource(TelemetryConstants.DatabaseActivitySource)
                     .AddSource(TelemetryConstants.CacheActivitySource)
                     .AddOtlpExporter());
+
+        // Register custom metrics classes
+        services.AddSingleton<GameMetrics>();
+        services.AddSingleton<UserMetrics>();
+        services.AddSingleton<SystemMetrics>();
 
         return services;
     }

@@ -8,15 +8,18 @@ public class TelemetryMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly UserMetrics _userMetrics;
+    private readonly SystemMetrics _systemMetrics;
     private readonly ILogger<TelemetryMiddleware> _logger;
 
     public TelemetryMiddleware(
         RequestDelegate next,
         UserMetrics userMetrics,
+        SystemMetrics systemMetrics,
         ILogger<TelemetryMiddleware> logger)
     {
         _next = next;
         _userMetrics = userMetrics;
+        _systemMetrics = systemMetrics;
         _logger = logger;
     }
 
@@ -89,6 +92,10 @@ public class TelemetryMiddleware
             await _next(context);
 
             stopwatch.Stop();
+            var durationSeconds = stopwatch.Elapsed.TotalSeconds;
+
+            // Record system metrics
+            _systemMetrics.RecordHttpRequest(context.Request.Method, path, context.Response.StatusCode, durationSeconds);
 
             // Set activity tags that are always needed
             activity?.SetTag("http.status_code", context.Response.StatusCode);
@@ -162,6 +169,10 @@ public class TelemetryMiddleware
         catch (Exception ex)
         {
             stopwatch.Stop();
+            var durationSeconds = stopwatch.Elapsed.TotalSeconds;
+
+            // Record error in system metrics
+            _systemMetrics.RecordHttpRequest(context.Request.Method, path, context.Response.StatusCode, durationSeconds);
 
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             activity?.SetTag("error.type", ex.GetType().Name);

@@ -34,17 +34,17 @@ namespace TC.CloudGames.Api.Endpoints.Auth
 
             if (response.IsSuccess)
             {
-                await SendAsync(response.Value, cancellation: ct).ConfigureAwait(false);
+                await Send.OkAsync(response.Value, cancellation: ct).ConfigureAwait(false);
                 return;
             }
 
             if (response.IsNotFound())
             {
-                await SendErrorsAsync((int)HttpStatusCode.NotFound, cancellation: ct).ConfigureAwait(false);
+                await Send.ErrorsAsync((int)HttpStatusCode.NotFound, cancellation: ct).ConfigureAwait(false);
                 return;
             }
 
-            await SendErrorsAsync(cancellation: ct).ConfigureAwait(false);
+            await Send.ErrorsAsync(cancellation: ct).ConfigureAwait(false);
         }
     }
 }
