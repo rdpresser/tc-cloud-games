@@ -62,17 +62,6 @@ public static class ServiceCollectionExtensions
             options.AddOtlpExporter();
         });
 
-        // Add structured JSON logging for better parsing in Grafana
-        builder.Logging.AddJsonConsole(options =>
-        {
-            options.IncludeScopes = true;
-            options.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff ";
-            options.JsonWriterOptions = new System.Text.Json.JsonWriterOptions
-            {
-                Indented = false
-            };
-        });
-
         return builder;
     }
 

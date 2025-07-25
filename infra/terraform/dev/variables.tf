@@ -95,3 +95,9 @@ variable "grafana_open_tl_auth_header" {
   description = "Grafana OpenTL authentication header API key"
   sensitive   = true
 }
+
+variable "grafana_open_tl_prometheus" {
+  type        = string
+  description = "Grafana Cloud Prometheus API token for metrics ingestion"
+  sensitive   = true
+}
