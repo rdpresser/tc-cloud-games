@@ -25,6 +25,7 @@ services:
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
       - OTEL_EXPORTER_OTLP_HEADERS=${OTEL_EXPORTER_OTLP_HEADERS}
       - GRAFANA_API_TOKEN=${GRAFANA_API_TOKEN}
+      - GRAFANA_PROMETHEUS_TOKEN=${GRAFANA_PROMETHEUS_TOKEN}
       - OTEL_RESOURCE_ATTRIBUTES=service.name=tccloudgames-app,service.namespace=tccloudgames-app-group,deployment.environment=development
       
   tc-cloudgames-db:

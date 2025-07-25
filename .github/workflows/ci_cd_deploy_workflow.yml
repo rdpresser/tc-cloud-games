@@ -387,7 +387,7 @@ jobs:
             db-password,db-host,db-port,db-name,db-admin-login,
             cache-password,cache-host,cache-port,
             otel-auth-header,grafana-api-token,grafana-endpoint,
-            grafana-protocol,grafana-resource-attributes
+            grafana-protocol,grafana-resource-attributes,grafana-prometheus-api-token
         env:
           AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
           AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
@@ -425,6 +425,7 @@ jobs:
           CACHE_PASSWORD: ${{ steps.fetch-secrets.outputs['cache-password'] }}
           OTEL_AUTH_HEADER: ${{ steps.fetch-secrets.outputs['otel-auth-header'] }}
           GRAFANA_API_TOKEN: ${{ steps.fetch-secrets.outputs['grafana-api-token'] }}
+          GRAFANA_PROMETHEUS_TOKEN: ${{ steps.fetch-secrets.outputs['grafana-prometheus-api-token'] }}
         run: |
           echo "💾 Updating Container App secrets..."
           az containerapp secret set \
@@ -434,7 +435,8 @@ jobs:
               db-password-secret="$DB_PASSWORD" \
               cache-password-secret="$CACHE_PASSWORD" \
               otel-auth-header-secret="$OTEL_AUTH_HEADER" \
-              grafana-api-token-secret="$GRAFANA_API_TOKEN"
+              grafana-api-token-secret="$GRAFANA_API_TOKEN" \
+              grafana-prometheus-api-token-secret="$GRAFANA_PROMETHEUS_TOKEN"
           echo "✅ Secrets updated successfully"
 
       - name: 🐳 Login to ACR
@@ -481,6 +483,7 @@ jobs:
             OTEL_EXPORTER_OTLP_PROTOCOL=${{ steps.fetch-secrets.outputs['grafana-protocol'] }}
             OTEL_EXPORTER_OTLP_HEADERS=secretref:otel-auth-header-secret
             GRAFANA_API_TOKEN=secretref:grafana-api-token-secret
+            GRAFANA_PROMETHEUS_TOKEN=secretref:grafana-prometheus-api-token-secret
             OTEL_RESOURCE_ATTRIBUTES=${{ steps.fetch-secrets.outputs['grafana-resource-attributes'] }}
 
       - name: 🩺 Enhanced health check with retries

@@ -253,6 +253,16 @@ resource "azurerm_key_vault_secret" "key_vault_secret_otel_auth_header" {
   ]
 }
 
+resource "azurerm_key_vault_secret" "key_vault_secret_grafana_prometheus_api_token" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  name         = "grafana-prometheus-api-token"
+  value        = var.grafana_open_tl_prometheus
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+}
+
 # =============================================================================
 # Database Configuration Secrets
 # =============================================================================
@@ -493,6 +503,10 @@ resource "azurerm_container_app" "container_app" {
     value = "placeholder-updated-by-cicd"
   }
   secret {
+    name  = "grafana-prometheus-api-token-secret"
+    value = "placeholder-updated-by-cicd"
+  }
+  secret {
     name  = "grafana-api-token-secret"
     value = "placeholder-updated-by-cicd"
   }
@@ -560,6 +574,10 @@ resource "azurerm_container_app" "container_app" {
       env {
         name        = "GRAFANA_API_TOKEN"
         secret_name = "grafana-api-token-secret"
+      }
+      env {
+        name        = "GRAFANA_PROMETHEUS_TOKEN"
+        secret_name = "grafana-prometheus-api-token-secret"
       }
       env {
         name  = "OTEL_EXPORTER_OTLP_ENDPOINT"

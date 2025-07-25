@@ -32,7 +32,7 @@ namespace TC.CloudGames.Api.Extensions
                 loggerConfiguration.Enrich.WithProperty("service.namespace", TelemetryConstants.ServiceNamespace);
                 loggerConfiguration.Enrich.WithProperty("service.version", serviceVersion);
                 loggerConfiguration.Enrich.WithProperty("deployment.environment", environment);
-                
+
                 // Additional OpenTelemetry resource attributes for consistency
                 loggerConfiguration.Enrich.WithProperty("cloud.provider", "azure");
                 loggerConfiguration.Enrich.WithProperty("cloud.platform", "azure_container_apps");
@@ -45,7 +45,7 @@ namespace TC.CloudGames.Api.Extensions
                 });
 
                 // Console sink for local/dev visibility
-                loggerConfiguration.WriteTo.Console();
+                loggerConfiguration.WriteTo.Console(new Serilog.Formatting.Json.JsonFormatter()); // Optional for local
 
                 // Loki sink with FIXED label naming (underscores for Grafana Cloud compatibility)
                 var serilogUsing = configuration.GetSection("Serilog:Using").Get<string[]>() ?? [];

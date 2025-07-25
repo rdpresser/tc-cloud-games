@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace TC.CloudGames.Api.Telemetry;
 
 /// <summary>
@@ -47,17 +49,38 @@ public static class TelemetryConstants
     public const string DatabaseComponent = "database";
     public const string CacheComponent = "cache";
 
-    // Debug Info
-    public static void LogTelemetryConfiguration()
+    /// <summary>
+    /// Logs telemetry configuration details using Microsoft.Extensions.Logging.ILogger
+    /// </summary>
+    public static void LogTelemetryConfiguration(Microsoft.Extensions.Logging.ILogger logger)
     {
-        Console.WriteLine($"=== TELEMETRY DEBUG INFO ===");
-        Console.WriteLine($"Service Name: {ServiceName}");
-        Console.WriteLine($"Service Namespace: {ServiceNamespace}");
-        Console.WriteLine($"Correlation Header: {CorrelationIdHeader}");
-        Console.WriteLine($"Game Meter: {GameMeterName}");
-        Console.WriteLine($"User Meter: {UserMeterName}");
-        Console.WriteLine($"Game Activity Source: {GameActivitySource}");
-        Console.WriteLine($"User Activity Source: {UserActivitySource}");
-        Console.WriteLine($"============================");
+        logger.LogInformation("=== TELEMETRY DEBUG INFO ===");
+        logger.LogInformation("Service Name: {ServiceName}", ServiceName);
+        logger.LogInformation("Service Namespace: {ServiceNamespace}", ServiceNamespace);
+        logger.LogInformation("Telemetry Version: {Version}", Version);
+        logger.LogInformation("Correlation Header: {CorrelationIdHeader}", CorrelationIdHeader);
+        logger.LogInformation("Game Meter: {GameMeterName}", GameMeterName);
+        logger.LogInformation("User Meter: {UserMeterName}", UserMeterName);
+        logger.LogInformation("Game Activity Source: {GameActivitySource}", GameActivitySource);
+        logger.LogInformation("User Activity Source: {UserActivitySource}", UserActivitySource);
+        logger.LogInformation("Database Activity Source: {DatabaseActivitySource}", DatabaseActivitySource);
+        logger.LogInformation("Cache Activity Source: {CacheActivitySource}", CacheActivitySource);
+        logger.LogInformation("Environment: {Environment}", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "NOT SET");
+        logger.LogInformation("Machine Name: {MachineName}", Environment.MachineName);
+        logger.LogInformation("Container Name: {ContainerName}", Environment.GetEnvironmentVariable("HOSTNAME") ?? "NOT SET");
+
+        // OTLP Configuration Debug (no sensitive values)
+        var otlpEndpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT");
+        var otlpHeaders = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS");
+        var otlpProtocol = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_PROTOCOL");
+        var grafanaApiToken = Environment.GetEnvironmentVariable("GRAFANA_API_TOKEN");
+        var grafanaPrometheusToken = Environment.GetEnvironmentVariable("GRAFANA_PROMETHEUS_TOKEN");
+
+        logger.LogInformation("OTLP Endpoint: {OtlpEndpoint}", string.IsNullOrEmpty(otlpEndpoint) ? "NOT SET" : otlpEndpoint);
+        logger.LogInformation("OTLP Headers: {OtlpHeaders}", string.IsNullOrEmpty(otlpHeaders) ? "NOT SET" : "***CONFIGURED***");
+        logger.LogInformation("OTLP Protocol: {OtlpProtocol}", string.IsNullOrEmpty(otlpProtocol) ? "NOT SET" : otlpProtocol);
+        logger.LogInformation("Grafana API Token: {GrafanaApiToken}", string.IsNullOrEmpty(grafanaApiToken) ? "NOT SET" : "***CONFIGURED***");
+        logger.LogInformation("Grafana Prometheus Token: {GrafanaPrometheusToken}", string.IsNullOrEmpty(grafanaPrometheusToken) ? "NOT SET" : "***CONFIGURED***");
+        logger.LogInformation("============================");
     }
 }

@@ -83,7 +83,7 @@ internal static class ApplicationBuilderExtensions
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
             })
             // Add Prometheus metrics endpoint
-            .UseOpenTelemetryPrometheusScrapingEndpoint();
+            .UseOpenTelemetryPrometheusScrapingEndpoint("/metrics");
 
         return app;
     }

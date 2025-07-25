@@ -5,9 +5,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 DotNetEnv.Env.Load(Path.Combine("./", ".env"));
 
-// DEBUG: Log telemetry configuration
-TelemetryConstants.LogTelemetryConfiguration();
-
 builder.Host.UseCustomSerilog(builder.Configuration);
 
 ServiceCollectionExtensions.ConfigureFluentValidationGlobals();
@@ -24,6 +21,13 @@ builder.Services
    .AddCustomHealthCheck();
 
 var app = builder.Build();
+
+// Get logger instance for Program and log telemetry configuration
+var logger = app.Services.GetRequiredService<ILogger<TC.CloudGames.Api.Program>>();
+TelemetryConstants.LogTelemetryConfiguration(logger);
+
+// Use metrics authentication middleware extension
+app.UseMetricsAuthentication();
 
 app.UseAuthentication()
   .UseAuthorization()
