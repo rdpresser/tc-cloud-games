@@ -1,0 +1,192 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.0.6 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36" version="28.0.6">
+  <diagram name="Estrutura do Projeto" id="58Fumxx104jiYcxJSmo7">
+    <mxGraphModel dx="2893" dy="2009" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-0" />
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-1" parent="nSv25JZfvgVMG-IMGxK8-0" />
+        <mxCell id="ssO42BKj7SHVWK2ICa79-3" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="-340" y="-85" width="1010" height="795" as="geometry" />
+        </mxCell>
+        <mxCell id="a-0C_-jzo45trjVETQQj-1" value="" style="group" vertex="1" connectable="0" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="740" y="128" width="815" height="580" as="geometry" />
+        </mxCell>
+        <mxCell id="ssO42BKj7SHVWK2ICa79-4" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="a-0C_-jzo45trjVETQQj-1">
+          <mxGeometry x="-55" y="-213" width="870" height="793" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-4" value="Container Apps Enviroment" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#dae8fc;align=left;verticalAlign=top;strokeColor=#6c8ebf;" vertex="1" parent="a-0C_-jzo45trjVETQQj-1">
+          <mxGeometry width="760" height="500" as="geometry" />
+        </mxCell>
+        <mxCell id="a-0C_-jzo45trjVETQQj-0" value="Azure" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=2;textOpacity=50;" vertex="1" parent="a-0C_-jzo45trjVETQQj-1">
+          <mxGeometry x="710" y="470" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="tlb5ErtZCfl_PWKOaPUb-0" value="Infraestrutura provisionada pelo Terraform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#f8cecc;align=right;verticalAlign=bottom;fontStyle=2;textOpacity=50;strokeColor=#b85450;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="827" y="159" width="633" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-7" target="nSv25JZfvgVMG-IMGxK8-32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-6" value="1. Push de código" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="nSv25JZfvgVMG-IMGxK8-5">
+          <mxGeometry x="-0.2042" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-7" value="Desenvolvedor" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="100" y="-30" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-12" target="nSv25JZfvgVMG-IMGxK8-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-9" value="3. Executa Análise de Código" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="nSv25JZfvgVMG-IMGxK8-8">
+          <mxGeometry x="0.4008" relative="1" as="geometry">
+            <mxPoint y="13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-12" target="nSv25JZfvgVMG-IMGxK8-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-11" value="4. Gera e envia imagem Docker" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="nSv25JZfvgVMG-IMGxK8-10">
+          <mxGeometry x="0.4636" y="2" relative="1" as="geometry">
+            <mxPoint y="-31" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Dkr3ogrGfuP-eVAlaHYf-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-12" target="Dkr3ogrGfuP-eVAlaHYf-0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Dkr3ogrGfuP-eVAlaHYf-2" value="5. Executa Terraform para Deploy" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Dkr3ogrGfuP-eVAlaHYf-1">
+          <mxGeometry x="0.4418" y="-1" relative="1" as="geometry">
+            <mxPoint x="2" y="12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-12" value="Pipeline de CI/CD (GitHub Actions)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="100" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-13" value="SonarQube" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="-70" y="390" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-16" value="Azure Container Registry" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="100" y="390" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-20" target="nSv25JZfvgVMG-IMGxK8-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-19" value="Requisição HTTPS" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="nSv25JZfvgVMG-IMGxK8-18">
+          <mxGeometry x="-0.2458" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-20" value="Usuário" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="1050" y="-16" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-21" value="Ambiente de Desenvolvimento &amp;amp; CI/CD (Fluxo de DevOps)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=16;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="-50" y="-70" width="440" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-22" value="Ambiente de Produção" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=16;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="1015" y="-71" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="BxDe5cmVCWK7HpeWtZKQ-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-27" target="BxDe5cmVCWK7HpeWtZKQ-3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1110" y="289" />
+              <mxPoint x="910" y="289" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6NarSC6h5itd3c6EQ6dI-2" value="Buscar Secrets" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="BxDe5cmVCWK7HpeWtZKQ-11">
+          <mxGeometry x="0.6609" y="-1" relative="1" as="geometry">
+            <mxPoint y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BxDe5cmVCWK7HpeWtZKQ-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-27" target="BxDe5cmVCWK7HpeWtZKQ-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1110" y="289" />
+              <mxPoint x="1060" y="289" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BxDe5cmVCWK7HpeWtZKQ-14" value="Usa para&amp;nbsp;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Caching de dados&lt;/span&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="BxDe5cmVCWK7HpeWtZKQ-13">
+          <mxGeometry x="0.4969" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="UUu12ByItZVRH6mZR6VW-0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-27" target="BxDe5cmVCWK7HpeWtZKQ-7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1110" y="289" />
+              <mxPoint x="1230" y="289" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="UUu12ByItZVRH6mZR6VW-1" value="Usa Serilog&amp;nbsp;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;para enviar logs&lt;/span&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="UUu12ByItZVRH6mZR6VW-0">
+          <mxGeometry x="0.5989" y="-1" relative="1" as="geometry">
+            <mxPoint y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6NarSC6h5itd3c6EQ6dI-0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-27" target="BxDe5cmVCWK7HpeWtZKQ-9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1110" y="289" />
+              <mxPoint x="1380" y="289" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6NarSC6h5itd3c6EQ6dI-1" value="Usa EF Core para&lt;div&gt;Persistência de Dados&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="6NarSC6h5itd3c6EQ6dI-0">
+          <mxGeometry x="0.7359" relative="1" as="geometry">
+            <mxPoint y="-4" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-27" value="Web API (NET 9 &amp;amp; FastEndpoints)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="1050" y="179" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-32" target="nSv25JZfvgVMG-IMGxK8-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-31" value="2. Aciona a pipeline" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="nSv25JZfvgVMG-IMGxK8-30">
+          <mxGeometry x="-0.1143" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="nSv25JZfvgVMG-IMGxK8-32" value="Repositório Git" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="100" y="110" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="BxDe5cmVCWK7HpeWtZKQ-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="Dkr3ogrGfuP-eVAlaHYf-0" target="nSv25JZfvgVMG-IMGxK8-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BxDe5cmVCWK7HpeWtZKQ-2" value="6. Provisiona e Gerencia toda Infraestrutura" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="BxDe5cmVCWK7HpeWtZKQ-1">
+          <mxGeometry x="-0.7613" y="2" relative="1" as="geometry">
+            <mxPoint x="32" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Dkr3ogrGfuP-eVAlaHYf-0" value="Terraform" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="280" y="390" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="iT3qgtysKK_hwnH0B1Av-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.167;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;" edge="1" parent="nSv25JZfvgVMG-IMGxK8-1" source="nSv25JZfvgVMG-IMGxK8-16" target="nSv25JZfvgVMG-IMGxK8-27">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="510" />
+              <mxPoint x="790" y="510" />
+              <mxPoint x="790" y="120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BxDe5cmVCWK7HpeWtZKQ-0" value="Imagem usada no Deploy" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="iT3qgtysKK_hwnH0B1Av-1">
+          <mxGeometry x="-0.6245" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BxDe5cmVCWK7HpeWtZKQ-3" value="Azure Key Vault" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="850" y="499" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="BxDe5cmVCWK7HpeWtZKQ-5" value="Azure Cache for Redis" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="1000" y="499" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="BxDe5cmVCWK7HpeWtZKQ-7" value="Log Analytics Workspace" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="1170" y="499" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="BxDe5cmVCWK7HpeWtZKQ-9" value="Azure DB for PostGreSQL" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="nSv25JZfvgVMG-IMGxK8-1">
+          <mxGeometry x="1320" y="499" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
