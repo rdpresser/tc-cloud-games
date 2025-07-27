@@ -104,6 +104,9 @@ jobs:
     timeout-minutes: 25
     needs: [build-and-test]
     environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}
+    outputs:
+      environment-approved: ${{ steps.approval-check.outputs.approved }}
+      selected-environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}
     # Only run Terraform when merge occurs on master branch (CD requirement)
     if: |
       needs.build-and-test.result == 'success' &&
@@ -116,6 +119,12 @@ jobs:
     steps:
       - name: ⏬ Checkout repository
         uses: actions/checkout@v4
+
+      - name: ✅ Mark Environment Approved
+        id: approval-check
+        run: |
+          echo "approved=true" >> $GITHUB_OUTPUT
+          echo "✅ Environment ${{ github.event.inputs.environment || 'dev-rodrigo' }} approved for deployment"
 
       - name: ⚙️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -179,10 +188,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [terraform-deploy]
-    environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}
     # Run after Terraform completes successfully and before application deployment
+    # Note: Inherits environment approval from terraform-deploy job
     if: |
       needs.terraform-deploy.result == 'success' &&
+      needs.terraform-deploy.outputs.environment-approved == 'true' &&
       ((github.event_name == 'push' && github.ref == 'refs/heads/master') ||
        (github.event_name == 'pull_request' && 
         github.event.action == 'closed' && 
@@ -357,12 +367,13 @@ jobs:
     timeout-minutes: 30
     # Run after both Terraform and Database Health Check complete successfully
     needs: [build-and-test, terraform-deploy, database-health-check]
-    environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}
+    # Note: Inherits environment approval from terraform-deploy job
     # Deploy only when all previous jobs succeed, and merge occurs on master branch
     if: |
       always() &&
       needs.build-and-test.result == 'success' &&
       needs.terraform-deploy.result == 'success' &&
+      needs.terraform-deploy.outputs.environment-approved == 'true' &&
       needs.database-health-check.result == 'success' &&
       ((github.event_name == 'push' && github.ref == 'refs/heads/master') ||
        (github.event_name == 'pull_request' && 
