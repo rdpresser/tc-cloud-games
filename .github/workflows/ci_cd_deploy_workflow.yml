@@ -29,7 +29,7 @@ env:
   IMAGE_TAG: ${{ github.sha }}
   # Environment-specific configuration
   RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
-  KEYVAULT_NAME: 'tccloudgamesdevkv${{ vars.AZURE_SUFFIX }}'
+  KEYVAULT_NAME: tccloudgamesdevkv${{ vars.AZURE_SUFFIX }}
   # Build configuration
   DOTNET_VERSION: '9.0.x'
   BUILD_CONFIGURATION: 'Release'
@@ -125,6 +125,13 @@ jobs:
         run: |
           echo "approved=true" >> $GITHUB_OUTPUT
           echo "✅ Environment ${{ github.event.inputs.environment || 'dev-rodrigo' }} approved for deployment"
+
+      - name: 🔍 Debug Environment Variables
+        run: |
+          echo "🔍 Debugging environment variables:"
+          echo "AZURE_SUFFIX (vars): '${{ vars.AZURE_SUFFIX }}'"
+          echo "KEYVAULT_NAME (env): '${{ env.KEYVAULT_NAME }}'"
+          echo "Expected result: 'tccloudgamesdevkv${{ vars.AZURE_SUFFIX }}'"
 
       - name: ⚙️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
