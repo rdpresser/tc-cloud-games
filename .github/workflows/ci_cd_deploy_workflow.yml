@@ -129,9 +129,21 @@ jobs:
       - name: 🔍 Debug Environment Variables
         run: |
           echo "🔍 Debugging environment variables:"
-          echo "AZURE_SUFFIX (vars): '${{ vars.AZURE_SUFFIX }}'"
-          echo "KEYVAULT_NAME (env): '${{ env.KEYVAULT_NAME }}'"
-          echo "Expected result: 'tccloudgamesdevkv${{ vars.AZURE_SUFFIX }}'"
+          echo "Repository Variables:"
+          echo "  AZURE_SUFFIX (vars): '${{ vars.AZURE_SUFFIX }}'"
+          echo "  TF_WORKSPACE (vars): '${{ vars.TF_WORKSPACE }}'"
+          echo "  TF_CLOUD_ORGANIZATION (vars): '${{ vars.TF_CLOUD_ORGANIZATION }}'"
+          echo ""
+          echo "Environment Variables:"
+          echo "  AZURE_SUFFIX (env): '${{ env.AZURE_SUFFIX }}'"
+          echo "  TF_WORKSPACE (env): '${{ env.TF_WORKSPACE }}'"
+          echo "  TF_CLOUD_ORGANIZATION (env): '${{ env.TF_CLOUD_ORGANIZATION }}'"
+          echo ""
+          echo "Computed Values:"
+          echo "  KEYVAULT_NAME (env): '${{ env.KEYVAULT_NAME }}'"
+          echo "  Expected result: 'tccloudgamesdevkv${{ vars.AZURE_SUFFIX }}'"
+          echo ""
+          echo "Selected Environment: '${{ github.event.inputs.environment || 'dev-rodrigo' }}'"
 
       - name: ⚙️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -195,8 +207,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [terraform-deploy]
+    environment: ${{ needs.terraform-deploy.outputs.selected-environment }}
     # Run after Terraform completes successfully and before application deployment
-    # Note: Inherits environment approval from terraform-deploy job
+    # Note: Uses environment from terraform-deploy job to access environment secrets
     if: |
       needs.terraform-deploy.result == 'success' &&
       needs.terraform-deploy.outputs.environment-approved == 'true' &&
@@ -374,7 +387,8 @@ jobs:
     timeout-minutes: 30
     # Run after both Terraform and Database Health Check complete successfully
     needs: [build-and-test, terraform-deploy, database-health-check]
-    # Note: Inherits environment approval from terraform-deploy job
+    environment: ${{ needs.terraform-deploy.outputs.selected-environment }}
+    # Note: Uses environment from terraform-deploy job to access environment secrets
     # Deploy only when all previous jobs succeed, and merge occurs on master branch
     if: |
       always() &&
