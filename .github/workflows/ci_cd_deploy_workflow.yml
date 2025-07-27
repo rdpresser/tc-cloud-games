@@ -29,13 +29,15 @@ env:
   IMAGE_TAG: ${{ github.sha }}
   # Environment-specific configuration
   RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
-  KEYVAULT_NAME: 'tccloudgamesdevkv92mr'
+  KEYVAULT_NAME: 'tccloudgamesdevkv${{ vars.AZURE_SUFFIX }}'
   # Build configuration
   DOTNET_VERSION: '9.0.x'
   BUILD_CONFIGURATION: 'Release'
   # Terraform configuration
   TF_VERSION: '1.12.2'
   TF_WORKING_DIR: './infra/terraform/dev'
+  TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+  TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
 
 jobs:
   # JOB 1: CI - Runs on PR opening/commits according to project requirements
@@ -123,9 +125,6 @@ jobs:
 
       - name: 🔧 Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          # Terraform Cloud workspace
-          TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
           echo "🔧 Initializing Terraform with remote execution..."
           terraform init -upgrade
@@ -138,17 +137,14 @@ jobs:
           
           echo "🔧 Workspace is configured for remote execution with auto-apply"
           echo "🔧 All variables are managed in Terraform Cloud workspace"
-          echo "🔗 View progress: https://app.terraform.io/app/rdpresser_tccloudgames_fiap/workspaces/${{ secrets.TF_WORKSPACE }}"
+          echo "🔗 View progress: https://app.terraform.io/app/${{ env.TF_CLOUD_ORGANIZATION }}/workspaces/${{ env.TF_WORKSPACE }}"
 
       - name: 🚀 Terraform Apply (Remote Execution)
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          # Terraform Cloud workspace
-          TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
           echo "🚀 Triggering remote infrastructure deployment..."
           echo "📋 Plan and apply will execute in Terraform Cloud with auto-apply enabled"
-          echo "🔗 Monitor progress: https://app.terraform.io/app/rdpresser_tccloudgames_fiap/workspaces/${{ secrets.TF_WORKSPACE }}"
+          echo "🔗 Monitor progress: https://app.terraform.io/app/${{ env.TF_CLOUD_ORGANIZATION }}/workspaces/${{ env.TF_WORKSPACE }}"
           
           # Trigger remote apply with auto-approval
           terraform apply -auto-approve
@@ -158,20 +154,18 @@ jobs:
       - name: 📊 Terraform Outputs
         if: always()
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-          TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
         run: |
           echo "📊 Infrastructure outputs:"
           terraform output -json || echo "No outputs available"
           
           # Enhanced deployment summary with clickable links
-          WORKSPACE_URL="https://app.terraform.io/app/rdpresser_tccloudgames_fiap/workspaces/${{ secrets.TF_WORKSPACE }}"
+          WORKSPACE_URL="https://app.terraform.io/app/${{ env.TF_CLOUD_ORGANIZATION }}/workspaces/${{ env.TF_WORKSPACE }}"
           
           echo "## 🏗️ Infrastructure Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| **Execution Mode** | Remote (Terraform Cloud) |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Workspace** | [\`${{ secrets.TF_WORKSPACE }}\`]($WORKSPACE_URL) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Workspace** | [\`${{ env.TF_WORKSPACE }}\`]($WORKSPACE_URL) |" >> $GITHUB_STEP_SUMMARY
           echo "| **Terraform Version** | \`${{ env.TF_VERSION }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Deploy Time** | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Commit** | [\`${{ github.sha }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) |" >> $GITHUB_STEP_SUMMARY
@@ -200,7 +194,7 @@ jobs:
       - name: 🔐 Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: 🗄️ Check and Start PostgreSQL Database
         env:
@@ -385,7 +379,7 @@ jobs:
       - name: 🔐 Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: 🔑 Fetch all secrets from Azure Key Vault
         id: fetch-secrets
@@ -400,9 +394,9 @@ jobs:
             otel-auth-header,grafana-api-token,grafana-endpoint,
             grafana-protocol,grafana-resource-attributes,grafana-prometheus-api-token
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).clientSecret }}
+          AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
 
       - name: 🔍 Validate critical secrets
         env:
@@ -560,7 +554,7 @@ jobs:
           echo "✅ **Deployment completed successfully!**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔍 Quick Links" >> $GITHUB_STEP_SUMMARY
-          echo "- 📊 [Azure Portal](https://portal.azure.com/#@/resource/subscriptions/${{ fromJson(secrets.MAIN_AZURE_CREDENTIALS).subscriptionId }}/resourceGroups/${{ env.RESOURCE_GROUP }}/overview)" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 [Azure Portal](https://portal.azure.com/#@/resource/subscriptions/${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}/resourceGroups/${{ env.RESOURCE_GROUP }}/overview)" >> $GITHUB_STEP_SUMMARY
           
           if [ -n "$APP_URL" ]; then
             echo "- 🌐 [Live Application]($APP_URL)" >> $GITHUB_STEP_SUMMARY
