@@ -29,7 +29,6 @@ env:
   IMAGE_TAG: ${{ github.sha }}
   # Environment-specific configuration
   RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
-  KEYVAULT_NAME: tccloudgamesdevkv${{ vars.AZURE_SUFFIX }}
   # Build configuration
   DOTNET_VERSION: '9.0.x'
   BUILD_CONFIGURATION: 'Release'
@@ -107,6 +106,7 @@ jobs:
     outputs:
       environment-approved: ${{ steps.approval-check.outputs.approved }}
       selected-environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}
+      keyvault-name: ${{ steps.terraform-outputs.outputs.keyvault-name }}
     # Only run Terraform when merge occurs on master branch (CD requirement)
     if: |
       needs.build-and-test.result == 'success' &&
@@ -171,11 +171,27 @@ jobs:
           echo "✅ Infrastructure deployment completed successfully"
 
       - name: 📊 Terraform Outputs
+        id: terraform-outputs
         if: always()
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           echo "📊 Infrastructure outputs:"
-          terraform output -json || echo "No outputs available"
+          
+          # Get Terraform outputs as JSON
+          TERRAFORM_OUTPUT=$(terraform output -json 2>/dev/null || echo '{}')
+          echo "$TERRAFORM_OUTPUT"
+          
+          # Parse and extract Key Vault name
+          KEYVAULT_NAME=$(echo "$TERRAFORM_OUTPUT" | jq -r '.key_vault_name.value // empty')
+          
+          if [ -n "$KEYVAULT_NAME" ] && [ "$KEYVAULT_NAME" != "null" ]; then
+            echo "✅ Extracted Key Vault name: $KEYVAULT_NAME"
+            echo "keyvault-name=$KEYVAULT_NAME" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Could not extract Key Vault name from Terraform outputs"
+            echo "❌ Terraform outputs may not be available yet"
+            exit 1
+          fi
           
           # Enhanced deployment summary with clickable links
           WORKSPACE_URL="https://app.terraform.io/app/${{ env.TF_CLOUD_ORGANIZATION }}/workspaces/${{ env.TF_WORKSPACE }}"
@@ -404,12 +420,20 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🔑 Fetch all secrets from Azure Key Vault
+      - name: � Validate Infrastructure Configuration
+        run: |
+          echo "🔍 Validating infrastructure configuration..."
+          echo "Key Vault Name: ${{ needs.terraform-deploy.outputs.keyvault-name }}"
+          echo "Resource Group: ${{ env.RESOURCE_GROUP }}"
+          echo "Environment: ${{ needs.terraform-deploy.outputs.selected-environment }}"
+          echo "✅ Configuration validated"
+
+      - name: �🔑 Fetch all secrets from Azure Key Vault
         id: fetch-secrets
         uses: azure/get-keyvault-secrets@v1
         timeout-minutes: 5
         with:
-          keyvault: ${{ env.KEYVAULT_NAME }}
+          keyvault: ${{ needs.terraform-deploy.outputs.keyvault-name }}
           secrets: |
             acr-name,acr-username,acr-password,container-app-name,
             db-password,db-host,db-port,db-name,db-admin-login,
