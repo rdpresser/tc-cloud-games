@@ -4,6 +4,14 @@ on:
   # Manual trigger option for testing with customizable parameters
   workflow_dispatch:
     inputs:
+      environment:
+        description: 'Select environment to prepare'
+        required: true
+        default: 'dev-rodrigo'
+        type: choice
+        options:
+          - dev-rodrigo
+          - dev-ricardo
       recreate_wait_minutes:
         description: 'Minutes to wait after triggering recreate-storage (default: 25)'
         required: false
@@ -24,6 +32,7 @@ jobs:
   morning-preparation:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    environment: ${{ github.event.inputs.environment }}
     permissions:
       actions: write
       contents: read
@@ -36,6 +45,7 @@ jobs:
           echo "🌅 Starting Morning Business Preparation at $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')"
           echo "💼 Preparing infrastructure for business day"
           echo "🔄 Configuration:"
+          echo "  - Environment: ${{ github.event.inputs.environment }}"
           echo "  - Recreate wait time: ${{ github.event.inputs.recreate_wait_minutes || '25' }} minutes"
           echo "  - Start wait time: ${{ github.event.inputs.start_wait_minutes || '5' }} minutes"
           echo "  - Skip recreate: ${{ github.event.inputs.skip_recreate || 'false' }}"
@@ -81,6 +91,7 @@ jobs:
                 workflow_id: 'iac_management_workflow.yml',
                 ref: context.ref,
                 inputs: {
+                  environment: '${{ github.event.inputs.environment }}',
                   action: 'recreate-storage-resources',
                   confirm_destructive: 'true'
                 }
@@ -118,6 +129,7 @@ jobs:
                 workflow_id: 'iac_management_workflow.yml',
                 ref: context.ref,
                 inputs: {
+                  environment: '${{ github.event.inputs.environment }}',
                   action: 'start-all',
                   confirm_destructive: 'false'
                 }
@@ -147,6 +159,7 @@ jobs:
           echo "| Component | Action | Wait Time |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|-----------|" >> $GITHUB_STEP_SUMMARY
           echo "| **Schedule** | 8:00 AM BRT (Monday-Friday) | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Environment** | ${{ github.event.inputs.environment }} | - |" >> $GITHUB_STEP_SUMMARY
           echo "| **Triggered At** | $BRT_TIME | - |" >> $GITHUB_STEP_SUMMARY
           
           if [ "$SKIP_RECREATE" != "true" ]; then

@@ -3,6 +3,14 @@ name: 🏗️ IaC Management | Stop/Start Resources
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        description: 'Select environment to manage'
+        required: true
+        default: 'dev-rodrigo'
+        type: choice
+        options:
+          - dev-rodrigo
+          - dev-ricardo
       action:
         description: 'Infrastructure Action'
         required: true
@@ -28,23 +36,24 @@ on:
         default: false
 
 env:
+  # Environment-specific configuration
   RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
-  TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
-  TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
-  TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
-  CREDENTIALS: ${{ secrets.MAIN_AZURE_CREDENTIALS }}
+  # Terraform configuration
+  TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+  TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
 
 jobs:
   # Job 1: Azure CLI Resource Operations (Start/Stop)
   azure-resources:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment: ${{ github.event.inputs.environment }}
     if: contains(fromJSON('["stop-all", "start-all", "stop-database", "start-database", "stop-container-app", "start-container-app"]'), github.event.inputs.action)
     steps:
       - name: 🔐 Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ env.CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: 🗄️ Manage Database Server
         if: contains(fromJSON('["stop-all", "start-all", "stop-database", "start-database"]'), github.event.inputs.action)
@@ -152,12 +161,13 @@ jobs:
   terraform-storage:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment: ${{ github.event.inputs.environment }}
     if: contains(fromJSON('["destroy-redis", "recreate-redis", "destroy-acr", "recreate-acr", "destroy-storage-resources", "recreate-storage-resources"]'), github.event.inputs.action)
     steps:
       - name: 🔐 Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ env.CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: ⚠️ Validate Destructive Action
         if: github.event.inputs.confirm_destructive != 'true'
@@ -167,6 +177,8 @@ jobs:
           exit 1
 
       - name: 🔧 Execute Terraform Operations
+        env:
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
         run: |
           ACTION="${{ github.event.inputs.action }}"
           echo "🔧 Executing: $ACTION"
@@ -174,7 +186,7 @@ jobs:
           # Get Terraform workspace ID (reusable function)
           get_workspace_id() {
             curl -s -H "Authorization: Bearer $TF_API_TOKEN" -H "Content-Type: application/vnd.api+json" \
-              "https://app.terraform.io/api/v2/organizations/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE" | jq -r '.data.id'
+              "https://app.terraform.io/api/v2/organizations/${{ env.TF_CLOUD_ORGANIZATION }}/workspaces/${{ env.TF_WORKSPACE }}" | jq -r '.data.id'
           }
           
           # Execute Terraform run (reusable function)
@@ -292,7 +304,7 @@ jobs:
               ;;
           esac
           
-          echo "🔗 Monitor: https://app.terraform.io/app/$TF_CLOUD_ORGANIZATION/workspaces/$TF_WORKSPACE"
+          echo "🔗 Monitor: https://app.terraform.io/app/${{ env.TF_CLOUD_ORGANIZATION }}/workspaces/${{ env.TF_WORKSPACE }}"
 
       - name: 📊 Operation Summary
         if: always()

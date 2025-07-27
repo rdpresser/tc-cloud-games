@@ -8,6 +8,14 @@ on:
   # Manual trigger option for testing with customizable parameters
   workflow_dispatch:
     inputs:
+      environment:
+        description: 'Select environment to optimize'
+        required: true
+        default: 'dev-rodrigo'
+        type: choice
+        options:
+          - dev-rodrigo
+          - dev-ricardo
       stop_wait_minutes:
         description: 'Minutes to wait after triggering stop-all (default: 5)'
         required: false
@@ -28,6 +36,7 @@ jobs:
   evening-optimization:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}
     permissions:
       actions: write
       contents: read
@@ -40,6 +49,7 @@ jobs:
           echo "🌙 Starting Evening Cost Optimization at $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z')"
           echo "💰 Expected monthly savings: ~$50-155"
           echo "🔄 Configuration:"
+          echo "  - Environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}"
           echo "  - Stop wait time: ${{ github.event.inputs.stop_wait_minutes || '5' }} minutes"
           echo "  - Destroy wait time: ${{ github.event.inputs.destroy_wait_minutes || '3' }} minutes" 
           echo "  - Skip destroy: ${{ github.event.inputs.skip_destroy || 'false' }}"
@@ -84,6 +94,7 @@ jobs:
                 workflow_id: 'iac_management_workflow.yml',
                 ref: context.ref,
                 inputs: {
+                  environment: '${{ github.event.inputs.environment || 'dev-rodrigo' }}',
                   action: 'stop-all',
                   confirm_destructive: 'false'
                 }
@@ -115,6 +126,7 @@ jobs:
                 workflow_id: 'iac_management_workflow.yml',
                 ref: context.ref,
                 inputs: {
+                  environment: '${{ github.event.inputs.environment || 'dev-rodrigo' }}',
                   action: 'destroy-storage-resources',
                   confirm_destructive: 'true'
                 }
@@ -150,6 +162,7 @@ jobs:
           echo "| Component | Action | Wait Time |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|-----------|" >> $GITHUB_STEP_SUMMARY
           echo "| **Schedule** | 10:00 PM BRT (Monday-Friday) | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Environment** | ${{ github.event.inputs.environment || 'dev-rodrigo' }} | - |" >> $GITHUB_STEP_SUMMARY
           echo "| **Triggered At** | $BRT_TIME | - |" >> $GITHUB_STEP_SUMMARY
           echo "| **Database** | 🛑 Stop Triggered | ${STOP_WAIT} min |" >> $GITHUB_STEP_SUMMARY
           echo "| **Container App** | 🛑 Stop Triggered | ${STOP_WAIT} min |" >> $GITHUB_STEP_SUMMARY
