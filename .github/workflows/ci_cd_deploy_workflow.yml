@@ -10,6 +10,14 @@ on:
     types: [opened, reopened, synchronize, closed]
   workflow_dispatch:
     inputs:
+      environment:
+        description: 'Select environment to deploy'
+        required: true
+        default: 'dev-rodrigo'
+        type: choice
+        options:
+          - dev-rodrigo
+          - dev-ricardo
       deploy:
         description: 'Force deployment (only works on master branch)'
         required: false
@@ -93,6 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     needs: [build-and-test]
+    environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}
     # Only run Terraform when merge occurs on master branch (CD requirement)
     if: |
       needs.build-and-test.result == 'success' &&
@@ -176,6 +185,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [terraform-deploy]
+    environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}
     # Run after Terraform completes successfully and before application deployment
     if: |
       needs.terraform-deploy.result == 'success' &&
@@ -353,6 +363,7 @@ jobs:
     timeout-minutes: 30
     # Run after both Terraform and Database Health Check complete successfully
     needs: [build-and-test, terraform-deploy, database-health-check]
+    environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}
     # Deploy only when all previous jobs succeed, and merge occurs on master branch
     if: |
       always() &&
