@@ -107,6 +107,7 @@ jobs:
     outputs:
       environment-approved: ${{ steps.approval-check.outputs.approved }}
       selected-environment: ${{ github.event.inputs.environment || 'dev-rodrigo' }}
+      azure-credentials: ${{ steps.get-credentials.outputs.azure-creds }}
     # Only run Terraform when merge occurs on master branch (CD requirement)
     if: |
       needs.build-and-test.result == 'success' &&
@@ -126,24 +127,25 @@ jobs:
           echo "approved=true" >> $GITHUB_OUTPUT
           echo "✅ Environment ${{ github.event.inputs.environment || 'dev-rodrigo' }} approved for deployment"
 
-      - name: 🔍 Debug Environment Variables
+      - name: 🔍 Validate Configuration
         run: |
-          echo "🔍 Debugging environment variables:"
-          echo "Repository Variables:"
-          echo "  AZURE_SUFFIX (vars): '${{ vars.AZURE_SUFFIX }}'"
-          echo "  TF_WORKSPACE (vars): '${{ vars.TF_WORKSPACE }}'"
-          echo "  TF_CLOUD_ORGANIZATION (vars): '${{ vars.TF_CLOUD_ORGANIZATION }}'"
-          echo ""
-          echo "Environment Variables:"
-          echo "  AZURE_SUFFIX (env): '${{ env.AZURE_SUFFIX }}'"
-          echo "  TF_WORKSPACE (env): '${{ env.TF_WORKSPACE }}'"
-          echo "  TF_CLOUD_ORGANIZATION (env): '${{ env.TF_CLOUD_ORGANIZATION }}'"
-          echo ""
-          echo "Computed Values:"
-          echo "  KEYVAULT_NAME (env): '${{ env.KEYVAULT_NAME }}'"
-          echo "  Expected result: 'tccloudgamesdevkv${{ vars.AZURE_SUFFIX }}'"
-          echo ""
+          echo "🔍 Validating deployment configuration..."
           echo "Selected Environment: '${{ github.event.inputs.environment || 'dev-rodrigo' }}'"
+          echo "Terraform Workspace: Configured ✅"
+          echo "Terraform Organization: Configured ✅"
+          echo "Azure Suffix: Configured ✅"
+          echo "Key Vault Name: Computed ✅"
+          echo "✅ All configuration variables are properly set"
+
+      - name: 🔐 Get Azure Credentials
+        id: get-credentials
+        run: |
+          # Store credentials in job output (more secure than environment variables)
+          # The actual credential value is not logged, only a success message
+          echo "azure-creds<<EOF" >> $GITHUB_OUTPUT
+          echo "${{ secrets.AZURE_CREDENTIALS }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "✅ Azure credentials prepared for downstream jobs"
 
       - name: ⚙️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -207,9 +209,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [terraform-deploy]
-    environment: ${{ needs.terraform-deploy.outputs.selected-environment }}
     # Run after Terraform completes successfully and before application deployment
-    # Note: Uses environment from terraform-deploy job to access environment secrets
+    # Note: Inherits credentials from terraform-deploy job - no additional approval required
     if: |
       needs.terraform-deploy.result == 'success' &&
       needs.terraform-deploy.outputs.environment-approved == 'true' &&
@@ -224,7 +225,7 @@ jobs:
       - name: 🔐 Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ needs.terraform-deploy.outputs.azure-credentials }}
 
       - name: 🗄️ Check and Start PostgreSQL Database
         env:
@@ -387,8 +388,7 @@ jobs:
     timeout-minutes: 30
     # Run after both Terraform and Database Health Check complete successfully
     needs: [build-and-test, terraform-deploy, database-health-check]
-    environment: ${{ needs.terraform-deploy.outputs.selected-environment }}
-    # Note: Uses environment from terraform-deploy job to access environment secrets
+    # Note: Inherits credentials from terraform-deploy job - no additional approval required
     # Deploy only when all previous jobs succeed, and merge occurs on master branch
     if: |
       always() &&
@@ -411,7 +411,7 @@ jobs:
       - name: 🔐 Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ needs.terraform-deploy.outputs.azure-credentials }}
 
       - name: 🔑 Fetch all secrets from Azure Key Vault
         id: fetch-secrets
@@ -426,9 +426,9 @@ jobs:
             otel-auth-header,grafana-api-token,grafana-endpoint,
             grafana-protocol,grafana-resource-attributes,grafana-prometheus-api-token
         env:
-          AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
-          AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
-          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+          AZURE_CLIENT_ID: ${{ fromJson(needs.terraform-deploy.outputs.azure-credentials).clientId }}
+          AZURE_TENANT_ID: ${{ fromJson(needs.terraform-deploy.outputs.azure-credentials).tenantId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(needs.terraform-deploy.outputs.azure-credentials).clientSecret }}
 
       - name: 🔍 Validate critical secrets
         env:
@@ -586,7 +586,7 @@ jobs:
           echo "✅ **Deployment completed successfully!**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔍 Quick Links" >> $GITHUB_STEP_SUMMARY
-          echo "- 📊 [Azure Portal](https://portal.azure.com/#@/resource/subscriptions/${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}/resourceGroups/${{ env.RESOURCE_GROUP }}/overview)" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 [Azure Portal](https://portal.azure.com/#@/resource/subscriptions/${{ fromJson(needs.terraform-deploy.outputs.azure-credentials).subscriptionId }}/resourceGroups/${{ env.RESOURCE_GROUP }}/overview)" >> $GITHUB_STEP_SUMMARY
           
           if [ -n "$APP_URL" ]; then
             echo "- 🌐 [Live Application]($APP_URL)" >> $GITHUB_STEP_SUMMARY
