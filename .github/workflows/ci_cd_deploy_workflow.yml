@@ -25,14 +25,13 @@ on:
         type: boolean
 
 env:
-  # Deployment configuration
+  # Build & Deployment
   IMAGE_TAG: ${{ github.sha }}
-  # Environment-specific configuration
-  RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
-  # Build configuration
   DOTNET_VERSION: '9.0.x'
   BUILD_CONFIGURATION: 'Release'
-  # Terraform configuration
+  RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
+  
+  # Terraform
   TF_VERSION: '1.12.2'
   TF_WORKING_DIR: './infra/terraform/dev'
   TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
@@ -126,16 +125,6 @@ jobs:
           echo "approved=true" >> $GITHUB_OUTPUT
           echo "✅ Environment ${{ github.event.inputs.environment || 'dev-rodrigo' }} approved for deployment"
 
-      - name: 🔍 Validate Configuration
-        run: |
-          echo "🔍 Validating deployment configuration..."
-          echo "Selected Environment: '${{ github.event.inputs.environment || 'dev-rodrigo' }}'"
-          echo "Terraform Workspace: Configured ✅"
-          echo "Terraform Organization: Configured ✅"
-          echo "Azure Suffix: Configured ✅"
-          echo "Key Vault Name: Computed ✅"
-          echo "✅ All configuration variables are properly set"
-
       - name: ⚙️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -147,28 +136,17 @@ jobs:
         run: |
           echo "🔧 Initializing Terraform with remote execution..."
           terraform init -upgrade
-          
-          echo "🔍 Validating Terraform configuration..."
           terraform validate
-          
-          echo "📋 Terraform workspace info:"
-          terraform workspace show
-          
-          echo "🔧 Workspace is configured for remote execution with auto-apply"
-          echo "🔧 All variables are managed in Terraform Cloud workspace"
-          echo "🔗 View progress: https://app.terraform.io/app/${{ env.TF_CLOUD_ORGANIZATION }}/workspaces/${{ env.TF_WORKSPACE }}"
+          echo "📋 Workspace: $(terraform workspace show)"
+          echo "� Monitor: https://app.terraform.io/app/${{ env.TF_CLOUD_ORGANIZATION }}/workspaces/${{ env.TF_WORKSPACE }}"
 
       - name: 🚀 Terraform Apply (Remote Execution)
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           echo "🚀 Triggering remote infrastructure deployment..."
-          echo "📋 Plan and apply will execute in Terraform Cloud with auto-apply enabled"
-          echo "🔗 Monitor progress: https://app.terraform.io/app/${{ env.TF_CLOUD_ORGANIZATION }}/workspaces/${{ env.TF_WORKSPACE }}"
-          
-          # Trigger remote apply with auto-approval
+          echo " Monitor: https://app.terraform.io/app/${{ env.TF_CLOUD_ORGANIZATION }}/workspaces/${{ env.TF_WORKSPACE }}"
           terraform apply -auto-approve
-          
-          echo "✅ Infrastructure deployment completed successfully"
+          echo "✅ Infrastructure deployment completed"
 
       - name: 📊 Terraform Outputs
         id: terraform-outputs
@@ -420,15 +398,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: � Validate Infrastructure Configuration
-        run: |
-          echo "🔍 Validating infrastructure configuration..."
-          echo "Key Vault Name: ${{ needs.terraform-deploy.outputs.keyvault-name }}"
-          echo "Resource Group: ${{ env.RESOURCE_GROUP }}"
-          echo "Environment: ${{ needs.terraform-deploy.outputs.selected-environment }}"
-          echo "✅ Configuration validated"
-
-      - name: �🔑 Fetch all secrets from Azure Key Vault
+      - name: 🔑 Fetch all secrets from Azure Key Vault
         id: fetch-secrets
         uses: azure/get-keyvault-secrets@v1
         timeout-minutes: 5
@@ -440,10 +410,6 @@ jobs:
             cache-password,cache-host,cache-port,
             otel-auth-header,grafana-api-token,grafana-endpoint,
             grafana-protocol,grafana-resource-attributes,grafana-prometheus-api-token
-        env:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: 🔍 Validate critical secrets
         env:
@@ -511,8 +477,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
 
       - name: 🚀 Deploy to Azure Container App
         uses: azure/container-apps-deploy-action@v2
