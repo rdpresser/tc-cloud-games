@@ -34,7 +34,7 @@ env:
   # Terraform
   TF_VERSION: '1.12.2'
   TF_WORKING_DIR: './infra/terraform/azure/dev'
-  TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+  TF_WORKSPACE: ${{ vars.TF_WORKSPACE_AZURE_DEV }}
   TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
 
 jobs:
