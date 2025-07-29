@@ -3,7 +3,7 @@ terraform {
     organization = "rdpresser_tccloudgames_fiap"
 
     workspaces {
-      name = "tc-cloud-games-aws"
+      name = "tc-cloudgames-aws-dev"
     }
   }
 
