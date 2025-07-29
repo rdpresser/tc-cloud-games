@@ -39,7 +39,7 @@ env:
   # Environment-specific configuration
   RESOURCE_GROUP: 'tc-cloudgames-dev-rg'
   # Terraform configuration
-  TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+  TF_WORKSPACE: ${{ vars.TF_WORKSPACE_AZURE_DEV }}
   TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
 
 jobs:
