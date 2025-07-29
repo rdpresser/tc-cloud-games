@@ -14,7 +14,7 @@ terraform {
   cloud {
     organization = "rdpresser_tccloudgames_fiap"
     workspaces {
-      name = "tc-cloud-games"
+      name = "tc-cloudgames-azure-dev"
     }
   }
 }
