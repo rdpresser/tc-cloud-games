@@ -62,7 +62,7 @@ output "postgres_server_version" {
 
 output "postgres_database_name" {
   description = "The name of the PostgreSQL database"
-  value       = "tc_cloud_games"  # From your application configuration
+  value       = "tc_cloud_games" # From your application configuration
 }
 
 output "postgres_port" {
@@ -275,7 +275,7 @@ output "container_app_health_url" {
 output "all_resource_names" {
   description = "Map of all created resource names for easy reference"
   value = {
-    resource_group      = azurerm_resource_group.rg.name
+    resource_group     = azurerm_resource_group.rg.name
     key_vault          = azurerm_key_vault.key_vault.name
     container_registry = azurerm_container_registry.acr.name
     container_app      = azurerm_container_app.container_app.name
@@ -305,11 +305,11 @@ output "connection_info" {
 output "deployment_summary" {
   description = "Summary of the deployed infrastructure"
   value = {
-    environment           = local.environment
+    environment          = local.environment
     location             = azurerm_resource_group.rg.location
     resource_group       = azurerm_resource_group.rg.name
     unique_suffix        = random_string.unique_suffix.result
-    total_resources      = "9"  # Approximate count of main resources
+    total_resources      = "9" # Approximate count of main resources
     application_url      = "https://${azurerm_container_app.container_app.ingress[0].fqdn}"
     deployment_timestamp = timestamp()
   }
@@ -318,10 +318,10 @@ output "deployment_summary" {
 output "infrastructure_health_checks" {
   description = "URLs for infrastructure health checks and monitoring"
   value = {
-    application_health = "https://${azurerm_container_app.container_app.ingress[0].fqdn}/health"
-    application_swagger = "https://${azurerm_container_app.container_app.ingress[0].fqdn}/swagger"
-    azure_portal_rg = "https://portal.azure.com/#@/resource/subscriptions/SUBSCRIPTION_ID/resourceGroups/${azurerm_resource_group.rg.name}/overview"
-    key_vault_portal = "https://portal.azure.com/#@/resource${azurerm_key_vault.key_vault.id}/overview"
+    application_health   = "https://${azurerm_container_app.container_app.ingress[0].fqdn}/health"
+    application_swagger  = "https://${azurerm_container_app.container_app.ingress[0].fqdn}/swagger"
+    azure_portal_rg      = "https://portal.azure.com/#@/resource/subscriptions/SUBSCRIPTION_ID/resourceGroups/${azurerm_resource_group.rg.name}/overview"
+    key_vault_portal     = "https://portal.azure.com/#@/resource${azurerm_key_vault.key_vault.id}/overview"
     container_app_portal = "https://portal.azure.com/#@/resource${azurerm_container_app.container_app.id}/overview"
   }
 }

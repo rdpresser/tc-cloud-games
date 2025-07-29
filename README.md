@@ -158,7 +158,6 @@ The application is automatically deployed to **Azure Cloud** using **GitHub Acti
 #### 🌐 **Production Environment**
 - **Live Application**: Deployed on Azure Container Apps with auto-scaling
 - **Monitoring Dashboard**: Real-time metrics via Grafana
-- **High Availability**: Multi-region deployment with load balancing
 
 ---
 
@@ -234,9 +233,6 @@ dotnet test TC.CloudGames.sln
 - **Azure Key Vault Integration**: Centralized secrets management
 - **JWT Authentication**: Secure token-based authentication
 - **Environment Isolation**: Separate development/production environments
-- **Network Security**: Private endpoints and network policies
-- **Vulnerability Scanning**: Automated dependency and container scanning
-- **Secrets Rotation**: Automated credential rotation capabilities
 
 ---
 
@@ -245,8 +241,6 @@ dotnet test TC.CloudGames.sln
 - **Auto-scaling**: Horizontal pod autoscaling based on CPU/memory metrics
 - **Caching Strategy**: Multi-layer caching with Redis
 - **Database Optimization**: Connection pooling and query optimization
-- **CDN Integration**: Static content delivery optimization
-- **Load Balancing**: Automatic traffic distribution across instances
 
 ---
 
@@ -257,6 +251,7 @@ tc-cloud-games/
 ├── .github/workflows/     # CI/CD pipeline definitions
 ├── infra/terraform/       # Infrastructure as Code
 ├── src/                   # Application source code
+├── src/docker             # Docker Container Image
 ├── test/                  # Comprehensive test suite
 ├── scripts/               # Development and deployment scripts
 ├── doc/                   # Project documentation
