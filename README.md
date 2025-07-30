@@ -203,7 +203,7 @@ dotnet test TC.CloudGames.sln
 
 ### **Infrastructure Overview**
 <div align="center">
-  <img src="doc/fase_02/Infra_Overview_Diagram.png" alt="TC.CloudGames Infrastructure Overview" width="50%" />
+  <img src="images/005_Infra_Overview_Diagram.png" alt="TC.CloudGames Infrastructure Overview" width="50%" />
 </div>
 
 *Complete infrastructure overview showing Azure cloud services, CI/CD pipeline, and monitoring stack*
