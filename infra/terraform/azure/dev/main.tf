@@ -16,17 +16,17 @@ resource "azurerm_resource_provider_registration" "app" {
 # =============================================================================
 
 locals {
-  # Environment and naming configuration
-  environment   = "dev" # Currently focused on dev only
-  project_name  = "tc-cloudgames"
-  name_prefix   = "${local.project_name}-${local.environment}"
+  # Naming configuration (same pattern as AWS)
+  environment  = var.environment
+  project_name = var.project_name
+  name_prefix  = "${local.project_name}-${local.environment}"
   postgres_port = 5432 # Standard PostgreSQL port
 
   # Special naming for resources with specific requirements
   kv_name  = "tccloudgames${local.environment}kv${random_string.unique_suffix.result}"  # No dashes for Key Vault
   acr_name = "tccloudgames${local.environment}acr${random_string.unique_suffix.result}" # No dashes for ACR
 
-  # Common tags applied to all resources
+  # Common tags (equivalent to AWS common_tags)
   common_tags = {
     Environment = local.environment
     Project     = "TC Cloud Games"
@@ -34,6 +34,7 @@ locals {
     Owner       = "DevOps Team"
     CostCenter  = "Engineering"
     Workspace   = terraform.workspace
+    Provider    = "Azure"
   }
 }
 
