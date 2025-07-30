@@ -133,7 +133,11 @@ The application creates a `tc_cloud_games` database with:
 - **Users**: Authentication and profile management
 - **Games**: Game catalog and metadata
 <div align="center">
-  <img src="images/002_ER_Diagram.png" alt="TC.CloudGames Database Schema" width="50%" />
+  <a href="images/002_ER_Diagram.png" target="_blank">
+    <img src="images/002_ER_Diagram.png" alt="TC.CloudGames Database Schema" width="50%" style="cursor: pointer;" />
+  </a>
+  <br>
+  <em>Click to view full-size diagram</em>
 </div>
 
 ### **Cloud Deployment**
@@ -203,7 +207,11 @@ dotnet test TC.CloudGames.sln
 
 ### **Infrastructure Overview**
 <div align="center">
-  <img src="images/005_Infra_Overview_Diagram.png" alt="TC.CloudGames Infrastructure Overview" width="50%" />
+  <a href="images/005_Infra_Overview_Diagram.png" target="_blank">
+    <img src="images/005_Infra_Overview_Diagram.png" alt="TC.CloudGames Infrastructure Overview" width="50%" style="cursor: pointer;" />
+  </a>
+  <br>
+  <em>Click to view full-size diagram</em>
 </div>
 
 *Complete infrastructure overview showing Azure cloud services, CI/CD pipeline, and monitoring stack*
