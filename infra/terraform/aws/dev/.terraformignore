@@ -1,0 +1,100 @@
+# =============================================================================
+# .terraformignore - AWS Infrastructure
+# =============================================================================
+# This file specifies which files and directories should be excluded when
+# uploading to Terraform Cloud or remote backends
+
+# =============================================================================
+# Terraform Working Files (Local State & Cache)
+# =============================================================================
+.terraform/                 # Terraform working directory
+.terraform.lock.hcl         # Provider lock file (managed locally)
+terraform.tfstate           # Local state file (we use remote state)
+terraform.tfstate.backup    # Local state backup
+*.tfplan                    # Terraform plan files
+*.tfplan.json              # JSON plan files
+crash.log                   # Terraform crash logs
+crash.*.log                # Terraform crash logs with timestamps
+
+# =============================================================================
+# Environment and Secrets Files
+# =============================================================================
+*.tfvars                    # Variable files that might contain secrets
+*.tfvars.json              # JSON variable files
+.env                       # Environment files
+.env.*                     # Environment files with suffixes
+secrets.tf                 # Any secrets file
+terraform.tfvars.example   # Example files
+
+# =============================================================================
+# Development and IDE Files
+# =============================================================================
+.vscode/                   # VS Code settings
+.idea/                     # IntelliJ/GoLand settings
+*.swp                      # Vim swap files
+*.swo                      # Vim swap files
+*~                         # Backup files
+.DS_Store                  # macOS Finder info
+Thumbs.db                  # Windows image cache
+
+# =============================================================================
+# Documentation and README Files
+# =============================================================================
+README.md                  # Documentation files
+CHANGELOG.md              # Change logs
+docs/                     # Documentation directory
+*.md                      # All markdown files
+
+# =============================================================================
+# CI/CD and Build Artifacts
+# =============================================================================
+.github/                  # GitHub Actions workflows
+.gitlab-ci.yml           # GitLab CI configuration
+azure-pipelines.yml     # Azure DevOps pipelines
+build/                   # Build artifacts
+dist/                    # Distribution files
+
+# =============================================================================
+# Testing and Quality Assurance
+# =============================================================================
+test/                    # Test files
+*_test.tf               # Test Terraform files
+.tflint.hcl             # TFLint configuration
+.checkov.yml            # Checkov configuration
+
+# =============================================================================
+# Logs and Temporary Files
+# =============================================================================
+*.log                    # Log files
+*.tmp                    # Temporary files
+temp/                    # Temporary directories
+tmp/                     # Temporary directories
+
+# =============================================================================
+# Archive and Package Files
+# =============================================================================
+*.zip                    # Archive files
+*.tar.gz                # Archive files
+*.tgz                   # Archive files
+
+# =============================================================================
+# Operating System Files
+# =============================================================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Linux
+*~
+.fuse_hidden*
+.Trash-*
+.nfs*
