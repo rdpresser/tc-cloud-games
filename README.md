@@ -132,7 +132,9 @@ Username: postgres / Password: postgres
 The application creates a `tc_cloud_games` database with:
 - **Users**: Authentication and profile management
 - **Games**: Game catalog and metadata
-- ![Database Schema](images/002_ER_Diagram.png)
+<div align="center">
+  <img src="images/002_ER_Diagram.png" alt="TC.CloudGames Database Schema" width="50%" />
+</div>
 
 ### **Cloud Deployment**
 
@@ -199,6 +201,13 @@ dotnet test TC.CloudGames.sln
 
 ## 🏗️ Architecture Overview
 
+### **Infrastructure Overview**
+<div align="center">
+  <img src="doc/fase_02/Infra_Overview_Diagram.png" alt="TC.CloudGames Infrastructure Overview" width="50%" />
+</div>
+
+*Complete infrastructure overview showing Azure cloud services, CI/CD pipeline, and monitoring stack*
+
 ### **Application Architecture**
 ```
 ┌────────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -207,7 +216,7 @@ dotnet test TC.CloudGames.sln
 └────────────────────┘    └──────────────────┘    └─────────────────┘
                                    │
                                    ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+┌─────────────────┐    ┌─────────────────┐    ┹─────────────────┐
 │  Azure Key Vault│    │   TC.CloudGames │    │ Azure PostgreSQL│
 │    (Secrets)    │────│   Application   │────│   Database      │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
@@ -251,7 +260,7 @@ tc-cloud-games/
 ├── .github/workflows/     # CI/CD pipeline definitions
 ├── infra/terraform/       # Infrastructure as Code
 ├── src/                   # Application source code
-├── src/docker             # Docker Container Image
+├── src/Dockerfile         # Docker Container Image
 ├── test/                  # Comprehensive test suite
 ├── scripts/               # Development and deployment scripts
 ├── doc/                   # Project documentation
@@ -294,6 +303,8 @@ tc-cloud-games/
 ### **Planned Features (Phase 3)**
 - **Microservices Architecture**: Service decomposition for enhanced scalability
 - **API Gateway**: Centralized API management and rate limiting
+- **SonarQube Cloud**: Keep track of Source Code enhancements with analysis scan
+- **Multi-cloud**: Production environment on Azure (as is today), Development environment on AWS (future)
 
 ### **Performance Optimizations**
 - **Event-Driven Architecture**: Asynchronous processing with Service Bus
