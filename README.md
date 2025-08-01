@@ -227,12 +227,12 @@ dotnet test TC.CloudGames.sln
 └────────────────────┘    └──────────────────┘    └─────────────────┘
                                    │
                                    ▼
-┌─────────────────┐    ┌─────────────────┐    ┹─────────────────┐
-│  Azure Key Vault│    │   TC.CloudGames │    │ Azure PostgreSQL│
-│    (Secrets)    │────│   Application   │────│   Database      │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                │
-                                ▼
+  ┌──────────────────┐    ┌─────────────────┐    ┌──────────────────┐
+  │  Azure Key Vault │    │   TC.CloudGames │    │ Azure PostgreSQL │
+  │    (Secrets)     │────│   Application   │────│   Database       │
+  └──────────────────┘    └─────────────────┘    └──────────────────┘
+                                  │
+                                  ▼
                        ┌────────────────────┐
                        │ Grafana/Prometheus │
                        │   Monitoring       │
