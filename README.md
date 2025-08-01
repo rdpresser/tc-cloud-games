@@ -291,9 +291,9 @@ tc-cloud-games/
 
 ### **Game Management**
 - **CRUD Operations**: Complete game lifecycle management
-- **Advanced Filtering**: Search by genre, platform, price range
+- **Advanced Filtering**: Search by genre, platform, price 
 - **Metadata Management**: Rich game information and system requirements
-- **Inventory Tracking**: Game availability and stock management
+- **Inventory Tracking**: Game availability and stock management (Future)
 
 ### **Cloud Infrastructure**
 - **Serverless Deployment**: Azure Container Apps with zero-config scaling
