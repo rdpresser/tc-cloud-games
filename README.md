@@ -44,11 +44,14 @@ This phase introduces **production-ready cloud infrastructure** and **DevOps bes
 
 ## 📚 Documentation & Resources
 
-   - **Phase 2 Architecture**: [Azure Infrastructure Diagrams](doc/fase_02/)
+   - **Phase 2 Architecture**: [Azure Infrastructure Diagrams](images/005_Infra_Overview_Diagram.png/)
    - **Event Storming**: [Miro Event Storming Diagram](https://miro.com/app/board/uXjVI4H0GgA=/)
    - **Project Documentation**: [Notion Workspace](https://checkered-cod-bac.notion.site/Tech-Challenge-Net-1dfc8c4bf938806da273ca6a401f147d)
+   - **CI/CD Workflow**: [Github Action - CI/CD Workflow](.github/workflows/ci_cd_deploy_workflow.yml)
+   - **Workflow Automation**: [Github Action - Stop/Destroy Resources](.github/workflows/evening-cost-saver.yml)
    - **API Testing**: [Postman Collection](doc/fase_01/TC.CloudGaming.postman_collection.json)
    - **Phase 1 Demo**: [YouTube Video](https://www.youtube.com/watch?v=9zyK9rb1lTs)
+   - **Phase 2 Demo**: [YouTube Video](https://www.youtube.com/watch?v=7JR0DxilQkg)
 
 ---
 
@@ -312,7 +315,7 @@ tc-cloud-games/
 - **Microservices Architecture**: Service decomposition for enhanced scalability
 - **API Gateway**: Centralized API management and rate limiting
 - **SonarQube Cloud**: Keep track of Source Code enhancements with analysis scan
-- **Multi-cloud**: Production environment on Azure (as is today), Development environment on AWS (future)
+- **Message Broker**: Message broker integration
 
 ### **Performance Optimizations**
 - **Event-Driven Architecture**: Asynchronous processing with Service Bus
