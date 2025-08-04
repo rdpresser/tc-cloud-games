@@ -87,11 +87,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infra", "infra", "{1FDBFEB8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "terraform", "terraform", "{983F67D9-331B-4E14-BB1B-D1DCE67D6288}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dev", "dev", "{4D0B258F-5E53-4DC2-90A0-460DA6937118}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "azure", "azure", "{C49140ED-7575-4FFA-96A4-8BBC318AF3BE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dev", "dev", "{11C3111E-23E4-4432-AF44-3BB3CD36B58B}"
 	ProjectSection(SolutionItems) = preProject
-		infra\terraform\dev\main.tf = infra\terraform\dev\main.tf
-		infra\terraform\dev\outputs.tf = infra\terraform\dev\outputs.tf
-		infra\terraform\dev\variables.tf = infra\terraform\dev\variables.tf
+		infra\terraform\azure\dev\main.tf = infra\terraform\azure\dev\main.tf
+		infra\terraform\azure\dev\outputs.tf = infra\terraform\azure\dev\outputs.tf
+		infra\terraform\azure\dev\terraform.tf = infra\terraform\azure\dev\terraform.tf
+		infra\terraform\azure\dev\variables.tf = infra\terraform\azure\dev\variables.tf
 	EndProjectSection
 EndProject
 Global
@@ -176,7 +179,8 @@ Global
 		{9B5B9C3A-9DFA-4DB1-8131-1311EFC7FE40} = {15D2659A-6930-4A4A-9F63-34E0376D51D0}
 		{1FDBFEB8-5A5F-4DCC-8B77-1320B69736AB} = {7BFDB880-2189-45ED-8C7E-9D52FBB8DC11}
 		{983F67D9-331B-4E14-BB1B-D1DCE67D6288} = {1FDBFEB8-5A5F-4DCC-8B77-1320B69736AB}
-		{4D0B258F-5E53-4DC2-90A0-460DA6937118} = {983F67D9-331B-4E14-BB1B-D1DCE67D6288}
+		{C49140ED-7575-4FFA-96A4-8BBC318AF3BE} = {983F67D9-331B-4E14-BB1B-D1DCE67D6288}
+		{11C3111E-23E4-4432-AF44-3BB3CD36B58B} = {C49140ED-7575-4FFA-96A4-8BBC318AF3BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A61EC7C9-970A-4856-9FA0-A09EE45536BB}
