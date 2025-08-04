@@ -49,6 +49,7 @@ This phase introduces **production-ready cloud infrastructure** and **DevOps bes
    - **Project Documentation**: [Notion Workspace](https://checkered-cod-bac.notion.site/Tech-Challenge-Net-1dfc8c4bf938806da273ca6a401f147d)
    - **CI/CD Workflow**: [Github Action - CI/CD Workflow](.github/workflows/ci_cd_deploy_workflow.yml)
    - **Workflow Automation**: [Github Action - Stop/Destroy Resources](.github/workflows/evening-cost-saver.yml)
+   - **Terraform IaC**: [Terraform IaC - Files](infra/terraform/azure/dev/)
    - **API Testing**: [Postman Collection](doc/fase_01/TC.CloudGaming.postman_collection.json)
    - **Phase 1 Demo**: [YouTube Video](https://www.youtube.com/watch?v=9zyK9rb1lTs)
    - **Phase 2 Demo**: [YouTube Video](https://www.youtube.com/watch?v=7JR0DxilQkg)
