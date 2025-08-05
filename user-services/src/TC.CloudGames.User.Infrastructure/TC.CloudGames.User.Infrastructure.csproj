@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Marten" Version="8.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TC.CloudGames.User.Domain\TC.CloudGames.User.Domain.csproj" />
+    <ProjectReference Include="..\TC.CloudGames.User.Application\TC.CloudGames.User.Application.csproj" />
+  </ItemGroup>
+
+</Project>
